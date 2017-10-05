@@ -1,5 +1,12 @@
 #include "model.h"
 
+SRMHD::SRMHD() : Model()
+{
+  this->Ncons = 9;
+  this->Nprims = 8;
+  this->Naux = 9;
+}
+
 SRMHD::SRMHD(Simulation * sim) : Model(sim)
 {
   this->Ncons = (this->sim)->Ncons = 9;
@@ -7,7 +14,6 @@ SRMHD::SRMHD(Simulation * sim) : Model(sim)
   this->Naux = (this->sim)->Naux = 9;
 }
 
-SRMHD::~SRMHD() {}
 
 void SRMHD::fluxFunc(double *cons, double *prims, double *aux, int dir)
 {

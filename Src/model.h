@@ -12,12 +12,11 @@
 
 class Model
 {
-  protected:
+  public:
     Simulation *sim;  // Pointer to overarching Simulation object
     int Ncons, Nprims, Naux;  // Size of conserved, primitive and aux state vectors
 
-  public:
-    Model();
+    Model() : sim(NULL) {}
     Model(Simulation *sim) : sim(sim) {}
     ~Model() {}
     virtual void fluxFunc(double *cons, double *prims, double *aux, int dir) = 0;
