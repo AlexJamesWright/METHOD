@@ -36,7 +36,7 @@ CXXFLAGS =
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_model_ctor
+TESTS = test_simulation test_model
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -82,17 +82,33 @@ gtest_main.a : gtest-all.o gtest_main.o
 
 
 
-#################################################
-# Bulid tests for each element of the programme #
-#################################################
+						#################################################
+						# Bulid tests for each element of the programme #
+						#################################################
+
+# simulation
+
+simulation.o : $(MODULE_DIR)/simulation.cu $(MODULE_DIR)/simulation.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu
+
+test_simulation.o : $(TEST_DIR)/test_simulation.cu \
+                     $(MODULE_DIR)/simulation.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu
+
+
+test_simulation : simulation.o test_simulation.o gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+# Model
+
 
 model.o : $(MODULE_DIR)/model.cu $(MODULE_DIR)/model.h $(MODULE_DIR)/simulation.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/model.cu
 
-test_model_ctor.o : $(TEST_DIR)/test_model_ctor.cu \
+test_model.o : $(TEST_DIR)/test_model.cu \
                      $(MODULE_DIR)/model.h $(MODULE_DIR)/simulation.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_model_ctor.cu
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_model.cu
 
 
-test_model_ctor : model.o test_model_ctor.o gtest_main.a
+test_model : model.o test_model.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
