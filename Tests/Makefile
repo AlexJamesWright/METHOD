@@ -88,10 +88,6 @@ gtest_main.a : gtest-all.o gtest_main.o
 						#################################################
 
 # simulation
-#
-# simulation.o :
-# 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
-
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
 		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
