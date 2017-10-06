@@ -20,27 +20,31 @@ class Data
     int Ng; // Number of ghost cells
     double
     gamma,  // Adiabatic index
-    sigma, // Resistivity
-    dt; // Timestep size
+    sigma; // Resistivity
     int
     Ncons, Nprims, Naux; // Number of conserved, primitive and auxilliary variables
     double
-    *cons, *prims, *aux, *f, *fnet, *source, *x; // State vectors, flux and numerical flux, source vector and grid points (center)
-    double alpha;
+    *cons, *prims, *aux, *f, *fnet, *source, *x, *y; // State vectors, flux and numerical flux, source vector and grid points (center)
+    double alphaX, alphaY, t, dt, dx, dy;
     int iters;
-    double t;
 
+    //! Overload the () operator for accessing array elements
+    /*!
+        To access the 2nd conserved variable at (x, y) = (12, 4) for example,
+      we call data.cons[(2, 12, 4)].
+    */
+    int operator() (const int var, const int i, const int j) { return var * Nx * Ny + i * Ny + j; }
 
-  Data(int Nx, int Ny,
-       double xmin, double xmax,
-       double ymin, double ymax,
-       double endTime, double cfl=0.5, int Ng=4,
-       double gamma=5.0/3.0, double sigma=10) :
-       Nx(Nx), Ny(Ny),
-       xmin(xmin), xmax(xmax),
-       ymin(ymin), ymax(ymax),
-       endTime(endTime), cfl(cfl), Ng(Ng),
-       gamma(gamma), sigma(sigma) { }
+    Data(int Nx, int Ny,
+         double xmin, double xmax,
+         double ymin, double ymax,
+         double endTime, double cfl=0.5, int Ng=4,
+         double gamma=5.0/3.0, double sigma=0) :
+         Nx(Nx), Ny(Ny),
+         xmin(xmin), xmax(xmax),
+         ymin(ymin), ymax(ymax),
+         endTime(endTime), cfl(cfl), Ng(Ng),
+         gamma(gamma), sigma(sigma) { }
 
 };
 
