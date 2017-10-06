@@ -11,6 +11,8 @@ namespace {
   TEST(Simulation, dataInitialisation)
   {
     Simulation sim(&data);
+
+    // Check standard data
     EXPECT_EQ(sim.data->Nx, 100);
     EXPECT_EQ(sim.data->Ny, 10);
     EXPECT_EQ(sim.data->xmin, 0.0);
@@ -22,7 +24,14 @@ namespace {
     EXPECT_EQ(sim.data->Ng, 4);
     EXPECT_EQ(sim.data->gamma, 5.0/3);
     EXPECT_EQ(sim.data->sigma, 10.0);
-    gpuErrchk( cudaPeekAtLastError() );
+
+    // Check domain
+    /* Note: Ng = 4 */
+    EXPECT_EQ(sim.data->x[4], 0.005);
+    EXPECT_EQ(sim.data->x[4+1], 0.015);
+    EXPECT_EQ(sim.data->y[4], -0.45);
+    EXPECT_EQ(sim.data->y[4+1], -0.35);
+
   }
 
 
