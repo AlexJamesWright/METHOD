@@ -20,7 +20,7 @@ CXXFLAGS =
 NVFLAGS =
 
 # Sources
-SRCS = main.cu simulation.cu model.cu
+SRCS = main.cu simulation.cu model.cu initFunc.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} simData.h cudaErrorCheck.h
@@ -34,6 +34,7 @@ PROGS = ${SRCS:.cu=}
 # Executable
 EXEC = main
 
+build : $(EXEC)
 
 # Make and run all tests on simulation scripts and run main
 all : $(EXEC)
@@ -58,7 +59,10 @@ clean :
 # Build objects #
 #################
 
-model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(INC_DIR)/simulation.h	$(INC_DIR)/simData.h
+initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h
