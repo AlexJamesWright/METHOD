@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include "cudaErrorCheck.h"
+#include <stdexcept>
 #include <iostream>
 
 Simulation::Simulation(Data * data) : data(data)
@@ -10,6 +11,8 @@ Simulation::Simulation(Data * data) : data(data)
 
   // Allocate memory for state arrays
   int Ntot(d->Nx * d->Ny);
+
+  if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
 
   gpuErrchk( cudaHostAlloc((void **)&d->cons,
                 sizeof(double) * Ntot * d->Ncons,
