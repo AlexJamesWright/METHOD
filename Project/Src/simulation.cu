@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include "cudaErrorCheck.h"
+#include <iostream>
 
 Simulation::Simulation(Data * data) : data(data)
 {
@@ -44,6 +45,7 @@ Simulation::Simulation(Data * data) : data(data)
   d->alphaX = 1;
   d->alphaY = 1;
   d->dt = d->cfl * (d->alphaX / d->dx + d->alphaY / d->dy);
+  d->dataSet = 1;
 
   // Set axes
   for (int i(0); i < d->Nx; i++) {
