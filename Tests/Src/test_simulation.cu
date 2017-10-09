@@ -23,7 +23,7 @@ namespace {
     EXPECT_EQ(sim.data->cfl, 0.5);
     EXPECT_EQ(sim.data->Ng, 4);
     EXPECT_EQ(sim.data->gamma, 5.0/3);
-    EXPECT_EQ(sim.data->sigma, 10.0);
+    EXPECT_EQ(sim.data->sigma, 0.0);
 
     // Check domain
     /* Note: Ng = 4 */
