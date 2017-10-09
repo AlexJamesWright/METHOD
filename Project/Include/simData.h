@@ -11,7 +11,7 @@ class Data
 {
   public:
     int
-    Nx, Ny;               // Total number of cells in x- and y-direction
+    nx, ny;               // Number of physical cells in x- and y-direction
     double
     xmin, xmax,           // x-axis limits
     ymin, ymax,           // y-axis limits
@@ -33,7 +33,8 @@ class Data
     t, dt,                // Current time and timestep
     dx, dy;               // Spatial x and y step
     int
-    iters;                // Number of interations that have been completed
+    iters,                // Number of interations that have been completed
+    Nx, Ny;               // Total number of compute cells in domain
 
 
     //! Element ID function
@@ -51,20 +52,13 @@ class Data
       constants to the given values. Does not set initial state, thats done by
       the initialFunc object.
     */
-    Data(int Nx, int Ny,
+    Data(int nx, int ny,
          double xmin, double xmax,
          double ymin, double ymax,
          double endTime, double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=0,
          int dataSet=0,
-         int Ncons=0, int Nprims=0, int Naux=0) :
-         Nx(Nx), Ny(Ny),
-         xmin(xmin), xmax(xmax),
-         ymin(ymin), ymax(ymax),
-         endTime(endTime), cfl(cfl), Ng(Ng),
-         gamma(gamma), sigma(sigma),
-         dataSet(dataSet),
-         Ncons(Ncons), Nprims(Nprims), Naux(Naux) { }
+         int Ncons=0, int Nprims=0, int Naux=0);
 
 };
 
