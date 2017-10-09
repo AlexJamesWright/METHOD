@@ -2,7 +2,9 @@
 #include "simulation.h"
 #include "simData.h"
 #include "cudaErrorCheck.h"
+#include "model.h"
 #include <cstdlib>
+#include <stdexcept>
 
 namespace {
 
@@ -10,6 +12,10 @@ namespace {
 
   TEST(Simulation, dataInitialisation)
   {
+
+    EXPECT_THROW( Simulation sim(&data), std::runtime_error);
+
+    SRMHD model(&data);
     Simulation sim(&data);
 
     // Check standard data
