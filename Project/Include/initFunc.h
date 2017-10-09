@@ -27,10 +27,17 @@ class InitialFunc
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
+  for explanation and see `Advanced Numerical Methods for Neutron Star Interfaces`,
+  John Muddle, for initial data, Table 5.8. Orignally from Section 4.4 of `A second
+  order Godunov Method for multidimentional relativistic magnetohydrodynamcis`,
+  Kirs Beckwith.
+
 */
 class OTVortex : public InitialFunc
 {
   public:
+
+    //! Orzsang-Tang vortex initial data
     OTVortex(Data * data);
 };
 
