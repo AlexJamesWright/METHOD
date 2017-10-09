@@ -1,6 +1,8 @@
 #include "initFunc.h"
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
+
 
 InitialFunc::InitialFunc(Data * data) : data(data)
 {
@@ -41,19 +43,23 @@ OTVortex::OTVortex(Data * data) : InitialFunc(data)
   Data * d;
   d = data;
 
+  if (d->xmin != 0.0 || d->xmax != 1.0 || d->ymin != 0.0 || d->ymax != 1.0) {
+    std::cout << "Boundaries are not as expected for OTVortex, uasually (x,y) E [0, 1]" << std::endl;
+  }
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       // Density and pressure
-      d->prims[d->id(0, i, j)] = 25 / 36 / pi;
-      d->prims[d->id(4, i, j)] = 5 / 12 / pi;
+      d->prims[d->id(0, i, j)] = 25.0 / 36.0 / pi;
+      d->prims[d->id(4, i, j)] = 5.0 / 12.0 / pi;
 
       // x-velocity and x-Bfield
-      d->prims[d->id(1, i, j)] = - 0.5 * sin(2 * pi * d->y[j]);
-      d->prims[d->id(5, i, j)] = - sin(2 * pi * d->y[j]) / sqrt(4 * pi);
+      d->prims[d->id(1, i, j)] = - sin(2.0 * pi * d->y[j]);
+      d->prims[d->id(5, i, j)] = - sin(2.0 * pi * d->y[j]) / sqrt(4.0 * pi);
 
       // y-velocity and y-Bfield
-      d->prims[d->id(2, i, j)] = 0.5 * sin(2 * pi * d->x[i]);
-      d->prims[d->id(6, i, j)] = sin(4 * pi * d->x[i]) / sqrt(4 * pi);
+      d->prims[d->id(2, i, j)] = sin(2.0 * pi * d->x[i]);
+      d->prims[d->id(6, i, j)] = sin(4.0 * pi * d->x[i]) / sqrt(4.0 * pi);
     }
   }
 
