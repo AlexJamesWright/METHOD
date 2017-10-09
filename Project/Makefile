@@ -20,10 +20,10 @@ CXXFLAGS =
 NVFLAGS =
 
 # Sources
-SRCS = main.cu simulation.cu model.cu initFunc.cu
+SRCS = main.cu simulation.cu model.cu initFunc.cu simData.cu
 
 # Headers
-HDRS = ${SRCS:.cu=.h} simData.h cudaErrorCheck.h
+HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
 
 # Objects
 OBJS = ${SRCS:.cu=.o}
@@ -58,6 +58,9 @@ clean :
 #################
 # Build objects #
 #################
+
+simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
