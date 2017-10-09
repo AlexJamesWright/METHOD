@@ -22,29 +22,34 @@ class Data
     gamma,  // Adiabatic index
     sigma; // Resistivity
     int
+    dataSet, // Indicator that memory has been allocated for state vectors
     Ncons, Nprims, Naux; // Number of conserved, primitive and auxilliary variables
     double
     *cons, *prims, *aux, *f, *fnet, *source, *x, *y; // State vectors, flux and numerical flux, source vector and grid points (center)
     double alphaX, alphaY, t, dt, dx, dy;
-    int iters;
+    int
+    iters; // Number of interations that have been completed
+
 
     //! Overload the () operator for accessing array elements
     /*!
         To access the 2nd conserved variable at (x, y) = (12, 4) for example,
       we call data.cons[(2, 12, 4)].
     */
-    int operator() (const int var, const int i, const int j) { return var * Nx * Ny + i * Ny + j; }
+    int id(int var, int i, int j) {
+      return var * this->Nx * this->Ny + i * this->Ny + j;
+    }
 
     Data(int Nx, int Ny,
          double xmin, double xmax,
          double ymin, double ymax,
          double endTime, double cfl=0.5, int Ng=4,
-         double gamma=5.0/3.0, double sigma=0) :
+         double gamma=5.0/3.0, double sigma=0, int dataSet=0) :
          Nx(Nx), Ny(Ny),
          xmin(xmin), xmax(xmax),
          ymin(ymin), ymax(ymax),
          endTime(endTime), cfl(cfl), Ng(Ng),
-         gamma(gamma), sigma(sigma) { }
+         gamma(gamma), sigma(sigma), dataSet(dataSet) { }
 
 };
 
