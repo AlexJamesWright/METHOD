@@ -19,8 +19,10 @@ namespace {
     Simulation sim(&data);
 
     // Check standard data
-    EXPECT_EQ(sim.data->Nx, 100);
-    EXPECT_EQ(sim.data->Ny, 10);
+    EXPECT_EQ(sim.data->nx, 100);
+    EXPECT_EQ(sim.data->ny, 10);
+    EXPECT_EQ(sim.data->Nx, 108);
+    EXPECT_EQ(sim.data->Ny, 18);
     EXPECT_EQ(sim.data->xmin, 0.0);
     EXPECT_EQ(sim.data->xmax, 1.0);
     EXPECT_EQ(sim.data->ymin, -0.5);
@@ -34,9 +36,11 @@ namespace {
     // Check domain
     /* Note: Ng = 4 */
     EXPECT_EQ(sim.data->x[4], 0.005);
-    EXPECT_EQ(sim.data->x[4+1], 0.015);
+    EXPECT_EQ(sim.data->x[1], -0.025);
     EXPECT_EQ(sim.data->y[4], -0.45);
-    EXPECT_EQ(sim.data->y[4+1], -0.35);
+    EXPECT_EQ(sim.data->y[1], -0.75);
+    EXPECT_EQ(sim.data->x[99+4], 0.995);
+
 
   }
 
