@@ -11,12 +11,13 @@ int main(void) {
   Data data(10, 10, 0.0, 1.0, 0.0, 1.0, 0.4);
   // Choose particulars of simulation
   SRMHD Model(&data);
+
+  Simulation sim(&data);
+
   OTVortex Init(&data);
 
 
 
-
-  Simulation sim(&data);
 
 
   return 0;
