@@ -37,7 +37,7 @@ CXXFLAGS =
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_simulation test_model
+TESTS = test_simulation test_model test_initFunc
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -87,27 +87,46 @@ gtest_main.a : gtest-all.o gtest_main.o
 						# Bulid tests for each element of the programme #
 						#################################################
 
+# simData
+
+simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
+
+
 # simulation
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
-		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
 
 test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)
 
-test_simulation : simulation.o test_simulation.o gtest_main.a
+test_simulation : simulation.o test_simulation.o simData.o model.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
 
 # Model
 
-
-model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(INC_DIR)/simulation.h $(GTEST_HEADERS)
+model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/model.cu  -I$(INC_DIR)
 
 test_model.o : $(TEST_DIR)/test_model.cu \
-                     $(INC_DIR)/model.h $(INC_DIR)/simulation.h $(GTEST_HEADERS)
+                     $(INC_DIR)/model.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_model.cu -I$(INC_DIR)
 
-test_model : model.o test_model.o gtest_main.a
+test_model : model.o test_model.o simData.o gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+
+# InitialFunc
+
+initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h
+		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cu -I$(INC_DIR)
+
+test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
+									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)
+
+test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o model.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
