@@ -41,8 +41,8 @@ Simulation::Simulation(Data * data) : data(data)
 
 
   // Initialise the data
-  d->dx = (d->xmax - d->xmin) / d->Nx;
-  d->dy = (d->ymax - d->ymin) / d->Ny;
+  d->dx = (d->xmax - d->xmin) / d->nx;
+  d->dy = (d->ymax - d->ymin) / d->ny;
   d->iters = 0;
   d->t = 0;
   d->alphaX = 1;
