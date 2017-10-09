@@ -36,7 +36,7 @@ InitialFunc::InitialFunc(Data * data) : data(data)
 
 OTVortex::OTVortex(Data * data) : InitialFunc(data)
 {
-  const double pi(3.141592653589793238462);
+  const double pi(3.141592653589793238);
 
   Data * d;
   d = data;
