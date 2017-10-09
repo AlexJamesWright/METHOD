@@ -11,7 +11,7 @@ namespace {
     SRMHD model;
     EXPECT_EQ(model.Ncons, 9);
     EXPECT_EQ(model.Nprims, 8);
-    EXPECT_EQ(model.Naux, 9);
+    EXPECT_EQ(model.Naux, 10);
   }
 
 
@@ -21,7 +21,7 @@ namespace {
     SRMHD model(&data);
     EXPECT_EQ(model.data->Ncons, 9);
     EXPECT_EQ(model.data->Nprims, 8);
-    EXPECT_EQ(model.data->Naux, 9);
+    EXPECT_EQ(model.data->Naux, 10);
 
   }
 
