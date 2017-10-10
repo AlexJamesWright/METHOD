@@ -71,7 +71,7 @@ model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(INC_DIR)/simData.h
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h
+main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 
