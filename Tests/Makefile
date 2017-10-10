@@ -115,7 +115,7 @@ test_model.o : $(TEST_DIR)/test_model.cu \
                      $(INC_DIR)/model.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_model.cu -I$(INC_DIR)
 
-test_model : model.o test_model.o simData.o gtest_main.a
+test_model : model.o test_model.o simData.o initFunc.o simulation.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
