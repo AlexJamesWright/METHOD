@@ -86,7 +86,28 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
       // D
       d->cons[d->id(0, i, j)] = d->prims[d->id(0, i, j)] * d->aux[d->id(1, i, j)];
 
-      // 
+      // Sx, Sy, Sz
+      d->cons[d->id(1, i, j)] = (d->prims[d->id(0, i, j)] * d->aux[d->id(0, i, j)] +
+                                 d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
+                                 d->aux[d->id(1, i, j)] * d->prims[d->id(1, i, j)] -
+                                 d->aux[d->id(4, i, j)] * d->aux[d->id(5, i, j)];
+      d->cons[d->id(2, i, j)] = (d->prims[d->id(0, i, j)]) * d->aux[d->id(0, i, j)] +
+                                 d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
+                                 d->aux[d->id(1, i, j)] * d->prims[d->id(2, i, j)] -
+                                 d->aux[d->id(4, i, j)] * d->aux[d->id(6, i, j)];
+      d->cons[d->id(3, i, j)] = (d->prims[d->id(0, i, j)] * d->aux[d->id(0, i, j)] +
+                                 d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
+                                 d->aux[d->id(1, i, j)] * d->prims[d->id(3, i, j)] -
+                                 d->aux[d->id(4, i, j)] * d->aux[d->id(7, i, j)];
+      // tau
+      d->cons[d->id(4, i, j)] = (d->prims[d->id(0, i, j)]) * d->aux[d->id(0, i, j)] +
+                                 d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
+                                 d->aux[d->id(1, i, j)] - (d->prims[d->id(4, i, j)] +
+                                 d->aux[d->id(8, i, j)] / 2.0) - d->aux[d->id(4, i, j)] *
+                                 d->aux[d->id(4, i, j)] - d->cons[d->id(0, i, j)];
+      // Alpha (lazy)
+      d->alphaX = d->alphaY = 1.0;
+
     }
   }
 
