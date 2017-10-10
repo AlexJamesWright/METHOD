@@ -92,7 +92,10 @@ gtest_main.a : gtest-all.o gtest_main.o
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
 
+# Weno reconstruction
 
+weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
 # simulation
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
@@ -102,20 +105,20 @@ test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)
 
-test_simulation : simulation.o test_simulation.o simData.o srmhd.o gtest_main.a
+test_simulation : simulation.o test_simulation.o simData.o srmhd.o weno.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Model
 
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(GTEST_HEADERS)
+srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR)
 
 test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
                      $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)
 
-test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o gtest_main.a
+test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o weno.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
@@ -128,5 +131,5 @@ test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)
 
-test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o gtest_main.a
+test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o weno.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
