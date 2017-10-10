@@ -20,7 +20,7 @@ CXXFLAGS =
 NVFLAGS =
 
 # Sources
-SRCS = main.cu simulation.cu srmhd.cu initFunc.cu simData.cu
+SRCS = main.cu simulation.cu srmhd.cu initFunc.cu simData.cu weno.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -65,7 +65,7 @@ simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/simData.h
+srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h
@@ -73,6 +73,10 @@ simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
 
 
 # Executable
