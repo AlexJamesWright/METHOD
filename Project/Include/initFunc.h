@@ -18,7 +18,7 @@ class InitialFunc
 
   public:
 
-    //! Constructor stores the location of the simData
+    //! Constructor stores the location of the simData and sets all arrays to zero
     InitialFunc(Data * data);
 };
 
