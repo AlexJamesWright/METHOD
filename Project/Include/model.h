@@ -32,7 +32,7 @@ class Model
       approximation to determine the flux. `dir` corresponds to the direction in
       which we want the flux: 0=x-direction, 1=y-direction.
     */
-    virtual void fluxFunc(double *cons, double *prims, double *aux, int dir) = 0;
+    virtual void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir) = 0;
 
     //! Source term contribution
     /*!
@@ -85,7 +85,7 @@ class SRMHD : public Model
     void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
 
     //! Source term contribution
-    void sourceTerm(double *cons, double *prims, double *aux, double *source)
+    void sourceTerm(double *cons, double *prims, double *aux, double *source);
 
     //! Spectral analysis
     void getPrimitiveVars(double *cons, double *prims, double *aux);
