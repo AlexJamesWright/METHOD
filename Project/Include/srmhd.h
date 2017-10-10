@@ -9,7 +9,7 @@
   MHD equations. Ideal fluid, so resistivity does not play a part, hence no
   electric fields due to freezing.
   Model has nine conserved variables:
-    D, Sx, Sy, Sz, tau, Bx, By, Bz, physical
+    D, Sx, Sy, Sz, tau, Bx, By, Bz, phi
   Eight primitive variables:
     rho, vx, vy, vz, p, Bx, By, Bz
   Ten auxilliary variables:
