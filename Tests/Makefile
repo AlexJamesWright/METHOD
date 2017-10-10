@@ -37,7 +37,7 @@ CXXFLAGS =
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_simulation test_model test_initFunc
+TESTS = test_simulation test_srmhd test_initFunc
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -102,20 +102,20 @@ test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)
 
-test_simulation : simulation.o test_simulation.o simData.o model.o gtest_main.a
+test_simulation : simulation.o test_simulation.o simData.o srmhd.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Model
 
-model.o : $(MODULE_DIR)/model.cu $(INC_DIR)/model.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/model.cu  -I$(INC_DIR)
+srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR)
 
-test_model.o : $(TEST_DIR)/test_model.cu \
-                     $(INC_DIR)/model.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_model.cu -I$(INC_DIR)
+test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
+                     $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)
 
-test_model : model.o test_model.o simData.o initFunc.o simulation.o gtest_main.a
+test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
@@ -128,5 +128,5 @@ test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)
 
-test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o model.o gtest_main.a
+test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

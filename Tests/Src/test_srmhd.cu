@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "model.h"
+#include "srmhd.h"
 #include "simulation.h"
 #include "simData.h"
 #include "initFunc.h"

@@ -1,4 +1,4 @@
-#include "model.h"
+#include "srmhd.h"
 #include <cmath>
 
 SRMHD::SRMHD() : Model()
@@ -52,8 +52,12 @@ void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
 */
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
-  
+
 }
+
+
+
+
 
 //! Generate to the conserved and auxilliary variables
 /*!

@@ -2,7 +2,7 @@
 #include "simulation.h"
 #include "simData.h"
 #include "cudaErrorCheck.h"
-#include "model.h"
+#include "srmhd.h"
 #include <cstdlib>
 #include <stdexcept>
 

@@ -2,6 +2,7 @@
 #include "simData.h"
 #include "initFunc.h"
 #include "simulation.h"
+#include "srmhd.h"
 
 namespace {
 
