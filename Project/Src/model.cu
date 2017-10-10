@@ -16,21 +16,53 @@ SRMHD::SRMHD(Data * data) : Model(data)
 }
 
 
-void SRMHD::fluxFunc(double *cons, double *prims, double *aux, int dir)
+void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir)
 {
 
 }
 
+//! Source required for divergence cleaning
+/*!
+    See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors
+  and Full Wave Decompostiion Riemann Solver`
+*/
+void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
+{
+  for (int i(0); i < this->data->Nx; i++) {
+    for (int j(0); j < this->data->Ny; j++) {
+      for (int var(0); var < this->data->Ncons; var++) {
+        if (var == 8) {
+          // phi
+          source[this->data->id(var, i, j)] = -cons[this->data->id(8, i, j)] / (this->data->cp*this->data->cp);
+        }
+        else {
+          source[this->data->id(var, i, j)] = 0;
+        }
+      }
+    }
+  }
+}
+
+
+//! Solve for the primitive and auxilliary variables
+/*!
+    Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
+  Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver`. Requires
+  an N=2 rootfind using cminpack library
+*/
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
-
+  
 }
 
+//! Generate to the conserved and auxilliary variables
+/*!
+    Relations have been taken from Anton 2010, `Relativistic Magnetohydrodynamcis:
+  Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver`
+*/
 void SRMHD::primsToAll(double *cons, double *prims, double *aux)
 {
-  /*! From the current values of the primitive variables, determine the
-    conserved and auxilliary variables.
-  */
+
 
   // Syntax
   Data * d = this->data;
@@ -74,7 +106,7 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
                                 (d->aux[d->id(1, i, j)] * d->aux[d->id(1, i, j)]);
 
       // h
-      d->aux[d->id(0, i, j)] = 1 + d->prims[d->id(4, i, j)]] / d->prims[d->id(0, i, j)] *
+      d->aux[d->id(0, i, j)] = 1 + d->prims[d->id(4, i, j)] / d->prims[d->id(0, i, j)] *
                                (d->gamma / (d->gamma - 1));
 
       // e
@@ -91,7 +123,7 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
                                  d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
                                  d->aux[d->id(1, i, j)] * d->prims[d->id(1, i, j)] -
                                  d->aux[d->id(4, i, j)] * d->aux[d->id(5, i, j)];
-      d->cons[d->id(2, i, j)] = (d->prims[d->id(0, i, j)]) * d->aux[d->id(0, i, j)] +
+      d->cons[d->id(2, i, j)] = (d->prims[d->id(0, i, j)] * d->aux[d->id(0, i, j)] +
                                  d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
                                  d->aux[d->id(1, i, j)] * d->prims[d->id(2, i, j)] -
                                  d->aux[d->id(4, i, j)] * d->aux[d->id(6, i, j)];
@@ -100,7 +132,7 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
                                  d->aux[d->id(1, i, j)] * d->prims[d->id(3, i, j)] -
                                  d->aux[d->id(4, i, j)] * d->aux[d->id(7, i, j)];
       // tau
-      d->cons[d->id(4, i, j)] = (d->prims[d->id(0, i, j)]) * d->aux[d->id(0, i, j)] +
+      d->cons[d->id(4, i, j)] = (d->prims[d->id(0, i, j)] * d->aux[d->id(0, i, j)] +
                                  d->aux[d->id(8, i, j)]) * d->aux[d->id(1, i, j)] *
                                  d->aux[d->id(1, i, j)] - (d->prims[d->id(4, i, j)] +
                                  d->aux[d->id(8, i, j)] / 2.0) - d->aux[d->id(4, i, j)] *
