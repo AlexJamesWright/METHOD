@@ -23,7 +23,7 @@ class Model
     ~Model() {}
 
 
-    //###################### Member functions #######################//
+    
 
     //! Numerical flux function
     /*!
