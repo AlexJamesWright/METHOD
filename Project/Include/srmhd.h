@@ -22,12 +22,11 @@ class SRMHD : public Model
 {
   public:
 
+    //! Constructors and destructors
     SRMHD();
     SRMHD(Data * data);
     ~SRMHD() {}
 
-
-    //###################### Member functions #######################//
 
     //! Numerical flux function
     void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
