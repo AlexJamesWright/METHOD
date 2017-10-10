@@ -3,7 +3,7 @@
 #include <cmath>
 
 SRMHD::SRMHD() : Model()
-{ 
+{
   this->Ncons = 9;
   this->Nprims = 8;
   this->Naux = 10;
@@ -32,9 +32,22 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
   // Syntax
   Data * d(this->data);
 
+  // up and downwind fluxes
+  double *fplus, *fminus;
+  cudaHostAlloc((void **)&fplus, sizeof(double)*d->Nx*d->Ny*d->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&fminus, sizeof(double)*d->Nx*d->Ny*d->Ncons,
+                cudaHostAllocPortable);
+
+  // Wave speed
+  double alpha;
+  if (dir == 0) alpha = d->alphaX;
+  else alpha = d->alphaY;
+
+
   // Order of weno scheme
   int order(2);
-  
+
   // Generate flux vector
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -51,7 +64,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                                aux[d->id(1, i, j)];
         // Sy
         f[d->id(2, i, j)] = cons[d->id(2, i, j)] * prims[d->id(1, i, j)] -
-                               aux[d->id(6, i, j)] * prims[d->id(5, i, j)] / 
+                               aux[d->id(6, i, j)] * prims[d->id(5, i, j)] /
                                aux[d->id(1, i, j)];
         // Sz
         f[d->id(3, i, j)] = cons[d->id(3, i, j)] * prims[d->id(1, i, j)] -
@@ -69,10 +82,11 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
         f[d->id(6, i, j)] = prims[d->id(6, i, j)] * prims[d->id(1, i, j)] -
                                prims[d->id(5, i, j)] * prims[d->id(2, i, j)];
         // Bz
-        f[d->id(7, i, j)] = prims[d->id(7, i, j)] * prims[d->id(1, i, j)] - 
+        f[d->id(7, i, j)] = prims[d->id(7, i, j)] * prims[d->id(1, i, j)] -
                                prims[d->id(5, i, j)] * prims[d->id(3, i, j)];
         // Phi
         f[d->id(8, i, j)] = prims[d->id(5, i, j)];
+
       }
 
       // Fy: flux in y-direction
@@ -103,19 +117,58 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                             prims[d->id(6, i, j)] * prims[d->id(1, i, j)];
         // By
         f[d->id(6, i, j)] = cons[d->id(8, i, j)];
-        
+
         // Bz
         f[d->id(7, i, j)] = prims[d->id(7, i, j)] * prims[d->id(2, i, j)] -
-                            prims[d->id(6, i, j)] * prims[d->id(3, i, j)]
+                            prims[d->id(6, i, j)] * prims[d->id(3, i, j)];
         // Phi
         f[d->id(8, i, j)] = prims[d->id(6, i, j)];
+
       }
 
+    } // End j loop
+  } // End i loop
 
-
-
+  // Lax-Friedrichs approximation of flux
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        fplus[d->id(var, i, j)] = 0.5 * (f[d->id(var, i, j)] + alpha * cons[d->id(var, i, j)]);
+        fminus[d->id(var, i, j)] = 0.5 * (f[d->id(var, i, j)] - alpha * cons[d->id(var, i, j)]);
+      }
     }
   }
+
+  // Reconstruct to determine the flux at the cell face and compute difference
+  if (dir == 0) {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int i(order); i < d->Nx-order; i++) {
+          fnet[d->id(var, i, j)] = weno3_upwind(fplus[d->id(var, i-order, j)],
+                                                fplus[d->id(var, i-order+1, j)],
+                                                fplus[d->id(var, i-order+2, j)]) +
+                                   weno3_upwind(fminus[d->id(var, i+order-1, j)],
+                                                fminus[d->id(var, i+order-2, j)],
+                                                fminus[d->id(var, i+order-3, j)]);
+        }
+      }
+    }
+  }
+  else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(order); j < d->Ny-order; j++) {
+          fnet[d->id(var, i, j)] = weno3_upwind(fplus[d->id(var, i, j-order)],
+                                                fplus[d->id(var, i, j-order+1)],
+                                                fplus[d->id(var, i, j-order+2)]) +
+                                   weno3_upwind(fminus[d->id(var, i, j+order-1)],
+                                                fminus[d->id(var, i, j+order-2)],
+                                                fminus[d->id(var, i, j+order-3)]);
+        }
+      }
+    }
+  }
+
 
 
 }
