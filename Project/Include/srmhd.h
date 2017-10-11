@@ -41,4 +41,26 @@ class SRMHD : public Model
     void primsToAll(double *cons, double *prims, double *aux);
 };
 
+
+
+//! Residual function for spectral analysis
+/*!
+    SRMHD requires N=2 rootfind, therefore need to implement the hybrd cminpack
+  multiD Newton solver. Things may get ugly.
+*/
+int residual(void *p, int n, const double *x, double *fvec, int iflag);
+
+
+
+//! Additional arguments for the SRMHD residual function
+/*!
+    N=2 rootfind required for conservative-to-primitive transform, so Requires
+  Cminpack hybrd1 function to solve. Additional arguments are passed in through
+  this structure.
+*/
+typedef struct
+{
+  double D, g, Bx, By, Bz, Sx, Sy, Sz, tau;
+} Args;
+
 #endif
