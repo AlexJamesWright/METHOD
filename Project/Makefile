@@ -7,8 +7,17 @@ CC = nvcc
 # Module directory
 MODULE_DIR = ./Src
 
+# Rootfinder directory
+RTFIND_DIR = ./CminpackLibrary
+
 # Include directory
 INC_DIR = ./Include
+
+# Cminpack include directory
+RTFIND_INC_DIR = ./CminpackLibrary/Include
+
+# Cminpack source directory
+RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # Test directory location
 TEST_DIR = ../Tests
@@ -28,6 +37,9 @@ HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
 # Objects
 OBJS = ${SRCS:.cu=.o}
 
+# Rootfinder objects
+RTFIND_OBJS = $(RTFIND_SRC_DIR)/*.o
+
 # Programmes
 PROGS = ${SRCS:.cu=}
 
@@ -36,13 +48,16 @@ EXEC = main
 
 build : $(EXEC)
 
+
 # Make and run all tests on simulation scripts and run main
 all : $(EXEC)
+	cd $(RTFIND_DIR) && $(MAKE)	objects
 	cd $(TEST_DIR) && $(MAKE) test
 	@$(MAKE) run
 
 # Build and run main (does not run any tests if called explicitly)
 run : $(EXEC)
+	cd $(RTFIND_DIR) && $(MAKE)	objects
 	@echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	@echo ''
 	@echo ''
@@ -66,7 +81,7 @@ initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -80,7 +95,7 @@ weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 
 
 # Executable
-main : $(OBJS)
+main : $(OBJS) $(RTFIND_OBJS)
 	$(CC)	$^	-o $@
 
 # Tidy up and re-do
