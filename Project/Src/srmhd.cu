@@ -1,7 +1,6 @@
 #include "srmhd.h"
 #include "weno.h"
-#include "cminpack.h" // May not need this
-#include "../CminpackLibrary/Src/hybrd1.cu"
+#include "cminpack.h"
 #include <cmath>
 #include <cstdlib>
 #include <stdio.h>
