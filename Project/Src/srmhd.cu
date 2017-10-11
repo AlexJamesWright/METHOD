@@ -1,6 +1,12 @@
 #include "srmhd.h"
 #include "weno.h"
+#include "cminpack.h" // May not need this
+#include "../CminpackLibrary/Src/hybrd1.cu"
 #include <cmath>
+#include <cstdlib>
+#include <stdio.h>
+
+
 
 SRMHD::SRMHD() : Model()
 {
@@ -140,7 +146,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
   }
 
   // Reconstruct to determine the flux at the cell face and compute difference
-  if (dir == 0) {
+  if (dir == 0) { // x-dorection
     for (int var(0); var < d->Ncons; var++) {
       for (int j(0); j < d->Ny; j++) {
         for (int i(order); i < d->Nx-order; i++) {
@@ -154,7 +160,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
       }
     }
   }
-  else {
+  else { // y-direction
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(order); j < d->Ny-order; j++) {
@@ -169,7 +175,9 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
     }
   }
 
-
+  // Free arrays
+  cudaFreeHost(fplus);
+  cudaFreeHost(fminus);
 
 }
 
@@ -196,15 +204,79 @@ void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
   }
 }
 
+int residual(void *p, int n, const double *x, double *fvec, int iflag)
+{
+  // Retrieve additional arguments
+  Args * args = (Args*) p;
+
+  // Values must make sense
+  if (x[0] >= 1.0 || x[1] < 0) fvec[0] = fvec[1] = 1e6;
+
+  double Bsq(args->Bx*args->Bx + args->By*args->By + args->Bz*args->Bz);
+  double Ssq(args->Sx*args->Sx + args->Sy*args->Sy + args->Sz*args->Sz);
+  double BS(args->Bx*args->Sx + args->By*args->Sy + args->Bz*args->Sz);
+  double W(1 / sqrt(1 - x[0]));
+  double rho(args->D / W);
+  double h(x[1] / (rho * W * W));
+  double pr((h - 1) * rho * (args->g - 1) / args->g);
+  if (pr < 0 || rho < 0 || h < 0 || W < 1) fvec[0] = fvec[1] = 1e6;
+
+  // Values should be OK
+  fvec[0] = (x[1] + Bsq) * (x[1] + Bsq) * x[0] - (2 * x[1] + Bsq) * BS * BS / (x[1] * x[1]) - Ssq;
+  fvec[1] = x[1] + Bsq - pr - Bsq / (2 * W * W) - BS * BS / (2 * x[1] * x[1]) - args->D - args->tau;
+
+  return 0;
+}
 
 //! Solve for the primitive and auxilliary variables
 /*!
     Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
   Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver`. Requires
-  an N=2 rootfind using cminpack library
+  an N=2 rootfind using cminpack library.
+
+  Initial inputs will be the current values of the conserved vector and the
+  OLD values for the prims and aux vectors.
+  Output will be the current values of cons, prims and aux.
 */
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
+  Args args;                          // Additional arguments structure
+  const int n(2);                     // Size of system
+  double sol[2];                      // Guess and solution vector
+  double res[2];                      // Residual/fvec vector
+  int info;                           // Rootfinder flag
+  // const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.49011612e-1;   // Tolerance of rootfinder
+  const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
+  double wa[lwa];                     // Work array
+
+  for (int i(0); i < this->data->Nx; i++) {
+    for (int j(0); j < this->data->Ny; j++) {
+      info = 9;
+      // Set additional args for rootfind
+      args.D = cons[this->data->id(0, i, j)];
+      args.g = this->data->gamma;
+      args.Bx = cons[this->data->id(5, i, j)];
+      args.By = cons[this->data->id(6, i, j)];
+      args.Bz = cons[this->data->id(7, i, j)];
+      args.Sx = cons[this->data->id(1, i, j)];
+      args.Sy = cons[this->data->id(2, i, j)];
+      args.Sz = cons[this->data->id(3, i, j)];
+      args.tau = cons[this->data->id(4, i, j)];
+
+      sol[0] = prims[this->data->id(1, i, j)] * prims[this->data->id(1, i, j)] +
+               prims[this->data->id(2, i, j)] * prims[this->data->id(2, i, j)] +
+               prims[this->data->id(3, i, j)] * prims[this->data->id(3, i, j)];
+      sol[1] = prims[this->data->id(0, i, j)] * aux[this->data->id(0, i, j)] /
+               (1 - sol[0]);
+
+      info = __cminpack_func__(hybrd1) (&residual, &args, n, sol, res,
+                                        tol, wa, lwa);
+
+      printf("info(%d, %d) = %d\n", i, j, info);
+
+    }
+  }
 
 }
 
