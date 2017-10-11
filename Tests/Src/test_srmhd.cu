@@ -10,7 +10,7 @@ namespace {
 
   /* ##################### Test default model constructor ####################*/
 
-  TEST(SRMHD, ModelDefaultConstructor)
+  TEST(SRMHD, DefaultConstructor)
   {
     SRMHD model;
     EXPECT_EQ(model.Ncons, 9);
@@ -23,7 +23,7 @@ namespace {
 
   /* ######################### Test model constructor ########################*/
 
-  TEST(SRMHD, ModelConstructor)
+  TEST(SRMHD, Constructor)
   {
     Data d(100, 10, 0, 1, -0.5, 0.5, 0.8);
     SRMHD model(&d);
@@ -39,6 +39,7 @@ namespace {
 
   TEST(SRMHD, PrimsToAll)
   {
+    // Set up
     Data d(10, 10, 0, 1, 0, 1, 1.0);
     SRMHD model(&d);
     Simulation sim(&d);
@@ -91,6 +92,8 @@ namespace {
 
   TEST(SRMHD, SourceTerm)
   {
+
+    // Set up
     Data d(10, 10, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 0.0, 0, 0, 0, 0, 0.5);
     SRMHD model(&d);
     Simulation sim(&d);
@@ -113,7 +116,56 @@ namespace {
         }
       }
     }
-
   }
+
+
+  /* ######################### Test flux vector splitting ########################*/
+
+  TEST(SRMHD, FluxVectorSplittingStationary)
+  {
+
+    // Set up
+    Data d(10, 10, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 0.0, 0, 0, 0, 0, 0.5);
+    SRMHD model(&d);
+    Simulation sim(&d);
+
+    // Set state to stationary equilibrium state
+    for (int i(0); i < d.Nx; i++) {
+      for (int j(0); j < d.Ny; j++) {
+        d.prims[d.id(0, i, j)] = 0.5; // Require non-zero density
+        d.prims[d.id(1, i, j)] = 0.0;
+        d.prims[d.id(2, i, j)] = 0.0;
+        d.prims[d.id(3, i, j)] = 0.0;
+        d.prims[d.id(4, i, j)] = 0.0;
+        d.prims[d.id(5, i, j)] = 0.0;
+        d.prims[d.id(6, i, j)] = 0.0;
+        d.prims[d.id(7, i, j)] = 0.0;
+        d.prims[d.id(8, i, j)] = 0.0;
+      }
+    }
+
+    model.primsToAll(d.cons, d.prims, d.aux);
+
+    // System is stationary, there should be zero flux
+    // x-direction
+    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+    for (int i(0); i < d.Nx; i++) {
+      for (int j(0); j < d.Ny; j++) {
+        for (int var(0); var < d.Ncons; var++) {
+          EXPECT_EQ(d.fnet[d.id(var, i, j)], 0.0);
+        }
+      }
+    }
+    // y-direction
+    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
+    for (int i(0); i < d.Nx; i++) {
+      for (int j(0); j < d.Ny; j++) {
+        for (int var(0); var < d.Ncons; var++) {
+          EXPECT_EQ(d.fnet[d.id(var, i, j)], 0.0);
+        }
+      }
+    }
+  }
+
 
 }
