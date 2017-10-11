@@ -18,6 +18,15 @@ int main(void) {
   OTVortex init(&data);
 
 
+  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
+
+  data.prims[data.id(0, 3, 4)] = 0.221048;
+
+  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
+
+  model.getPrimitiveVars(data.cons, data.prims, data.aux);
+
+  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
 
   return 0;
 
