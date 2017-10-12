@@ -1,3 +1,5 @@
-# Ignore any object files or the main executable
+# Ignore any object files or executables
 *.o
 main
+test_*
+gtest_main.a
