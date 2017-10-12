@@ -17,7 +17,7 @@ class Bcs
 
   public:
     //! Constructor store data about simulation (needed for domain)
-    Bcs(Data * simData) : data(data) { }
+    Bcs(Data * data) : data(data) { }
 
     //! Application function
     /*!
@@ -33,12 +33,13 @@ class Bcs
     Imposes flows that exit and enter the domain, analogous to a domain that
   extends to infinity in each direction.
 */
-class Outflow : private Bcs
+class Outflow : public Bcs
 {
   private:
     Data * data;
 
   public:
+    Outflow(Data * data) : Bcs(data) { }
     void apply(double * cons);
 };
 
@@ -48,12 +49,13 @@ class Outflow : private Bcs
     Flows that exit across one domain boundary re-enter at the opposing
   end.
 */
-class Periodic : private Bcs
+class Periodic : public Bcs
 {
   private:
     Data * data;
-    
+
   public:
+    Periodic(Data * data) : Bcs(data) { }
     void apply(double * cons);
 };
 
