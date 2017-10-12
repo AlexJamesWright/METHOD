@@ -29,7 +29,14 @@ CXXFLAGS =
 NVFLAGS =
 
 # Sources
-SRCS = main.cu simulation.cu srmhd.cu initFunc.cu simData.cu weno.cu
+SRCS = main.cu \
+			 simulation.cu \
+			 srmhd.cu \
+			 initFunc.cu \
+			 simData.cu \
+			 weno.cu \
+			 rkSplit.cu \
+			 boundaryConds.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -102,6 +109,11 @@ main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
+rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 
 # Executable
