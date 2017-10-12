@@ -1,5 +1,8 @@
 # Ignore any object files or executables
 *.o
 main
-test_*
+test_srmhd
+test_simulation
+test_initFunc
+test_cminpack
 gtest_main.a
