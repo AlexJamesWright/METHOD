@@ -1,3 +1,3 @@
-# Ignore any object files
+# Ignore any object files or the main executable
 *.o
-
+main
