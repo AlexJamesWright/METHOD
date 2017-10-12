@@ -181,6 +181,38 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
 }
 
 
+
+//! Numerical flux approximation
+void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
+{
+  // Syntax
+  Data * d(this->data);
+
+  double *fx, *fy;
+
+  cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+                cudaHostAllocPortable);
+
+  // Determine fluxes at cell faces
+  this->fluxFunc(cons, prims, aux, f, fx, 0);
+  this->fluxFunc(cons, prims, aux, f, fy, 1);
+
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(1); i < d->Nx - 1; i++) {
+      for (int j(1); j < d->Ny - 1; j++) {
+        fnet[d->id(var, i, j)] = (fx[d->id(var, i+1, j)] - fx[d->id(var, i, j)]) / d->dx +
+                                 (fy[d->id(var, i, j+1)] - fy[d->id(var, i, j)]) / d->dy;
+      }
+    }
+  }
+
+  // Free arrays
+  cudaFreeHost(fx);
+  cudaFreeHost(fy);
+}
+
 //! Source required for divergence cleaning
 /*!
     See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors

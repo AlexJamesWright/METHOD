@@ -31,6 +31,9 @@ class SRMHD : public Model
     //! Numerical flux function
     void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
 
+    //! Numerical flux approximation (solution stored in fnet)
+    void F(double *cons, double *prims, double *aux, double *f, double *fnet);
+
     //! Source term contribution
     void sourceTerm(double *cons, double *prims, double *aux, double *source);
 
