@@ -54,11 +54,11 @@ OTVortex::OTVortex(Data * data) : InitialFunc(data)
       d->prims[d->id(4, i, j)] = 5.0 / 12.0 / pi;
 
       // x-velocity and x-Bfield
-      d->prims[d->id(1, i, j)] = - sin(2.0 * pi * d->y[j]);
+      d->prims[d->id(1, i, j)] = - 0.5 * sin(2.0 * pi * d->y[j]);
       d->prims[d->id(5, i, j)] = - sin(2.0 * pi * d->y[j]) / sqrt(4.0 * pi);
 
       // y-velocity and y-Bfield
-      d->prims[d->id(2, i, j)] = sin(2.0 * pi * d->x[i]);
+      d->prims[d->id(2, i, j)] = 0.5 * sin(2.0 * pi * d->x[i]);
       d->prims[d->id(6, i, j)] = sin(4.0 * pi * d->x[i]) / sqrt(4.0 * pi);
     }
   }
