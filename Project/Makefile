@@ -52,21 +52,22 @@ RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
 # Programmes
 PROGS = ${SRCS:.cu=}
 
-# Executable
+# Main programme executable
 EXEC = main
 
-build : $(EXEC)
+# Rootfinder executables
+RTFIND = buildRootfinder
+
+build : $(RTFIND) $(EXEC)
 
 
 # Make and run all tests on simulation scripts and run main
-all : $(EXEC)
-	cd $(RTFIND_DIR) && $(MAKE)	objects
+all : $(RTFIND) $(EXEC)
 	cd $(TEST_DIR) && $(MAKE) test
 	@$(MAKE) run
 
 # Build and run main (does not run any tests if called explicitly)
-run : $(EXEC)
-	cd $(RTFIND_DIR) && $(MAKE)	objects
+run : $(RTFIND) $(EXEC)
 	@echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 	@echo ''
 	@echo ''
@@ -106,6 +107,9 @@ weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
 	$(CC)	$^	-o $@
+
+buildRootfinder:
+	cd $(RTFIND_DIR) && $(MAKE)	objects
 
 # Tidy up and re-do
 rebuild : clean all
