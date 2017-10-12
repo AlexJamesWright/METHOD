@@ -4,8 +4,8 @@
 #include "simulation.h"
 #include "srmhd.h"
 
-namespace {
-
+namespace
+{
 
   TEST(InitialFunc, baseConstructor)
   {
@@ -48,8 +48,8 @@ namespace {
 
     EXPECT_NEAR(data.prims[data.id(0, 0, 0)], 0.2210485321, 0.0000000001);
     EXPECT_NEAR(data.prims[data.id(0, 99, 9)], 0.2210485321, 0.0000000001);
-    EXPECT_NEAR(data.prims[data.id(1, 35, 5)], -0.8090169944, 0.0000000001);
-    EXPECT_NEAR(data.prims[data.id(2, 34, 2)], 0.940880769, 0.000000001);
+    EXPECT_NEAR(data.prims[data.id(1, 35, 5)], -0.4045084972, 0.0000000001);
+    EXPECT_NEAR(data.prims[data.id(2, 34, 2)], 0.4704403845, 0.000000001);
     EXPECT_EQ(data.prims[data.id(3, 50, 5)], 0);
     EXPECT_NEAR(data.prims[data.id(4, 85, 3)], 0.1326291192, 0.0000000001);
     EXPECT_NEAR(data.prims[data.id(5, 33, 12)], 0.2282194806, 0.000000001);
