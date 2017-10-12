@@ -38,7 +38,16 @@ HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
 OBJS = ${SRCS:.cu=.o}
 
 # Rootfinder objects
-RTFIND_OBJS = $(RTFIND_SRC_DIR)/*.o
+RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
+							$(RTFIND_SRC_DIR)/dpmpar.o \
+							$(RTFIND_SRC_DIR)/enorm.o \
+							$(RTFIND_SRC_DIR)/fdjac1.o \
+							$(RTFIND_SRC_DIR)/hybrd.o \
+							$(RTFIND_SRC_DIR)/hybrd1.o \
+							$(RTFIND_SRC_DIR)/qform.o \
+							$(RTFIND_SRC_DIR)/qrfac.o \
+							$(RTFIND_SRC_DIR)/r1mpyq.o \
+							$(RTFIND_SRC_DIR)/r1updt.o
 
 # Programmes
 PROGS = ${SRCS:.cu=}
