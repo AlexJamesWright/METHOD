@@ -37,20 +37,26 @@ CXXFLAGS =
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_simulation test_srmhd test_initFunc
+TESTS = test_simulation test_srmhd test_initFunc test_cminpack
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
+# Rootfinder executables
+RTFIND = buildRootfinder
+
 # House-keeping build targets.
 
-all : $(TESTS)
+all : $(RTFIND) $(TESTS)
 
-test : $(TESTS)
+test : $(RTFIND) $(TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
+
+buildRootfinder:
+	cd $(RTFIND_DIR) && $(MAKE)	objects
 
 clean :
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
@@ -60,6 +66,28 @@ clean :
 # Usually you shouldn't tweak such internal variables, indicated by a
 # trailing _.
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
+
+# Rootfinder directory
+RTFIND_DIR = ./../Project/CminpackLibrary
+
+# Cminpack include directory
+RTFIND_INC_DIR =  ./../Project/CminpackLibrary/Include
+
+# Cminpack source directory
+RTFIND_SRC_DIR =  ./../Project/CminpackLibrary/Src
+
+# Rootfinder objects
+RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
+							$(RTFIND_SRC_DIR)/dpmpar.o \
+							$(RTFIND_SRC_DIR)/enorm.o \
+							$(RTFIND_SRC_DIR)/fdjac1.o \
+							$(RTFIND_SRC_DIR)/hybrd.o \
+							$(RTFIND_SRC_DIR)/hybrd1.o \
+							$(RTFIND_SRC_DIR)/qform.o \
+							$(RTFIND_SRC_DIR)/qrfac.o \
+							$(RTFIND_SRC_DIR)/r1mpyq.o \
+							$(RTFIND_SRC_DIR)/r1updt.o
+
 
 # For simplicity and to avoid depending on Google Test's
 # implementation details, the dependencies specified below are
@@ -103,22 +131,22 @@ simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
 
 test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_simulation : simulation.o test_simulation.o simData.o srmhd.o weno.o gtest_main.a
+test_simulation : simulation.o test_simulation.o simData.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Model
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
                      $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o weno.o gtest_main.a
+test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
@@ -129,7 +157,15 @@ initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h
 
 test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o weno.o gtest_main.a
+test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+
+# Cminpack rootfinder
+test_cminpack.o : $(TEST_DIR)/test_cminpack.cu $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_cminpack.cu -I$(RTFIND_INC_DIR)
+
+test_cminpack : test_cminpack.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
