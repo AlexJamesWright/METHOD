@@ -13,7 +13,7 @@
   Eight primitive variables:
     rho, vx, vy, vz, p, Bx, By, Bz
   Ten auxilliary variables:
-    h, W, e, c, b0, bx, by, bz, bsq, vsq
+    h, W, e, c, b0, bx, by, bz, bsq, vsq, BS, Bsq, Ssq
 
   For general details on the functionality of the derived member functions See
   `model.h`.
@@ -60,7 +60,7 @@ int residual(void *p, int n, const double *x, double *fvec, int iflag);
 */
 typedef struct
 {
-  double D, g, Bx, By, Bz, Sx, Sy, Sz, tau;
+  double D, g, Bsq, Ssq, BS, tau;
 } Args;
 
 #endif
