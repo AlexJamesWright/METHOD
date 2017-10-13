@@ -13,7 +13,7 @@ Data::Data(int nx, int ny,
      ymin(ymin), ymax(ymax),
      endTime(endTime), cfl(cfl), Ng(Ng),
      gamma(gamma), sigma(sigma),
-     dataSet(dataSet),
+     memSet(memSet),
      Ncons(Ncons), Nprims(Nprims), Naux(Naux),
      cp(cp)
 {
