@@ -13,7 +13,7 @@
 
 class Model
 {
-  public:
+  protected:
     Data * data;              // Pointer to overarching simData object
     int Ncons, Nprims, Naux;  // Size of conserved, primitive and aux state vectors
 
@@ -21,8 +21,6 @@ class Model
     Model() : data(NULL) {}
     Model(Data * data) : data(data) {}
     ~Model() {}
-
-
 
 
     //! Numerical flux function
@@ -35,12 +33,8 @@ class Model
     */
     virtual void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir) = 0;
 
-    //! Numerical flux approximation
-    /*!
-        Takes the net flux at each of the cells faces and determines the approximate
-      flux through that cell.
-    */
-    virtual void F(double *cons, double *prims, double *aux, double *f, double *fnet) = 0;
+
+    public:
 
     //! Source term contribution
     /*!
@@ -63,6 +57,14 @@ class Model
       to get simulation started---initial data is given in primitive form.
     */
     virtual void primsToAll(double *cons, double *prims, double *aux) = 0;
+
+
+    //! Numerical flux approximation
+    /*!
+        Takes the net flux at each of the cells faces and determines the approximate
+      flux through that cell.
+    */
+    virtual void F(double *cons, double *prims, double *aux, double *f, double *fnet) = 0;
 
 };
 
