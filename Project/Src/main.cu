@@ -10,7 +10,7 @@
 int main(void) {
 
   // Set up domain
-  Data data(10, 10, 0.0, 1.0, 0.0, 1.0, 0.4);
+  Data data(100, 100, 0.0, 1.0, 0.0, 1.0, 0.01);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -21,13 +21,15 @@ int main(void) {
 
   Periodic bcs(&data);
 
-  RKSplit timeEv(&data, &model, &bcs);
+  RKSplit timeInt(&data, &model, &bcs);
 
-  model.primsToAll(data.cons, data.prims, data.aux);
+  sim.set(&init, &model, &timeInt, &bcs);
 
   printf("%18.16f\n", data.cons[data.id(1, 3, 3)]);
 
-  timeEv.step();
+  sim.evolve();
+
+  printf("%18.16f\n", data.cons[data.id(1, 3, 3)]);
 
 
   return 0;
