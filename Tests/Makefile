@@ -37,7 +37,11 @@ CXXFLAGS =
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_simulation test_srmhd test_initFunc test_cminpack
+TESTS = test_simulation \
+				test_srmhd \
+				test_initFunc \
+				test_cminpack \
+				test_boundaryConds
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -120,10 +124,12 @@ gtest_main.a : gtest-all.o gtest_main.o
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
 
+
 # Weno reconstruction
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
+
 # simulation
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
@@ -168,4 +174,16 @@ test_cminpack.o : $(TEST_DIR)/test_cminpack.cu $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_cminpack.cu -I$(RTFIND_INC_DIR)
 
 test_cminpack : test_cminpack.o $(RTFIND_OBJS) gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+
+# Boundary Conditions
+boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
+		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cu -I$(INC_DIR)
+
+test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cu $(INC_DIR)/boundaryConds.h \
+									$(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_boundaryConds : test_boundaryConds.o boundaryConds.o simData.o srmhd.o simulation.o initFunc.o weno.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
