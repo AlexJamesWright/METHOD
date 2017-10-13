@@ -47,7 +47,7 @@ Simulation::Simulation(Data * data) : data(data)
   d->t = 0;
   d->alphaX = 1;
   d->alphaY = 1;
-  d->dt = d->cfl * (d->alphaX / d->dx + d->alphaY / d->dy);
+  d->dt = d->cfl / (d->alphaX / d->dx + d->alphaY / d->dy);
   d->dataSet = 1;
 
   // Set axes
