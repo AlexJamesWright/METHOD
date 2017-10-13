@@ -26,8 +26,6 @@ void RKSplit::step()
   // Get first approximation of flux contribution
   this->model->F(d->cons, d->prims, d->aux, d->f, args1);
 
-  printf("args1 = %f\n", args1[d->id(1, 3, 3)]);
-
   // First stage approximation
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
@@ -36,9 +34,6 @@ void RKSplit::step()
        }
      }
    }
-
-   printf("p1 = %f\n", p1[d->id(1, 3, 3)]);
-   printf("dt = %f\n", d->dt);
 
    // Apply boundary conditions
    this->bc->apply(p1);
@@ -69,7 +64,6 @@ void RKSplit::step()
    // Apply boundary conditions
    this->bc->apply(d->cons);
 
-   printf("%18.16f\n", d->cons[d->id(1, 3, 3)]);
 
    // Determine new prim and aux variables
    this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
