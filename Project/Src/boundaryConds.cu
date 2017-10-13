@@ -1,7 +1,9 @@
 #include "boundaryConds.h"
+#include <stdio.h>
 
 void Outflow::apply(double * cons)
 {
+
   // Syntax
   Data * d(this->data);
 
@@ -26,13 +28,14 @@ void Outflow::apply(double * cons)
       }
     }
   }
+
 }
 
 void Periodic::apply(double * cons)
 {
   // Syntax
   Data * d(this->data);
-  
+
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Ng; i++) {
       for (int j(d->Ng); j < d->ny + d->Ng; j++) {

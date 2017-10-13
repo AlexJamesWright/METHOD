@@ -185,6 +185,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
 //! Numerical flux approximation
 void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
 {
+
   // Syntax
   Data * d(this->data);
 
@@ -194,6 +195,8 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Ncons,
                 cudaHostAllocPortable);
+
+
 
   // Determine fluxes at cell faces
   this->fluxFunc(cons, prims, aux, f, fx, 0);
@@ -207,6 +210,7 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
       }
     }
   }
+
 
   // Free arrays
   cudaFreeHost(fx);
