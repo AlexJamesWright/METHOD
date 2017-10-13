@@ -10,17 +10,6 @@
 namespace
 {
 
-  /* ##################### Test default model constructor ####################*/
-
-  TEST(SRMHD, DefaultConstructor)
-  {
-    SRMHD model;
-    EXPECT_EQ(model.Ncons, 9);
-    EXPECT_EQ(model.Nprims, 8);
-    EXPECT_EQ(model.Naux, 13);
-  }
-
-
 
 
   /* ######################### Test model constructor ########################*/
@@ -29,9 +18,9 @@ namespace
   {
     Data d(100, 10, 0, 1, -0.5, 0.5, 0.8);
     SRMHD model(&d);
-    EXPECT_EQ(model.data->Ncons, 9);
-    EXPECT_EQ(model.data->Nprims, 8);
-    EXPECT_EQ(model.data->Naux, 13);
+    EXPECT_EQ(d.Ncons, 9);
+    EXPECT_EQ(d.Nprims, 8);
+    EXPECT_EQ(d.Naux, 13);
 
   }
 
