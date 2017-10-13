@@ -60,7 +60,6 @@ Simulation::Simulation(Data * data) : data(data)
     d->y[j] = d->ymin + (j + 0.5 - d->Ng) * d->dy;
   }
 
-
 }
 
 Simulation::~Simulation()
@@ -73,4 +72,54 @@ Simulation::~Simulation()
   gpuErrchk( cudaFreeHost(this->data->prims) );
   gpuErrchk( cudaFreeHost(this->data->aux) );
   gpuErrchk( cudaFreeHost(this->data->x) );
+}
+
+
+//! Stores the model type and general simulation form and sets the prim and aux vars
+void Simulation::set(InitialFunc * init, Model * model,
+                     TimeIntegrator * timeInt, Bcs * bcs)
+{
+  this->init = init;
+  this->model = model;
+  this->timeInt = timeInt;
+  this->bcs = bcs;
+  // Set primitive and auxilliary variables
+  this->model->primsToAll(this->data->cons, this->data->prims, this->data->aux);
+}
+
+//! Incrememt the system forward by a single timestep
+void Simulation::updateTime()
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Calculate the size of the next timestep
+  double dtX(d->cfl / (d->alphaX / d->dx));
+  double dtY(d->cfl / (d->alphaY / d->dy));
+  d->dt = (dtX < dtY) ? dtX : dtY;
+
+  // Slow start
+  if (d->iters < 5) d->dt *= 0.1;
+
+  // Ensure correct end time
+  if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
+
+  // We're good to go
+  this->timeInt->step();
+
+  // Update parameters
+  d->t += d->dt;
+  d->iters++;
+
+}
+
+void Simulation::evolve()
+{
+  // Syntax
+  Data * d(this->data);
+  while (d->t < d->endTime) {
+    std::cout << ".";
+    this->updateTime();
+  }
+
 }
