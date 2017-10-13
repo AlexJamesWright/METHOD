@@ -12,12 +12,14 @@
 */
 class Bcs
 {
-  private:
+  protected:
     Data * data;
-
-  public:
     //! Constructor store data about simulation (needed for domain)
     Bcs(Data * data) : data(data) { }
+
+
+  public:
+
 
     //! Application function
     /*!
@@ -35,10 +37,8 @@ class Bcs
 */
 class Outflow : public Bcs
 {
-  private:
-    Data * data;
-
   public:
+
     Outflow(Data * data) : Bcs(data) { }
     void apply(double * cons);
 };
@@ -51,12 +51,11 @@ class Outflow : public Bcs
 */
 class Periodic : public Bcs
 {
-  private:
-    Data * data;
 
   public:
     Periodic(Data * data) : Bcs(data) { }
     void apply(double * cons);
+    
 };
 
 #endif
