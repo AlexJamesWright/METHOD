@@ -5,4 +5,5 @@ test_srmhd
 test_simulation
 test_initFunc
 test_cminpack
+test_boundaryConds
 gtest_main.a
