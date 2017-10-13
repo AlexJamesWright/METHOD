@@ -13,12 +13,6 @@
 class RKSplit : public TimeIntegrator
 {
 
-  private:
-    Data * data;
-    Model * model;
-    Bcs * bc;
-
-
   public:
     //! Constructor
     /*!

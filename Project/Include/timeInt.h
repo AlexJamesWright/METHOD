@@ -8,7 +8,7 @@
 
 class TimeIntegrator
 {
-  private:
+  protected:
     Data * data;
     Model * model;
     Bcs * bc;

@@ -20,19 +20,17 @@
 */
 class SRMHD : public Model
 {
+  protected:
+
+    //! Numerical flux function
+    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
+
   public:
 
     //! Constructors and destructors
     SRMHD();
     SRMHD(Data * data);
     ~SRMHD() {}
-
-
-    //! Numerical flux function
-    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
-
-    //! Numerical flux approximation (solution stored in fnet)
-    void F(double *cons, double *prims, double *aux, double *f, double *fnet);
 
     //! Source term contribution
     void sourceTerm(double *cons, double *prims, double *aux, double *source);
@@ -42,6 +40,9 @@ class SRMHD : public Model
 
     //! Primitive-to-all transformation
     void primsToAll(double *cons, double *prims, double *aux);
+
+    //! Numerical flux approximation (solution stored in fnet)
+    void F(double *cons, double *prims, double *aux, double *f, double *fnet);
 };
 
 
