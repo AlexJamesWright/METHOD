@@ -1,4 +1,5 @@
 #include "rkSplit.h"
+#include <stdio.h>
 
 void RKSplit::step()
 {
@@ -23,7 +24,10 @@ void RKSplit::step()
   // of the stages estimates.
 
   // Get first approximation of flux contribution
-  model->F(d->cons, d->prims, d->aux, d->f, args1);
+  this->model->F(d->cons, d->prims, d->aux, d->f, args1);
+
+  printf("args1 = %f\n", args1[d->id(1, 3, 3)]);
+
   // First stage approximation
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
@@ -33,11 +37,14 @@ void RKSplit::step()
      }
    }
 
+   printf("p1 = %f\n", p1[d->id(1, 3, 3)]);
+   printf("dt = %f\n", d->dt);
+
    // Apply boundary conditions
-   bc->apply(p1);
+   this->bc->apply(p1);
 
    // Get second approximation of flux contribution
-   model->F(p1, d->prims, d->aux, d->f, args2);
+   this->model->F(p1, d->prims, d->aux, d->f, args2);
 
    // Construct solution
    for (int var(0); var < d->Ncons; var++) {
@@ -49,11 +56,24 @@ void RKSplit::step()
      }
    }
 
+   // Add source contribution
+   this->model->sourceTerm(d->cons, d->prims, d->aux, d->source);
+   for (int var(0); var < d->Ncons; var++) {
+     for (int i(0); i < d->Nx; i++) {
+       for (int j(0); j < d->Ny; j++) {
+         d->cons[d->id(var, i, j)] += d->dt * d->source[d->id(var, i, j)];
+       }
+     }
+   }
+
    // Apply boundary conditions
-   bc->apply(d->cons);
+   this->bc->apply(d->cons);
+
+   printf("%18.16f\n", d->cons[d->id(1, 3, 3)]);
 
    // Determine new prim and aux variables
-   model->getPrimitiveVars(d->cons, d->prims, d->aux);
+   this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
+
 
    // Free arrays
    cudaFreeHost(p1);
