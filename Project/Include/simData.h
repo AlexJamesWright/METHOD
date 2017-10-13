@@ -22,7 +22,7 @@ class Data
     gamma,                // Adiabatic index
     sigma;                // Resistivity
     int
-    dataSet,              // Indicator that memory has been allocated for state vectors
+    memSet,              // Indicator that memory has been allocated for state vectors
     Ncons, Nprims, Naux;  // Number of conserved, primitive and auxilliary variables
     double
     cp,                   // Constant divergence cleaning term
