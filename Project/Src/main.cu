@@ -2,7 +2,9 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include <iostream>
+#include "boundaryConds.h"
+#include "rkSplit.h"
+#include <stdio.h>
 
 
 int main(void) {
@@ -17,16 +19,16 @@ int main(void) {
 
   OTVortex init(&data);
 
+  Periodic bcs(&data);
 
-  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
+  RKSplit timeEv(&data, &model, &bcs);
 
-  data.prims[data.id(0, 3, 4)] = 0.221048;
+  model.primsToAll(data.cons, data.prims, data.aux);
 
-  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
+  printf("%18.16f\n", data.cons[data.id(1, 3, 3)]);
 
-  model.getPrimitiveVars(data.cons, data.prims, data.aux);
+  timeEv.step();
 
-  std::cout << data.prims[data.id(0, 3, 4)] << std::endl;
 
   return 0;
 
