@@ -10,7 +10,7 @@ InitialFunc::InitialFunc(Data * data) : data(data)
   d = this->data;
 
   // Ensure that the memory has been allocated for the arrays
-  if (!d->dataSet) throw std::runtime_error("Must construct simulation class before implementing initial state. Need to allocate arrays.");
+  if (!d->memSet) throw std::runtime_error("Must construct simulation class before implementing initial state. Need to allocate arrays.");
 
   // Set all state vectors to zero
   for (int i(0); i < d->Nx; i++) {
