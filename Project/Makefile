@@ -26,7 +26,7 @@ TEST_DIR = ../Tests
 CXXFLAGS =
 
 # NVIDIA compiler flags
-NVFLAGS =
+NVFLAGS = -std=c++11
 
 # Sources
 SRCS = main.cu \
