@@ -12,7 +12,7 @@
     D, Sx, Sy, Sz, tau, Bx, By, Bz, phi
   Eight primitive variables:
     rho, vx, vy, vz, p, Bx, By, Bz
-  Ten auxilliary variables:
+  Thirteen auxilliary variables:
     h, W, e, c, b0, bx, by, bz, bsq, vsq, BS, Bsq, Ssq
 
   For general details on the functionality of the derived member functions See
@@ -38,7 +38,7 @@ class SRMHD : public Model
     void primsToAll(double *cons, double *prims, double *aux);
 
     //! Numerical flux function
-    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir);
+    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir);
 
     //! Numerical flux approximation (solution stored in fnet)
     void F(double *cons, double *prims, double *aux, double *f, double *fnet);
@@ -65,5 +65,19 @@ typedef struct
 {
   double D, g, Bsq, Ssq, BS, tau;
 } Args;
+
+
+//! Stores data of the failed cons2prims rootfinder
+/*!
+    When the cons2prims rootfinder fails, we can take note of the cell, continue
+  throughout the domain and come back to that failed cell, using the average of
+  the successfully completed surrounding cells as an initial estimate for the
+  solution of the failed cell. This struct holds the failed cells data.
+*/
+typedef struct
+{
+  // Store coordinates of the failed cell
+  int x, y;
+} Failed;
 
 #endif
