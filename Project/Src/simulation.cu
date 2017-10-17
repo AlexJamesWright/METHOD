@@ -1,7 +1,7 @@
 #include "simulation.h"
 #include "cudaErrorCheck.h"
 #include <stdexcept>
-#include <stdio.h>
+#include <cstdio>
 
 Simulation::Simulation(Data * data) : data(data)
 {
@@ -107,6 +107,7 @@ void Simulation::updateTime()
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
+
   // We're good to go
   this->timeInt->step();
 
