@@ -33,11 +33,11 @@ class Simulation
     //! Boundary condition
     Bcs * bcs;
 
+  public:
+
+
     //! Incrememt the system forward by a single timestep
     void updateTime();
-
-
-  public:
 
     //! simData class containing all necessary variables
     Data * data;
