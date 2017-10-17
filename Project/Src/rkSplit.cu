@@ -1,5 +1,5 @@
 #include "rkSplit.h"
-#include <stdio.h>
+#include <cstdio>
 
 void RKSplit::step()
 {
@@ -49,8 +49,8 @@ void RKSplit::step()
    }
 
    // Apply boundary conditions and get primitive and aux vars for p1
-   this->bc->apply(p1cons);
    this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
+   this->bc->apply(p1cons, p1prims, p1aux);
 
 
    // Get second approximation of flux contribution
@@ -67,7 +67,7 @@ void RKSplit::step()
      }
    }
 
-
+   this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
 
    // Add source contribution
    this->model->sourceTerm(d->cons, d->prims, d->aux, d->source);
@@ -79,12 +79,12 @@ void RKSplit::step()
      }
    }
 
-   // Apply boundary conditions
-   this->bc->apply(d->cons);
-
-
    // Determine new prim and aux variables
    this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
+
+   // Apply boundary conditions
+   this->bc->apply(d->cons, d->prims, d->aux);
+
 
 
    // Free arrays
