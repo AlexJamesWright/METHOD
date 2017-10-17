@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdio.h>
+#include <vector>
 
 
 
@@ -32,7 +33,7 @@ SRMHD::SRMHD(Data * data) : Model(data)
     Note: We are assuming that all primitive and auxilliary variables are up-to-date
   at the time of this function execution.
 */
-void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir)
+void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir)
 {
   // Syntax
   Data * d(this->data);
@@ -64,7 +65,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
 
         // Sx
         f[d->id(1, i, j)] = cons[d->id(1, i, j)] * prims[d->id(1, i, j)] +
-                               prims[d->id(4, i, j)] + aux[d->id(8, i, j)] / 2.0 -
+                               (prims[d->id(4, i, j)] + aux[d->id(8, i, j)] / 2.0) -
                                aux[d->id(5, i, j)] * prims[d->id(5, i, j)] /
                                aux[d->id(1, i, j)];
         // Sy
@@ -95,7 +96,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
       }
 
       // Fy: flux in y-direction
-      if (dir == 1) {
+      else {
         // D
         f[d->id(0, i, j)] = cons[d->id(0, i, j)] * prims[d->id(2, i, j)];
 
@@ -105,7 +106,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                             aux[d->id(1, i, j)];
         // Sy
         f[d->id(2, i, j)] = cons[d->id(2, i, j)] * prims[d->id(2, i, j)] +
-                            prims[d->id(4, i, j)] + aux[d->id(9, i, j)] / 2.0 -
+                            prims[d->id(4, i, j)] + aux[d->id(8, i, j)] / 2.0 -
                             aux[d->id(6, i, j)] * prims[d->id(6, i, j)] /
                             aux[d->id(1, i, j)];
         // Sz
@@ -114,7 +115,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                             aux[d->id(1, i, j)];
         // tau
         f[d->id(4, i, j)] = (cons[d->id(4, i, j)] + prims[d->id(4, i, j)] +
-                            aux[d->id(8, i, j)]) * prims[d->id(2, i, j)] -
+                            aux[d->id(8, i, j)] / 2.0) * prims[d->id(2, i, j)] -
                             aux[d->id(4, i, j)] * prims[d->id(6, i, j)] /
                             aux[d->id(1, i, j)];
         // Bx
@@ -196,8 +197,6 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Ncons,
                 cudaHostAllocPortable);
 
-
-
   // Determine fluxes at cell faces
   this->fluxFunc(cons, prims, aux, f, fx, 0);
   this->fluxFunc(cons, prims, aux, f, fy, 1);
@@ -205,12 +204,11 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   for (int var(0); var < d->Ncons; var++) {
     for (int i(1); i < d->Nx - 1; i++) {
       for (int j(1); j < d->Ny - 1; j++) {
-        fnet[d->id(var, i, j)] = (fx[d->id(var, i+1, j)] - fx[d->id(var, i, j)]) / d->dx +
-                                 (fy[d->id(var, i, j+1)] - fy[d->id(var, i, j)]) / d->dy;
+        fnet[d->id(var, i, j)] = (fx[d->id(var, i+1, j)] / d->dx - fx[d->id(var, i, j)] / d->dx)  +
+                                 (fy[d->id(var, i, j+1)] / d->dy - fy[d->id(var, i, j)] / d->dy);
       }
     }
   }
-
 
   // Free arrays
   cudaFreeHost(fx);
@@ -282,7 +280,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
-
+  // Solutions
+  double solution[2][d->Nx][d->Ny];
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
   const int n(2);                     // Size of system
@@ -292,6 +291,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   const double tol = 1.49011612e-8;   // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
+  std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
 
   // Loop through domain solving and setting the prim and aux vars
   for (int i(0); i < d->Nx; i++) {
@@ -335,19 +335,75 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                         tol, wa, lwa);
       // If root find fails, flag user and exit early.
       if (info!=1) {
-        printf("\n\n\n###################################################################################\n");
-        printf("Failed to converge in cons2prims, hybrd1 exited with exit code %d for cell (%d, %d)\n", info, i, j);
-        printf("###################################################################################\n\n\n");
+        // printf("\n\n\n###################################################################################\n");
+        // printf("Failed to converge in cons2prims, hybrd1 exited with exit code %d for cell (%d, %d)\n", info, i, j);
+        // printf("###################################################################################\n\n\n");
+        // std::exit(1);
+        Failed fail = {i, j};
+        fails.push_back(fail);
+        // std::exit(1);
+      }
+      else {
+        // Now have the correct values for vsq and rho*h*Wsq
+        solution[0][i][j] = sol[0];
+        solution[1][i][j] = sol[1];
+      }
+    }
+  }
+
+
+
+
+
+  // ################################## Smart guessing ########################### //
+  // Are there any failures?
+  if (fails.size() > 0) {
+    int x, y;
+    // Loop through any failed cells and try again, using the mean of successfull
+    // surrounding cells solutions as an initial estimate
+    for (Failed fail : fails) {
+      x = fail.x;
+      y = fail.y;
+      // Vector to contain successful neighbours
+      std::vector<Failed> neighbours;
+      if (x > 0) neighbours.push_back(Failed {x-1, y});
+      if (y > 0) neighbours.push_back(Failed {x, y-1});
+      if (x < d->Nx - 1) neighbours.push_back(Failed {x+1, y});
+      if (y < d->Ny - 1) neighbours.push_back(Failed {x, y+1});
+
+      sol[0] = 0;
+      sol[1] = 1;
+      for (Failed neighbour : neighbours) {
+        sol[0] += solution[0][neighbour.x][neighbour.y];
+        sol[1] += solution[1][neighbour.x][neighbour.y];
+      }
+      sol[0] /= neighbours.size();
+      sol[1] /= neighbours.size();
+      // Solve residual = 0
+      info = __cminpack_func__(hybrd1) (&residual, &args, n, sol, res,
+                                        tol, wa, lwa);
+      if (info != 1) {
+        printf("Smart guessing did not work, exiting\n");
         std::exit(1);
       }
+      else {
+        // printf("Smart guessing worked!\n");
+        solution[0][x][y] = sol[0];
+        solution[1][x][y] = sol[1];
+      }
+    }
+  }
 
-      // Now have the correct values for vsq and rho*h*Wsq
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+
       // W
-      aux[d->id(1, i, j)] = 1 / sqrt(1 - sol[0]);
+      aux[d->id(1, i, j)] = 1 / sqrt(1 - solution[0][i][j]);
       // rho
       prims[d->id(0, i, j)] = cons[d->id(0, i, j)] / aux[d->id(1, i, j)];
       // h
-      aux[d->id(0, i, j)] = sol[1] / (prims[d->id(0, i, j)] * aux[d->id(1, i, j)] *
+      aux[d->id(0, i, j)] = solution[1][i][j] / (prims[d->id(0, i, j)] * aux[d->id(1, i, j)] *
                             aux[d->id(1, i, j)]);
       // p
       prims[d->id(4, i, j)] = (aux[d->id(0, i, j)] - 1) * prims[d->id(0, i, j)] *
@@ -357,14 +413,14 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                             (d->gamma - 1));
       // vx, vy, vz
       prims[d->id(1, i, j)] = (cons[d->id(5, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(1, i, j)] * sol[1]) / (sol[1] *
-                              (aux[d->id(11, i, j)] + sol[1]));
+                              cons[d->id(1, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
+                              (aux[d->id(11, i, j)] + solution[1][i][j]));
       prims[d->id(2, i, j)] = (cons[d->id(6, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(2, i, j)] * sol[1]) / (sol[1] *
-                              (aux[d->id(11, i, j)] + sol[1]));
+                              cons[d->id(2, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
+                              (aux[d->id(11, i, j)] + solution[1][i][j]));
       prims[d->id(3, i, j)] = (cons[d->id(7, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(3, i, j)] * sol[1]) / (sol[1] *
-                              (aux[d->id(11, i, j)] + sol[1]));
+                              cons[d->id(3, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
+                              (aux[d->id(11, i, j)] + solution[1][i][j]));
       aux[d->id(9, i, j)] = prims[d->id(1, i, j)] * prims[d->id(1, i, j)] +
                             prims[d->id(2, i, j)] * prims[d->id(2, i, j)] +
                             prims[d->id(3, i, j)] * prims[d->id(3, i, j)];
@@ -388,6 +444,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                              prims[d->id(7, i, j)] * prims[d->id(7, i, j)] +
                              aux[d->id(4, i, j)] * aux[d->id(4, i, j)]) /
                              (aux[d->id(1, i, j)] * aux[d->id(1, i, j)]);
+
     }
   }
 
