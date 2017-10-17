@@ -60,7 +60,7 @@ class Data
          double gamma=5.0/3.0, double sigma=0,
          int dataSet=0,
          int Ncons=0, int Nprims=0, int Naux=0,
-         double cp=1.0);
+         double cp=0.1);
 
 };
 
