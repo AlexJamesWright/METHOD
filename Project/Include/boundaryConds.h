@@ -26,7 +26,7 @@ class Bcs
         Each derived class must have a function to apply the corresponding
       condition at the boundary.
     */
-    virtual void apply(double *) = 0;
+    virtual void apply(double *, double *, double *) = 0;
 };
 
 
@@ -40,7 +40,7 @@ class Outflow : public Bcs
   public:
 
     Outflow(Data * data) : Bcs(data) { }
-    void apply(double * cons);
+    void apply(double * cons, double * prims, double * aux);
 };
 
 
@@ -54,8 +54,8 @@ class Periodic : public Bcs
 
   public:
     Periodic(Data * data) : Bcs(data) { }
-    void apply(double * cons);
-    
+    void apply(double * cons, double * prims, double * aux);
+
 };
 
 #endif
