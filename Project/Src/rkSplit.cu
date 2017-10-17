@@ -7,21 +7,34 @@ void RKSplit::step()
   Data * d(this->data);
 
   // Need some work arrays
-  double *p1, *args1, *args2;
+  double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
-  cudaHostAlloc((void **)&p1, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+  cudaHostAlloc((void **)&p1cons, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&p1prims, sizeof(double) * d->Nx * d->Ny * d->Nprims,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&p1aux, sizeof(double) * d->Nx * d->Ny * d->Naux,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&args1, sizeof(double) * d->Nx * d->Ny * d->Ncons,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&args2, sizeof(double) * d->Nx * d->Ny * d->Ncons,
                 cudaHostAllocPortable);
 
+  // Cons2prims conversion for p1 estimate stage requires old values to start the rootfind,
+  // to save computation, only copy the variables that are required
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      p1aux[d->id(0, i, j)] = d->aux[d->id(0, i, j)];
+      p1aux[d->id(10, i, j)] = d->aux[d->id(10, i, j)];
+      p1aux[d->id(11, i, j)] = d->aux[d->id(11, i, j)];
+      p1aux[d->id(12, i, j)] = d->aux[d->id(12, i, j)];
+      p1prims[d->id(0, i, j)] = d->prims[d->id(0, i, j)];
+      p1prims[d->id(1, i, j)] = d->prims[d->id(1, i, j)];
+      p1prims[d->id(2, i, j)] = d->prims[d->id(2, i, j)];
+      p1prims[d->id(3, i, j)] = d->prims[d->id(3, i, j)];
+    }
+  }
 
-  //   Im not entirely convinced this is the correct way of doing things
-  // but its certainly slightly less effort and its what we've done in the past
-  // so will do for now. Re-visit this.
-  //   I've a sneeking suspicion we need to find the primitive vars for each
-  // of the stages estimates.
 
   // Get first approximation of flux contribution
   this->model->F(d->cons, d->prims, d->aux, d->f, args1);
@@ -30,26 +43,31 @@ void RKSplit::step()
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
-         p1[d->id(var, i, j)] = d->cons[d->id(var, i, j)] - d->dt * args1[d->id(var, i, j)];
+         p1cons[d->id(var, i, j)] = d->cons[d->id(var, i, j)] - d->dt * args1[d->id(var, i, j)];
        }
      }
    }
 
-   // Apply boundary conditions
-   this->bc->apply(p1);
+   // Apply boundary conditions and get primitive and aux vars for p1
+   this->bc->apply(p1cons);
+   this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
+
 
    // Get second approximation of flux contribution
-   this->model->F(p1, d->prims, d->aux, d->f, args2);
+   this->model->F(p1cons, p1prims, p1aux, d->f, args2);
+
 
    // Construct solution
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
-         d->cons[d->id(var, i, j)] = 0.5 * (d->cons[d->id(var, i, j)] + p1[d->id(var, i, j)] -
+         d->cons[d->id(var, i, j)] = 0.5 * (d->cons[d->id(var, i, j)] + p1cons[d->id(var, i, j)] -
                                          d->dt * args2[d->id(var, i, j)]);
        }
      }
    }
+
+
 
    // Add source contribution
    this->model->sourceTerm(d->cons, d->prims, d->aux, d->source);
@@ -70,7 +88,9 @@ void RKSplit::step()
 
 
    // Free arrays
-   cudaFreeHost(p1);
+   cudaFreeHost(p1cons);
+   cudaFreeHost(p1prims);
+   cudaFreeHost(p1aux);
    cudaFreeHost(args1);
    cudaFreeHost(args2);
 
