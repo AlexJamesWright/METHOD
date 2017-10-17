@@ -1,7 +1,7 @@
 #include "simulation.h"
 #include "cudaErrorCheck.h"
 #include <stdexcept>
-#include <iostream>
+#include <stdio.h>
 
 Simulation::Simulation(Data * data) : data(data)
 {
@@ -93,17 +93,20 @@ void Simulation::updateTime()
   // Syntax
   Data * d(this->data);
 
+  printf("t = %f\n", d->t);
+
+
   // Calculate the size of the next timestep
-  double dtX(d->cfl / (d->alphaX / d->dx));
-  double dtY(d->cfl / (d->alphaY / d->dy));
-  d->dt = (dtX < dtY) ? dtX : dtY;
+  // double dtX(d->cfl / (d->alphaX / d->dx));
+  // double dtY(d->cfl / (d->alphaY / d->dy));
+  // d->dt = (dtX < dtY) ? dtX : dtY;
+  d->dt = d->cfl / (1/d->dx + 1/d->dy);
 
   // Slow start
   if (d->iters < 5) d->dt *= 0.1;
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
-
   // We're good to go
   this->timeInt->step();
 
@@ -118,8 +121,9 @@ void Simulation::evolve()
   // Syntax
   Data * d(this->data);
   while (d->t < d->endTime) {
-    std::cout << ".";
+    // printf("t = %f\n", d->t);
     this->updateTime();
   }
+  printf("\n");
 
 }
