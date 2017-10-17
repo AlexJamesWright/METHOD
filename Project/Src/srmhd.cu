@@ -3,7 +3,7 @@
 #include "cminpack.h"
 #include <cmath>
 #include <cstdlib>
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 
 
@@ -148,8 +148,8 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
   // Reconstruct to determine the flux at the cell face and compute difference
   if (dir == 0) { // x-dorection
     for (int var(0); var < d->Ncons; var++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int i(order); i < d->Nx-order; i++) {
+      for (int i(order); i < d->Nx-order; i++) {
+        for (int j(0); j < d->Ny; j++) {
           fnet[d->id(var, i, j)] = weno3_upwind(fplus[d->id(var, i-order, j)],
                                                 fplus[d->id(var, i-order+1, j)],
                                                 fplus[d->id(var, i-order+2, j)]) +
@@ -202,8 +202,8 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   this->fluxFunc(cons, prims, aux, f, fy, 1);
 
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(1); i < d->Nx - 1; i++) {
-      for (int j(1); j < d->Ny - 1; j++) {
+    for (int i(1); i < d->Nx; i++) {
+      for (int j(1); j < d->Ny; j++) {
         fnet[d->id(var, i, j)] = (fx[d->id(var, i+1, j)] / d->dx - fx[d->id(var, i, j)] / d->dx)  +
                                  (fy[d->id(var, i, j+1)] / d->dy - fy[d->id(var, i, j)] / d->dy);
       }
@@ -372,7 +372,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       if (y < d->Ny - 1) neighbours.push_back(Failed {x, y+1});
 
       sol[0] = 0;
-      sol[1] = 1;
+      sol[1] = 0;
       for (Failed neighbour : neighbours) {
         sol[0] += solution[0][neighbour.x][neighbour.y];
         sol[1] += solution[1][neighbour.x][neighbour.y];
@@ -384,6 +384,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                         tol, wa, lwa);
       if (info != 1) {
         printf("Smart guessing did not work, exiting\n");
+        for (Failed fail : fails) printf("(%d, %d) failed\n", fail.x, fail.y);
         std::exit(1);
       }
       else {
