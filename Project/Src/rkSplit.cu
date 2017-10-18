@@ -9,6 +9,7 @@ void RKSplit::step()
   // Need some work arrays
   double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
+
   cudaHostAlloc((void **)&p1cons, sizeof(double) * d->Nx * d->Ny * d->Ncons,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&p1prims, sizeof(double) * d->Nx * d->Ny * d->Nprims,
@@ -71,6 +72,7 @@ void RKSplit::step()
 
    // Add source contribution
    this->model->sourceTerm(d->cons, d->prims, d->aux, d->source);
+
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
