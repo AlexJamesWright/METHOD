@@ -122,7 +122,6 @@ void Simulation::evolve()
   // Syntax
   Data * d(this->data);
   while (d->t < d->endTime) {
-    // printf("t = %f\n", d->t);
     this->updateTime();
   }
   printf("\n");
