@@ -35,10 +35,6 @@ class Simulation
 
   public:
 
-
-    //! Incrememt the system forward by a single timestep
-    void updateTime();
-
     //! simData class containing all necessary variables
     Data * data;
 
@@ -48,11 +44,40 @@ class Simulation
     //! Destructor frees alloc'd memory
     ~Simulation();
 
-    //! Stores the model type and general simulation form and sets the prim and aux vars
+
+
+    //! Sets up the simulation ready to be evolved
+    /*!
+        This stores the model type and general simulation form and finds the
+      conserved and auxilliary variables that correspond to the initial primitive
+      data.
+        This function must be called before calling either evolve() or updateTime().
+    */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs);
 
+
+
+    //! Incrememt the system forward by a single timestep
+    /*!
+        When calling updateTime(), all primitive and auxilliary variables must be
+      set. I.e. they must correspond to the values of the conserved vector at that
+      time step. Given this, the conserved variables are evolved using the given
+      time integrator according to the selected model. All primitive and auxilliary
+      variables are then found and the updated values are saved in the Data class.
+    */
+    void updateTime();
+
+
+
     //! Run the current set up until the end time
+    /*!
+        Before calling evolve(), the simulation must be set up using set() to
+      ensure all data is current and consistent with the initial primitive variables
+      that have been selected.
+        Once the simulation is set, evolve() calls updateTime() until the simulation
+      has reached its end point (providing no errors occur)
+    */
     void evolve();
 
 
