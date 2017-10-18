@@ -1,30 +1,48 @@
 # MultiDMHD
 -----------------------
-------------------------
 
-**M**ulti-**D**imensional **M**agneto**H**ydro**D**ynamics
+## **M**ulti-**D**imensional **M**agneto**H**ydro**D**ynamics
 ---------------------------------------------
 
 The extension of the 2DEuler python code, based in CUDA and C++.
 
-## Testing
+### Documentation
+I have tried to maintain good documentation standards, but cant guarantee that everything you want will be here. If you are unsure of any of the functionality, find the respective header file for the class or function that you are curious about (this includes the abstract base classes for any derived classes). 
+
+### Testing
 We use the Google Test framework for unit testing. *Dont touch the GoogleTest directory!* Any tests are saved in the `Tests/Src` directory.
 
 To build and run tests, from the `Tests` directory and run
 
   `make tests`
   
-Any failed tests will be highlighted in red, and if you bbroke it, you gotta fix it.
+  
+### Rootfinder
+Some simulations will require the use of an N-dimensional footfinder, either for a (semi-) implicit time integrator or
+for the conservative to primitive transformation. We have elected to use the CMINPACK library\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
+  `make`
+ to compile all the object files. Then, if the build was successful, for gods sake dont touch/look at this library again.
 
-## Simulations
+
+### Simulations
 Simulations are run from the *main.cu* scripts. The Makefile in the Project folder links to the test directory, it is recommended that simulations are run with 
 
   `make all`
   
 so that gtest will flag up any broken tests since the last change. Otherwise, simply use
-  
   `make run`
-    
 to compile and run the simulation.
 
-Happy modelling!
+
+### Plotting Tools
+In the *Src* directory there are plotting scripts. These scripts require data to be saved after the simulation in the *Data*
+folder. This is done automatically when using the saveData script (specifically the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save). 
+To plot primitive variable heatmaps, for example, you must *cd* to the *Src* directory and hit
+
+  `python plotPrims.py`
+  
+to show the end state. Trying to execute this from any other directory will result in python raising an error as the relative path will be incorrect.
+
+
+
+\* found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack *real*s being double precision), some units have been excluded as theyre not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid).
