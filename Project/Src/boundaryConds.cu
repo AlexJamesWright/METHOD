@@ -74,10 +74,10 @@ void Periodic::apply(double * cons, double * prims, double * aux)
 
   // Conserved variables
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(d->Ng); i < d->nx + d->Ng; i++) {
+    for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ng; j++) {
         // Bottom
-        cons[d->id(var, i, j)] = cons[d->id(var, i, d->nx + j)];
+        cons[d->id(var, i, j)] = cons[d->id(var, i, d->ny + j)];
         // Top
         cons[d->id(var, i, d->ny + d->Ng + j)] = cons[d->id(var, i, d->Ng + j)];
       }
@@ -86,10 +86,10 @@ void Periodic::apply(double * cons, double * prims, double * aux)
 
   // Primitive variables
   for (int var(0); var < d->Nprims; var++) {
-    for (int i(d->Ng); i < d->nx + d->Ng; i++) {
+    for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ng; j++) {
         // Bottom
-        prims[d->id(var, i, j)] = prims[d->id(var, i, d->nx + j)];
+        prims[d->id(var, i, j)] = prims[d->id(var, i, d->ny + j)];
         // Top
         prims[d->id(var, i, d->ny + d->Ng + j)] = prims[d->id(var, i, d->Ng + j)];
       }
@@ -98,10 +98,10 @@ void Periodic::apply(double * cons, double * prims, double * aux)
 
   // Aux variables
   for (int var(0); var < d->Naux; var++) {
-    for (int i(d->Ng); i < d->nx + d->Ng; i++) {
+    for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ng; j++) {
         // Bottom
-        aux[d->id(var, i, j)] = aux[d->id(var, i, d->nx + j)];
+        aux[d->id(var, i, j)] = aux[d->id(var, i, d->ny + j)];
         // Top
         aux[d->id(var, i, d->ny + d->Ng + j)] = aux[d->id(var, i, d->Ng + j)];
       }
