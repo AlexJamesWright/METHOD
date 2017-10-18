@@ -14,7 +14,7 @@ int main(void) {
   int start_s=clock();
 
   // Set up domain
-  Data data(30, 30, 0.0, 1.0, 0.0, 1.0, 0.1, 0.1);
+  Data data(100, 100, 0.0, 1.0, 0.0, 1.0, 0.8, 0.5);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -30,34 +30,6 @@ int main(void) {
   sim.set(&init, &model, &timeInt, &bcs);
 
   sim.evolve();
-
-  // for (int i(0); i < data.Nprims; i++) {
-  //   printf("prims[%d] = %18.16f\n", i, data.prims[data.id(i, 3, 3)]);
-  // } printf("\n");
-  //
-  // for (int i(0); i < data.Naux; i++) {
-  //   printf("aux[%d] = %18.16f\n", i, data.aux[data.id(i, 3, 3)]);
-  // } printf("\n");
-  //
-  // for (int i(0); i < data.Ncons; i++) {
-  //   printf("cons[%d] = %18.16f\n", i, data.cons[data.id(i, 3, 3)]);
-  // } printf("\n");
-  //
-  // sim.updateTime();
-  // sim.updateTime();
-  //
-  // for (int i(0); i < data.Nprims; i++) {
-  //   printf("prims[%d] = %18.16f\n", i, data.prims[data.id(i, 3, 3)]);
-  // } printf("\n");
-  //
-  // for (int i(0); i < data.Naux; i++) {
-  //   printf("aux[%d] = %18.16f\n", i, data.aux[data.id(i, 3, 3)]);
-  // } printf("\n");
-  //
-  // for (int i(0); i < data.Ncons; i++) {
-  //   printf("cons[%d] = %18.16f\n", i, data.cons[data.id(i, 3, 3)]);
-  // } printf("\n");
-
 
   int stop_s=clock();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
