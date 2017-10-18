@@ -120,7 +120,7 @@ namespace
     bcs.apply(d.cons);
 
     for (int var(0); var < d.Ncons; var++) {
-      for (int i(d.Ng); i < d.Ng+d.nx; i++) {
+      for (int i(0); i < d.Nx; i++) {
 
         // Bottom
         EXPECT_EQ(d.cons[d.id(var, i, 0)], 10);
