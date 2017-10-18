@@ -32,8 +32,19 @@ INC_DIR = ./../Project/Include
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS = -isystem $(GTEST_DIR)/include
 
+CXXFLAGS = -std=c++11 \
+
+
 # Flags passed to the C++ compiler.
-CXXFLAGS =
+# c++11 is required for the vector looping srmhd
+# These three required to get the c++11 standard to compile with NVIDIA, dont ask me why,
+# found the solution on https://github.com/NVIDIA/nccl/issues/29
+CXXFLAGS = -std=c++11	\
+					 -D_MWAITXINTRIN_H_INCLUDED \
+					 -D_FORCE_INLINES \
+					 -D__STRICT_ANSI__
+
+
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -100,90 +111,87 @@ RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
 
 
 gtest-all.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc
 
 gtest_main.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc
 
 gtest.a : gtest-all.o
-	$(AR) $(ARFLAGS) $@ $^
+	@$(AR) $(ARFLAGS) $@ $^
 
 gtest_main.a : gtest-all.o gtest_main.o
-	$(AR) $(ARFLAGS) $@ $^
-
-
-
-						#################################################
-						# Bulid tests for each element of the programme #
-						#################################################
+	@$(AR) $(ARFLAGS) $@ $^
+	####################################################
+	# Buliding tests for each element of the programme #
+	####################################################
 
 # simData
 
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
 
 
 # Weno reconstruction
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
 
 # simulation
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
 
 test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_simulation : simulation.o test_simulation.o simData.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
-	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Model
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
                      $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
-	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # InitialFunc
 
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h
-		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cu -I$(INC_DIR)
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cu -I$(INC_DIR)
 
 test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
-	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Cminpack rootfinder
 test_cminpack.o : $(TEST_DIR)/test_cminpack.cu $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_cminpack.cu -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_cminpack.cu -I$(RTFIND_INC_DIR)
 
 test_cminpack : test_cminpack.o $(RTFIND_OBJS) gtest_main.a
-	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
 # Boundary Conditions
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
-		$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cu -I$(INC_DIR)
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cu -I$(INC_DIR)
 
 test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cu $(INC_DIR)/boundaryConds.h \
 									$(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_boundaryConds : test_boundaryConds.o boundaryConds.o simData.o srmhd.o simulation.o initFunc.o weno.o $(RTFIND_OBJS) gtest_main.a
-	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
