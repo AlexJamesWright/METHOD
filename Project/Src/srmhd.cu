@@ -4,8 +4,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
-#include <vector>
-
 
 
 SRMHD::SRMHD() : Model()
@@ -20,6 +18,25 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->Ncons = (this->data)->Ncons = 9;
   this->Nprims = (this->data)->Nprims = 8;
   this->Naux = (this->data)->Naux = 13;
+  this->data->consLabels.push_back("D"); this->data->consLabels.push_back("Sx");
+  this->data->consLabels.push_back("Sy"); this->data->consLabels.push_back("Sx");
+  this->data->consLabels.push_back("tau"); this->data->consLabels.push_back("Bx");
+  this->data->consLabels.push_back("By"); this->data->consLabels.push_back("Bz");
+  this->data->consLabels.push_back("phi");
+
+  this->data->primsLabels.push_back("rho"); this->data->primsLabels.push_back("vx");
+  this->data->primsLabels.push_back("vy"); this->data->primsLabels.push_back("vz");
+  this->data->primsLabels.push_back("p"); this->data->primsLabels.push_back("Bx");
+  this->data->primsLabels.push_back("By"); this->data->primsLabels.push_back("Bz");
+
+  this->data->auxLabels.push_back("h"); this->data->auxLabels.push_back("W");
+  this->data->auxLabels.push_back("e"); this->data->auxLabels.push_back("c");
+  this->data->auxLabels.push_back("b0"); this->data->auxLabels.push_back("bx");
+  this->data->auxLabels.push_back("by"); this->data->auxLabels.push_back("bx");
+  this->data->auxLabels.push_back("bsq"); this->data->auxLabels.push_back("vsq");
+  this->data->auxLabels.push_back("BS"); this->data->auxLabels.push_back("Bsq");
+  this->data->auxLabels.push_back("Ssq");
+
 }
 
 
