@@ -36,7 +36,8 @@ SRCS = main.cu \
 			 simData.cu \
 			 weno.cu \
 			 rkSplit.cu \
-			 boundaryConds.cu
+			 boundaryConds.cu \
+			 saveData.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -100,7 +101,7 @@ initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h
+simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
@@ -113,6 +114,9 @@ rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 
