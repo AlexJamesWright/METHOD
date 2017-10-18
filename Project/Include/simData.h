@@ -1,6 +1,9 @@
 #ifndef SIMDATA_H
 #define SIMDATA_H
 
+#include <vector>
+#include <string>
+
 class Data
 /*
   Class contains all the data of the simulation relevant to any of the other
@@ -36,7 +39,10 @@ class Data
     int
     iters,                // Number of interations that have been completed
     Nx, Ny;               // Total number of compute cells in domain
-
+    std::vector<std::string>
+    consLabels,           // Labels for the conserved variables
+    primsLabels,          // Labels for the primitive variables
+    auxLabels;            // Labels for the auxilliary variables
 
     //! Element ID function
     /*!
