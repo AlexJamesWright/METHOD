@@ -17,6 +17,7 @@ class Model
     Data * data;              // Pointer to overarching simData object
     int Ncons, Nprims, Naux;  // Size of conserved, primitive and aux state vectors
 
+
     //! Constructors & Destructors
     Model() : data(NULL) {}
     Model(Data * data) : data(data) {}
