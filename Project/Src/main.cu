@@ -4,6 +4,7 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
+#include "saveData.h"
 #include <cstdio>
 #include <ctime>
 
@@ -30,6 +31,8 @@ int main(void) {
   sim.set(&init, &model, &timeInt, &bcs);
 
   sim.evolve();
+
+  SaveData save(&data);
 
   int stop_s=clock();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
