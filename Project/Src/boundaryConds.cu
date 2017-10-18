@@ -1,7 +1,7 @@
 #include "boundaryConds.h"
 #include <stdio.h>
 
-void Outflow::apply(double * cons, double * prims, double * aux)
+void Outflow::apply(double * cons)
 {
 
   // Syntax
@@ -19,7 +19,7 @@ void Outflow::apply(double * cons, double * prims, double * aux)
   }
 
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(d->Ng); i < d->nx + d->Ng; i++) {
+    for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ng; j++) {
         // Bottom
         cons[d->id(var, i, j)] = cons[d->id(var, i, d->Ng)];
@@ -31,7 +31,7 @@ void Outflow::apply(double * cons, double * prims, double * aux)
 
 }
 
-void Periodic::apply(double * cons, double * prims, double * aux)
+void Periodic::apply(double * cons)
 {
   // Syntax
   Data * d(this->data);
@@ -48,29 +48,6 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
   }
 
-  // Primitive variables
-  for (int var(0); var < d->Nprims; var++) {
-    for (int i(0); i < d->Ng; i++) {
-      for (int j(d->Ng); j < d->ny + d->Ng; j++) {
-        // Left
-        prims[d->id(var, i, j)] = prims[d->id(var, d->nx + i, j)];
-        // Right
-        prims[d->id(var, d->nx + d->Ng + i, j)] = prims[d->id(var, d->Ng + i, j)];
-      }
-    }
-  }
-
-  // Aux variables
-  for (int var(0); var < d->Naux; var++) {
-    for (int i(0); i < d->Ng; i++) {
-      for (int j(d->Ng); j < d->ny + d->Ng; j++) {
-        // Left
-        aux[d->id(var, i, j)] = aux[d->id(var, d->nx + i, j)];
-        // Right
-        aux[d->id(var, d->nx + d->Ng + i, j)] = aux[d->id(var, d->Ng + i, j)];
-      }
-    }
-  }
 
   // Conserved variables
   for (int var(0); var < d->Ncons; var++) {
@@ -80,30 +57,6 @@ void Periodic::apply(double * cons, double * prims, double * aux)
         cons[d->id(var, i, j)] = cons[d->id(var, i, d->ny + j)];
         // Top
         cons[d->id(var, i, d->ny + d->Ng + j)] = cons[d->id(var, i, d->Ng + j)];
-      }
-    }
-  }
-
-  // Primitive variables
-  for (int var(0); var < d->Nprims; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        // Bottom
-        prims[d->id(var, i, j)] = prims[d->id(var, i, d->ny + j)];
-        // Top
-        prims[d->id(var, i, d->ny + d->Ng + j)] = prims[d->id(var, i, d->Ng + j)];
-      }
-    }
-  }
-
-  // Aux variables
-  for (int var(0); var < d->Naux; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        // Bottom
-        aux[d->id(var, i, j)] = aux[d->id(var, i, d->ny + j)];
-        // Top
-        aux[d->id(var, i, d->ny + d->Ng + j)] = aux[d->id(var, i, d->Ng + j)];
       }
     }
   }
