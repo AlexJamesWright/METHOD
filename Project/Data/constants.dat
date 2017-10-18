@@ -1,0 +1,2 @@
+constants = nx, ny, Nx, Ny, xmin, xmax, ymin, ymax, endTime, cfl, Ng, gamma, sigma, Ncons, Nprims, Naux, cp, dt, t, dx, dy
+100 100 108 108 0.000000 1.000000 0.000000 1.000000 0.800000 0.500000 4 1.666667 0.000000 9 8 13 0.100000 0.001250 0.800000 0.010000 0.010000
