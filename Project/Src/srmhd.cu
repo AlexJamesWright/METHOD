@@ -299,7 +299,10 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
   // Solutions
-  double solution[2][d->Nx][d->Ny];
+  double * solution;
+  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny,
+                cudaHostAllocPortable);
+
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
   const int n(2);                     // Size of system
@@ -351,20 +354,16 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       // Solve residual = 0
       info = __cminpack_func__(hybrd1) (&residual, &args, n, sol, res,
                                         tol, wa, lwa);
-      // If root find fails, flag user and exit early.
+      // If root find fails, add failed cell to the list
       if (info!=1) {
-        // printf("\n\n\n###################################################################################\n");
-        // printf("Failed to converge in cons2prims, hybrd1 exited with exit code %d for cell (%d, %d)\n", info, i, j);
-        // printf("###################################################################################\n\n\n");
-        // std::exit(1);
+
         Failed fail = {i, j};
         fails.push_back(fail);
-        // std::exit(1);
       }
       else {
         // Now have the correct values for vsq and rho*h*Wsq
-        solution[0][i][j] = sol[0];
-        solution[1][i][j] = sol[1];
+        solution[d->id(0, i, j)] = sol[0];
+        solution[d->id(1, i, j)] = sol[1];
       }
     }
   }
@@ -392,8 +391,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       sol[0] = 0;
       sol[1] = 0;
       for (Failed neighbour : neighbours) {
-        sol[0] += solution[0][neighbour.x][neighbour.y];
-        sol[1] += solution[1][neighbour.x][neighbour.y];
+        sol[0] += solution[d->id(0, neighbour.x, neighbour.y)];
+        sol[1] += solution[d->id(1, neighbour.x, neighbour.y)];
       }
       sol[0] /= neighbours.size();
       sol[1] /= neighbours.size();
@@ -407,8 +406,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       }
       else {
         // printf("Smart guessing worked!\n");
-        solution[0][x][y] = sol[0];
-        solution[1][x][y] = sol[1];
+        solution[d->id(0, x, y)] = sol[0];
+        solution[d->id(1, x, y)] = sol[1];
       }
     }
   }
@@ -418,11 +417,11 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     for (int j(0); j < d->Ny; j++) {
 
       // W
-      aux[d->id(1, i, j)] = 1 / sqrt(1 - solution[0][i][j]);
+      aux[d->id(1, i, j)] = 1 / sqrt(1 - solution[d->id(0, i, j)]);
       // rho
       prims[d->id(0, i, j)] = cons[d->id(0, i, j)] / aux[d->id(1, i, j)];
       // h
-      aux[d->id(0, i, j)] = solution[1][i][j] / (prims[d->id(0, i, j)] * aux[d->id(1, i, j)] *
+      aux[d->id(0, i, j)] = solution[d->id(1, i, j)] / (prims[d->id(0, i, j)] * aux[d->id(1, i, j)] *
                             aux[d->id(1, i, j)]);
       // p
       prims[d->id(4, i, j)] = (aux[d->id(0, i, j)] - 1) * prims[d->id(0, i, j)] *
@@ -432,14 +431,14 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                             (d->gamma - 1));
       // vx, vy, vz
       prims[d->id(1, i, j)] = (cons[d->id(5, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(1, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
-                              (aux[d->id(11, i, j)] + solution[1][i][j]));
+                              cons[d->id(1, i, j)] * solution[d->id(1, i, j)]) / (solution[d->id(1, i, j)] *
+                              (aux[d->id(11, i, j)] + solution[d->id(1, i, j)]));
       prims[d->id(2, i, j)] = (cons[d->id(6, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(2, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
-                              (aux[d->id(11, i, j)] + solution[1][i][j]));
+                              cons[d->id(2, i, j)] * solution[d->id(1, i, j)]) / (solution[d->id(1, i,j)] *
+                              (aux[d->id(11, i, j)] + solution[d->id(1, i, j)]));
       prims[d->id(3, i, j)] = (cons[d->id(7, i, j)] * aux[d->id(10, i, j)] +
-                              cons[d->id(3, i, j)] * solution[1][i][j]) / (solution[1][i][j] *
-                              (aux[d->id(11, i, j)] + solution[1][i][j]));
+                              cons[d->id(3, i, j)] * solution[d->id(1, i, j)]) / (solution[d->id(1, i, j)] *
+                              (aux[d->id(11, i, j)] + solution[d->id(1, i, j)]));
       aux[d->id(9, i, j)] = prims[d->id(1, i, j)] * prims[d->id(1, i, j)] +
                             prims[d->id(2, i, j)] * prims[d->id(2, i, j)] +
                             prims[d->id(3, i, j)] * prims[d->id(3, i, j)];
