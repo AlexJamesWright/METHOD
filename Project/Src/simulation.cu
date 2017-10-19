@@ -10,7 +10,7 @@ Simulation::Simulation(Data * data) : data(data)
   d = this->data;
 
   // Allocate memory for state arrays
-  int Ntot(d->Nx * d->Ny);
+  int Ntot(d->Nx * d->Ny * d->Nz);
 
   if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
 
@@ -38,18 +38,24 @@ Simulation::Simulation(Data * data) : data(data)
   gpuErrchk( cudaHostAlloc((void **)&d->y,
                 sizeof(double) * d->Ny,
                 cudaHostAllocPortable) );
+  gpuErrchk( cudaHostAlloc((void **)*d->z,
+                sizeof(double) * d->Nz,
+                cudaHostAllocPortable) );
 
 
   // Initialise the data
   d->dx = (d->xmax - d->xmin) / d->nx;
   d->dy = (d->ymax - d->ymin) / d->ny;
+  d->dz = (d->zmax - d->zmin) / d->nz;
   d->iters = 0;
   d->t = 0;
-  d->alphaX = 1;
-  d->alphaY = 1;
+  d->alphaX = 1.0;
+  d->alphaY = 1.0;
+  d->alphaZ = 1.0;
   double dtX(d->cfl / (d->alphaX / d->dx));
   double dtY(d->cfl / (d->alphaY / d->dy));
-  d->dt = (dtX < dtY) ? dtX : dtY;
+  double dtZ(d->cfl / (d->alphaZ / d->dz));
+  d->dt = (dtX < dtY && dtX < dtZ) ? dtX : (dtY < dtZ) ? dtY : dtZ);
   d->memSet = 1;
 
   // Set axes
@@ -58,6 +64,9 @@ Simulation::Simulation(Data * data) : data(data)
   }
   for (int j(0); j < d->Ny; j++) {
     d->y[j] = d->ymin + (j + 0.5 - d->Ng) * d->dy;
+  }
+  for (int k(0); k < d->Nz; k++) {
+    d->z[k] = d->zmin + (k + 0.5 - d->Ng) * d->dz;
   }
 
 }
@@ -72,6 +81,8 @@ Simulation::~Simulation()
   gpuErrchk( cudaFreeHost(this->data->prims) );
   gpuErrchk( cudaFreeHost(this->data->aux) );
   gpuErrchk( cudaFreeHost(this->data->x) );
+  gpuErrchk( cudaFreeHost(this->data->y) );
+  gpuErrchk( cudaFreeHost(this->data->z) );
 }
 
 
@@ -99,8 +110,9 @@ void Simulation::updateTime()
   // Calculate the size of the next timestep
   // double dtX(d->cfl / (d->alphaX / d->dx));
   // double dtY(d->cfl / (d->alphaY / d->dy));
-  // d->dt = (dtX < dtY) ? dtX : dtY;
-  d->dt = d->cfl / (1/d->dx + 1/d->dy);
+  // double dtZ(d->cfl / (d->alphaZ / d->dz));
+  // d->dt = (dtX < dtY && dtX < dtZ) ? dtX : (dtY < dtZ) ? dtY : dtZ);
+  d->dt = d->cfl / (1/d->dx + 1/d->dy + 1/d->dz);
 
   // Slow start
   if (d->iters < 5) d->dt *= 0.1;
