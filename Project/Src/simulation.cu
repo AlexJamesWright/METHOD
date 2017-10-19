@@ -38,7 +38,7 @@ Simulation::Simulation(Data * data) : data(data)
   gpuErrchk( cudaHostAlloc((void **)&d->y,
                 sizeof(double) * d->Ny,
                 cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)*d->z,
+  gpuErrchk( cudaHostAlloc((void **)&d->z,
                 sizeof(double) * d->Nz,
                 cudaHostAllocPortable) );
 
@@ -55,7 +55,7 @@ Simulation::Simulation(Data * data) : data(data)
   double dtX(d->cfl / (d->alphaX / d->dx));
   double dtY(d->cfl / (d->alphaY / d->dy));
   double dtZ(d->cfl / (d->alphaZ / d->dz));
-  d->dt = (dtX < dtY && dtX < dtZ) ? dtX : (dtY < dtZ) ? dtY : dtZ);
+  d->dt = (dtX < dtY && dtX < dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
   d->memSet = 1;
 
   // Set axes

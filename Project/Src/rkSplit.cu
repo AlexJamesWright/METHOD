@@ -9,30 +9,33 @@ void RKSplit::step()
   // Need some work arrays
   double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
+  int Ntot(d->Nx * d->Ny * d->Nz);
 
-  cudaHostAlloc((void **)&p1cons, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+  cudaHostAlloc((void **)&p1cons, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&p1prims, sizeof(double) * d->Nx * d->Ny * d->Nprims,
+  cudaHostAlloc((void **)&p1prims, sizeof(double) * Ntot * d->Nprims,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&p1aux, sizeof(double) * d->Nx * d->Ny * d->Naux,
+  cudaHostAlloc((void **)&p1aux, sizeof(double) * Ntot * d->Naux,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&args1, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+  cudaHostAlloc((void **)&args1, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&args2, sizeof(double) * d->Nx * d->Ny * d->Ncons,
+  cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
 
   // Cons2prims conversion for p1 estimate stage requires old values to start the rootfind,
   // to save computation, only copy the variables that are required
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
-      p1aux[d->id(0, i, j)] = d->aux[d->id(0, i, j)];
-      p1aux[d->id(10, i, j)] = d->aux[d->id(10, i, j)];
-      p1aux[d->id(11, i, j)] = d->aux[d->id(11, i, j)];
-      p1aux[d->id(12, i, j)] = d->aux[d->id(12, i, j)];
-      p1prims[d->id(0, i, j)] = d->prims[d->id(0, i, j)];
-      p1prims[d->id(1, i, j)] = d->prims[d->id(1, i, j)];
-      p1prims[d->id(2, i, j)] = d->prims[d->id(2, i, j)];
-      p1prims[d->id(3, i, j)] = d->prims[d->id(3, i, j)];
+      for (int k(0); k < d->Nz; k++) {
+        p1aux[d->id(0, i, j, k)] = d->aux[d->id(0, i, j, k)];
+        p1aux[d->id(10, i, j, k)] = d->aux[d->id(10, i, j, k)];
+        p1aux[d->id(11, i, j, k)] = d->aux[d->id(11, i, j, k)];
+        p1aux[d->id(12, i, j, k)] = d->aux[d->id(12, i, j, k)];
+        p1prims[d->id(0, i, j, k)] = d->prims[d->id(0, i, j, k)];
+        p1prims[d->id(1, i, j, k)] = d->prims[d->id(1, i, j, k)];
+        p1prims[d->id(2, i, j, k)] = d->prims[d->id(2, i, j, k)];
+        p1prims[d->id(3, i, j, k)] = d->prims[d->id(3, i, j, k)];
+      }
     }
   }
 
@@ -44,7 +47,9 @@ void RKSplit::step()
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
-         p1cons[d->id(var, i, j)] = d->cons[d->id(var, i, j)] - d->dt * args1[d->id(var, i, j)];
+         for (int k(0); k < d->Nz; k++) {
+           p1cons[d->id(var, i, j, k)] = d->cons[d->id(var, i, j, k)] - d->dt * args1[d->id(var, i, j, k)];
+         }
        }
      }
    }
@@ -63,11 +68,13 @@ void RKSplit::step()
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
-         d->cons[d->id(var, i, j)] = 0.5 * (d->cons[d->id(var, i, j)] + p1cons[d->id(var, i, j)] -
-                                         d->dt * args2[d->id(var, i, j)]);
+         for (int k(0); k < d->Nz; k++) {
+           d->cons[d->id(var, i, j, k)] = 0.5 * (d->cons[d->id(var, i, j, k)] + p1cons[d->id(var, i, j, k)] -
+                                         d->dt * args2[d->id(var, i, j, k)]);
+         }
        }
      }
-   } 
+   }
 
    this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
 
@@ -77,7 +84,9 @@ void RKSplit::step()
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
-         d->cons[d->id(var, i, j)] += d->dt * d->source[d->id(var, i, j)];
+         for (int k(0); k < d->Nz; k++) {
+           d->cons[d->id(var, i, j, k)] += d->dt * d->source[d->id(var, i, j, k)];
+         }
        }
      }
    }

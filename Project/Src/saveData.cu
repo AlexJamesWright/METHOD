@@ -29,11 +29,12 @@ void SaveData::saveCons()
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
-        fprintf(f, "%f ", d->cons[d->id(var, i, j)]);
+        for (int k(0); k < d->Nz; k++) {
+          fprintf(f, "%f ", d->cons[d->id(var, i, j, k)]);
+        }
+        fprintf(f, "\n");
       }
-      fprintf(f, "\n");
     }
-    fprintf(f, "\n");
   }
 
   fclose(f);
@@ -59,11 +60,12 @@ void SaveData::savePrims()
   for (int var(0); var < d->Nprims; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
-        fprintf(f, "%f ", d->prims[d->id(var, i, j)]);
+        for (int k(0); k < d->Nz; k++) {
+          fprintf(f, "%f ", d->prims[d->id(var, i, j, k)]);
+        }
+        fprintf(f, "\n");
       }
-      fprintf(f, "\n");
     }
-    fprintf(f, "\n");
   }
 
   fclose(f);
@@ -88,11 +90,12 @@ void SaveData::saveAux()
   for (int var(0); var < d->Naux; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
-        fprintf(f, "%f ", d->aux[d->id(var, i, j)]);
+        for (int k(0); k < d->Nz; k++) {
+          fprintf(f, "%f ", d->aux[d->id(var, i, j, k)]);
+        }
+        fprintf(f, "\n");
       }
-      fprintf(f, "\n");
     }
-    fprintf(f, "\n");
   }
 
   fclose(f);
@@ -111,11 +114,11 @@ void SaveData::saveConsts()
     exit(1);
   }
 
-  fprintf(f, "constants = nx, ny, Nx, Ny, xmin, xmax, ymin, ymax, endTime, cfl, Ng, gamma, sigma, ");
-  fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy\n");
-  fprintf(f, "%d %d %d %d %f %f %f %f %f %f %d %f %f %d %d %d %f %f %f %f %f\n",
-          d->nx, d->ny, d->Nx, d->Ny, d->xmin, d->xmax, d->ymin, d->ymax, d->endTime, d->cfl, d->Ng,
-          d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy);
+  fprintf(f, "constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, ");
+  fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz\n");
+  fprintf(f, "%d %d %d %d %d %d %f %f %f %f %f %f %f %f %d %f %f %d %d %d %f %f %f %f %f %f\n",
+          d->nx, d->ny, d->nz, d->Nx, d->Ny, d->Nz, d->xmin, d->xmax, d->ymin, d->ymax, d->zmin, d->zmax, d->endTime, d->cfl, d->Ng,
+          d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
 
   fclose(f);
 
