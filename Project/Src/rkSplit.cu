@@ -51,6 +51,7 @@ void RKSplit::step()
 
    // Apply boundary conditions and get primitive and aux vars for p1
    this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
+
    this->bc->apply(p1cons);
 
 
@@ -66,7 +67,7 @@ void RKSplit::step()
                                          d->dt * args2[d->id(var, i, j)]);
        }
      }
-   }
+   } 
 
    this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
 
