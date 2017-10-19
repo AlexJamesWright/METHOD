@@ -15,7 +15,7 @@ int main(void) {
   int start_s=clock();
 
   // Set up domain
-  Data data(750, 750, 0.0, 1.0, 0.0, 1.0, 0.8, 0.5);
+  Data data(1000, 1000, 0.0, 1.0, 0.0, 1.0, 0.8, 0.5);
 
   // Choose particulars of simulation
   SRMHD model(&data);
