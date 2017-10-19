@@ -57,6 +57,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
 
   // up and downwind fluxes
   double *fplus, *fminus;
+
   cudaHostAlloc((void **)&fplus, sizeof(double)*d->Nx*d->Ny*d->Ncons,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&fminus, sizeof(double)*d->Nx*d->Ny*d->Ncons,
@@ -219,8 +220,8 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   this->fluxFunc(cons, prims, aux, f, fy, 1);
 
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(1); i < d->Nx; i++) {
-      for (int j(1); j < d->Ny; j++) {
+    for (int i(0); i < d->Nx-1; i++) {
+      for (int j(0); j < d->Ny-1; j++) {
         fnet[d->id(var, i, j)] = (fx[d->id(var, i+1, j)] / d->dx - fx[d->id(var, i, j)] / d->dx)  +
                                  (fy[d->id(var, i, j+1)] / d->dy - fy[d->id(var, i, j)] / d->dy);
       }
