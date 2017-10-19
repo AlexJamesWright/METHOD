@@ -50,6 +50,21 @@ class SRMHD : public Model
 /*!
     SRMHD requires N=2 rootfind, therefore need to implement the hybrd cminpack
   multiD Newton solver. Things may get ugly.
+    Cant do anything about the arguments of this function, cminpack demands you
+  not enjoy anything it offers...
+
+  Parameters
+  ----------
+    p: void pointer
+      points to the additional arguments struct (found below)
+    n: int
+      Size of system (n=2 for srmhd)
+    x: pointer to double
+      Initial estimate of solution
+    fvec: pointer to double
+      The solution
+    iflag: int
+      Cminpack error flag
 */
 int residual(void *p, int n, const double *x, double *fvec, int iflag);
 
@@ -77,7 +92,7 @@ typedef struct
 typedef struct
 {
   // Store coordinates of the failed cell
-  int x, y;
+  int x, y, z;
 } Failed;
 
 #endif

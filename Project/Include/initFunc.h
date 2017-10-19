@@ -23,7 +23,7 @@ class InitialFunc
 };
 
 
-//! Orszag-Tang voretx initial data
+//! Orszag-Tang voretx initial data (2D)
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
