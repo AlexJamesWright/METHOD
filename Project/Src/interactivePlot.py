@@ -229,6 +229,9 @@ def plotHeatMaps(data, dataLabels, c, color=None, axis=2):
             The colour theme to be plotting in. This can take string arguments
             but best to stick to variants of cm.somecolourscheme
             E.g. cm.magma
+        axis: int
+            The axis the user wants to ignore.
+            (0, 1, 2) = (x, y, z)
     """
     for i in range(data.shape[0]):
         fig = plt.figure()
