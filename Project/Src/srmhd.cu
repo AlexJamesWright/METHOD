@@ -115,7 +115,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
         }
 
         // Fy: flux in y-direction
-        else {
+        else if (dir==1) {
           // D
           f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(2, i, j, k)];
 
@@ -146,6 +146,43 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
           // Bz
           f[d->id(7, i, j, k)] = prims[d->id(7, i, j, k)] * prims[d->id(2, i, j, k)] -
                               prims[d->id(6, i, j, k)] * prims[d->id(3, i, j, k)];
+          // Phi
+          f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
+
+        }
+
+        // Fz: flux in z-direction
+        else {
+          // D
+          f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(3, i, j, k)];
+
+          // Sx
+          f[d->id(1, i, j, k)] = cons[d->id(1, i, j, k)] * prims[d->id(3, i, j, k)] -
+                              aux[d->id(5, i, j, k)] * prims[d->id(7, i, j, k)] /
+                              aux[d->id(1, i, j, k)];
+          // Sy
+          f[d->id(2, i, j, k)] = cons[d->id(2, i, j, k)] * prims[d->id(3, i, j, k)] -
+                              aux[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)] /
+                              aux[d->id(1, i, j, k)];
+          // Sz
+          f[d->id(3, i, j, k)] = cons[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)] +
+                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] / 2.0 -
+                              aux[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] /
+                              aux[d->id(1, i, j, k)];
+          // tau
+          f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
+                              aux[d->id(8, i, j, k)] / 2.0) * prims[d->id(3, i, j, k)] -
+                              aux[d->id(4, i, j, k)] * prims[d->id(7, i, j, k)] /
+                              aux[d->id(1, i, j, k)];
+          // Bx
+          f[d->id(5, i, j, k)] = prims[d->id(5, i, j, k)] * prims[d->id(3, i, j, k)] -
+                              prims[d->id(7, i, j, k)] * prims[d->id(1, i, j, k)];
+          // By
+          f[d->id(6, i, j, k)] = prims[d->id(6, i, j, k)] * prims[d->id(3, i, j, k)] -
+                              prims[d->id(7, i, j, k)] * prims[d->id(2, i, j, k)];
+
+          // Bz
+          f[d->id(7, i, j, k)] = cons[d->id(8, i, j, k)];
           // Phi
           f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
 
