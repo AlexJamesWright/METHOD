@@ -138,6 +138,12 @@ simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCh
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
 
+# Runge-Kutta split integrator
+
+rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/rkSplit.cu -I$(INC_DIR)
+
+
 # simulation
 
 simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
@@ -147,7 +153,7 @@ test_simulation.o : $(TEST_DIR)/test_simulation.cu \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_simulation : simulation.o test_simulation.o simData.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
+test_simulation : simulation.o test_simulation.o simData.o srmhd.o boundaryConds.o initFunc.o rkSplit.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
