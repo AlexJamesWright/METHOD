@@ -32,7 +32,7 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->data->auxLabels.push_back("h"); this->data->auxLabels.push_back("W");
   this->data->auxLabels.push_back("e"); this->data->auxLabels.push_back("c");
   this->data->auxLabels.push_back("b0"); this->data->auxLabels.push_back("bx");
-  this->data->auxLabels.push_back("by"); this->data->auxLabels.push_back("bx");
+  this->data->auxLabels.push_back("by"); this->data->auxLabels.push_back("bz");
   this->data->auxLabels.push_back("bsq"); this->data->auxLabels.push_back("vsq");
   this->data->auxLabels.push_back("BS"); this->data->auxLabels.push_back("Bsq");
   this->data->auxLabels.push_back("Ssq");
