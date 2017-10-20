@@ -1,10 +1,10 @@
-# MultiDMHD
+# METRO-HD
 -----------------------
 
-## **M**ulti-**D**imensional **M**agneto**H**ydro**D**ynamics
+## Multifluid Electromagneto-HydroDynamics 
 ---------------------------------------------
 
-The extension of the 2DEuler python code, based in CUDA and C++.
+A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++. 
 
 ### Documentation
 I have tried to maintain good documentation standards, but cant guarantee that everything you want will be here. If you are unsure of any of the functionality, find the respective header file for the class or function that you are curious about (this includes the abstract base classes for any derived classes). 
@@ -12,7 +12,7 @@ I have tried to maintain good documentation standards, but cant guarantee that e
 ### Testing
 We use the Google Test framework for unit testing. *Dont touch the GoogleTest directory!* Any tests are saved in the `Tests/Src` directory.
 
-To build and run tests, from the `Tests` directory and run
+To build and run all tests, navigate to the `Tests` directory and run
 
   `make tests`
   
