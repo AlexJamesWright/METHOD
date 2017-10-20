@@ -4,7 +4,7 @@
 ## Multifluid Electromagneto-HydroDynamics 
 ---------------------------------------------
 
-The extension of the 2DEuler python code, based in CUDA and C++.
+A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++. 
 
 ### Documentation
 I have tried to maintain good documentation standards, but cant guarantee that everything you want will be here. If you are unsure of any of the functionality, find the respective header file for the class or function that you are curious about (this includes the abstract base classes for any derived classes). 
