@@ -1,7 +1,7 @@
-# MultiDMHD
+# METRO-HD
 -----------------------
 
-## **M**ulti-**D**imensional **M**agneto**H**ydro**D**ynamics
+## Multifluid Electromagneto-HydroDynamics 
 ---------------------------------------------
 
 The extension of the 2DEuler python code, based in CUDA and C++.
