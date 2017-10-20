@@ -1,2 +1,2 @@
-constants = nx, ny, Nx, Ny, xmin, xmax, ymin, ymax, endTime, cfl, Ng, gamma, sigma, Ncons, Nprims, Naux, cp, dt, t, dx, dy
-400 400 408 408 0.000000 1.000000 0.000000 1.000000 0.800000 0.500000 4 1.666667 0.000000 9 8 13 0.100000 0.000313 0.800000 0.002500 0.002500
+constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz
+50 50 1 58 58 9 0.000000 1.000000 0.000000 1.000000 0.000000 1.000000 0.100000 0.500000 4 1.666667 0.000000 9 8 13 0.100000 0.004737 0.100000 0.020000 0.020000 1.000000
