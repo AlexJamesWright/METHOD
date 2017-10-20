@@ -35,13 +35,12 @@ to compile and run the simulation.
 
 
 ### Plotting Tools
-In the *Src* directory there are plotting scripts. These scripts require data to be saved after the simulation in the *Data*
-folder. This is done automatically when using the saveData script (specifically the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save). 
-To plot primitive variable heatmaps, for example, you must *cd* to the *Src* directory and hit
-
-  `python plotPrims.py`
+The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
+folder. This is done automatically when using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. E.g. enter 
   
-to show the end state. Trying to execute this from any other directory will result in python raising an error as the relative path will be incorrect.
+  `SaveData save(&data);`
+  
+in *main* after the initial data has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
 
 
