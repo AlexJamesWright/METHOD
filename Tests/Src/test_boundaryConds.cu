@@ -43,7 +43,7 @@ namespace
 
     */
 
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
     for (int var(0); var < d.Ncons; var++) {
       for (int j(d.Ng); j < d.Ng+d.ny; j++) {
         for (int k(d.Ng); k < d.Ng+d.nz; k++) {
@@ -122,7 +122,7 @@ namespace
 
 
     */
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
 
     for (int var(0); var < d.Ncons; var++) {
       for (int i(d.Ng); i < d.Ng+d.nx; i++) {
@@ -159,7 +159,7 @@ namespace
     }
 
 
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
 
     for (int var(0); var < d.Ncons; var++) {
       for (int i(0); i < d.Nx; i++) {
@@ -226,7 +226,7 @@ namespace
 
     */
 
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
     for (int var(0); var < d.Ncons; var++) {
       for (int j(d.Ng); j < d.Ng+d.ny; j++) {
         for (int k(d.Ng); k < d.Ng+d.nz; k++) {
@@ -304,7 +304,7 @@ namespace
 
 
     */
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
 
     for (int var(0); var < d.Ncons; var++) {
       for (int i(d.Ng); i < d.Ng+d.nx; i++) {
@@ -339,7 +339,7 @@ namespace
       }
     }
 
-    bcs.apply(d.cons);
+    bcs.apply(d.cons, d.prims, d.aux);
 
     for (int var(0); var < d.Ncons; var++) {
       for (int i(0); i < d.Nx; i++) {
