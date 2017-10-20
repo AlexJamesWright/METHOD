@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include "cudaErrorCheck.h"
+#include <cmath>
 #include <stdexcept>
 #include <cstdio>
 
@@ -52,9 +53,9 @@ Simulation::Simulation(Data * data) : data(data)
   d->alphaX = 1.0;
   d->alphaY = 1.0;
   d->alphaZ = 1.0;
-  double dtX(d->cfl / (d->alphaX / d->dx));
-  double dtY(d->cfl / (d->alphaY / d->dy));
-  double dtZ(d->cfl / (d->alphaZ / d->dz));
+  double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
+  double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
+  double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
   d->dt = (dtX < dtY && dtX < dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
   d->memSet = 1;
 
@@ -108,11 +109,10 @@ void Simulation::updateTime()
 
 
   // Calculate the size of the next timestep
-  // double dtX(d->cfl / (d->alphaX / d->dx));
-  // double dtY(d->cfl / (d->alphaY / d->dy));
-  // double dtZ(d->cfl / (d->alphaZ / d->dz));
-  // d->dt = (dtX < dtY && dtX < dtZ) ? dtX : (dtY < dtZ) ? dtY : dtZ);
-  d->dt = d->cfl / (1/d->dx + 1/d->dy + 1/d->dz);
+  double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
+  double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
+  double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
+  d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
 
   // Slow start
   if (d->iters < 5) d->dt *= 0.1;
