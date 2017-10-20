@@ -57,7 +57,7 @@ void RKSplit::step()
    // Apply boundary conditions and get primitive and aux vars for p1
    this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
 
-   this->bc->apply(p1cons);
+   this->bc->apply(p1cons, p1prims, p1aux);
 
 
    // Get second approximation of flux contribution
@@ -95,7 +95,7 @@ void RKSplit::step()
    this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
 
    // Apply boundary conditions
-   this->bc->apply(d->cons);
+   this->bc->apply(d->cons, d->prims, d->aux);
 
 
 
