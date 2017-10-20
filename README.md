@@ -12,7 +12,7 @@ I have tried to maintain good documentation standards, but cant guarantee that e
 ### Testing
 We use the Google Test framework for unit testing. *Dont touch the GoogleTest directory!* Any tests are saved in the `Tests/Src` directory.
 
-To build and run tests, from the `Tests` directory and run
+To build and run all tests, navigate to the `Tests` directory and run
 
   `make tests`
   
