@@ -44,4 +44,4 @@ in *main* after the initial data has been evolved. Running the python script as 
 
 
 
-\* found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack *real*s being double precision), some units have been excluded as theyre not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid).
+\* *found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*
