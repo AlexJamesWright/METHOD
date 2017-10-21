@@ -1,7 +1,7 @@
 # METHOD
 -----------------------
 
-## Multifluid ElecTromagneto-HydrODynamics 
+## Multifluid Electromagneto-HydroDynamics 
 ---------------------------------------------
 
 A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++. 
