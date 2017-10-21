@@ -1,7 +1,7 @@
-# METRO-HD
+# METHOD
 -----------------------
 
-## Multifluid Electromagneto-HydroDynamics 
+## Multifluid ElecTromagneto-HydrODynamics 
 ---------------------------------------------
 
 A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++. 
