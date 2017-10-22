@@ -18,6 +18,9 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->Ncons = (this->data)->Ncons = 9;
   this->Nprims = (this->data)->Nprims = 8;
   this->Naux = (this->data)->Naux = 13;
+
+  smartGuesses = 0;
+
   this->data->consLabels.push_back("D"); this->data->consLabels.push_back("Sx");
   this->data->consLabels.push_back("Sy"); this->data->consLabels.push_back("Sx");
   this->data->consLabels.push_back("tau"); this->data->consLabels.push_back("Bx");
@@ -481,6 +484,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         std::exit(1);
       }
       else {
+        smartGuesses++;
         // printf("Smart guessing worked!\n");
         solution[d->id(0, x, y, z)] = sol[0];
         solution[d->id(1, x, y, z)] = sol[1];

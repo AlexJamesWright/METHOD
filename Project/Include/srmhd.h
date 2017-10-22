@@ -23,6 +23,8 @@ class SRMHD : public Model
 
   public:
 
+    int smartGuesses;
+
     //! Constructors and destructors
     SRMHD();
     SRMHD(Data * data);
