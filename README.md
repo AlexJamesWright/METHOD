@@ -1,4 +1,4 @@
-# METRO-HD
+# METHOD
 -----------------------
 
 ## Multifluid Electromagneto-HydroDynamics 
@@ -35,14 +35,13 @@ to compile and run the simulation.
 
 
 ### Plotting Tools
-In the *Src* directory there are plotting scripts. These scripts require data to be saved after the simulation in the *Data*
-folder. This is done automatically when using the saveData script (specifically the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save). 
-To plot primitive variable heatmaps, for example, you must *cd* to the *Src* directory and hit
-
-  `python plotPrims.py`
+The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
+folder. This is done automatically when using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. E.g. enter 
   
-to show the end state. Trying to execute this from any other directory will result in python raising an error as the relative path will be incorrect.
+  `SaveData save(&data);`
+  
+in *main* after the initial data has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
 
 
-\* found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack *real*s being double precision), some units have been excluded as theyre not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid).
+\* *found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*

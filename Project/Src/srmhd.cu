@@ -1,3 +1,12 @@
+//! Special relativistic magnetohydrodynamics model
+/*!
+    This script contains the function definitions for the srmhd model. The form
+  of the quations has been taken from Anton and we use a divergence cleaning method
+  taken from Muddle.
+    For detailed documentation about the methods contained herein, see srmhd.h
+  and model.h.
+*/
+
 #include "srmhd.h"
 #include "weno.h"
 #include "cminpack.h"
