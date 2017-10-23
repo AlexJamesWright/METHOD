@@ -30,25 +30,24 @@ SRMHD::SRMHD(Data * data) : Model(data)
 
   smartGuesses = 0;
 
-  this->data->consLabels.push_back("D"); this->data->consLabels.push_back("Sx");
-  this->data->consLabels.push_back("Sy"); this->data->consLabels.push_back("Sx");
+  this->data->consLabels.push_back("D");   this->data->consLabels.push_back("Sx");
+  this->data->consLabels.push_back("Sy");  this->data->consLabels.push_back("Sx");
   this->data->consLabels.push_back("tau"); this->data->consLabels.push_back("Bx");
-  this->data->consLabels.push_back("By"); this->data->consLabels.push_back("Bz");
+  this->data->consLabels.push_back("By");  this->data->consLabels.push_back("Bz");
   this->data->consLabels.push_back("phi");
 
   this->data->primsLabels.push_back("rho"); this->data->primsLabels.push_back("vx");
-  this->data->primsLabels.push_back("vy"); this->data->primsLabels.push_back("vz");
-  this->data->primsLabels.push_back("p"); this->data->primsLabels.push_back("Bx");
-  this->data->primsLabels.push_back("By"); this->data->primsLabels.push_back("Bz");
+  this->data->primsLabels.push_back("vy");  this->data->primsLabels.push_back("vz");
+  this->data->primsLabels.push_back("p");   this->data->primsLabels.push_back("Bx");
+  this->data->primsLabels.push_back("By");  this->data->primsLabels.push_back("Bz");
 
-  this->data->auxLabels.push_back("h"); this->data->auxLabels.push_back("W");
-  this->data->auxLabels.push_back("e"); this->data->auxLabels.push_back("c");
-  this->data->auxLabels.push_back("b0"); this->data->auxLabels.push_back("bx");
-  this->data->auxLabels.push_back("by"); this->data->auxLabels.push_back("bz");
+  this->data->auxLabels.push_back("h");   this->data->auxLabels.push_back("W");
+  this->data->auxLabels.push_back("e");   this->data->auxLabels.push_back("c");
+  this->data->auxLabels.push_back("b0");  this->data->auxLabels.push_back("bx");
+  this->data->auxLabels.push_back("by");  this->data->auxLabels.push_back("bz");
   this->data->auxLabels.push_back("bsq"); this->data->auxLabels.push_back("vsq");
-  this->data->auxLabels.push_back("BS"); this->data->auxLabels.push_back("Bsq");
+  this->data->auxLabels.push_back("BS");  this->data->auxLabels.push_back("Bsq");
   this->data->auxLabels.push_back("Ssq");
-
 }
 
 
@@ -81,16 +80,15 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
   else if (dir == 1) alpha = d->alphaY;
   else alpha = d->alphaZ;
 
-
   // Order of weno scheme
   int order(2);
 
   // Generate flux vector
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        // Fx: flux in x-direction
-        if (dir == 0) {
+  // Fx: flux in x-direction
+  if (dir == 0) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
           // D
           f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(1, i, j, k)];
 
@@ -125,9 +123,15 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
           f[d->id(8, i, j, k)] = prims[d->id(5, i, j, k)];
 
         }
-
-        // Fy: flux in y-direction
-        else if (dir==1) {
+      } // End k loop
+    } // End j loop
+  } // End i loop
+  
+  // Fy: flux in y-direction
+  else if (dir==1) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
           // D
           f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(2, i, j, k)];
 
@@ -162,9 +166,15 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
           f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
 
         }
+      } // End k loop
+    } // End j loop
+  } // End i loop
 
-        // Fz: flux in z-direction
-        else {
+  // Fz: flux in z-direction
+  else {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
           // D
           f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(3, i, j, k)];
 
@@ -199,7 +209,6 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
           f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
 
         }
-
       } // End k loop
     } // End j loop
   } // End i loop
