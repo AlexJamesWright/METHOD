@@ -37,8 +37,9 @@ def gatherData():
     
     # Dictionary to hold constants
     c = {}
-        # Get constants first
+    # Get constants first
     with open('../Data/constants.dat', 'r') as f:
+        print("Fetching constants...")
         for i, line in enumerate(f):
             if not i==0:
                 line=line.split()
@@ -73,6 +74,7 @@ def gatherData():
     # Now get primitive variables and store the data in array...
     prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
     with open('../Data/primitive.dat', 'r') as f:
+        print("Fetching primitive variables...")
         for i, line in enumerate(f):
             # Get primitive var labels
             if i==0:
@@ -94,6 +96,7 @@ def gatherData():
     # Now gather conserved data
     cons = np.zeros([c['Ncons'], c['Nx'], c['Ny'], c['Nz']])
     with open('../Data/conserved.dat', 'r') as f:
+        print("Fetching conserved variables...")
         for i, line in enumerate(f):
             # Get cons var labels
             if i==0:
@@ -115,6 +118,7 @@ def gatherData():
     # And finally the aux vars
     aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
     with open('../Data/auxilliary.dat', 'r') as f:
+        print("Fetching auxilliary variables...")
         for i, line in enumerate(f):
             # Get cons var labels
             if i==0:
