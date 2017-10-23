@@ -555,6 +555,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     } // End j-loop
   } // End i-loop
 
+  cudaFreeHost(solution);
+
 }
 
 
