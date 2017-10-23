@@ -22,4 +22,7 @@ Data::Data(int nx, int ny, int nz,
   this->Nx = nx + 2 * Ng;
   this->Ny = ny + 2 * Ng;
   this->Nz = nz + 2 * Ng;
+
+  // Catch 2D case
+  if (nz == 0) this->Nz = 1;
 }
