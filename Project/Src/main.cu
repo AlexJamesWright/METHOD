@@ -15,7 +15,7 @@ int main(void) {
   int start_s=clock();
 
   // Set up domain
-  Data data(50, 50, 1, 0.0, 1.0, 0.0, 1.0, 0, 1.0, 0.1, 0.5);
+  Data data(100, 100, 1, 0.0, 1.0, 0.0, 1.0, 0, 1.0, 0.01);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -30,9 +30,10 @@ int main(void) {
 
   sim.set(&init, &model, &timeInt, &bcs);
 
-  sim.evolve();
+  sim.updateTime();
+  sim.updateTime();
 
-  SaveData save(&data);
+//  SaveData save(&data);
 
   int stop_s=clock();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
