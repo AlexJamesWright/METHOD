@@ -28,7 +28,7 @@ class SRMHD : public Model
     //! Constructors and destructors
     SRMHD();
     SRMHD(Data * data);
-    ~SRMHD() {}
+    ~SRMHD() { }
 
     //! Source term contribution
     /*!
@@ -74,7 +74,7 @@ class SRMHD : public Model
     //! Numerical flux approximation (solution stored in fnet)
     /*!
         Given the current values for the cons prims and aux vars, uses the flux
-      reconstruction method to determine the flux at the cell faces and computes 
+      reconstruction method to determine the flux at the cell faces and computes
       the net flux of the conserved vector through each cell
     */
     void F(double *cons, double *prims, double *aux, double *f, double *fnet);
