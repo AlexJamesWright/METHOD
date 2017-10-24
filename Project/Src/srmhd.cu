@@ -126,7 +126,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
       } // End k loop
     } // End j loop
   } // End i loop
-  
+
   // Fy: flux in y-direction
   else if (dir==1) {
     for (int i(0); i < d->Nx; i++) {
@@ -296,21 +296,37 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                cudaHostAllocPortable);
 
   // Determine fluxes at cell faces
   this->fluxFunc(cons, prims, aux, f, fx, 0);
   this->fluxFunc(cons, prims, aux, f, fy, 1);
-  this->fluxFunc(cons, prims, aux, f, fz, 2);
 
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx-1; i++) {
-      for (int j(0); j < d->Ny-1; j++) {
-        for (int k(0); k < d->Nz-1; k++) {
-          fnet[d->id(var, i, j, k)] = (fx[d->id(var, i+1, j, k)] / d->dx - fx[d->id(var, i, j, k)] / d->dx) +
-                                      (fy[d->id(var, i, j+1, k)] / d->dy - fy[d->id(var, i, j, k)] / d->dy) +
-                                      (fz[d->id(var, i, j, k+1)] / d->dz - fz[d->id(var, i, j, k)] / d->dz);
+  // If domain is 3D loop over z direction also
+  if (d->Nz > 1) {
+    cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable);
+    this->fluxFunc(cons, prims, aux, f, fz, 2);
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-1; i++) {
+        for (int j(0); j < d->Ny-1; j++) {
+          for (int k(0); k < d->Nz-1; k++) {
+            fnet[d->id(var, i, j, k)] = (fx[d->id(var, i+1, j, k)] / d->dx - fx[d->id(var, i, j, k)] / d->dx) +
+                                        (fy[d->id(var, i, j+1, k)] / d->dy - fy[d->id(var, i, j, k)] / d->dy) +
+                                        (fz[d->id(var, i, j, k+1)] / d->dz - fz[d->id(var, i, j, k)] / d->dz);
+          }
+        }
+      }
+    }
+    cudaFreeHost(fz);
+  }
+  // Otherwise there is only one k cell
+  else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-1; i++) {
+        for (int j(0); j < d->Ny-1; j++) {
+          fnet[d->id(var, i, j, 0)] = (fx[d->id(var, i+1, j, 0)] / d->dx - fx[d->id(var, i, j, 0)] / d->dx) +
+                                      (fy[d->id(var, i, j+1, 0)] / d->dy - fy[d->id(var, i, j, 0)] / d->dy);
+
         }
       }
     }
@@ -319,7 +335,6 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   // Free arrays
   cudaFreeHost(fx);
   cudaFreeHost(fy);
-  cudaFreeHost(fz);
 }
 
 //! Source required for divergence cleaning
