@@ -6,10 +6,33 @@
 
 class Data
 /*
-  Class contains all the data of the simulation relevant to any of the other
+    Class contains all the data of the simulation relevant to any of the other
   modules. Containing it in this way prevents issues of cyclic includes, also
   results in Simulation as more of an interface than a class that needs to be
   known to lower objects---good practice.
+
+  Usage
+  -----
+    Call the constructor with at least: the number of cells and domain limits in
+  the x, y, and z direction, and the simulation end time. As ghost cells are
+  automatically added to the domain, there would be a minimum number of total cells
+  in any direction of nine---as a result, running 2D simulations would be 9x slower
+  than necessary. To combat this, you can request zero cells in the z-direction
+  which is equivalent to a 2D domain where Nz=1. Keep this behaviour in mind when
+  constructing new models.
+    Other variables, such as the courant factor, can also be set in the constructor
+  but by default have sensible values that should work for most set ups, these can
+  largely be ignored unless the simulation is failing to converge.
+    Selecting a model will automatically set the number of cons prims and aux vars,
+  both inside the model class and in the data class (although it is the data class
+  values that are accessed by the various functions).
+    The elementID function data.id(var, i, j, k) is a useful shortcut for accessing
+  data belonging to a specific cell, where var is the id of the variable in the array
+  we wish to access, and (i, j, k) corresond to the (x, y, z) coordinates of the
+  cell we wish to access. Note: this includes ghost cells, so in practice these values
+  can range from 0 <= (i,j,k) < (nx,ny,nz)+2*Ng
+            or   0 <= (i,j,k) < (Nx,Ny,Nz)        assuming we are working in 3D.
+  For 2D simulations, k=0 at all times.
 */
 {
   public:
