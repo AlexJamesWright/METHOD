@@ -4,7 +4,7 @@
 CC = nvcc
 
 # Compiler flag
-CFLAGS= -c
+CFLAGS = -c
 
 # Module directory
 MODULE_DIR = ./Src
@@ -15,10 +15,6 @@ INC_DIR = ./Include
 # Source files
 SRCS = $(wildcard $(MODULE_DIR)/*.cu)
 OBJS = $(SRCS:.cu=.o)
-
-# hybrd1.o : $(MODULE_DIR)/hybrd1.cu $(MODULE_DIR)/hybrd1.c $(INC_DIR)/cminpack.h $(INC_DIR)/cminpackP.h
-# 	${CC} ${CFLAGS}  -o $@ $< -I$(INC_DIR)
-
 
 # Compile rule
 %.o: %.cu %.c $(INC_DIR)/cminpack.h  $(INC_DIR)/cminpackP.h
