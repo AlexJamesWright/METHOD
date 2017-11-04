@@ -91,6 +91,20 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
+          // D
+          f[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
+                                 aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)];
+          // Sx
+          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
+                                 aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] +
+                                 prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
+                                 (cons[d->id(13, i, j, k)] * cons[d->id(13 ,i, j, k)] +
+                                 cons[d->id(10, i, j, k)] * cons[d->id(10, i, j, k)]) +
+                                 (aux[d->id(20, i, j, k)] + aux[d->id(21, i, j, k)]) * 0.5;
+          f[d->id]
+
+
+
 
         }
       }
