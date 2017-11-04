@@ -7,22 +7,27 @@
 /*!
     The special relativistic, two fluid model of EMHD. Governing equations have
   been taken and adapted from Amano 2016 `A second-order divergence-constrained...`
-    We label the species A and B, so the density of electrons may be rhoA and
-  of positrons may be rhoB for example.
-  Model has twelve conserved variables:
-    D, Sx, Sy, Sz, G, Dbar, Sbarx, Sbary, Sbarz, taubar, psi, phi
+    We label the species 1 and 2, so the density of electrons may be rho1 and
+  of positrons may be rho2 for example.
+  The model has eighteen conserved variables:
+(0)   D, Sx, Sy, Sz, tau,
+(5)   Dbar, Sbarx, Sbary, Sbarz, taubar,
+(10)  Bx, By, Bz,
+(13)  Ex, Ey, Ez,
+(15)  psi, phi
   Sixteen primitive variables:
-(0)   rhoA, vxA, vyA, vzA, pA,
-(5)   rhoB, vxB, vyB, vzB, pB,
-(10)  Bx, By, Bx, Ex, Ey, Ez
-  Thirty-eight auxilliary variables:
-(0)   DA, SxA, SyA, SzA, GA, DbarA, SbarxA, SbaryA, SbarzA, taubarA,
-(10)  DB, SxB, SyB, SzB, GB, DbarB, SbarxB, SbaryB, SbarzB, taubarB,
-(20)  hA, WA, eA, muA,
-      hB, WB, eB, muB,
-(28)  Jx, Jy, Jz,
-      ux, uy, uz,
-(34)  c, W, rho, rho0
+(0)   rho1, vx1, vy1, vz1, p1,
+(5)   rho2, vx2, vy2, vz2, p2,
+(10)  Bx, By, Bx,
+(13)  Ex, Ey, Ez
+  Thirty-five auxilliary variables:
+(0)   h1, W1, e1, vsq1, Z1, D1, Stildex1, Stildey1, Stildez1, tauTilde1,
+(10)  h2, W2, e2, vsq2, Z2, D2, Stildex2, Stildey2, Stildez2, tauTilde2,
+(20)  Bsq, Esq
+(22)  Jx, Jy, Jz,
+(25)  Stildex, Stildey, Stildez, tauTilde,
+(29)  rhoCh0, rhoCh,
+(31)  ux, uy, uz, W
 */
 
 class TwoFluidEMHD : public Model
