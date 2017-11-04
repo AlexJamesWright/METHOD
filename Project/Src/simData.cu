@@ -8,7 +8,9 @@ Data::Data(int nx, int ny, int nz,
            double gamma, double sigma,
            int dataSet,
            int Ncons, int Nprims, int Naux,
-           double cp) :
+           double cp,
+           double mu1, double mu2)
+           :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
            ymin(ymin), ymax(ymax),
@@ -17,7 +19,8 @@ Data::Data(int nx, int ny, int nz,
            gamma(gamma), sigma(sigma),
            memSet(memSet),
            Ncons(Ncons), Nprims(Nprims), Naux(Naux),
-           cp(cp)
+           cp(cp),
+           mu1(mu1), mu2(mu2)
 {
   this->Nx = nx + 2 * Ng;
   this->Ny = ny + 2 * Ng;

@@ -53,6 +53,7 @@ class Data
     Ncons, Nprims, Naux;   // Number of conserved, primitive and auxilliary variables
     double
     cp,                    // Constant divergence cleaning term
+    mu1, mu2,              // Charge mass ratio of fluid species, q/m (for two fluid model)
     *cons, *prims, *aux,   // State vectors of conserved, primitive and auxilliary vars
     *f, *fnet,             // Flux vector and net numerical flux vector
     *source,               // Source vector
@@ -92,7 +93,8 @@ class Data
          double gamma=5.0/3.0, double sigma=0,
          int dataSet=0,
          int Ncons=0, int Nprims=0, int Naux=0,
-         double cp=0.1);
+         double cp=0.1,
+         double mu1=1.0e4, double mu2=-1.0e4);
 
 };
 
