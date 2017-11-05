@@ -94,7 +94,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
 
           // Sx
           f[d->id(1, i, j, k)] = cons[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 (prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] / 2.0) -
+                                 (prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5) -
                                  aux[d->id(5, i, j, k)] * prims[d->id(5, i, j, k)] /
                                  aux[d->id(1, i, j, k)];
           // Sy
@@ -107,7 +107,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                                  aux[d->id(1, i, j, k)];
           // tau
           f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                                 aux[d->id(8, i, j, k)] / 2.0) * prims[d->id(1, i, j, k)] -
+                                 aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(1, i, j, k)] -
                                  aux[d->id(4, i, j, k)] * prims[d->id(5, i, j, k)] /
                                  aux[d->id(1, i, j, k)];
           // Bx
@@ -141,7 +141,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                               aux[d->id(1, i, j, k)];
           // Sy
           f[d->id(2, i, j, k)] = cons[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
-                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] / 2.0 -
+                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5 -
                               aux[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] /
                               aux[d->id(1, i, j, k)];
           // Sz
@@ -150,7 +150,7 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                               aux[d->id(1, i, j, k)];
           // tau
           f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                              aux[d->id(8, i, j, k)] / 2.0) * prims[d->id(2, i, j, k)] -
+                              aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(2, i, j, k)] -
                               aux[d->id(4, i, j, k)] * prims[d->id(6, i, j, k)] /
                               aux[d->id(1, i, j, k)];
           // Bx
@@ -188,12 +188,12 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
                               aux[d->id(1, i, j, k)];
           // Sz
           f[d->id(3, i, j, k)] = cons[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)] +
-                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] / 2.0 -
+                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5 -
                               aux[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] /
                               aux[d->id(1, i, j, k)];
           // tau
           f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                              aux[d->id(8, i, j, k)] / 2.0) * prims[d->id(3, i, j, k)] -
+                              aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(3, i, j, k)] -
                               aux[d->id(4, i, j, k)] * prims[d->id(7, i, j, k)] /
                               aux[d->id(1, i, j, k)];
           // Bx
