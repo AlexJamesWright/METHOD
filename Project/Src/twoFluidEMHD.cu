@@ -16,9 +16,9 @@ static void newton(double *, const double, const double, const double, double);
 
 TwoFluidEMHD::TwoFluidEMHD() : Model()
 {
-  this->Ncons = 12;
+  this->Ncons = 18;
   this->Nprims = 16;
-  this->Naux = 38;
+  this->Naux = 35;
 }
 
 TwoFluidEMHD::TwoFluidEMHD(Data * data) : Model(data)
@@ -415,10 +415,10 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   // Syntax
   Data * d(this->data);
 
-  for (int i(0); i < this->data->Nx; i++) {
-    for (int j(0); j < this->data->Ny; j++) {
-      for (int k(0); k < this->data->Nz; k++) {
-        for (int var(0); var < this->data->Ncons; var++) {
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Ncons; var++) {
           source[d->id(0, i, j, k)] = 0;
           source[d->id(1, i, j, k)] = 0;
           source[d->id(2, i, j, k)] = 0;
@@ -466,6 +466,49 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
 void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
 {
+  // Syntax
+  Data * d(this->data);
+
+  // Set Bx/y/z and Ex/y/z field in prims
+  prims[10] = cons[10]; prims[11] = cons[11]; prims[12] = cons[12];
+  prims[13] = cons[13]; prims[14] = cons[14]; prims[15] = cons[15];
+
+  // Bsq, Esq
+  aux[20] = cons[10] * cons[10] + cons[11] * cons[11] + cons[12] * cons[12];
+  aux[21] = cons[13] * cons[13] + cons[14] * cons[14] + cons[15] * cons[15];
+
+  // Remove EM contribution to momentum equations
+  // Stildex, Stildey, Stildez
+  aux[25] = cons[1] - (cons[14] * cons[12] - cons[15] * cons[11]);
+  aux[26] = cons[2] - (cons[15] * cons[10] - cons[13] * cons[12]);
+  aux[27] = cons[3] - (cons[13] * cons[11] - cons[14] * cons[10]);
+  // and the energy equations
+  // tauTilde
+  aux[28] = cons[4] - (aux[20] + aux[21]) * 0.5;
+
+  // Now split fluid up into its constituent species
+  // D1, D2
+  aux[5] = (cons[5] - d->mu2 * cons[0]) / (d->mu1 - d->mu2);
+  aux[15] = (cons[5] - d->mu1 * cons[0]) / (d->mu2 - d->mu1);
+  // Stildex1, Stildey1, Stildez1
+  aux[6] = (cons[6] - d->mu2 * aux[25]) / (d->mu1 - d->mu2);
+  aux[7] = (cons[7] - d->mu2 * aux[26]) / (d->mu1 - d->mu2);
+  aux[8] = (cons[8] - d->mu2 * aux[27]) / (d->mu1 - d->mu2);
+  // Stildex2, Stildey2, Stildez2
+  aux[16] = (cons[6] - d->mu1 * aux[25]) / (d->mu2 - d->mu1);
+  aux[17] = (cons[7] - d->mu1 * aux[26]) / (d->mu2 - d->mu1);
+  aux[18] = (cons[8] - d->mu1 * aux[27]) / (d->mu2 - d->mu1);
+  // Stilde1sq, Stilde2sq
+  double Stilde1sq(aux[6] * aux[6] + aux[7] * aux[7] + aux[8] * aux[8]);
+  double Stilde2sq(aux[16] * aux[16] + aux[17] * aux[17] + aux[18] * aux[18]);
+  // tauTilde1, tauTilde2
+  aux[9] = (cons[9] - d->mu2 * aux[28]) / (d->mu1 - d->mu2);
+  aux[19] = (cons[9] - d->mu1 * aux[28]) / (d->mu2 - d->mu1);
+
+  // We now have everything we need
+  newton(&aux[4], Stilde1sq, aux[5], aux[9], d->gamma);
+  newton(&aux[14], Stilde2sq, aux[15], aux[19], d->gamma);
+
 
 }
 

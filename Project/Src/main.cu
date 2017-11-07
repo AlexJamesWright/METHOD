@@ -17,7 +17,7 @@ int main(void) {
 
   // Set up domain
   int nx(100);
-  int ny(10);
+  int ny(1);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -53,7 +53,7 @@ int main(void) {
 
   // Run until end time and save results
   //sim.evolve();
-  //SaveData save(&data);
+  SaveData save(&data);
 
   // long int stop_s = (long)clock();
   // printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
