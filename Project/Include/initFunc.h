@@ -37,8 +37,20 @@ class OTVortex : public InitialFunc
 {
   public:
 
-    //! Orzsang-Tang vortex initial data
-    OTVortex(Data * data);
+    //! Orzsang-Tang vortex initial data for single fluid
+    OTVortexSingleFluid(Data * data);
+};
+
+//! Brio-Wu shock tube initial data (1D)
+/*!
+    Not sure if values are correct atm.....
+*/
+class BrioWu : public InitialFunc
+{
+  public:
+
+    //! Brio-Wu shock tube initial data for two-fluid model
+    BrioWuTwoFluid(Data * data);
 };
 
 
