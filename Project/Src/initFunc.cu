@@ -79,7 +79,7 @@ BrioWu::BrioWuTwoFluid(Data * data) : InitialFunc(data)
   // Ensure correct model
   if (!d->Nprims == 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\nModel has wrong number of primitive variables to be two fluid model.");
 
-  for (int i(0); i < (int)d->Nx/(int)2; i++) {
+  for (int i(0); i < d->Nx/2; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // Left side
