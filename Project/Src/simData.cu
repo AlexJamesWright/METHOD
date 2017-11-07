@@ -6,8 +6,6 @@ Data::Data(int nx, int ny, int nz,
            double zmin, double zmax,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
-           int dataSet,
-           int Ncons, int Nprims, int Naux,
            double cp,
            double mu1, double mu2)
            :
@@ -17,8 +15,8 @@ Data::Data(int nx, int ny, int nz,
            zmin(zmin), zmax(zmax),
            endTime(endTime), cfl(cfl), Ng(Ng),
            gamma(gamma), sigma(sigma),
-           memSet(memSet),
-           Ncons(Ncons), Nprims(Nprims), Naux(Naux),
+           memSet(0),
+           Ncons(0), Nprims(0), Naux(0),
            cp(cp),
            mu1(mu1), mu2(mu2)
 {
