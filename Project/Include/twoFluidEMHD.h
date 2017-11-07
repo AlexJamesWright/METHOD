@@ -14,7 +14,7 @@
 (5)   Dbar, Sbarx, Sbary, Sbarz, taubar,
 (10)  Bx, By, Bz,
 (13)  Ex, Ey, Ez,
-(15)  psi, phi
+(16)  psi, phi
   Sixteen primitive variables:
 (0)   rho1, vx1, vy1, vz1, p1,
 (5)   rho2, vx2, vy2, vz2, p2,
