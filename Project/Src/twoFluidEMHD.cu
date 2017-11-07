@@ -94,18 +94,56 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
           // D
           f[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
                                  aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)];
-          // Sx
-          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] +
+          // Sx, Sy, Sx
+          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(1, i, j, k)] + aux[d->id(14, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] +
                                  prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
                                  (cons[d->id(13, i, j, k)] * cons[d->id(13 ,i, j, k)] +
                                  cons[d->id(10, i, j, k)] * cons[d->id(10, i, j, k)]) +
                                  (aux[d->id(20, i, j, k)] + aux[d->id(21, i, j, k)]) * 0.5;
-          f[d->id]
-
-
-
-
+          f[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(2, i, j, k)] + aux[d->id(14, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)] -
+                                 (cons[d->id(13, i, j, k)] * cons[d->id(14, i, j, k)] +
+                                 cons[d->id(10, i, j, k)] * cons[d->id(11, i, j, k)]);
+          f[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)];
+          // Tau
+          f[d->id(4, i, j, k)] = cons[d->id(1, i, j, k)] - (aux[d->id(5, i, j, k)] *
+                                 prims[d->id(1, i, j, k)] + aux[d->id(15, i, j, k)] *
+                                 prims[d->id(6, i, j, k)]);
+          // Dbar
+          f[d->id(5, i, j, k)] = d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
+                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)];
+          // Sbarx, Sbary, Sbarz
+          f[d->id(6, i, j, k)] = d->mu1 * (aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(1, i, j, k)] + prims[d->id(4, i, j, k)]) +
+                                 d->mu2 * (aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] + prims[d->id(9, i, j, k)]);
+          f[d->id(7, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(2, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)];
+          f[d->id(8, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
+                                 prims[d->id(3, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
+                                 prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)];
+          // tauBar
+          f[d->id(9, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
+                                 d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] -
+                                 (d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
+                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)]);
+          // Bx, By, Bz
+          f[d->id(10, i, j, k)] = cons[d->id(17, i, j, k)];
+          f[d->id(11, i, j, k)] = - cons[d->id(15, i, j, k)];
+          f[d->id(12, i, j, k)] = cons[d->id(14, i, j, k)];
+          // Ex, Ey, Ez
+          f[d->id(13, i, j, k)] = cons[d->id(16, i, j, k)];
+          f[d->id(14, i, j, k)] = cons[d->id(12, i, j, k)];
+          f[d->id(15, i, j, k)] = - cons[d->id(11, i, j, k)];
+          // Psi, Phi
+          f[d->id(16, i, j, k)] = cons[d->id(13, i, j, k)];
+          f[d->id(17, i, j, k)] = cons[d->id(10, i, j, k)];
         }
       }
     }
