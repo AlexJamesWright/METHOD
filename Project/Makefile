@@ -37,7 +37,8 @@ SRCS = main.cu \
 			 weno.cu \
 			 rkSplit.cu \
 			 boundaryConds.cu \
-			 saveData.cu
+			 saveData.cu \
+			 twoFluidEMHD.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -96,6 +97,9 @@ simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h
