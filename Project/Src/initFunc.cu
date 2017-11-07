@@ -34,16 +34,17 @@ InitialFunc::InitialFunc(Data * data) : data(data)
       }
     }
   }
-
-
 }
 
-OTVortex::OTVortexSingleFluid(Data * data) : InitialFunc(data)
-{
-  const double pi(3.141592653589793238);
 
+
+
+OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
+{
   // Syntax
   Data * d(data);
+  
+  const double pi(3.141592653589793238);
 
   // Check domain
   if (d->xmin != 0.0 || d->xmax != 1.0 || d->ymin != 0.0 || d->ymax != 1.0) {
@@ -51,6 +52,7 @@ OTVortex::OTVortexSingleFluid(Data * data) : InitialFunc(data)
   }
   // Ensure correct model
   if (d->Nprims > 15) throw std::runtime_error("Trying to implement a single fluid initial state on multifluid model.\nModel has too many primitive variables to be single fluid.");
+
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -71,13 +73,15 @@ OTVortex::OTVortexSingleFluid(Data * data) : InitialFunc(data)
   }
 }
 
-BrioWu::BrioWuTwoFluid(Data * data) : InitialFunc(data)
+
+BrioWuTwoFluid::BrioWuTwoFluid(Data * data) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
-  int end = d->Nx - 1;
   // Ensure correct model
   if (!d->Nprims == 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\nModel has wrong number of primitive variables to be two fluid model.");
+
+  int end = d->Nx - 1;
 
   for (int i(0); i < d->Nx/2; i++) {
     for (int j(0); j < d->Ny; j++) {

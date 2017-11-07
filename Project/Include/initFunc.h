@@ -23,7 +23,7 @@ class InitialFunc
 };
 
 
-//! Orszag-Tang voretx initial data (2D)
+//! Orszag-Tang voretx initial data (2D) for single fluid
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
@@ -33,7 +33,7 @@ class InitialFunc
   Kirs Beckwith.
 
 */
-class OTVortex : public InitialFunc
+class OTVortexSingleFluid : public InitialFunc
 {
   public:
 
@@ -41,17 +41,19 @@ class OTVortex : public InitialFunc
     OTVortexSingleFluid(Data * data);
 };
 
+
+
 //! Brio-Wu shock tube initial data (1D)
 /*!
     Not sure if values are correct atm.....
 */
-class BrioWu : public InitialFunc
+
+class BrioWuTwoFluid : public InitialFunc
 {
   public:
 
     //! Brio-Wu shock tube initial data for two-fluid model
     BrioWuTwoFluid(Data * data);
 };
-
 
 #endif
