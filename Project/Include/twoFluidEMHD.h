@@ -18,7 +18,7 @@
   Sixteen primitive variables:
 (0)   rho1, vx1, vy1, vz1, p1,
 (5)   rho2, vx2, vy2, vz2, p2,
-(10)  Bx, By, Bx,
+(10)  Bx, By, Bz,
 (13)  Ex, Ey, Ez
   Thirty-five auxilliary variables:
 (0)   h1, W1, e1, vsq1, Z1, D1, Stildex1, Stildey1, Stildez1, tauTilde1,
@@ -51,9 +51,30 @@ class TwoFluidEMHD : public Model
 
         //! Spectral decomposition
         /*!
-            Unsure at the moment...
+            Generates the values of the primitive and auxilliary variables consistent
+          with the conservative vector given. Method first separates the fluids, then
+          subtracts the EM fields implementing a resistive MHD single fluid proceedure
+          to each species.
+          Function calls single celled version (below) for each compute cell.
+          Function assumes that the values in the prims and aux arrays are the
+          values at the previous timestep.
         */
         void getPrimitiveVars(double *cons, double *prims, double *aux);
+
+
+        //! Single cell spectral decomposition
+        /*!
+            Generates the values for aux and prims for the given cons vector for only
+          a single cell (i, j, k).
+            Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
+          array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
+          other functions. Function also assumes that the values in the prims and
+          aux arrays are the values at the previous timestep.
+            Single celled version required for the inside of the residual functions
+          for the (semi) implicit time integrators.
+        */
+        void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
+
 
         //! Primitive-to-all transformation
         /*!
@@ -84,11 +105,7 @@ class TwoFluidEMHD : public Model
         */
         void F(double *cons, double *prims, double *aux, double *f, double *fnet);
 
-
-
 };
-
-
 
 
 #endif
