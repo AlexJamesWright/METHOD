@@ -6,4 +6,5 @@ test_simulation
 test_initFunc
 test_cminpack
 test_boundaryConds
+test_twoFluidEMHD
 gtest_main.a
