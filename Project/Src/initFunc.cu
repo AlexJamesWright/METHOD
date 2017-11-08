@@ -43,7 +43,7 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
-  
+
   const double pi(3.141592653589793238);
 
   // Check domain
@@ -74,33 +74,66 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
 }
 
 
-BrioWuTwoFluid::BrioWuTwoFluid(Data * data) : InitialFunc(data)
+BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
   // Ensure correct model
   if (!d->Nprims == 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\nModel has wrong number of primitive variables to be two fluid model.");
 
-  int end = d->Nx - 1;
+  // Determine which direction the discontinuity it in
+  int endX(d->Nx - 1);
+  int endY(d->Ny - 1);
+  int endZ(d->Nz - 1);
+  int facX(1);
+  int facY(1);
+  int facZ(1);
+  double lBx, lBy, lBz;
+  double rBx, rBy, rBz;
+  if (dir == 0) {
+    // x-direction
+    facX = 2;
+    lBx = rBx = 0.5;
+    lBy = lBz = 1.0;
+    rBy = rBz = -1.0;
+  }
+  else if (dir == 1) {
+    // y-direction
+    facY = 2;
+    lBy = rBy = 0.5;
+    lBx = lBz = 1.0;
+    rBx = rBz = -1.0;
+  }
+  else {
+    // z-direction
+    facZ = 2;
+    lBz = rBz = 0.5;
+    lBy = lBx = 1.0;
+    rBy = rBx = -1.0;
+  }
 
-  for (int i(0); i < d->Nx/2; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+
+
+  for (int i(0); i < d->Nx/facX; i++) {
+    for (int j(0); j < d->Ny/facY; j++) {
+      for (int k(0); k < d->Nz/facZ; k++) {
         // Left side
         d->prims[d->id(0, i, j, k)] = 0.5;
         d->prims[d->id(5, i, j, k)] = 0.5;
         d->prims[d->id(4, i, j, k)] = 1.0;
         d->prims[d->id(9, i, j, k)] = 1.0;
-        d->prims[d->id(10, i, j, k)] = 0.5;
-        d->prims[d->id(11, i, j, k)] = 1.0;
+        d->prims[d->id(10, i, j, k)] = lBx;
+        d->prims[d->id(11, i, j, k)] = lBy;
+        d->prims[d->id(12, i, j, k)] = lBz;
 
         // Right side
-        d->prims[d->id(0, end - i, j, k)] = 0.075;
-        d->prims[d->id(5, end - i, j, k)] = 0.075;
-        d->prims[d->id(4, end - i, j, k)] = 0.1;
-        d->prims[d->id(9, end - i, j, k)] = 0.1;
-        d->prims[d->id(10, end - i, j, k)] = 0.5;
-        d->prims[d->id(11, end - i, j, k)] = -1.0;
+        d->prims[d->id(0, endX - i, endY - j, endZ - k)] = 0.075;
+        d->prims[d->id(5, endX - i, endY - j, endZ - k)] = 0.075;
+        d->prims[d->id(4, endX - i, endY - j, endZ - k)] = 0.1;
+        d->prims[d->id(9, endX - i, endY - j, endZ - k)] = 0.1;
+        d->prims[d->id(10, endX - i, endY - j, endZ - k)] = rBx;
+        d->prims[d->id(11, endX - i, endY - j, endZ - k)] = rBy;
+        d->prims[d->id(12, endX - i, endY - j, endZ - k)] = rBz;
       }
     }
   }
