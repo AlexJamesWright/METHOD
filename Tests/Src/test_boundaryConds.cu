@@ -13,7 +13,7 @@ namespace
     Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
     SRMHD model(&d);
     Simulation sim(&d);
-    OTVortex init(&d);
+    OTVortexSingleFluid init(&d);
     Periodic bcs(&d);
 
     // Set the values of the cons vars to something simple
@@ -196,7 +196,7 @@ namespace
     Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
     SRMHD model(&d);
     Simulation sim(&d);
-    OTVortex init(&d);
+    OTVortexSingleFluid init(&d);
     Outflow bcs(&d);
 
     // Set the values of the cons vars to something simple

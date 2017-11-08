@@ -70,7 +70,7 @@ namespace
     Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1);
     SRMHD model(&data);
     Simulation sim(&data);
-    OTVortex init(&data);
+    OTVortexSingleFluid init(&data);
     Periodic bcs(&data);
     RKSplit timeInt(&data, &model, &bcs);
 

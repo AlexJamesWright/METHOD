@@ -119,7 +119,7 @@ namespace
 
   /* ######################### Test getPrimVars transform ########################*/
 
-  TEST(SRMHD, conservedToPrimitiveTransformation)
+  TEST(SRMHD, Prims2Cons2Prims)
   {
     const double tol = 1.49011612e-8;   // Tolerance of rootfinder
     Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0);
@@ -128,8 +128,8 @@ namespace
     SRMHD model2(&d2);
     Simulation sim(&d);
     Simulation sim2(&d2);
-    OTVortex init(&d);
-    OTVortex init2(&d2);
+    OTVortexSingleFluid init(&d);
+    OTVortexSingleFluid init2(&d2);
 
     model2.primsToAll(d2.cons, d2.prims, d2.aux);
     model.primsToAll(d2.cons, d2.prims, d2.aux);

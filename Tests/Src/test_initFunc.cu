@@ -44,7 +44,7 @@ namespace
     Data data(100, 10, 1, 0, 1, 0, 1, -0.1, 0.1, 0.8);
     SRMHD model(&data);
     Simulation sim(&data);
-    OTVortex init(&data);
+    OTVortexSingleFluid init(&data);
 
     EXPECT_NEAR(data.prims[data.id(0, 0, 0, 7)], 0.2210485321, 0.0000000001);
     EXPECT_NEAR(data.prims[data.id(0, 99, 9, 7)], 0.2210485321, 0.0000000001);
