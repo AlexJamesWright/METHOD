@@ -22,19 +22,17 @@ void RKSplit::step()
   cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
 
-  // Cons2prims conversion for p1 estimate stage requires old values to start the rootfind,
-  // to save computation, only copy the variables that are required
+  // Cons2prims conversion for p1 estimate stage requires old values to start
+  // the rootfind
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        p1aux[d->id(0, i, j, k)] = d->aux[d->id(0, i, j, k)];
-        p1aux[d->id(10, i, j, k)] = d->aux[d->id(10, i, j, k)];
-        p1aux[d->id(11, i, j, k)] = d->aux[d->id(11, i, j, k)];
-        p1aux[d->id(12, i, j, k)] = d->aux[d->id(12, i, j, k)];
-        p1prims[d->id(0, i, j, k)] = d->prims[d->id(0, i, j, k)];
-        p1prims[d->id(1, i, j, k)] = d->prims[d->id(1, i, j, k)];
-        p1prims[d->id(2, i, j, k)] = d->prims[d->id(2, i, j, k)];
-        p1prims[d->id(3, i, j, k)] = d->prims[d->id(3, i, j, k)];
+        for (int var(0); var < d->Naux; var++) {
+          p1aux[d->id(var, i, j, k)] = d->aux[d->id(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          p1prims[d->id(var, i, j, k)] = d->prims[d->id(var, i, j, k)];
+        }
       }
     }
   }
