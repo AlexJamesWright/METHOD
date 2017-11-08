@@ -520,6 +520,9 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
 */
 void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
 {
+  // Syntax
+  Data * d(this->data);
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -611,8 +614,8 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
                                   aux[d->id(23, i, j, k)] * aux[d->id(32, i, j, k)] +
                                   aux[d->id(24, i, j, k)] * aux[d->id(33, i, j, k)]);
         // D1, D2, D
-        aux[d->id(5, i, j, k)] = prims[d->id(0, i, j, k)] * prims[d->id(1, i, j, k)];
-        aux[d->id(15, i, j, k)] = prims[d->id(5, i, j, k)] * prims[d->id(6, i, j, k)];
+        aux[d->id(5, i, j, k)] = prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)];
+        aux[d->id(15, i, j, k)] = prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)];
         cons[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] + aux[d->id(15, i, j, k)];
         // Sx, Sy, Sz
         cons[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
