@@ -16,9 +16,9 @@ int main(void) {
   long int start_s = (long)clock();
 
   // Set up domain
-  int nx(100);
-  int ny(1);
-  int nz(0);
+  int nx(10);
+  int ny(10);
+  int nz(10);
   double xmin(-0.5);
   double xmax(0.5);
   double ymin(0.0);
@@ -42,14 +42,14 @@ int main(void) {
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data);
+  BrioWuTwoFluid init(&data, 1);
 
   Periodic bcs(&data);
 
-  //RKSplit timeInt(&data, &model, &bcs);
+  RKSplit timeInt(&data, &model, &bcs);
 
   // Now objects have been created, set up the simulation
-  //sim.set(&init, &model, &timeInt, &bcs);
+  sim.set(&init, &model, &timeInt, &bcs);
 
   // Run until end time and save results
   //sim.evolve();
