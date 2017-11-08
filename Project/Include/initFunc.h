@@ -46,6 +46,11 @@ class OTVortexSingleFluid : public InitialFunc
 //! Brio-Wu shock tube initial data (1D)
 /*!
     Not sure if values are correct atm.....
+    Construct takes pointer to data class as per usual, and also an integar, specifying
+    the axis along which the system is partitioned.
+    dir = 0: dicontinuity in x-direction
+    dir = 1: dicontinuity in y-direction
+    dir = 2: dicontinuity in z-direction
 */
 
 class BrioWuTwoFluid : public InitialFunc
@@ -53,7 +58,7 @@ class BrioWuTwoFluid : public InitialFunc
   public:
 
     //! Brio-Wu shock tube initial data for two-fluid model
-    BrioWuTwoFluid(Data * data);
+    BrioWuTwoFluid(Data * data, int dir=0);
 };
 
 #endif
