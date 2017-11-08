@@ -52,7 +52,8 @@ TESTS = test_simulation \
 				test_srmhd \
 				test_initFunc \
 				test_cminpack \
-				test_boundaryConds
+				test_boundaryConds \
+				test_twoFluidEMHD
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -157,7 +158,7 @@ test_simulation : simulation.o test_simulation.o simData.o srmhd.o boundaryConds
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
-# Model
+# SRMHD Model
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
@@ -167,6 +168,18 @@ test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_srmhd : srmhd.o test_srmhd.o simData.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+# TwoFluidEMHD Model
+
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/weno.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/twoFluidEMHD.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+test_twoFluidEMHD.o : $(TEST_DIR)/test_twoFluidEMHD.cu \
+	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_twoFluidEMHD.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_twoFluidEMHD : twoFluidEMHD.o test_twoFluidEMHD.o boundaryConds.o simData.o rkSplit.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
