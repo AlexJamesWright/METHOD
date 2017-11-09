@@ -192,7 +192,7 @@ test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
+test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o twoFluidEMHD.o srmhd.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
