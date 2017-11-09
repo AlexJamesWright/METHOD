@@ -3,6 +3,8 @@
 #include "initFunc.h"
 #include "simulation.h"
 #include "srmhd.h"
+#include "twoFluidEMHD.h"
+#include <iostream>
 
 namespace
 {
@@ -39,7 +41,7 @@ namespace
     EXPECT_EQ(data.fnet[data.id(7, 36, 3, 7)], 0);
   }
 
-  TEST(InitialFunc, userDefinedConstructor)
+  TEST(InitialFunc, OTVortexSingleFluidFunc)
   {
     Data data(100, 10, 1, 0, 1, 0, 1, -0.1, 0.1, 0.8);
     SRMHD model(&data);
@@ -57,5 +59,44 @@ namespace
     EXPECT_EQ(data.prims[data.id(7, 99, 9, 7)], 0);
 
   }
+
+
+  // Setting up function across different axes should be same after rotation
+  TEST(InitialFunc, BrioWuTwoFluidFunc)
+  {
+    // Discontinuity in x direction
+    Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+    TwoFluidEMHD modelx(&dx);
+    Simulation simx(&dx);
+    BrioWuTwoFluid initx(&dx, 0);
+
+
+
+    // Discontinuity in y direction
+    Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+    TwoFluidEMHD modely(&dy);
+    Simulation simy(&dy);
+    BrioWuTwoFluid inity(&dy, 1);
+
+
+    // Discontinuity in z direction
+    Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+    TwoFluidEMHD modelz(&dz);
+    Simulation simz(&dz);
+    BrioWuTwoFluid initz(&dz, 2);
+
+    for (int var(0); var < dx.Ncons; var++) {
+      for (int i(0); i < dx.Nx; i++) {
+        for (int j(0); j < dy.Ny; j++) {
+          for (int k(0); k < dz.Nz; k++) {
+            EXPECT_EQ(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)]);
+            EXPECT_EQ(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)]);
+            EXPECT_EQ(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)]);
+          }
+        }
+      }
+    }
+  }
+
 
 }
