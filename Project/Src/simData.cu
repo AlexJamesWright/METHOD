@@ -1,4 +1,5 @@
 #include "simData.h"
+#include <stdexcept>
 
 Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
@@ -26,4 +27,9 @@ Data::Data(int nx, int ny, int nz,
 
   // Catch 2D case
   if (nz == 0) this->Nz = 1;
+
+  // Ensure there is some Resistivity
+  if (this->sigma <= 0.0) {
+    throw std::invalid_argument("Conductivity, sigma > 0, must be positive.\n")
+  }
 }
