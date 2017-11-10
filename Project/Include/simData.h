@@ -90,7 +90,7 @@ class Data
          double ymin, double ymax,
          double zmin, double zmax,
          double endTime, double cfl=0.5, int Ng=4,
-         double gamma=5.0/3.0, double sigma=0,
+         double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
          double mu1=1.0e4, double mu2=-1.0e4);
 
