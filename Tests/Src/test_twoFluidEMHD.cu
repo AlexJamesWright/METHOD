@@ -66,55 +66,53 @@ namespace
       printf("Stepping z-discontinuity...\n");
       simz.updateTime();
 
-      // for (int var(0); var < dx.Ncons; var++) {
-      //   for (int i(0); i < dx.Nx; i++) {
-      //     for (int j(0); i < dy.Ny; j++) {
-      //       for (int k(0); k < dz.Nz; k++) {
-      //         EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      //         EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      //         EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
-      //       }
-      //     }
-      //   }
-      // }
+      /*
+      for (int var(0); var < dx.Ncons; var++) {
+        for (int i(0); i < dx.Nx; i++) {
+          for (int j(0); j < dy.Ny; j++) {
+            for (int k(0); k < dz.Nz; k++) {
+              EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
+              EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
+              EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+            }
+          }
+        }
+      }
+      */
 
       // FAILS: var = [1, 2, 3, 4, 6, 7]
       // *** Its spitting out nan all over the place. Im going home.
       int var(8);
-      int i(0);
-      int j(0);
-      int k(0);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
-      i = 9; j=8; k=8;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      int i(9);
+      int j(8);
+      int k(8);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 8; j=9; k=8;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 8; j=8; k=9;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 9; j=9; k=8;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 9; j=8; k=9;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 8; j=9; k=9;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
       i = 9; j=9; k=9;
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dy.cons[dy.id(var, j, i, k)], 1e-15);
-      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, k, j, i)], 1e-15);
-      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], dz.cons[dy.id(var, i, k, j)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dy.cons[dy.id(var, j, i, k)], 1e-15);
+      EXPECT_NEAR(dx.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, k, j, i)], 1e-15);
+      EXPECT_NEAR(dy.cons[dx.id(var, i, j, k)], -dz.cons[dy.id(var, i, k, j)], 1e-15);
 
 
     }
