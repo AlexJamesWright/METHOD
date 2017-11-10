@@ -30,6 +30,6 @@ Data::Data(int nx, int ny, int nz,
 
   // Ensure there is some Resistivity
   if (this->sigma <= 0.0) {
-    throw std::invalid_argument("Conductivity, sigma > 0, must be positive.\n")
+    throw std::invalid_argument("Conductivity, sigma > 0, must be positive.\n");
   }
 }
