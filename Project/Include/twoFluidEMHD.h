@@ -44,9 +44,23 @@ class TwoFluidEMHD : public Model
         //! Source term contribution
         /*!
             Source terms arise from the weighted sum of the species conserved vectors
-          and from implementing the divergence cleaning method.
+          and from implementing the divergence cleaning method. This function
+          determines the source contribution to the change in the conserved vector
+          for all cells. This function calls sourceTermSingleCell for every compute
+          cell.
         */
         void sourceTerm(double *cons, double *prims, double *aux, double *source);
+
+
+        //! Single cell source term contribution
+        /*!
+            Determines the source vector due the the cond prims and aux vector
+          of a single compute cell.
+          Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
+          array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
+          other functions.
+        */
+        void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
 
 
         //! Spectral decomposition
@@ -56,8 +70,6 @@ class TwoFluidEMHD : public Model
           subtracts the EM fields implementing a resistive MHD single fluid proceedure
           to each species.
           Function calls single celled version (below) for each compute cell.
-          Function assumes that the values in the prims and aux arrays are the
-          values at the previous timestep.
         */
         void getPrimitiveVars(double *cons, double *prims, double *aux);
 
@@ -68,8 +80,7 @@ class TwoFluidEMHD : public Model
           a single cell (i, j, k).
             Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
           array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
-          other functions. Function also assumes that the values in the prims and
-          aux arrays are the values at the previous timestep.
+          other functions.
             Single celled version required for the inside of the residual functions
           for the (semi) implicit time integrators.
         */
