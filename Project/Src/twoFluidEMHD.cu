@@ -409,59 +409,91 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
   cudaFreeHost(fy);
 }
 
-//! Source contribution
+//! Source contribution for a single cell
+void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+{
+  // Syntax
+  Data * d(this->data);
+
+  for (int var(0); var < d->Ncons; var++) {
+    source[0] = 0;
+    source[1] = 0;
+    source[2] = 0;
+    source[3] = 0;
+    source[4] = 0;
+    source[5] = 0;
+    source[6] = aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
+                                (aux[22] - aux[29] * aux[31]) / d->sigma;
+    source[7] = aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
+                                (aux[23] - aux[29] * aux[32]) / d->sigma;
+    source[8] = aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
+                                (aux[24] - aux[29] * aux[33]) / d->sigma;
+    source[9] = aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
+                                (aux[30] - aux[29] * aux[34]) / d->sigma;
+    source[10] = 0;
+    source[11] = 0;
+    source[12] = 0;
+    source[13] = - aux[22];
+    source[14] = - aux[23];
+    source[15] = - aux[24];
+    source[16] = aux[30] - cons[16] / (d->cp * d->cp);
+    source[17] = - cons[17] / (d->cp * d->cp);
+  }
+}
+
 void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
 {
   // Syntax
   Data * d(this->data);
 
+  // Work arrays
+  double * singleCons;
+  double * singlePrims;
+  double * singleAux;
+  double * singleSource;
+
+  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleSource, sizeof(double) * d->Ncons,
+                cudaHostAllocPortable);
+
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
+        // Copy data to work arrays
         for (int var(0); var < d->Ncons; var++) {
-          source[d->id(0, i, j, k)] = 0;
-          source[d->id(1, i, j, k)] = 0;
-          source[d->id(2, i, j, k)] = 0;
-          source[d->id(3, i, j, k)] = 0;
-          source[d->id(4, i, j, k)] = 0;
-          source[d->id(5, i, j, k)] = 0;
-          source[d->id(6, i, j, k)] = aux[d->id(34, i, j, k)] * cons[d->id(13, i, j, k)] +
-                                      (aux[d->id(32, i, j, k)] * cons[d->id(12, i, j, k)] -
-                                      aux[d->id(33, i, j, k)] * cons[d->id(11, i, j, k)]) -
-                                      (aux[d->id(22, i, j, k)] - aux[d->id(29, i, j, k)] *
-                                      aux[d->id(31, i, j, k)]) / d->sigma;
-          source[d->id(7, i, j, k)] = aux[d->id(34, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                      (aux[d->id(33, i, j, k)] * cons[d->id(10, i, j, k)] -
-                                      aux[d->id(31, i, j, k)] * cons[d->id(12, i, j, k)]) -
-                                      (aux[d->id(23, i, j, k)] - aux[d->id(29, i, j, k)] *
-                                      aux[d->id(32, i, j, k)]) / d->sigma;
-          source[d->id(8, i, j, k)] = aux[d->id(34, i, j, k)] * cons[d->id(15, i, j, k)] +
-                                      (aux[d->id(31, i, j, k)] * cons[d->id(11, i, j, k)] -
-                                      aux[d->id(32, i, j, k)] * cons[d->id(10, i, j, k)]) -
-                                      (aux[d->id(24, i, j, k)] - aux[d->id(29, i, j, k)] *
-                                      aux[d->id(33, i, j, k)]) / d->sigma;
-          source[d->id(9, i, j, k)] = aux[d->id(31, i, j, k)] * cons[d->id(13, i, j, k)] +
-                                      aux[d->id(32, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                      aux[d->id(33, i, j, k)] * cons[d->id(15, i, j, k)] -
-                                      (aux[d->id(30, i, j, k)] - aux[d->id(29, i, j, k)] *
-                                      aux[d->id(34, i, j, k)]) / d->sigma;
-          source[d->id(10, i, j, k)] = 0;
-          source[d->id(11, i, j, k)] = 0;
-          source[d->id(12, i, j, k)] = 0;
-          source[d->id(13, i, j, k)] = - aux[d->id(22, i, j, k)];
-          source[d->id(14, i, j, k)] = - aux[d->id(23, i, j, k)];
-          source[d->id(15, i, j, k)] = - aux[d->id(24, i, j, k)];
-          source[d->id(16, i, j, k)] = aux[d->id(30, i, j, k)] - cons[d->id(16, i, j, k)] / (d->cp * d->cp);
-          source[d->id(17, i, j, k)] = - cons[d->id(17, i, j, k)] / (d->cp * d->cp);
+          singleCons[var] = cons[d->id(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          singlePrims[var] = prims[d->id(var, i, j, k)];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          singleAux[var] = aux[d->id(var, i, j, k)];
+        }
+        // Get source for this cell
+        this->sourceTermSingleCell(singleCons, singlePrims, singleAux, singleSource);
+        // Copy result back
+        for (int var(0); var < d->Ncons; var++) {
+          source[d->id(var, i, j, k)] = singleSource[var];
         }
       }
     }
   }
+
+  // Free up
+  cudaFreeHost(singleCons);
+  cudaFreeHost(singlePrims);
+  cudaFreeHost(singleAux);
+  cudaFreeHost(singleSource);
+
 }
 
-/*!
-    Method calls getPrimitiveVarsSingleCell for each cell in the domain
-*/
+//! Conservative to Primitive transformation for all cells
 void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
@@ -484,17 +516,17 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
         // Store this cell's cons data
         for (int var(0); var < d->Ncons; var++) {
-          singleCons[var] = d->cons[d->id(var, i, j, k)]
+          singleCons[var] = cons[d->id(var, i, j, k)]
         }
         // Get primitive and auxilliary vars
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux)
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < d->Nprims; var++) {
-          d->prims[d->id(var, i, j, k)] = singlePrims[var];
+          prims[d->id(var, i, j, k)] = singlePrims[var];
         }
         for (int var(0); var < d->Naux; var++) {
-          d->aux[d->id(var, i, j, k)] = singleAux[var];
+          aux[d->id(var, i, j, k)] = singleAux[var];
         }
       }
     }
