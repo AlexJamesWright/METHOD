@@ -32,7 +32,7 @@ namespace
   {
 
     // Set up
-    Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 0.0, 0.5);
+    Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
     SRMHD model(&d);
     Simulation sim(&d);
 
@@ -87,7 +87,7 @@ namespace
   {
 
     // Set up
-    Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 0.0, 0.5);
+    Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
     SRMHD model(&d);
     Simulation sim(&d);
 
@@ -132,7 +132,7 @@ namespace
     OTVortexSingleFluid init2(&d2);
 
     model2.primsToAll(d2.cons, d2.prims, d2.aux);
-    model.primsToAll(d2.cons, d2.prims, d2.aux);
+    model.primsToAll(d.cons, d.prims, d.aux);
 
 
 
