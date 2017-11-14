@@ -232,19 +232,19 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
           f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
                                  prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
                                  prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(14 ,i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(11, i, j, k)]);
+                                 (cons[d->id(13, i, j, k)] * cons[d->id(15 ,i, j, k)] +
+                                 cons[d->id(10, i, j, k)] * cons[d->id(12, i, j, k)]);
           f[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
                                  prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
                                  prims[d->id(7, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (cons[d->id(14, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                 cons[d->id(11, i, j, k)] * cons[d->id(11, i, j, k)]);
+                                 (cons[d->id(14, i, j, k)] * cons[d->id(15, i, j, k)] +
+                                 cons[d->id(11, i, j, k)] * cons[d->id(12, i, j, k)]);
           f[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
                                  prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
                                  prims[d->id(8, i, j, k)] * prims[d->id(8, i, j, k)] +
                                  prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
-                                 (cons[d->id(15, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                 cons[d->id(12, i, j, k)] * cons[d->id(11, i, j, k)]) +
+                                 (cons[d->id(15, i, j, k)] * cons[d->id(15, i, j, k)] +
+                                 cons[d->id(12, i, j, k)] * cons[d->id(12, i, j, k)]) +
                                  (aux[d->id(20, i, j, k)] + aux[d->id(21, i, j, k)]) * 0.5;
           // Tau
           f[d->id(4, i, j, k)] = cons[d->id(3, i, j, k)] - (aux[d->id(5, i, j, k)] *
@@ -459,8 +459,53 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   }
 }
 
+/*!
+    Method calls getPrimitiveVarsSingleCell for each cell in the domain
+*/
 void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
+  // Syntax
+  Data * d(this->data);
+
+  // Work arrays
+  double * singleCons;
+  double * singlePrims;
+  double * singleAux;
+  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
+                cudaHostAllocPortable);
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        // Store this cell's cons data
+        for (int var(0); var < d->Ncons; var++) {
+          singleCons[var] = d->cons[d->id(var, i, j, k)]
+        }
+        // Get primitive and auxilliary vars
+        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux)
+        // Copy cell's prim and aux back to data class
+        // Store this cell's cons data
+        for (int var(0); var < d->Nprims; var++) {
+          d->prims[d->id(var, i, j, k)] = singlePrims[var];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          d->aux[d->id(var, i, j, k)] = singleAux[var];
+        }
+      }
+    }
+  }
+
+
+  // Free up
+  cudaFreeHost(singleCons);
+  cudaFreeHost(singlePrims);
+  cudaFreeHost(singleAux);
+
 
 }
 
@@ -509,7 +554,54 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
   newton(&aux[4], Stilde1sq, aux[5], aux[9], d->gamma);
   newton(&aux[14], Stilde2sq, aux[15], aux[19], d->gamma);
 
-/*################################  FINISH  #############################*/
+  // vsq1, vsq2
+  aux[3] = Stilde1sq / aux[4];
+  aux[13] = Stilde2sq / aux[14];
+  // W1, W2
+  aux[1] = 1 / sqrt(1 - aux[3]);
+  aux[11] = 1 / sqrt(1 - aux[13]);
+  // rho1, rho2
+  prims[0] = aux[5] / aux[1];
+  prims[5] = aux[15] / aux[11];
+  // h1, h2
+  aux[0] = aux[4] / (prims[0] * aux[1] * aux[1]);
+  aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
+  // e1, e2
+  aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (d->gamma * prims[0]);
+  aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[0]);
+  // p1, p2
+  prims[4] = prims[0] * aux[2] * (d->gamma - 1);
+  prims[9] = prims[5] * aux[12] * (d->gamma - 1);
+  // vx1, vy1, vz1
+  prims[1] = aux[6] / aux[4];
+  prims[2] = aux[7] / aux[4];
+  prims[3] = aux[8] / aux[4];
+  // vx2, vy2, vz2
+  prims[6] = aux[16] / aux[14];
+  prims[7] = aux[17] / aux[14];
+  prims[8] = aux[18] / aux[14];
+  // Jx, Jy, Jz
+  aux[22] = d->mu1 * prims[0] * aux[1] * prims[1] + d->mu2 * prims[5] * aux[11] * prims[6];
+  aux[23] = d->mu1 * prims[0] * aux[1] * prims[2] + d->mu2 * prims[5] * aux[11] * prims[7];
+  aux[24] = d->mu1 * prims[0] * aux[1] * prims[3] + d->mu2 * prims[5] * aux[11] * prims[8];
+  // rhoCh
+  aux[30] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
+                            d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)];
+  // W
+  aux[34] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
+                            d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)]) /
+                            (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 *
+                            prims[d->id(5, i, j, k)]);
+  // ux, uy, uz
+  aux[31] = (d->mu1 * d->mu1 * prims[0] * aux[1] * prims[1] + d->mu2 * d->mu2 * prims[5] *
+                            aux[11] * prims[6) / (d->mu1 * d->mu1 * prims[0] + d->mu2 * d->mu2 * prims[5]);
+  aux[32] = (d->mu1 * d->mu1 * prims[0] * aux[1] * prims[2] + d->mu2 * d->mu2 * prims[5] *
+                            aux[11] * prims[7]) / (d->mu1 * d->mu1 * prims[0] + d->mu2 * d->mu2 * prims[5]);
+  aux[33] = (d->mu1 * d->mu1 * prims[0] * aux[1] * prims[3] + d->mu2 * d->mu2 * prims[5] *
+                            aux[11] * prims[8]) / (d->mu1 * d->mu1 * prims[0] + d->mu2 * d->mu2 * prims[5]);
+  // rhoCh0
+  aux[29] = aux[34] * aux[30] - (aux[22] * aux[31] + aux[23] * aux[32] + aux[24] * aux[33]);
+
 }
 
 
@@ -547,7 +639,32 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
                                   cons[d->id(15, i, j, k)] * cons[d->id(15, i, j, k)];
         // vsq1, vsq2
         aux[d->id(3, i, j, k)] = prims[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 prims[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
+                                 prims[d->id(2, i, j, k)] * prims[d->id(2, i, j        // rhoCh
+        aux[d->id(30, i, j, k)] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
+                                  d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)];
+        // W
+        aux[d->id(34, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
+                                  d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)]) /
+                                  (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 *
+                                  prims[d->id(5, i, j, k)]);
+        // ux, uy, uz
+        aux[d->id(31, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
+                                  prims[d->id(1, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
+                                  aux[d->id(11, i, j, k)] * prims[d->id(6, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
+        aux[d->id(32, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
+                                  prims[d->id(2, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
+                                  aux[d->id(11, i, j, k)] * prims[d->id(7, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
+        aux[d->id(33, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
+                                  prims[d->id(3, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
+                                  aux[d->id(11, i, j, k)] * prims[d->id(8, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
+        // rhoCh0
+        aux[d->id(29, i, j, k)] = aux[d->id(34, i, j, k)] * aux[d->id(30, i, j, k)] -
+                                  (aux[d->id(22, i, j, k)] * aux[d->id(31, i, j, k)] +
+                                  aux[d->id(23, i, j, k)] * aux[d->id(32, i, j, k)] +
+                                  aux[d->id(24, i, j, k)] * aux[d->id(33, i, j, k)]);, k)] +
                                  prims[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)];
         aux[d->id(13, i, j, k)] = prims[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] +
                                   prims[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] +
