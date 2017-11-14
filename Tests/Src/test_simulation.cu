@@ -38,7 +38,7 @@ namespace
     EXPECT_EQ(sim.data->endTime, 0.8);
     EXPECT_EQ(sim.data->cfl, 0.5);
     EXPECT_EQ(sim.data->gamma, 5.0/3);
-    EXPECT_EQ(sim.data->sigma, 0.0);
+    EXPECT_EQ(sim.data->sigma, 1000.0);
     EXPECT_EQ(sim.data->memSet, 1);
     EXPECT_EQ(sim.data->Ncons, 9);
     EXPECT_EQ(sim.data->Nprims, 8);
