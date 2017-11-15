@@ -30,7 +30,7 @@ void SaveData::saveCons()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%f ", d->cons[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->cons[d->id(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }
@@ -61,7 +61,7 @@ void SaveData::savePrims()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%f ", d->prims[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->prims[d->id(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }
@@ -91,7 +91,7 @@ void SaveData::saveAux()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%f ", d->aux[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->aux[d->id(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }
@@ -116,7 +116,7 @@ void SaveData::saveConsts()
 
   fprintf(f, "constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, ");
   fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz\n");
-  fprintf(f, "%d %d %d %d %d %d %f %f %f %f %f %f %f %f %d %f %f %d %d %d %f %f %f %f %f %f\n",
+  fprintf(f, "%d %d %d %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %d %.16f %.16f %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f\n",
           d->nx, d->ny, d->nz, d->Nx, d->Ny, d->Nz, d->xmin, d->xmax, d->ymin, d->ymax, d->zmin, d->zmax, d->endTime, d->cfl, d->Ng,
           d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
 
