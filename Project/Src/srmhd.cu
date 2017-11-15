@@ -294,17 +294,17 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
 
   cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                cudaHostAllocPortable);
 
   // Determine fluxes at cell faces
   this->fluxFunc(cons, prims, aux, f, fx, 0);
-  this->fluxFunc(cons, prims, aux, f, fy, 1);
 
-  // If domain is 3D loop over z direction also
-  if (d->Nz > 1) {
+  // If domain is 3D loop over x, y and z directions
+  if (d->Ny > 1 && d->Nz > 1) {
+    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable);
     cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
                   cudaHostAllocPortable);
+    this->fluxFunc(cons, prims, aux, f, fy, 1);
     this->fluxFunc(cons, prims, aux, f, fz, 2);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
@@ -317,10 +317,14 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
         }
       }
     }
+    cudaFreeHost(fy);
     cudaFreeHost(fz);
   }
-  // Otherwise there is only one k cell
-  else {
+  // If domain is 2D only loop over x and y directions
+  else if (d->Ny > 1) {
+    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable);
+    this->fluxFunc(cons, prims, aux, f, fy, 1);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
@@ -330,11 +334,20 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
         }
       }
     }
+    cudaFreeHost(fy);
+
+  }
+  // Otherwise, domain is 1D only loop over x direction
+  else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-1; i++) {
+          fnet[d->id(var, i, 0, 0)] = (fx[d->id(var, i+1, 0, 0)] / d->dx - fx[d->id(var, i, 0, 0)] / d->dx);
+      }
+    }
   }
 
   // Free arrays
   cudaFreeHost(fx);
-  cudaFreeHost(fy);
 }
 
 //! Source required for divergence cleaning
