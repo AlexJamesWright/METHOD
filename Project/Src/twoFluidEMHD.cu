@@ -535,7 +535,7 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         singleAux[4] = aux[d->id(4, i, j, k)];
         singleAux[14] = aux[d->id(14, i, j, k)];
         // Get primitive and auxilliary vars
-        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
+        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux);
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < d->Nprims; var++) {
