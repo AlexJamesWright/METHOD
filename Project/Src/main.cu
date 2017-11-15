@@ -8,6 +8,7 @@
 #include "saveData.h"
 #include <cstdio>
 #include <ctime>
+#include <iostream>
 
 
 int main(void) {
@@ -16,20 +17,20 @@ int main(void) {
   long int start_s = (long)clock();
 
   // Set up domain
-  int nx(10);
-  int ny(10);
-  int nz(10);
+  int nx(400);
+  int ny(0);
+  int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
-  double ymin(0.0);
-  double ymax(1.0);
+  double ymin(-0.5);
+  double ymax(0.5);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.2);
-  double cfl(0.5);
+  double endTime(0.4);
+  double cfl(0.2);
   int Ng(4);
   double gamma(2.0);
-  double sigma(10);
+  double sigma(1e6);
   double cp(0.1);
   double mu1(1.0e4);
   double mu2(-1.0e4);
@@ -42,9 +43,9 @@ int main(void) {
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data, 1);
+  BrioWuTwoFluid init(&data);
 
-  Periodic bcs(&data);
+  Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs);
 
@@ -52,11 +53,12 @@ int main(void) {
   sim.set(&init, &model, &timeInt, &bcs);
 
   // Run until end time and save results
-  //sim.evolve();
+  sim.evolve();
   SaveData save(&data);
 
-  // long int stop_s = (long)clock();
-  // printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
+  long int stop_s = (long)clock();
+  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
+
 
   return 0;
 
