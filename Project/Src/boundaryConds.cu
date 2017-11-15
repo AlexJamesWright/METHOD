@@ -47,42 +47,43 @@ void Outflow::apply(double * cons, double * prims, double * aux)
     }
   }
 
-
-  // Cons
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          cons[d->id(var, i, j, k)] = cons[d->id(var, i, d->Ng, k)];
-          // Back
-          cons[d->id(var, i, d->ny + d->Ng + j, k)] = cons[d->id(var, i, d->ny + d->Ng - 1, k)];
+  if (d->Ny > 1) {
+    // Cons
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            cons[d->id(var, i, j, k)] = cons[d->id(var, i, d->Ng, k)];
+            // Back
+            cons[d->id(var, i, d->ny + d->Ng + j, k)] = cons[d->id(var, i, d->ny + d->Ng - 1, k)];
+          }
         }
       }
     }
-  }
-  // Prims
-  for (int var(0); var < d->Nprims; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          prims[d->id(var, i, j, k)] = prims[d->id(var, i, d->Ng, k)];
-          // Back
-          prims[d->id(var, i, d->ny + d->Ng + j, k)] = prims[d->id(var, i, d->ny + d->Ng - 1, k)];
+    // Prims
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            prims[d->id(var, i, j, k)] = prims[d->id(var, i, d->Ng, k)];
+            // Back
+            prims[d->id(var, i, d->ny + d->Ng + j, k)] = prims[d->id(var, i, d->ny + d->Ng - 1, k)];
+          }
         }
       }
     }
-  }
-  // Aux
-  for (int var(0); var < d->Naux; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          aux[d->id(var, i, j, k)] = aux[d->id(var, i, d->Ng, k)];
-          // Back
-          aux[d->id(var, i, d->ny + d->Ng + j, k)] = aux[d->id(var, i, d->ny + d->Ng - 1, k)];
+    // Aux
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            aux[d->id(var, i, j, k)] = aux[d->id(var, i, d->Ng, k)];
+            // Back
+            aux[d->id(var, i, d->ny + d->Ng + j, k)] = aux[d->id(var, i, d->ny + d->Ng - 1, k)];
+          }
         }
       }
     }
@@ -177,42 +178,43 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
   }
 
-
-  // Cons
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          cons[d->id(var, i, j, k)] = cons[d->id(var, i, d->ny + j, k)];
-          // Back
-          cons[d->id(var, i, d->ny + d->Ng + j, k)] = cons[d->id(var, i, d->Ng + j, k)];
+  if (d->Ny > 1) {
+    // Cons
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            cons[d->id(var, i, j, k)] = cons[d->id(var, i, d->ny + j, k)];
+            // Back
+            cons[d->id(var, i, d->ny + d->Ng + j, k)] = cons[d->id(var, i, d->Ng + j, k)];
+          }
         }
       }
     }
-  }
-  // Prims
-  for (int var(0); var < d->Nprims; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          prims[d->id(var, i, j, k)] = prims[d->id(var, i, d->ny + j, k)];
-          // Back
-          prims[d->id(var, i, d->ny + d->Ng + j, k)] = prims[d->id(var, i, d->Ng + j, k)];
+    // Prims
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            prims[d->id(var, i, j, k)] = prims[d->id(var, i, d->ny + j, k)];
+            // Back
+            prims[d->id(var, i, d->ny + d->Ng + j, k)] = prims[d->id(var, i, d->Ng + j, k)];
+          }
         }
       }
     }
-  }
-  // Aux
-  for (int var(0); var < d->Naux; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          // Front
-          aux[d->id(var, i, j, k)] = aux[d->id(var, i, d->ny + j, k)];
-          // Back
-          aux[d->id(var, i, d->ny + d->Ng + j, k)] = aux[d->id(var, i, d->Ng + j, k)];
+    // Aux
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            aux[d->id(var, i, j, k)] = aux[d->id(var, i, d->ny + j, k)];
+            // Back
+            aux[d->id(var, i, d->ny + d->Ng + j, k)] = aux[d->id(var, i, d->Ng + j, k)];
+          }
         }
       }
     }
