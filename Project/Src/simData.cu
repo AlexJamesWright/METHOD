@@ -27,6 +27,8 @@ Data::Data(int nx, int ny, int nz,
 
   // Catch 2D case
   if (nz == 0) this->Nz = 1;
+  // Catch 1D case
+  if (ny == 0) this->Nz = this->Ny = 1;
 
   // Ensure there is some Resistivity
   if (this->sigma <= 0.0) {
