@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
 
 
 InitialFunc::InitialFunc(Data * data) : data(data)
@@ -10,7 +11,7 @@ InitialFunc::InitialFunc(Data * data) : data(data)
   d = this->data;
 
   // Ensure that the memory has been allocated for the arrays
-  if (!d->memSet) throw std::runtime_error("Must construct simulation class before implementing initial state. Need to allocate arrays.");
+  if (d->memSet != 1) throw std::runtime_error("Must construct simulation class before implementing initial state. Need to allocate arrays.");
 
   // Set all state vectors to zero
   for (int i(0); i < d->Nx; i++) {
@@ -79,7 +80,7 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir) : InitialFunc(data)
   // Syntax
   Data * d(data);
   // Ensure correct model
-  if (!d->Nprims == 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\nModel has wrong number of primitive variables to be two fluid model.");
+  if (d->Nprims != 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
 
   // Determine which direction the discontinuity it in
   int endX(d->Nx - 1);
@@ -88,29 +89,57 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir) : InitialFunc(data)
   int facX(1);
   int facY(1);
   int facZ(1);
-  double lBx, lBy, lBz;
-  double rBx, rBy, rBz;
+  double lBx(0);
+  double lBy(0);
+  double lBz(0);
+  double rBx(0);
+  double rBy(0);
+  double rBz(0);
+  // Amano set up
   if (dir == 0) {
     // x-direction
     facX = 2;
     lBx = rBx = 0.5;
-    lBy = lBz = 1.0;
-    rBy = rBz = -1.0;
+    lBy = 1.0;
+    rBy = -1.0;
   }
   else if (dir == 1) {
     // y-direction
     facY = 2;
     lBy = rBy = 0.5;
-    lBx = lBz = 1.0;
-    rBx = rBz = -1.0;
+    lBx = 1.0;
+    rBx = -1.0;
   }
   else {
     // z-direction
     facZ = 2;
     lBz = rBz = 0.5;
-    lBy = lBx = 1.0;
-    rBy = rBx = -1.0;
+    lBy = 1.0;
+    rBy = -1.0;
   }
+
+  // Generalized 3D set up
+  // if (dir == 0) {
+  //   // x-direction
+  //   facX = 2;
+  //   lBx = rBx = 0.5;
+  //   lBy = lBz = 1.0;
+  //   rBy = rBz = -1.0;
+  // }
+  // else if (dir == 1) {
+  //   // y-direction
+  //   facY = 2;
+  //   lBy = rBy = 0.5;
+  //   lBx = lBz = 1.0;
+  //   rBx = rBz = -1.0;
+  // }
+  // else {
+  //   // z-direction
+  //   facZ = 2;
+  //   lBz = rBz = 0.5;
+  //   lBy = lBx = 1.0;
+  //   rBy = rBx = -1.0;
+  // }
 
 
 
