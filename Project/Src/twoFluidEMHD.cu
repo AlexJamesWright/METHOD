@@ -9,6 +9,7 @@
 #include "weno.h"
 #include <cmath>
 #include <cstdio>
+#include <iostream>
 
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);
@@ -366,17 +367,17 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
 
   cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                cudaHostAllocPortable);
 
   // Determine fluxes at cell faces
   this->fluxFunc(cons, prims, aux, f, fx, 0);
-  this->fluxFunc(cons, prims, aux, f, fy, 1);
 
-  // If domain is 3D loop over z direction also
-  if (d->Nz > 1) {
+  // If domain is 3D loop over x, y and z directions
+  if (d->Ny > 1 && d->Nz > 1) {
+    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable);
     cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
                   cudaHostAllocPortable);
+    this->fluxFunc(cons, prims, aux, f, fy, 1);
     this->fluxFunc(cons, prims, aux, f, fz, 2);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
@@ -389,10 +390,14 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
         }
       }
     }
+    cudaFreeHost(fy);
     cudaFreeHost(fz);
   }
-  // Otherwise there is only one k cell
-  else {
+  // If domain is 2D only loop over x and y directions
+  else if (d->Ny > 1) {
+    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable);
+    this->fluxFunc(cons, prims, aux, f, fy, 1);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
@@ -402,11 +407,20 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
         }
       }
     }
+    cudaFreeHost(fy);
+
+  }
+  // Otherwise, domain is 1D only loop over x direction
+  else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-1; i++) {
+          fnet[d->id(var, i, 0, 0)] = (fx[d->id(var, i+1, 0, 0)] / d->dx - fx[d->id(var, i, 0, 0)] / d->dx);
+      }
+    }
   }
 
   // Free arrays
   cudaFreeHost(fx);
-  cudaFreeHost(fy);
 }
 
 //! Source contribution for a single cell
@@ -521,7 +535,7 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         singleAux[4] = aux[d->id(4, i, j, k)];
         singleAux[14] = aux[d->id(14, i, j, k)];
         // Get primitive and auxilliary vars
-        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux);
+        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < d->Nprims; var++) {
@@ -902,5 +916,6 @@ static void newton(double *Z, const double StildeSqs, const double Ds, const dou
     // Store result of Z=rho*h*W**2
     *Z = bestX;
     printf("Could not find C2P root in %d iterations. Returning %18.16f with residual %18.16f\n", iter, bestX, residual(*Z, StildeSqs, Ds, tauTildes, gamma));
+    std::exit(1);
   }
 }
