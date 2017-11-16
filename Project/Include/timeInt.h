@@ -13,12 +13,11 @@
 */
 class TimeIntegrator
 {
-  protected:
+  public:
     Data * data;
     Model * model;
     Bcs * bc;
 
-  public:
     //! Constructor reuires simData, model type and boundary conditions
     TimeIntegrator(Data * data, Model * model, Bcs * bc) : data(data), model(model), bc(bc) { }
 
