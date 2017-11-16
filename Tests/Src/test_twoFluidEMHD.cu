@@ -203,7 +203,7 @@ namespace
           }
         }
       }
-      
+
       // Solve and re-check
       model2.getPrimitiveVars(d2.cons, d2.prims, d2.aux);
 
@@ -226,6 +226,68 @@ namespace
         }
       }
     }
+
+
+    TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
+    {
+
+      // Set up
+      Data d(5, 5, 5, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
+      TwoFluidEMHD model(&d);
+      Simulation sim(&d);
+
+      // Set state to stationary equilibrium state
+      for (int i(0); i < d.Nx; i++) {
+        for (int j(0); j < d.Ny; j++) {
+          for (int k(0); k < d.Nz; k++) {
+            for (int var(0); var < d.Nprims; var++) {
+              if (var == 0 || var == 5) d.prims[d.id(var, i, j, k)] = 0.5;
+              else d.prims[d.id(0, i, j, k)] = 0.1;
+            }
+          }
+        }
+      }
+
+      model.primsToAll(d.cons, d.prims, d.aux);
+
+      // System is stationary, there should be zero flux
+      // x-direction
+      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+
+
+      for (int i(0); i < d.Nx; i++) {
+        for (int j(0); j < d.Ny; j++) {
+          for (int k(0); k < d.Nz; k++) {
+            for (int var(0); var < d.Ncons; var++) {
+              EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+            }
+          }
+        }
+      }
+      // y-direction
+      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
+      for (int i(0); i < d.Nx; i++) {
+        for (int j(0); j < d.Ny; j++) {
+          for (int k(0); k < d.Nz; k++) {
+            for (int var(0); var < d.Ncons; var++) {
+              EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+            }
+          }
+        }
+      }
+      // z-direction
+      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
+      for (int i(0); i < d.Nx; i++) {
+        for (int j(0); j < d.Ny; j++) {
+          for (int k(0); k < d.Nz; k++) {
+            for (int var(0); var < d.Ncons; var++) {
+              EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+            }
+          }
+        }
+      }
+
+    } // End test
 
 
 }
