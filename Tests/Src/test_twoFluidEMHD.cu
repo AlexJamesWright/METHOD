@@ -141,7 +141,6 @@ namespace
             EXPECT_NEAR(dy.cons[dy.id(15, i, j, k)], (-1 * dz.cons[dz.id(14, i, k, j)]), 1e-15);
             EXPECT_NEAR(dy.cons[dy.id(16, i, j, k)], dz.cons[dz.id(16, i, k, j)], 1e-15);
             EXPECT_NEAR(dy.cons[dy.id(17, i, j, k)], dz.cons[dz.id(17, i, k, j)], 1e-15);
-
           }
         }
       }
