@@ -13,7 +13,7 @@
 
 class Model
 {
-  protected:
+  public:
     Data * data;              // Pointer to overarching simData object
     int Ncons, Nprims, Naux;  // Size of conserved, primitive and aux state vectors
 
@@ -23,8 +23,15 @@ class Model
     Model(Data * data) : data(data) {}
     ~Model() {}
 
-
-    public:
+    //! Single cell source term contribution
+    /*!
+        Models that can posess a stiff source term and hence (semi-)implicit time
+      integrators will require a source contribution (and cons2prims method) that
+      applies to a single cell.
+        Each of the arguments are only for a single cell, ie, cons points to
+      an (Ncons,) array, etc.
+    */
+    virtual void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source) = 0;
 
     //! Source term contribution
     /*!
@@ -32,6 +39,15 @@ class Model
       variables required for the time integrator.
     */
     virtual void sourceTerm(double *cons, double *prims, double *aux, double *source) = 0;
+
+    //! Single cell cons2prims conversion
+    /*!
+        For the same reason as outlined in sourceTermSingleCell, some models will
+      require a single celled primitive conversion method.
+        Each of the arguments are only for a single cell, ie, cons points to
+      an (Ncons,) array, etc.
+    */
+    virtual void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux) = 0;
 
     //! Spectral analysis
     /*!

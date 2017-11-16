@@ -30,12 +30,32 @@ class SRMHD : public Model
     SRMHD(Data * data);
     ~SRMHD() { }
 
+
+    //! Single cell source term contribution
+    /*!
+        Models that can posess a stiff source term and hence (semi-)implicit time
+      integrators will require a source contribution (and cons2prims method) that
+      applies to a single cell.
+        Each of the arguments are only for a single cell, ie, cons points to
+      an (Ncons,) array, etc.
+    */
+    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
+
     //! Source term contribution
     /*!
         Non-zero flux for cons[8], phi, as a result of implementing divergence
       cleaning. For details see Muddle.
     */
     void sourceTerm(double *cons, double *prims, double *aux, double *source);
+
+    //! Single cell cons2prims conversion
+    /*!
+        For the same reason as outlined in sourceTermSingleCell, some models will
+      require a single celled primitive conversion method.
+        Each of the arguments are only for a single cell, ie, cons points to
+      an (Ncons,) array, etc.
+    */
+    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
 
     //! Spectral decomposition
     /*!

@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 
 
 SRMHD::SRMHD() : Model()
@@ -350,6 +351,24 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
   cudaFreeHost(fx);
 }
 
+//! Single cell source required for divergence cleaning
+/*!
+    See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors
+  and Full Wave Decompostiion Riemann Solver`
+*/
+void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+{
+  for (int var(0); var < this->data->Ncons; var++) {
+    if (var == 8) {
+      // phi
+      source[var] = -cons[8] / (this->data->cp*this->data->cp);
+    }
+    else {
+      source[var] = 0;
+    }
+  }
+}
+
 //! Source required for divergence cleaning
 /*!
     See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors
@@ -419,6 +438,15 @@ int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag)
   return 0;
 }
 
+void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
+{
+  std::cout << std::endl << std::endl << "**************************************" << std::endl;
+  std::cout << "WARNING:" << std::endl << "Trying to use cons2prims consversion for" << std::endl;
+  std::cout << "single cell in SRMHD class, but method has not been implemented. Use" << std::endl;
+  std::cout << "explicit method or implement. " << std::endl << "Exiting..." << std::endl;
+  std::exit(1);
+}
+
 
 //! Solve for the primitive and auxilliary variables
 /*!
@@ -427,8 +455,8 @@ int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag)
   an N=2 rootfind using cminpack library.
 
   Initial inputs will be the current values of the conserved vector and the
-  OLD values for the prims and aux vectors.
-  Output will be the current values of cons, prims and aux.
+  old values for the prims and aux vectors.
+  Output is the current values of cons, prims and aux.
 */
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
