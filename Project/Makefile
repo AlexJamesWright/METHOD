@@ -32,13 +32,16 @@ NVFLAGS = -std=c++11
 SRCS = main.cu \
 			 simulation.cu \
 			 srmhd.cu \
+			 twoFluidEMHD.cu \
 			 initFunc.cu \
 			 simData.cu \
 			 weno.cu \
+			 RK2.cu \
 			 rkSplit.cu \
+			 backwardsRK.cu \
 			 boundaryConds.cu \
-			 saveData.cu \
-			 twoFluidEMHD.cu
+			 saveData.cu
+
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -114,8 +117,15 @@ main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h
+RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
+		$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
