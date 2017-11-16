@@ -75,7 +75,7 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
 }
 
 
-BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir) : InitialFunc(data)
+BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
@@ -95,51 +95,54 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir) : InitialFunc(data)
   double rBx(0);
   double rBy(0);
   double rBz(0);
-  // Amano set up
-  if (dir == 0) {
-    // x-direction
-    facX = 2;
-    lBx = rBx = 0.5;
-    lBy = 1.0;
-    rBy = -1.0;
-  }
-  else if (dir == 1) {
-    // y-direction
-    facY = 2;
-    lBy = rBy = 0.5;
-    lBx = 1.0;
-    rBx = -1.0;
+  if (setUp) {
+    // Amano set up
+    if (dir == 0) {
+      // x-direction
+      facX = 2;
+      lBx = rBx = 0.5;
+      lBy = 1.0;
+      rBy = -1.0;
+    }
+    else if (dir == 1) {
+      // y-direction
+      facY = 2;
+      lBy = rBy = 0.5;
+      lBx = 1.0;
+      rBx = -1.0;
+    }
+    else {
+      // z-direction
+      facZ = 2;
+      lBz = rBz = 0.5;
+      lBy = 1.0;
+      rBy = -1.0;
+    }
   }
   else {
-    // z-direction
-    facZ = 2;
-    lBz = rBz = 0.5;
-    lBy = 1.0;
-    rBy = -1.0;
+    // Generalized 3D set up
+    if (dir == 0) {
+      // x-direction
+      facX = 2;
+      lBx = rBx = 0.5;
+      lBy = lBz = 1.0;
+      rBy = rBz = -1.0;
+    }
+    else if (dir == 1) {
+      // y-direction
+      facY = 2;
+      lBy = rBy = 0.5;
+      lBx = lBz = 1.0;
+      rBx = rBz = -1.0;
+    }
+    else {
+      // z-direction
+      facZ = 2;
+      lBz = rBz = 0.5;
+      lBy = lBx = 1.0;
+      rBy = rBx = -1.0;
+    }
   }
-
-  // Generalized 3D set up
-  // if (dir == 0) {
-  //   // x-direction
-  //   facX = 2;
-  //   lBx = rBx = 0.5;
-  //   lBy = lBz = 1.0;
-  //   rBy = rBz = -1.0;
-  // }
-  // else if (dir == 1) {
-  //   // y-direction
-  //   facY = 2;
-  //   lBy = rBy = 0.5;
-  //   lBx = lBz = 1.0;
-  //   rBx = rBz = -1.0;
-  // }
-  // else {
-  //   // z-direction
-  //   facZ = 2;
-  //   lBz = rBz = 0.5;
-  //   lBy = lBx = 1.0;
-  //   rBy = rBx = -1.0;
-  // }
 
 
 

@@ -58,7 +58,13 @@ class BrioWuTwoFluid : public InitialFunc
   public:
 
     //! Brio-Wu shock tube initial data for two-fluid model
-    BrioWuTwoFluid(Data * data, int dir=0);
+    /*!
+        Few options for the set up. All set ups will place a discontinuity along
+      some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric
+      3D generalisation is also selected by default (setUp=0), but for the values
+      used in Amano 2016 use setUp=1.
+    */
+    BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
 };
 
 #endif
