@@ -7,6 +7,9 @@
 import numpy as np
 import pylab as plt
 from matplotlib import cm
+import warnings
+
+warnings.filterwarnings('ignore', "No labelled objects found. ")
 
 # Change this to the relative path to the data you want to plot
 # File names must start with e.g. `primitive`, anything between this
@@ -328,7 +331,81 @@ def plotSlice(data, dataLabels, c, axis=0):
         plt.ylabel(r'$q_{}(x)$'.format(i+1))
         plt.ylim((ylower, yupper))
         plt.legend(loc='lower center', fontsize=10)
-#            py.savefig('Figures/GR2MHD{}.pdf'.format(self.primLabels[i]))
+        plt.show()
+
+
+def plotTwoFluidAverage(data, dataLabels, c, axis=0):
+    """
+    Plots the variation of average data in the `axis` direction of the two fluids. 
+    
+    Parameters
+    ----------
+        data: array of float
+            (Nvars, Nx, Ny, Nz) The data to be plotted (e.g. prims)
+        dataLabels: array of string
+            (Nvars,) The corresponding labels for the elements of data
+        c: dictionary
+            The simulation constant data
+        color: matplotlib color map
+            The colour theme to be plotting in. This can take string arguments
+            but best to stick to variants of cm.somecolourscheme
+            E.g. cm.magma
+        axis: int, optional
+            The axis the user wants to plot in.
+            (0, 1, 2) = (x, y, z)
+            Defaults to axis=0, x-direction.
+    """
+    Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
+    Nvars = len(data)
+    if (Nvars == 18):
+        print("Cannot take average of conserved variables. Conserved variables are summed values...")
+        return None
+    elif (Nvars == 16):
+        print("Determining average values of primitive variables...")
+        singles = 5
+    elif (Nvars == 35):
+        print("Determining average values of auxilliary variables...")
+        singles = 10
+    else:
+        print("Cannot interpret the vector you have given as prims or aux.")
+        print("Exiting...")
+        return None
+    
+    avgPlotVars = (data[:singles] + data[singles:2*singles]) / 2
+    
+    for i in range(singles):
+        plt.figure()
+        if (axis == 0):
+            plotVars = avgPlotVars[i, Ng:-Ng, Ny//2, Nz//2]
+            axisLabel = r'$x$'
+            step = c['dx']
+            n = c['nx']
+            left, right = c['xmin'], c['xmax']
+        if (axis == 1):
+            plotVars = avgPlotVars[i, Nx//2, Ng:-Ng, Nz//2]
+            axisLabel = r'$y$'
+            step = c['dy']
+            n = c['ny']
+            left, right = c['ymin'], c['ymax']
+        if (axis == 2):
+            plotVars = avgPlotVars[i, Nx//2, Ny//2, Ng:-Ng]
+            axisLabel = r'$z$'
+            step = c['dz']
+            n = c['nz']
+            left, right = c['zmin'], c['zmax']
+            
+        ymin = np.min(plotVars)
+        ymax = np.max(plotVars)
+        rangeY = ymax - ymin
+        ylower = ymin - 0.025 * rangeY
+        yupper = ymax + 0.025 * rangeY
+        xs = np.linspace(left + step/2, right - step/2, n)
+        plt.plot(xs, plotVars)
+        plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
+        plt.xlabel(axisLabel)
+        plt.ylabel(r'$q_{}(x)$'.format(i+1))
+        plt.ylim((ylower, yupper))
+        plt.legend(loc='lower center', fontsize=10)
         plt.show()
 
 
