@@ -123,7 +123,7 @@ RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
 rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h
+backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 
