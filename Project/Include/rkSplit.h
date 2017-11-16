@@ -1,6 +1,9 @@
-#include "timeInt.h"
+#ifndef RKSPLIT_H
+#define RKSPLIT_H
+#include "RK2.h"
 
-//! Fully explicit Runge-Kutta second order time integrator
+
+//! Fully explicit Runge-Kutta second order time integrator that handles source terms
 /*!
     Integrator deals with the flux and source contributions separately, first
   performing the two stages as a result of the flux integration, and the adds
@@ -10,7 +13,7 @@
   for sources that act on a fast timescale compared to the flux terms. For stiff
   hyperbolic systems, we need to solve the sources implicitly to ensure stability.
 */
-class RKSplit : public TimeIntegrator
+class RKSplit : public RK2
 {
 
   public:
@@ -19,7 +22,7 @@ class RKSplit : public TimeIntegrator
         Constructor requires simulation data and the flux and source functions
       from the model class.
     */
-    RKSplit(Data * data, Model * model, Bcs * bc) : TimeIntegrator(data, model, bc) { }
+    RKSplit(Data * data, Model * model, Bcs * bc) : RK2(data, model, bc) { }
 
     //! Performs a single time step
     /*!
@@ -31,3 +34,5 @@ class RKSplit : public TimeIntegrator
     void step();
 
 };
+
+#endif
