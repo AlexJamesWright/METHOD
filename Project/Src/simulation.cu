@@ -121,7 +121,7 @@ void Simulation::updateTime()
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
 
   // We're good to go
-  this->timeInt->step();
+  this->timeInt->step(d->cons, d->prims, d->aux);
 
   // Update parameters
   d->t += d->dt;

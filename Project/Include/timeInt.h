@@ -27,7 +27,7 @@ class TimeIntegrator
         Pure virtual function: every time integrator must be able to increment
       time forward by a single timestep, dt, given by the simData.
     */
-    virtual void step() = 0;
+    virtual void step(double * cons, double * prims, double * aux) = 0;
 
 };
 

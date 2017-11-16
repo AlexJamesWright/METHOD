@@ -2,22 +2,22 @@
 #include <cstdio>
 #include <iostream>
 
-void RKSplit::step()
+void RKSplit::step(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
 
   // Perform standard RK2 step
-  RK2::step();
+  RK2::step(cons, prims, aux);
 
   // Add source contribution
-  this->model->sourceTerm(d->cons, d->prims, d->aux, d->source);
+  this->model->sourceTerm(cons, prims, aux, d->source);
 
   for (int var(0); var < d->Ncons; var++) {
    for (int i(0); i < d->Nx; i++) {
      for (int j(0); j < d->Ny; j++) {
        for (int k(0); k < d->Nz; k++) {
-         d->cons[d->id(var, i, j, k)] += d->dt * d->source[d->id(var, i, j, k)];
+         cons[d->id(var, i, j, k)] += d->dt * d->source[d->id(var, i, j, k)];
        }
      }
    }
@@ -25,10 +25,10 @@ void RKSplit::step()
 
 
   // Determine new prim and aux variables
-  this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
+  this->model->getPrimitiveVars(cons, prims, aux);
 
   // Apply boundary conditions
-  this->bc->apply(d->cons, d->prims, d->aux);
+  this->bc->apply(cons, prims, aux);
 
 
 }

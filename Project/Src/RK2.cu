@@ -1,6 +1,6 @@
 #include "RK2.h"
 
-void RK2::step()
+void RK2::step(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
@@ -27,10 +27,10 @@ void RK2::step()
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Naux; var++) {
-          p1aux[d->id(var, i, j, k)] = d->aux[d->id(var, i, j, k)];
+          p1aux[d->id(var, i, j, k)] = aux[d->id(var, i, j, k)];
         }
         for (int var(0); var < d->Nprims; var++) {
-          p1prims[d->id(var, i, j, k)] = d->prims[d->id(var, i, j, k)];
+          p1prims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
         }
       }
     }
@@ -38,14 +38,14 @@ void RK2::step()
 
 
   // Get first approximation of flux contribution
-  this->model->F(d->cons, d->prims, d->aux, d->f, args1);
+  this->model->F(cons, prims, aux, d->f, args1);
 
   // First stage approximation
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
-           p1cons[d->id(var, i, j, k)] = d->cons[d->id(var, i, j, k)] - d->dt * args1[d->id(var, i, j, k)];
+           p1cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - d->dt * args1[d->id(var, i, j, k)];
          }
        }
      }
@@ -68,18 +68,18 @@ void RK2::step()
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
-           d->cons[d->id(var, i, j, k)] = 0.5 * (d->cons[d->id(var, i, j, k)] + p1cons[d->id(var, i, j, k)] -
-                                         d->dt * args2[d->id(var, i, j, k)]);
+           cons[d->id(var, i, j, k)] = 0.5 * (cons[d->id(var, i, j, k)] + p1cons[d->id(var, i, j, k)] -
+                                       d->dt * args2[d->id(var, i, j, k)]);
          }
        }
      }
    }
 
    // Determine new prim and aux variables
-   this->model->getPrimitiveVars(d->cons, d->prims, d->aux);
+   this->model->getPrimitiveVars(cons, prims, aux);
 
    // Apply boundary conditions
-   this->bc->apply(d->cons, d->prims, d->aux);
+   this->bc->apply(cons, prims, aux);
 
 
    // Free arrays
