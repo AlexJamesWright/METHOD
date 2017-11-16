@@ -78,6 +78,17 @@ namespace
         }
       }
     }
+    // z-direction
+    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
+    for (int i(0); i < d.Nx; i++) {
+      for (int j(0); j < d.Ny; j++) {
+        for (int k(0); k < d.Nz; k++) {
+          for (int var(0); var < d.Ncons; var++) {
+            EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          }
+        }
+      }
+    }
   }
 
 
