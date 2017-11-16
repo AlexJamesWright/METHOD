@@ -374,7 +374,24 @@ void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
   }
 }
 
-int residual(void *p, int n, const double *x, double *fvec, int iflag)
+//! Residual function to minimize in the format required by cminpack
+/*!
+    I know, its a horrible layout, alas we're stuck with it.
+
+    Parameters
+    ----------
+    p : pointer to struct
+      Struct contains additional arguments that are required (if any)
+    n : int
+      Size of system
+    x : pointer to double
+      The array containing the initial guess
+    fvec : pointer to double
+      The array containing the solution
+    iflag : int
+      Error flag
+*/
+int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag)
 {
   // Retrieve additional arguments
   Args * args = (Args*) p;
@@ -472,7 +489,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                  (1 - sol[0]);
 
         // Solve residual = 0
-        info = __cminpack_func__(hybrd1) (&residual, &args, n, sol, res,
+        info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                           tol, wa, lwa);
         // If root find fails, add failed cell to the list
         if (info!=1) {
@@ -522,7 +539,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       sol[0] /= neighbours.size();
       sol[1] /= neighbours.size();
       // Solve residual = 0
-      info = __cminpack_func__(hybrd1) (&residual, &args, n, sol, res,
+      info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                         tol, wa, lwa);
       if (info != 1) {
         printf("Smart guessing did not work, exiting\n");
