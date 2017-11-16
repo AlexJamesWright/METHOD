@@ -29,7 +29,6 @@
 (29)  rhoCh0, rhoCh,
 (31)  ux, uy, uz, W
 */
-
 class TwoFluidEMHD : public Model
 {
 
@@ -41,80 +40,80 @@ class TwoFluidEMHD : public Model
     ~TwoFluidEMHD() { }
 
 
-        //! Source term contribution
-        /*!
-            Source terms arise from the weighted sum of the species conserved vectors
-          and from implementing the divergence cleaning method. This function
-          determines the source contribution to the change in the conserved vector
-          for all cells. This function calls sourceTermSingleCell for every compute
-          cell.
-        */
-        void sourceTerm(double *cons, double *prims, double *aux, double *source);
+    //! Source term contribution
+    /*!
+        Source terms arise from the weighted sum of the species conserved vectors
+      and from implementing the divergence cleaning method. This function
+      determines the source contribution to the change in the conserved vector
+      for all cells. This function calls sourceTermSingleCell for every compute
+      cell.
+    */
+    void sourceTerm(double *cons, double *prims, double *aux, double *source);
 
 
-        //! Single cell source term contribution
-        /*!
-            Determines the source vector due the the cond prims and aux vector
-          of a single compute cell.
-          Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
-          array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
-          other functions.
-        */
-        void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
+    //! Single cell source term contribution
+    /*!
+        Determines the source vector due the the cond prims and aux vector
+      of a single compute cell.
+      Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
+      array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
+      other functions.
+    */
+    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
 
 
-        //! Spectral decomposition
-        /*!
-            Generates the values of the primitive and auxilliary variables consistent
-          with the conservative vector given. Method first separates the fluids, then
-          subtracts the EM fields implementing a resistive MHD single fluid proceedure
-          to each species.
-          Function calls single celled version (below) for each compute cell.
-        */
-        void getPrimitiveVars(double *cons, double *prims, double *aux);
+    //! Spectral decomposition
+    /*!
+        Generates the values of the primitive and auxilliary variables consistent
+      with the conservative vector given. Method first separates the fluids, then
+      subtracts the EM fields implementing a resistive MHD single fluid proceedure
+      to each species.
+      Function calls single celled version (below) for each compute cell.
+    */
+    void getPrimitiveVars(double *cons, double *prims, double *aux);
 
 
-        //! Single cell spectral decomposition
-        /*!
-            Generates the values for aux and prims for the given cons vector for only
-          a single cell (i, j, k).
-            Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
-          array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
-          other functions.
-            Single celled version required for the inside of the residual functions
-          for the (semi) implicit time integrators.
-        */
-        void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
+    //! Single cell spectral decomposition
+    /*!
+        Generates the values for aux and prims for the given cons vector for only
+      a single cell (i, j, k).
+        Note : pointers to arrays are the (Ncons,) conservative array, (Nprims,) prim
+      array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
+      other functions.
+        Single celled version required for the inside of the residual functions
+      for the (semi) implicit time integrators.
+    */
+    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
 
 
-        //! Primitive-to-all transformation
-        /*!
-            Transforms the initial state given in primitive form in to the conserved
-          vector state. Relations have been taken from Amano 2016.
-        */
-        void primsToAll(double *cons, double *prims, double *aux);
+    //! Primitive-to-all transformation
+    /*!
+        Transforms the initial state given in primitive form in to the conserved
+      vector state. Relations have been taken from Amano 2016.
+    */
+    void primsToAll(double *cons, double *prims, double *aux);
 
-        //! Numerical flux function
-        /*!
-            Method determines the value of the conserved vector flux through the
-          cell faces.
-            We are using the flux vector splitting method described in Shu, `Essentially
-          Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic
-          Conservation Laws`. For the form of the fluxes see Relativistic Magneto..., Anton '10
-          with the inclusion of divergence cleaning from Advanced numerical methods for Neutron star
-          interfaces, John Muddle.
-            Note: We are assuming that all primitive and auxilliary variables are up-to-date
-          at the time of this function execution.
-        */
-        void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir);
+    //! Numerical flux function
+    /*!
+        Method determines the value of the conserved vector flux through the
+      cell faces.
+        We are using the flux vector splitting method described in Shu, `Essentially
+      Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic
+      Conservation Laws`. For the form of the fluxes see Relativistic Magneto..., Anton '10
+      with the inclusion of divergence cleaning from Advanced numerical methods for Neutron star
+      interfaces, John Muddle.
+        Note: We are assuming that all primitive and auxilliary variables are up-to-date
+      at the time of this function execution.
+    */
+    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir);
 
-        //! Numerical flux approximation (solution stored in fnet)
-        /*!
-            Given the current values for the cons prims and aux vars, uses the flux
-          reconstruction method to determine the flux at the cell faces and computes
-          the net flux of the conserved vector through each cell
-        */
-        void F(double *cons, double *prims, double *aux, double *f, double *fnet);
+    //! Numerical flux approximation (solution stored in fnet)
+    /*!
+        Given the current values for the cons prims and aux vars, uses the flux
+      reconstruction method to determine the flux at the cell faces and computes
+      the net flux of the conserved vector through each cell
+    */
+    void F(double *cons, double *prims, double *aux, double *f, double *fnet);
 
 };
 
