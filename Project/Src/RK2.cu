@@ -1,4 +1,5 @@
 #include "RK2.h"
+#include <iostream>
 
 void RK2::step(double * cons, double * prims, double * aux)
 {
@@ -20,6 +21,7 @@ void RK2::step(double * cons, double * prims, double * aux)
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
+
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
