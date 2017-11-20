@@ -26,10 +26,17 @@ Data::Data(int nx, int ny, int nz,
   this->Nz = nz + 2 * Ng;
 
   // Catch 2D case
-  if (nz == 0) this->Nz = 1;
+  if (nz == 0) {
+    this->Nz = 1;
+    zmin = -1e20;
+    zmax = 1e20;
+  }
   // Catch 1D case
-  if (ny == 0) this->Nz = this->Ny = 1;
-
+  if (ny == 0) {
+    this->Nz = this->Ny = 1;
+    zmin = ymin = -1e20;
+    zmax = ymax = 1e20;
+  }
   // Ensure there is some Resistivity
   if (this->sigma <= 0.0) {
     throw std::invalid_argument("Conductivity must be positive, sigma > 0.\n");
