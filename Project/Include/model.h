@@ -47,7 +47,7 @@ class Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
     */
-    virtual void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux) = 0;
+    virtual void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1) = 0;
 
     //! Spectral analysis
     /*!

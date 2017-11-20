@@ -438,7 +438,7 @@ int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag)
   return 0;
 }
 
-void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
+void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
   std::cout << std::endl << std::endl << "**************************************" << std::endl;
   std::cout << "WARNING:" << std::endl << "Trying to use cons2prims consversion for" << std::endl;

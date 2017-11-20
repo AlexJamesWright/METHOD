@@ -55,7 +55,7 @@ class SRMHD : public Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
     */
-    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
+    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1);
 
     //! Spectral decomposition
     /*!
