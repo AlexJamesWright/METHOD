@@ -38,7 +38,6 @@ void RK2::step(double * cons, double * prims, double * aux)
     }
   }
 
-
   // Get first approximation of flux contribution
   this->model->F(cons, prims, aux, d->f, args1);
 
@@ -53,18 +52,12 @@ void RK2::step(double * cons, double * prims, double * aux)
      }
    }
 
-
-
    // Apply boundary conditions and get primitive and aux vars for p1
    this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
-
    this->bc->apply(p1cons, p1prims, p1aux);
-
 
    // Get second approximation of flux contribution
    this->model->F(p1cons, p1prims, p1aux, d->f, args2);
-
-
    // Construct solution
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {
@@ -82,7 +75,6 @@ void RK2::step(double * cons, double * prims, double * aux)
 
    // Apply boundary conditions
    this->bc->apply(cons, prims, aux);
-
 
    // Free arrays
    cudaFreeHost(p1cons);
