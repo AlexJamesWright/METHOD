@@ -83,7 +83,7 @@ class TwoFluidEMHD : public Model
         Single celled version required for the inside of the residual functions
       for the (semi) implicit time integrators.
     */
-    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux);
+    void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1);
 
 
     //! Primitive-to-all transformation
