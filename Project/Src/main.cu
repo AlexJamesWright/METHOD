@@ -5,20 +5,22 @@
 #include "twoFluidEMHD.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
+#include "backwardsRK.h"
 #include "saveData.h"
 #include <cstdio>
+#include <cstdlib>
 #include <ctime>
 #include <iostream>
 
 
 int main(void) {
 
-  // Time execution of programme
-  long int start_s = (long)clock();
+  // // Time execution of programme
+  // long int start_s = (long)clock();
 
   // Set up domain
-  int nx(400);
-  int ny(0);
+  int nx(10);
+  int ny(10);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -27,13 +29,13 @@ int main(void) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.2);
+  double cfl(0.4);
   int Ng(4);
   double gamma(2.0);
-  double sigma(1e6);
-  double cp(0.1);
-  double mu1(1.0e4);
-  double mu2(-1.0e4);
+  double sigma(1e-6);
+  double cp(1.0);
+  double mu1(-1.0e4);
+  double mu2(1.0e4);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2);
@@ -43,21 +45,24 @@ int main(void) {
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data);
+  BrioWuTwoFluid init(&data, 0, 1);
 
   Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs);
+  BackwardsRK2 timeInt(&data, &model, &bcs);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs);
 
-  // Run until end time and save results
-  sim.evolve();
-  SaveData save(&data);
 
-  long int stop_s = (long)clock();
-  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
+
+
+  // // Run until end time and save results
+  sim.evolve();
+  // SaveData save(&data);
+  //
+  // long int stop_s = (long)clock();
+  // printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
 
 
   return 0;
