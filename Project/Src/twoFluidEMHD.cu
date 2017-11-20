@@ -13,7 +13,7 @@
 
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);
-static void newton(double *, const double, const double, const double, double);
+static void newton(double *, const double, const double, const double, double, int, int, int, int);
 
 TwoFluidEMHD::TwoFluidEMHD() : Model()
 {
@@ -99,6 +99,7 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
+
           f[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
                                  aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)];
           // Sx, Sy, Sx
@@ -475,7 +476,6 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   cudaHostAlloc((void **)&singleSource, sizeof(double) * d->Ncons,
                 cudaHostAllocPortable);
 
-
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -504,7 +504,6 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   cudaFreeHost(singlePrims);
   cudaFreeHost(singleAux);
   cudaFreeHost(singleSource);
-
 }
 
 //! Conservative to Primitive transformation for all cells
@@ -524,6 +523,7 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
                 cudaHostAllocPortable);
 
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -534,8 +534,10 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         }
         singleAux[4] = aux[d->id(4, i, j, k)];
         singleAux[14] = aux[d->id(14, i, j, k)];
+
         // Get primitive and auxilliary vars
-        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux);
+        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
+
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < d->Nprims; var++) {
@@ -548,16 +550,13 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 
-
   // Free up
   cudaFreeHost(singleCons);
   cudaFreeHost(singlePrims);
   cudaFreeHost(singleAux);
-
-
 }
 
-void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
+void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
   // Syntax
   Data * d(this->data);
@@ -599,12 +598,12 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
   aux[19] = (cons[9] - d->mu1 * aux[28]) / (d->mu2 - d->mu1);
 
   // We now have everything we need
-  newton(&aux[4], Stilde1sq, aux[5], aux[9], d->gamma);
-  newton(&aux[14], Stilde2sq, aux[15], aux[19], d->gamma);
+  newton(&aux[4], Stilde1sq, aux[5], aux[9], d->gamma, i, j, k, 0);
+  newton(&aux[14], Stilde2sq, aux[15], aux[19], d->gamma, i, j, k, 1);
 
   // vsq1, vsq2
-  aux[3] = Stilde1sq / aux[4];
-  aux[13] = Stilde2sq / aux[14];
+  aux[3] = Stilde1sq / (aux[4] * aux[4]);
+  aux[13] = Stilde2sq / (aux[14] * aux[14]);
   // W1, W2
   aux[1] = 1 / sqrt(1 - aux[3]);
   aux[11] = 1 / sqrt(1 - aux[13]);
@@ -616,7 +615,7 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
   aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
   // e1, e2
   aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (d->gamma * prims[0]);
-  aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[0]);
+  aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[5]);
   // p1, p2
   prims[4] = prims[0] * aux[2] * (d->gamma - 1);
   prims[9] = prims[5] * aux[12] * (d->gamma - 1);
@@ -878,7 +877,7 @@ static double residual(const double Z, const double StildeSqs, const double Ds, 
   Pointer to Z initially holds the guess but this is then modified until it holds
   the solution.
 */
-static void newton(double *Z, const double StildeSqs, const double Ds, const double tauTildes, double gamma)
+static void newton(double *Z, const double StildeSqs, const double Ds, const double tauTildes, double gamma, int i, int j, int k, int fluid)
 {
   // Rootfind data
   double bestX;
@@ -915,7 +914,7 @@ static void newton(double *Z, const double StildeSqs, const double Ds, const dou
   if (!found) {
     // Store result of Z=rho*h*W**2
     *Z = bestX;
-    printf("Could not find C2P root in %d iterations. Returning %18.16f with residual %18.16f\n", iter, bestX, residual(*Z, StildeSqs, Ds, tauTildes, gamma));
+    printf("Could not find C2P root in %d iterations. Returning %18.16f with residual %18.16f\nCell no. is (%d, %d, %d) for fluid %d\n", iter, bestX, residual(*Z, StildeSqs, Ds, tauTildes, gamma), i, j, k, fluid);
     std::exit(1);
   }
 }
