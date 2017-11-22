@@ -16,10 +16,10 @@ class TimeIntegrator
   public:
     Data * data;
     Model * model;
-    Bcs * bc;
+    Bcs * bcs;
 
     //! Constructor reuires simData, model type and boundary conditions
-    TimeIntegrator(Data * data, Model * model, Bcs * bc) : data(data), model(model), bc(bc) { }
+    TimeIntegrator(Data * data, Model * model, Bcs * bcs) : data(data), model(model), bcs(bcs) { }
 
     //! Step function
     /*!

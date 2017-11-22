@@ -22,7 +22,7 @@ class RKSplit : public RK2
         Constructor requires simulation data and the flux and source functions
       from the model class.
     */
-    RKSplit(Data * data, Model * model, Bcs * bc) : RK2(data, model, bc) { }
+    RKSplit(Data * data, Model * model, Bcs * bcs) : RK2(data, model, bcs) { }
 
     //! Performs a single time step
     /*!

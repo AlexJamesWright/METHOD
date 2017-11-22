@@ -27,6 +27,6 @@ void RKSplit::step(double * cons, double * prims, double * aux)
   this->model->getPrimitiveVars(cons, prims, aux);
 
   // Apply boundary conditions
-  this->bc->apply(cons, prims, aux);
+  this->bcs->apply(cons, prims, aux);
 
 }
