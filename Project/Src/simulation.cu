@@ -91,12 +91,15 @@ Simulation::~Simulation()
 void Simulation::set(InitialFunc * init, Model * model,
                      TimeIntegrator * timeInt, Bcs * bcs)
 {
+  // Syntax
+  Data * d(this->data);
   this->init = init;
   this->model = model;
   this->timeInt = timeInt;
   this->bcs = bcs;
   // Set primitive and auxilliary variables
-  this->model->primsToAll(this->data->cons, this->data->prims, this->data->aux);
+  this->model->primsToAll(d->cons, d->prims, d->aux);
+  this->bcs->apply(d->cons, d->prims, d->aux);
 }
 
 //! Incrememt the system forward by a single timestep
@@ -109,11 +112,11 @@ void Simulation::updateTime()
 
 
   // Calculate the size of the next timestep
-  double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
-  double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
-  double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
-  d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
-
+  // double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
+  // double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
+  // double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
+  // d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
+  d->dt = d->cfl / (1/d->dx + 1/d->dy + 1/d->dz);
   // Slow start
   if (d->iters < 5) d->dt *= 0.1;
 
