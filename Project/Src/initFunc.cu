@@ -53,7 +53,7 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
   }
   // Ensure correct model
   if (d->Nprims > 15) throw std::runtime_error("Trying to implement a single fluid initial state on multifluid model.\nModel has too many primitive variables to be single fluid.");
-
+  if (d->nz != 0) throw std::runtime_error("System must be two dimensional for this initial set up. \nSet nz = 0 and try again.\n");
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -143,7 +143,6 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
       rBy = rBx = -1.0;
     }
   }
-
 
 
   for (int i(0); i < d->Nx/facX; i++) {
