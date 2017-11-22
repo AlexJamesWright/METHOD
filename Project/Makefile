@@ -23,7 +23,7 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 TEST_DIR = ../Tests
 
 # C++ compiler flags
-CXXFLAGS =
+CXXFLAGS = -Xcompiler -fopenmp
 
 # NVIDIA compiler flags
 NVFLAGS = -std=c++11
@@ -112,7 +112,7 @@ simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) $(CXXFLAGS)
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -136,7 +136,7 @@ saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^	-o $@
+	$(CC)	$^	-o $@ $(CXXFLAGS)
 
 buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects
