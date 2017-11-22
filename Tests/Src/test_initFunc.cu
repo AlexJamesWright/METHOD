@@ -11,7 +11,7 @@ namespace
 
   TEST(InitialFunc, baseConstructor)
   {
-    Data data(100, 10, 1, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+    Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
     SRMHD model(&data);
     Simulation sim(&data);
     InitialFunc init(&data);
@@ -43,7 +43,7 @@ namespace
 
   TEST(InitialFunc, OTVortexSingleFluidFunc)
   {
-    Data data(100, 10, 1, 0, 1, 0, 1, -0.1, 0.1, 0.8);
+    Data data(100, 10, 2, 0, 1, 0, 1, -0.1, 0.1, 0.8);
     SRMHD model(&data);
     Simulation sim(&data);
     OTVortexSingleFluid init(&data);

@@ -11,7 +11,7 @@
 namespace
 {
 
-  Data data(100, 10, 1, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+  Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
 
   TEST(Simulation, dataInitialisation)
   {
@@ -24,11 +24,11 @@ namespace
     // Check standard data
     EXPECT_EQ(sim.data->nx, 100);
     EXPECT_EQ(sim.data->ny, 10);
-    EXPECT_EQ(sim.data->nz, 1);
+    EXPECT_EQ(sim.data->nz, 2);
     EXPECT_EQ(sim.data->Ng, 4);
     EXPECT_EQ(sim.data->Nx, 108);
     EXPECT_EQ(sim.data->Ny, 18);
-    EXPECT_EQ(sim.data->Nz, 9);
+    EXPECT_EQ(sim.data->Nz, 10);
     EXPECT_EQ(sim.data->xmin, 0.0);
     EXPECT_EQ(sim.data->xmax, 1.0);
     EXPECT_EQ(sim.data->ymin, -0.5);
@@ -50,7 +50,7 @@ namespace
     EXPECT_NEAR(sim.data->dt, 0.002886751346, 1e-11);
     EXPECT_EQ(sim.data->dx, 0.01);
     EXPECT_EQ(sim.data->dy, 0.1);
-    EXPECT_EQ(sim.data->dz, 0.2);
+    EXPECT_EQ(sim.data->dz, 0.1);
     EXPECT_EQ(sim.data->iters, 0);
 
     // Check domain

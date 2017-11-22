@@ -16,7 +16,7 @@ namespace
 
     TEST(TwoFluidEMHD, Constructor)
     {
-      Data d(100, 10, 1, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+      Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
       TwoFluidEMHD model(&d);
       EXPECT_EQ(d.Ncons, 18);
       EXPECT_EQ(d.Nprims, 16);
@@ -231,7 +231,7 @@ namespace
     {
 
       // Set up
-      Data d(5, 5, 5, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
+      Data d(6, 6, 6, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
       TwoFluidEMHD model(&d);
       Simulation sim(&d);
 

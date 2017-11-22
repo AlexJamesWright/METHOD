@@ -16,7 +16,7 @@ namespace
 
   TEST(SRMHD, Constructor)
   {
-    Data d(100, 10, 1, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+    Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
     SRMHD model(&d);
     EXPECT_EQ(d.Ncons, 9);
     EXPECT_EQ(d.Nprims, 8);
@@ -133,8 +133,8 @@ namespace
   TEST(SRMHD, Prims2Cons2Prims)
   {
     const double tol = 1.49011612e-8;   // Tolerance of rootfinder
-    Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0);
-    Data d2(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0);
+    Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
+    Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
     SRMHD model(&d);
     SRMHD model2(&d2);
     Simulation sim(&d);
