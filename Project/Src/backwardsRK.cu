@@ -98,7 +98,8 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
   // Use RKSplit as estimate for solution, and use this estimate to start rootfind
   RK2::step(initGuess, tempPrims, tempAux);
 
-  this->model->sourceTermSingleCell(initGuess, tempPrims, tempAux, tempSource);
+  this->model->sourceTerm(initGuess, tempPrims, tempAux, tempSource);
+
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
@@ -109,7 +110,6 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
     }
   }
   this->bcs->apply(initGuess, tempPrims, tempAux);
-
 
   // Also step given variables so we now have the explicit contribution due to fluxes
   RK2::step(cons, prims, aux);
