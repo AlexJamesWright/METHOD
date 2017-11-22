@@ -16,7 +16,7 @@ class RK2 : public TimeIntegrator
         Constructor requires simulation data and the flux and source functions
       from the model class.
     */
-    RK2(Data * data, Model * model, Bcs * bc) : TimeIntegrator(data, model, bc) { }
+    RK2(Data * data, Model * model, Bcs * bcs) : TimeIntegrator(data, model, bcs) { }
 
     //! Performs a single time step
     /*!
