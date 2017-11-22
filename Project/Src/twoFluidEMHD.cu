@@ -287,6 +287,7 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
     } // End j loop
   } // End i loop
 
+
   // Lax-Friedrichs approximation of flux
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Nx; i++) {
@@ -303,15 +304,20 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
     // Reconstruct to determine the flux at the cell face and compute difference
     if (dir == 0) { // x-direction
       for (int var(0); var < d->Ncons; var++) {
-        for (int i(order); i < d->Nx-order; i++) {
+        for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Nz; k++) {
-              fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i-order, j, k)],
-                                                       fplus[d->id(var, i-order+1, j, k)],
-                                                       fplus[d->id(var, i-order+2, j, k)]) +
-                                          weno3_upwind(fminus[d->id(var, i+order-1, j, k)],
-                                                       fminus[d->id(var, i+order-2, j, k)],
-                                                       fminus[d->id(var, i+order-3, j, k)]);
+              if (i >= order && i < d->Nx-order) {
+                fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i-order, j, k)],
+                                                         fplus[d->id(var, i-order+1, j, k)],
+                                                         fplus[d->id(var, i-order+2, j, k)]) +
+                                            weno3_upwind(fminus[d->id(var, i+order-1, j, k)],
+                                                         fminus[d->id(var, i+order-2, j, k)],
+                                                         fminus[d->id(var, i+order-3, j, k)]);
+              }
+              else {
+                fnet[d->id(var, i, j, k)] = 0.0;
+              }
             }
           }
         }
@@ -320,14 +326,19 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
     else if (dir == 1) { // y-direction
       for (int var(0); var < d->Ncons; var++) {
         for (int i(0); i < d->Nx; i++) {
-          for (int j(order); j < d->Ny-order; j++) {
+          for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Nz; k++) {
-              fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j-order, k)],
-                                                       fplus[d->id(var, i, j-order+1, k)],
-                                                       fplus[d->id(var, i, j-order+2, k)]) +
-                                          weno3_upwind(fminus[d->id(var, i, j+order-1, k)],
-                                                       fminus[d->id(var, i, j+order-2, k)],
-                                                       fminus[d->id(var, i, j+order-3, k)]);
+              if (j >= order && j < d->Ny-order) {
+                fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j-order, k)],
+                                                         fplus[d->id(var, i, j-order+1, k)],
+                                                         fplus[d->id(var, i, j-order+2, k)]) +
+                                            weno3_upwind(fminus[d->id(var, i, j+order-1, k)],
+                                                         fminus[d->id(var, i, j+order-2, k)],
+                                                         fminus[d->id(var, i, j+order-3, k)]);
+              }
+              else {
+                fnet[d->id(var, i, j, k)] = 0.0;
+              }
             }
           }
         }
@@ -337,13 +348,18 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
       for (int var(0); var < d->Ncons; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
-            for (int k(order); k < d->Nz-order; k++) {
-              fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j, k-order)],
-                                                       fplus[d->id(var, i, j, k-order+1)],
-                                                       fplus[d->id(var, i, j, k-order+2)]) +
-                                          weno3_upwind(fminus[d->id(var, i, j, k+order-1)],
-                                                       fminus[d->id(var, i, j, k+order-2)],
-                                                       fminus[d->id(var, i, j, k+order-3)]);
+            for (int k(0); k < d->Nz; k++) {
+              if (k >= order && k < d->Nz-order) {
+                fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j, k-order)],
+                                                         fplus[d->id(var, i, j, k-order+1)],
+                                                         fplus[d->id(var, i, j, k-order+2)]) +
+                                            weno3_upwind(fminus[d->id(var, i, j, k+order-1)],
+                                                         fminus[d->id(var, i, j, k+order-2)],
+                                                         fminus[d->id(var, i, j, k+order-3)]);
+              }
+              else {
+                fnet[d->id(var, i, j, k)] = 0.0;
+              }
             }
           }
         }
@@ -408,7 +424,6 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
         }
       }
     }
-    cudaFreeHost(fy);
 
   }
   // Otherwise, domain is 1D only loop over x direction
@@ -832,6 +847,7 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
       }
     }
   }
+
 }
 
 
@@ -862,7 +878,7 @@ static double residual(const double Z, const double StildeSqs, const double Ds, 
   if (rho < 0 || p < 0 || W < 1 || h < 1) return 1.0e6;
 
   // Values are physical, compute residual
-  resid = (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) / \
+  resid = (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) /
           (W * gamma) - 1) * Ds - tauTildes;
 
   return resid;
