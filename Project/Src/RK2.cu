@@ -54,7 +54,8 @@ void RK2::step(double * cons, double * prims, double * aux)
 
    // Apply boundary conditions and get primitive and aux vars for p1
    this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
-   this->bc->apply(p1cons, p1prims, p1aux);
+
+   this->bcs->apply(p1cons, p1prims, p1aux);
 
    // Get second approximation of flux contribution
    this->model->F(p1cons, p1prims, p1aux, d->f, args2);
@@ -74,7 +75,7 @@ void RK2::step(double * cons, double * prims, double * aux)
    this->model->getPrimitiveVars(cons, prims, aux);
 
    // Apply boundary conditions
-   this->bc->apply(cons, prims, aux);
+   this->bcs->apply(cons, prims, aux);
 
    // Free arrays
    cudaFreeHost(p1cons);
