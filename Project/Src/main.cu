@@ -9,18 +9,16 @@
 #include "saveData.h"
 #include <cstdio>
 #include <cstdlib>
-#include <ctime>
+#include <omp.h>
 #include <iostream>
 
 
 int main(void) {
 
-  // // Time execution of programme
-  // long int start_s = (long)clock();
 
   // Set up domain
-  int nx(10);
-  int ny(10);
+  int nx(40);
+  int ny(40);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -29,10 +27,10 @@ int main(void) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.4);
+  double cfl(0.331);
   int Ng(4);
   double gamma(2.0);
-  double sigma(1e-6);
+  double sigma(1e3);
   double cp(1.0);
   double mu1(-1.0e4);
   double mu2(1.0e4);
@@ -54,15 +52,18 @@ int main(void) {
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs);
 
+  // Time execution of programme
+  double startTime(omp_get_wtime());
 
-
+  // sim.updateTime();
 
   // // Run until end time and save results
   sim.evolve();
+
+  double timeTaken(omp_get_wtime() - startTime);
   // SaveData save(&data);
   //
-  // long int stop_s = (long)clock();
-  // printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", (stop_s-start_s)/double(CLOCKS_PER_SEC), data.iters);
+  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
 
   return 0;
