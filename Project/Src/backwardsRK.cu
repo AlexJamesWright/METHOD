@@ -108,7 +108,7 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
       }
     }
   }
-  this->bc->apply(initGuess, tempPrims, tempAux);
+  this->bcs->apply(initGuess, tempPrims, tempAux);
 
 
   // Also step given variables so we now have the explicit contribution due to fluxes
@@ -140,8 +140,7 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
   }
   // Determine new prim and aux variables
   this->model->getPrimitiveVars(cons, prims, aux);
-
-  this->bc->apply(cons, prims, aux);
+  this->bcs->apply(cons, prims, aux);
 }
 
 
