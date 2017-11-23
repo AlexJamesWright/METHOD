@@ -6,6 +6,7 @@
 
 import numpy as np
 import pylab as plt
+import scipy
 from matplotlib import cm
 import warnings
 
@@ -406,8 +407,26 @@ def plotTwoFluidAverage(data, dataLabels, c, axis=0):
         plt.xlabel(axisLabel)
         plt.ylabel(r'$q_{}(x)$'.format(i+1))
         plt.ylim((ylower, yupper))
+        plt.xlim([c['xmin'], c['xmax']])
         plt.legend(loc='lower center', fontsize=10)
         plt.show()
+        
+def plotTwoFluidCurrentSheetAgainstExact(By, c):
+    """
+    The current sheet has an analytical solution for the y-direction magnetic
+    field. This is plotted against the given B-field.
+    """
+    plt.figure()
+    
+    xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
+    exact = np.sign(xs)*scipy.special.erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
+    plt.plot(xs, By[c['Ng']:-c['Ng'], 0, 0], label='Numerical')
+    plt.plot(xs, exact, label='Exact')
+    plt.xlim([c['xmin'], c['xmax']])
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$B_y$')
+    plt.legend(loc='upper left')
+    plt.show()
 
 
 # Function declarations over, access data and plot!
