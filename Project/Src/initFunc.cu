@@ -7,8 +7,8 @@
 
 InitialFunc::InitialFunc(Data * data) : data(data)
 {
-  Data * d;
-  d = this->data;
+  // Syntax
+  Data * d(this->data);
 
   // Ensure that the memory has been allocated for the arrays
   if (d->memSet != 1) throw std::runtime_error("Must construct simulation class before implementing initial state. Need to allocate arrays.");
@@ -37,7 +37,27 @@ InitialFunc::InitialFunc(Data * data) : data(data)
   }
 }
 
+CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
 
+  if (d->Nprims != 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::runtime_error("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        d->prims[d->id(0, i, j, k)] = 0.5;
+        d->prims[d->id(4, i, j, k)] = 1.1;
+        d->prims[d->id(5, i, j, k)] = 0.5;
+        d->prims[d->id(9, i, j, k)] = 1.1;
+        d->prims[d->id(11, i, j, k)] = erf(0.5 * d->x[i] * sqrt(d->sigma));
+      }
+    }
+  }
+
+}
 
 
 OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
