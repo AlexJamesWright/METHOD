@@ -356,7 +356,7 @@ void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
     See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors
   and Full Wave Decompostiion Riemann Solver`
 */
-void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
   for (int var(0); var < this->data->Ncons; var++) {
     if (var == 8) {

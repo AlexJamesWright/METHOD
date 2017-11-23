@@ -39,7 +39,7 @@ class SRMHD : public Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
     */
-    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
+    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
 
     //! Source term contribution
     /*!
