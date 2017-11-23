@@ -26,7 +26,7 @@ TEST_DIR = ../Tests
 CXXFLAGS = -Xcompiler -fopenmp
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets
 
 # Sources
 SRCS = main.cu \

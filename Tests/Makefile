@@ -32,17 +32,15 @@ INC_DIR = ./../Project/Include
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS = -isystem $(GTEST_DIR)/include
 
-CXXFLAGS = -std=c++11 \
-
-
 # Flags passed to the C++ compiler.
 # c++11 is required for the vector looping srmhd
-# These three required to get the c++11 standard to compile with NVIDIA, dont ask me why,
+# First four required to get the c++11 standard to compile with NVIDIA, dont ask me why,
 # found the solution on https://github.com/NVIDIA/nccl/issues/29
 CXXFLAGS = -std=c++11	\
 					 -D_MWAITXINTRIN_H_INCLUDED \
 					 -D_FORCE_INLINES \
-					 -D__STRICT_ANSI__
+					 -D__STRICT_ANSI__ \
+					 -Wno-deprecated-gpu-targets
 
 
 
