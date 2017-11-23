@@ -329,6 +329,7 @@ def plotSlice(data, dataLabels, c, axis=0):
         plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
         plt.xlabel(axisLabel)
         plt.ylabel(r'$q_{}(x)$'.format(i+1))
+        plt.xlim([c['xmin'], c['xmax']])
         plt.ylim((ylower, yupper))
         plt.legend(loc='lower center', fontsize=10)
         plt.show()
@@ -401,7 +402,7 @@ def plotTwoFluidAverage(data, dataLabels, c, axis=0):
         yupper = ymax + 0.025 * rangeY
         xs = np.linspace(left + step/2, right - step/2, n)
         plt.plot(xs, plotVars)
-        plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
+        plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i][:-1], c['t']))
         plt.xlabel(axisLabel)
         plt.ylabel(r'$q_{}(x)$'.format(i+1))
         plt.ylim((ylower, yupper))
