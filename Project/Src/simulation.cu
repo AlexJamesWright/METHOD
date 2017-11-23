@@ -110,13 +110,13 @@ void Simulation::updateTime()
 
   printf("t = %f\n", d->t);
 
-
   // Calculate the size of the next timestep
-  // double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
-  // double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
-  // double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
-  // d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
-  d->dt = d->cfl / (1/d->dx + 1/d->dy + 1/d->dz);
+  double dtX(d->cfl * d->dx / (d->alphaX * sqrt(3)));
+  double dtY(d->cfl * d->dy / (d->alphaY * sqrt(3)));
+  double dtZ(d->cfl * d->dz / (d->alphaZ * sqrt(3)));
+  d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
+  // d->dt = d->cfl / (1/d->dx + 1/d->dy + 1/d->dz); // Python version
+
   // Slow start
   if (d->iters < 5) d->dt *= 0.1;
 
