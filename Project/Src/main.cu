@@ -17,8 +17,8 @@ int main(void) {
 
 
   // Set up domain
-  int nx(40);
-  int ny(40);
+  int nx(100);
+  int ny(0);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -27,7 +27,7 @@ int main(void) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.331);
+  double cfl(0.7);
   int Ng(4);
   double gamma(2.0);
   double sigma(1e3);
@@ -43,7 +43,9 @@ int main(void) {
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data, 0, 1);
+  int dir(0); // x-direction
+  int setUp(1); // Amano set up
+  BrioWuTwoFluid init(&data, dir, setUp);
 
   Outflow bcs(&data);
 
@@ -55,16 +57,13 @@ int main(void) {
   // Time execution of programme
   double startTime(omp_get_wtime());
 
-  // sim.updateTime();
-
   // // Run until end time and save results
   sim.evolve();
 
   double timeTaken(omp_get_wtime() - startTime);
-  // SaveData save(&data);
-  //
-  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  SaveData save(&data);
 
+  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 
