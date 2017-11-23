@@ -372,11 +372,9 @@ void TwoFluidEMHD::fluxFunc(double *cons, double *prims, double *aux, double *f,
 
 }
 
-
 //! Numerical flux approximation
 void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
 {
-
   // Syntax
   Data * d(this->data);
 
@@ -407,6 +405,7 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
         }
       }
     }
+
     cudaFreeHost(fy);
     cudaFreeHost(fz);
   }
@@ -424,7 +423,6 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
         }
       }
     }
-
   }
   // Otherwise, domain is 1D only loop over x direction
   else {
@@ -440,7 +438,7 @@ void TwoFluidEMHD::F(double *cons, double *prims, double *aux, double *f, double
 }
 
 //! Source contribution for a single cell
-void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
   // Syntax
   Data * d(this->data);
@@ -504,8 +502,9 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
         for (int var(0); var < d->Naux; var++) {
           singleAux[var] = aux[d->id(var, i, j, k)];
         }
+
         // Get source for this cell
-        this->sourceTermSingleCell(singleCons, singlePrims, singleAux, singleSource);
+        this->sourceTermSingleCell(singleCons, singlePrims, singleAux, singleSource, i, j, k);
         // Copy result back
         for (int var(0); var < d->Ncons; var++) {
           source[d->id(var, i, j, k)] = singleSource[var];

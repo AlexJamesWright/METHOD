@@ -59,7 +59,7 @@ class TwoFluidEMHD : public Model
       array and (Naux,) aux array, NOT the (Ncons, Nx, Ny, Nz) arrays as in most
       other functions.
     */
-    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source);
+    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
 
 
     //! Spectral decomposition
