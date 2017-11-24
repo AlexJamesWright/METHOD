@@ -21,11 +21,6 @@ Data::Data(int nx, int ny, int nz,
            cp(cp),
            mu1(mu1), mu2(mu2)
 {
-  // Ensure even number of cells to prevent zero in initial data at centre of domain
-  if (nx%2 || ny%2 || nz%2) {
-    throw std::invalid_argument("Please ensure even number of cells in each direction.\n");
-  }
-
 
   this->Nx = nx + 2 * Ng;
   this->Ny = ny + 2 * Ng;

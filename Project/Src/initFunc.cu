@@ -101,7 +101,10 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
   Data * d(data);
   // Ensure correct model
   if (d->Nprims != 16) throw std::runtime_error("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
-
+  // Ensure even number of cells to prevent zero in initial data at centre of domain
+  if (d->nx%2 || d->ny%2 || d->nz%2) {
+    throw std::invalid_argument("Please ensure even number of cells in each direction for Brio Wu initial data.\n");
+  }
   // Determine which direction the discontinuity it in
   int endX(d->Nx - 1);
   int endY(d->Ny - 1);
