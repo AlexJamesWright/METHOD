@@ -72,15 +72,7 @@ class Model
       approximation to determine the flux. `dir` corresponds to the direction in
       which we want the flux: 0=x-direction, 1=y-direction.
     */
-    virtual void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, int dir) = 0;
-
-
-    //! Numerical flux approximation
-    /*!
-        Takes the net flux at each of the cells faces and determines the approximate
-      flux through that cell.
-    */
-    virtual void F(double *cons, double *prims, double *aux, double *f, double *fnet) = 0;
+    virtual void fluxVector(double *cons, double *prims, double *aux, double *f, int dir) = 0;
 
 };
 

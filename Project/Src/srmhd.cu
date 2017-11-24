@@ -8,7 +8,6 @@
 */
 
 #include "srmhd.h"
-#include "weno.h"
 #include "cminpack.h"
 #include <cmath>
 #include <cstdlib>
@@ -62,27 +61,10 @@ SRMHD::SRMHD(Data * data) : Model(data)
     Note: We are assuming that all primitive and auxilliary variables are up-to-date
   at the time of this function execution.
 */
-void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir)
+void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, const int dir)
 {
   // Syntax
   Data * d(this->data);
-
-  // up and downwind fluxes
-  double *fplus, *fminus;
-
-  cudaHostAlloc((void **)&fplus, sizeof(double)*d->Nx*d->Ny*d->Nz*d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fminus, sizeof(double)*d->Nx*d->Ny*d->Nz*d->Ncons,
-                cudaHostAllocPortable);
-
-  // Wave speed
-  double alpha;
-  if (dir == 0) alpha = d->alphaX;
-  else if (dir == 1) alpha = d->alphaY;
-  else alpha = d->alphaZ;
-
-  // Order of weno scheme
-  int order(2);
 
   // Generate flux vector
   // Fx: flux in x-direction
@@ -213,143 +195,9 @@ void SRMHD::fluxFunc(double *cons, double *prims, double *aux, double *f, double
       } // End k loop
     } // End j loop
   } // End i loop
-
-  // Lax-Friedrichs approximation of flux
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          fplus[d->id(var, i, j, k)] = 0.5 * (f[d->id(var, i, j, k)] + alpha * cons[d->id(var, i, j, k)]);
-          fminus[d->id(var, i, j, k)] = 0.5 * (f[d->id(var, i, j, k)] - alpha * cons[d->id(var, i, j, k)]);
-        }
-      }
-    }
-  }
-
-  // Reconstruct to determine the flux at the cell face and compute difference
-  if (dir == 0) { // x-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(order); i < d->Nx-order; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
-            fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i-order, j, k)],
-                                                     fplus[d->id(var, i-order+1, j, k)],
-                                                     fplus[d->id(var, i-order+2, j, k)]) +
-                                        weno3_upwind(fminus[d->id(var, i+order-1, j, k)],
-                                                     fminus[d->id(var, i+order-2, j, k)],
-                                                     fminus[d->id(var, i+order-3, j, k)]);
-          }
-        }
-      }
-    }
-  }
-  else if (dir == 1) { // y-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(order); j < d->Ny-order; j++) {
-          for (int k(0); k < d->Nz; k++) {
-            fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j-order, k)],
-                                                     fplus[d->id(var, i, j-order+1, k)],
-                                                     fplus[d->id(var, i, j-order+2, k)]) +
-                                        weno3_upwind(fminus[d->id(var, i, j+order-1, k)],
-                                                     fminus[d->id(var, i, j+order-2, k)],
-                                                     fminus[d->id(var, i, j+order-3, k)]);
-          }
-        }
-      }
-    }
-  }
-  else { // z-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(order); k < d->Nz-order; k++) {
-            fnet[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j, k-order)],
-                                                     fplus[d->id(var, i, j, k-order+1)],
-                                                     fplus[d->id(var, i, j, k-order+2)]) +
-                                        weno3_upwind(fminus[d->id(var, i, j, k+order-1)],
-                                                     fminus[d->id(var, i, j, k+order-2)],
-                                                     fminus[d->id(var, i, j, k+order-3)]);
-          }
-        }
-      }
-    }
-  }
-
-  // Free arrays
-  cudaFreeHost(fplus);
-  cudaFreeHost(fminus);
-
 }
 
 
-
-//! Numerical flux approximation
-void SRMHD::F(double *cons, double *prims, double *aux, double *f, double *fnet)
-{
-
-  // Syntax
-  Data * d(this->data);
-
-  double *fx, *fy, *fz;
-
-  cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                cudaHostAllocPortable);
-
-  // Determine fluxes at cell faces
-  this->fluxFunc(cons, prims, aux, f, fx, 0);
-
-  // If domain is 3D loop over x, y and z directions
-  if (d->Ny > 1 && d->Nz > 1) {
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    this->fluxFunc(cons, prims, aux, f, fy, 1);
-    this->fluxFunc(cons, prims, aux, f, fz, 2);
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-1; i++) {
-        for (int j(0); j < d->Ny-1; j++) {
-          for (int k(0); k < d->Nz-1; k++) {
-            fnet[d->id(var, i, j, k)] = (fx[d->id(var, i+1, j, k)] / d->dx - fx[d->id(var, i, j, k)] / d->dx) +
-                                        (fy[d->id(var, i, j+1, k)] / d->dy - fy[d->id(var, i, j, k)] / d->dy) +
-                                        (fz[d->id(var, i, j, k+1)] / d->dz - fz[d->id(var, i, j, k)] / d->dz);
-          }
-        }
-      }
-    }
-    cudaFreeHost(fy);
-    cudaFreeHost(fz);
-  }
-  // If domain is 2D only loop over x and y directions
-  else if (d->Ny > 1) {
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    this->fluxFunc(cons, prims, aux, f, fy, 1);
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-1; i++) {
-        for (int j(0); j < d->Ny-1; j++) {
-          fnet[d->id(var, i, j, 0)] = (fx[d->id(var, i+1, j, 0)] / d->dx - fx[d->id(var, i, j, 0)] / d->dx) +
-                                      (fy[d->id(var, i, j+1, 0)] / d->dy - fy[d->id(var, i, j, 0)] / d->dy);
-
-        }
-      }
-    }
-    cudaFreeHost(fy);
-
-  }
-  // Otherwise, domain is 1D only loop over x direction
-  else {
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-1; i++) {
-          fnet[d->id(var, i, 0, 0)] = (fx[d->id(var, i+1, 0, 0)] / d->dx - fx[d->id(var, i, 0, 0)] / d->dx);
-      }
-    }
-  }
-
-  // Free arrays
-  cudaFreeHost(fx);
-}
 
 //! Single cell source required for divergence cleaning
 /*!

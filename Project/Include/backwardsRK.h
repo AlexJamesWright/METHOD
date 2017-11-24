@@ -50,7 +50,7 @@ class BackwardsRK2 : public RKSplit
         Constructor requires simulation data and the flux and source functions
       from the model class.
     */
-    BackwardsRK2(Data * data, Model * model, Bcs * bc);
+    BackwardsRK2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod);
 
 
     //! Performs a single time step

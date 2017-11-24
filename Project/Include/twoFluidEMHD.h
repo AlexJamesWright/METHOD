@@ -105,15 +105,7 @@ class TwoFluidEMHD : public Model
         Note: We are assuming that all primitive and auxilliary variables are up-to-date
       at the time of this function execution.
     */
-    void fluxFunc(double *cons, double *prims, double *aux, double *f, double *fnet, const int dir);
-
-    //! Numerical flux approximation (solution stored in fnet)
-    /*!
-        Given the current values for the cons prims and aux vars, uses the flux
-      reconstruction method to determine the flux at the cell faces and computes
-      the net flux of the conserved vector through each cell
-    */
-    void F(double *cons, double *prims, double *aux, double *f, double *fnet);
+    void fluxVector(double *cons, double *prims, double *aux, double *f, const int dir);
 
 };
 

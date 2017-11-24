@@ -4,6 +4,7 @@
 #include "simData.h"
 #include "model.h"
 #include "boundaryConds.h"
+#include "flux.h"
 
 //! General form of the time integrator
 /*!
@@ -17,9 +18,11 @@ class TimeIntegrator
     Data * data;
     Model * model;
     Bcs * bcs;
+    FluxMethod * fluxMethod;
 
     //! Constructor reuires simData, model type and boundary conditions
-    TimeIntegrator(Data * data, Model * model, Bcs * bcs) : data(data), model(model), bcs(bcs) { }
+    TimeIntegrator(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod) :
+                   data(data), model(model), bcs(bcs), fluxMethod(fluxMethod) { }
 
     //! Step function
     /*!

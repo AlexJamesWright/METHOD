@@ -6,6 +6,7 @@ void RK2::step(double * cons, double * prims, double * aux)
   // Syntax
   Data * d(this->data);
 
+
   // Need some work arrays
   double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
@@ -21,7 +22,6 @@ void RK2::step(double * cons, double * prims, double * aux)
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
-
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
@@ -39,7 +39,7 @@ void RK2::step(double * cons, double * prims, double * aux)
   }
 
   // Get first approximation of flux contribution
-  this->model->F(cons, prims, aux, d->f, args1);
+  this->fluxMethod->F(cons, prims, aux, d->f, args1);
 
   // First stage approximation
    for (int var(0); var < d->Ncons; var++) {
@@ -58,7 +58,8 @@ void RK2::step(double * cons, double * prims, double * aux)
    this->bcs->apply(p1cons, p1prims, p1aux);
 
    // Get second approximation of flux contribution
-   this->model->F(p1cons, p1prims, p1aux, d->f, args2);
+   this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
+
    // Construct solution
    for (int var(0); var < d->Ncons; var++) {
      for (int i(0); i < d->Nx; i++) {

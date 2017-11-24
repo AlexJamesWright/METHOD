@@ -49,8 +49,8 @@ Arguments& Arguments::operator=(const Arguments &args)
 
 
 //! BackwardsRK parameterized constructor
-BackwardsRK2::BackwardsRK2(Data * data, Model * model, Bcs * bc) :
-              RKSplit(data, model, bc)
+BackwardsRK2::BackwardsRK2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
+              RKSplit(data, model, bc, fluxMethod)
 {
   this->args = Arguments(data);
 }

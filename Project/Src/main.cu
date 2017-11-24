@@ -7,6 +7,7 @@
 #include "rkSplit.h"
 #include "backwardsRK.h"
 #include "saveData.h"
+#include "fluxVectorSplitting.h"
 #include <cstdio>
 #include <cstdlib>
 #include <omp.h>
@@ -17,21 +18,21 @@ int main(void) {
 
 
   // Set up domain
-  int nx(100);
+  int nx(200);
   int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(-1.5);
+  double xmax(1.5);
   double ymin(-0.5);
   double ymax(0.5);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.4);
-  double cfl(0.7);
+  double endTime(0.5);
+  double cfl(0.4);
   int Ng(4);
   double gamma(2.0);
-  double sigma(1e3);
-  double cp(1.0);
+  double sigma(1e1);
+  double cp(1);
   double mu1(-1.0e4);
   double mu2(1.0e4);
 
@@ -41,24 +42,29 @@ int main(void) {
   // Choose particulars of simulation
   TwoFluidEMHD model(&data);
 
+  FVS fluxMethod(&data, &model);
+
   Simulation sim(&data);
 
-  int dir(0); // x-direction
-  int setUp(1); // Amano set up
-  BrioWuTwoFluid init(&data, dir, setUp);
+  // int dir(0); // x-direction
+  // int setUp(1); // Amano set up
+  // BrioWuTwoFluid init(&data, dir, setUp);
+  CurrentSheetTwoFluid init(&data);
 
   Outflow bcs(&data);
 
-  BackwardsRK2 timeInt(&data, &model, &bcs);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs);
+
 
   // Time execution of programme
   double startTime(omp_get_wtime());
 
   // // Run until end time and save results
   sim.evolve();
+  // sim.updateTime();
 
   double timeTaken(omp_get_wtime() - startTime);
   SaveData save(&data);
