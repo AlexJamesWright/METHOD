@@ -56,7 +56,7 @@ int main(void) {
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   // Now objects have been created, set up the simulation
-  sim.set(&init, &model, &timeInt, &bcs);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod);
 
 
   // Time execution of programme
