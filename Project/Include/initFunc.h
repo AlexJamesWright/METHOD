@@ -22,6 +22,21 @@ class InitialFunc
     InitialFunc(Data * data);
 };
 
+//! Two fluid self similar current sheet
+/*!
+    See Palenzuela et al 2009, `Beyond ideal MHD: Towards a more...` for explanation.
+  Set up is one dimensional (x-direction, although may be run in multiple Ds),
+  in equilibrium, with initial By field given by the error function. Behaviour
+  should be diffusive for moderate resistivities.
+*/
+class CurrentSheetTwoFluid : public InitialFunc
+{
+  public:
+
+    //! Current sheet initial data for two fluids
+    CurrentSheetTwoFluid(Data * data);
+};
+
 
 //! Orszag-Tang voretx initial data (2D) for single fluid
 /*!
