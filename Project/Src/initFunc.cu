@@ -49,9 +49,9 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         d->prims[d->id(0, i, j, k)] = 0.5;
-        d->prims[d->id(4, i, j, k)] = 1.1;
+        d->prims[d->id(4, i, j, k)] = 50.0;
         d->prims[d->id(5, i, j, k)] = 0.5;
-        d->prims[d->id(9, i, j, k)] = 1.1;
+        d->prims[d->id(9, i, j, k)] = 50.0;
         d->prims[d->id(11, i, j, k)] = erf(0.5 * d->x[i] * sqrt(d->sigma));
       }
     }
