@@ -40,7 +40,8 @@ SRCS = main.cu \
 			 rkSplit.cu \
 			 backwardsRK.cu \
 			 boundaryConds.cu \
-			 saveData.cu
+			 saveData.cu \
+			 fluxVectorSplitting.cu
 
 
 # Headers
@@ -102,10 +103,10 @@ simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/weno.h
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(INC_DIR)/weno.h
+srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
@@ -131,6 +132,9 @@ boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 
