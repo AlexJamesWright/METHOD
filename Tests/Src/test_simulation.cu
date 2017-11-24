@@ -5,6 +5,7 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
+#include "fluxVectorSplitting.h"
 #include <cstdlib>
 #include <stdexcept>
 
@@ -69,10 +70,11 @@ namespace
   {
     Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1);
     SRMHD model(&data);
+    FVS fluxMethod(&data, &model);
     Simulation sim(&data);
     OTVortexSingleFluid init(&data);
     Periodic bcs(&data);
-    RKSplit timeInt(&data, &model, &bcs);
+    RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
     for (int i(0); i < data.Nx; i++) {
       for (int j(0); j < data.Ny; j++) {
@@ -89,7 +91,7 @@ namespace
       }
     }
 
-    sim.set(&init, &model, &timeInt, &bcs);
+    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod);
     sim.evolve();
 
 

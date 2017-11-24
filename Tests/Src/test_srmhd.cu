@@ -3,6 +3,7 @@
 #include "simulation.h"
 #include "simData.h"
 #include "initFunc.h"
+#include "fluxVectorSplitting.h"
 #include <cstdlib>
 #include <cmath>
 #include <stdio.h>
@@ -34,6 +35,7 @@ namespace
     // Set up
     Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
     SRMHD model(&d);
+    FVS fluxMethod(&d, &model);
     Simulation sim(&d);
 
     // Set state to stationary equilibrium state
@@ -57,7 +59,7 @@ namespace
 
     // System is stationary, there should be zero flux
     // x-direction
-    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+    fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
     for (int i(0); i < d.Nx; i++) {
       for (int j(0); j < d.Ny; j++) {
         for (int k(0); k < d.Nz; k++) {
@@ -68,7 +70,7 @@ namespace
       }
     }
     // y-direction
-    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
+    fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
     for (int i(0); i < d.Nx; i++) {
       for (int j(0); j < d.Ny; j++) {
         for (int k(0); k < d.Nz; k++) {
@@ -79,7 +81,7 @@ namespace
       }
     }
     // z-direction
-    model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
+    fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
     for (int i(0); i < d.Nx; i++) {
       for (int j(0); j < d.Ny; j++) {
         for (int k(0); k < d.Nz; k++) {

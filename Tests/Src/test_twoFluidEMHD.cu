@@ -4,6 +4,7 @@
 #include "simData.h"
 #include "initFunc.h"
 #include "rkSplit.h"
+#include "fluxVectorSplitting.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
@@ -44,11 +45,12 @@ namespace
       // Discontinuity in x direction
       Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modelx(&dx);
+      FVS fluxMethodx(&dx, &modelx);
       Simulation simx(&dx);
       BrioWuTwoFluid initx(&dx, 0);
       Periodic bcsx(&dx);
-      RKSplit timeIntx(&dx, &modelx, &bcsx);
-      simx.set(&initx, &modelx, &timeIntx, &bcsx);
+      RKSplit timeIntx(&dx, &modelx, &bcsx, &fluxMethodx);
+      simx.set(&initx, &modelx, &timeIntx, &bcsx, &fluxMethodx);
       printf("Stepping x-discontinuity...\n");
       simx.updateTime();
 
@@ -56,22 +58,24 @@ namespace
       // Discontinuity in y direction
       Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modely(&dy);
+      FVS fluxMethody(&dy, &modely);
       Simulation simy(&dy);
       BrioWuTwoFluid inity(&dy, 1);
       Periodic bcsy(&dy);
-      RKSplit timeInty(&dy, &modely, &bcsy);
-      simy.set(&inity, &modely, &timeInty, &bcsy);
+      RKSplit timeInty(&dy, &modely, &bcsy, &fluxMethody);
+      simy.set(&inity, &modely, &timeInty, &bcsy, &fluxMethody);
       printf("Stepping y-discontinuity...\n");
       simy.updateTime();
 
       // Discontinuity in z direction
       Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modelz(&dz);
+      FVS fluxMethodz(&dz, &modelz);
       Simulation simz(&dz);
       BrioWuTwoFluid initz(&dz, 2);
       Periodic bcsz(&dz);
-      RKSplit timeIntz(&dz, &modelz, &bcsz);
-      simz.set(&initz, &modelz, &timeIntz, &bcsz);
+      RKSplit timeIntz(&dz, &modelz, &bcsz, &fluxMethodz);
+      simz.set(&initz, &modelz, &timeIntz, &bcsz, &fluxMethodz);
       printf("Stepping z-discontinuity...\n");
       simz.updateTime();
 
@@ -233,6 +237,7 @@ namespace
       // Set up
       Data d(6, 6, 6, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
       TwoFluidEMHD model(&d);
+      FVS fluxMethod(&d, &model);
       Simulation sim(&d);
 
       // Set state to stationary equilibrium state
@@ -251,7 +256,7 @@ namespace
 
       // System is stationary, there should be zero flux
       // x-direction
-      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+      fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
 
 
       for (int i(0); i < d.Nx; i++) {
@@ -264,7 +269,7 @@ namespace
         }
       }
       // y-direction
-      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
+      fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
       for (int i(0); i < d.Nx; i++) {
         for (int j(0); j < d.Ny; j++) {
           for (int k(0); k < d.Nz; k++) {
@@ -275,7 +280,7 @@ namespace
         }
       }
       // z-direction
-      model.fluxFunc(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
+      fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
       for (int i(0); i < d.Nx; i++) {
         for (int j(0); j < d.Ny; j++) {
           for (int k(0); k < d.Nz; k++) {
