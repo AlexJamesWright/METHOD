@@ -6,6 +6,7 @@
 #include "model.h"
 #include "timeInt.h"
 #include "boundaryConds.h"
+#include "flux.h"
 
 
 //! The Simulation interface for the programme
@@ -33,6 +34,9 @@ class Simulation
     //! Boundary condition
     Bcs * bcs;
 
+    //! Flux method
+    FluxMethod * fluxMethod;
+
   public:
 
     //! simData class containing all necessary variables
@@ -54,7 +58,8 @@ class Simulation
         This function must be called before calling either evolve() or updateTime().
     */
     void set(InitialFunc * init, Model * model,
-             TimeIntegrator * timeInt, Bcs * bcs);
+             TimeIntegrator * timeInt, Bcs * bcs,
+             FluxMethod * fluxMethod);
 
 
 

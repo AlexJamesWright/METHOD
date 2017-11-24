@@ -89,7 +89,8 @@ Simulation::~Simulation()
 
 //! Stores the model type and general simulation form and sets the prim and aux vars
 void Simulation::set(InitialFunc * init, Model * model,
-                     TimeIntegrator * timeInt, Bcs * bcs)
+                     TimeIntegrator * timeInt, Bcs * bcs,
+                     FluxMethod * fluxMethod)
 {
   // Syntax
   Data * d(this->data);
@@ -97,6 +98,7 @@ void Simulation::set(InitialFunc * init, Model * model,
   this->model = model;
   this->timeInt = timeInt;
   this->bcs = bcs;
+  this->fluxMethod = fluxMethod;
   // Set primitive and auxilliary variables
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
