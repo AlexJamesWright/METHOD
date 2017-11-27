@@ -277,6 +277,8 @@ void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux
   // Syntax
   Data * d(this->data);
 
+  double wpsq(d->mu1 * d->mu1 * prims[0] + d->mu2 * d->mu2 * prims[5]);
+
   for (int var(0); var < d->Ncons; var++) {
     source[0] = 0;
     source[1] = 0;
@@ -284,22 +286,22 @@ void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux
     source[3] = 0;
     source[4] = 0;
     source[5] = 0;
-    source[6] = aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
-                                (aux[22] - aux[29] * aux[31]) / d->sigma;
-    source[7] = aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
-                                (aux[23] - aux[29] * aux[32]) / d->sigma;
-    source[8] = aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
-                                (aux[24] - aux[29] * aux[33]) / d->sigma;
-    source[9] = aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
-                                (aux[30] - aux[29] * aux[34]) / d->sigma;
+    source[6] = wpsq * (aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
+                                (aux[22] - aux[29] * aux[31]) / d->sigma);
+    source[7] = wpsq * (aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
+                                (aux[23] - aux[29] * aux[32]) / d->sigma);
+    source[8] = wpsq * (aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
+                                (aux[24] - aux[29] * aux[33]) / d->sigma);
+    source[9] = wpsq * (aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
+                                (aux[30] - aux[29] * aux[34]) / d->sigma);
     source[10] = 0;
     source[11] = 0;
     source[12] = 0;
-    source[13] = - aux[22];
-    source[14] = - aux[23];
-    source[15] = - aux[24];
-    source[16] = aux[30] - cons[16] / (d->cp * d->cp);
-    source[17] = - cons[17] / (d->cp * d->cp);
+    source[13] = wpsq * (- aux[22]);
+    source[14] = wpsq * (- aux[23]);
+    source[15] = wpsq * (- aux[24]);
+    source[16] = wpsq * (aux[30] - cons[16] / (d->cp * d->cp));
+    source[17] = wpsq * (- cons[17] / (d->cp * d->cp));
   }
 }
 
