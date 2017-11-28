@@ -2,35 +2,7 @@
 #define BACKWARDSRK_H
 
 #include "rkSplit.h"
-
-//! Arguments class
-/*!
-    Implicit rootfinder requires additional arrays to hold the primitive, aux,
-  and source vectors due to the guess in the residual function. These arrays
-  lie within this class.
-*/
-class Arguments
-{
-  public:
-    //! Local variables
-    Data * data;
-    double *constar, *primstar, *auxstar, *sourcestar;
-    int allocd;       /*! Signifies is the prim aux and source arrays have been allocated memory */
-    int i, j, k;    // Which cell is being solved
-    //! Default constructor
-    Arguments() : allocd(0) {}
-    //! Parameterized constructor
-    Arguments(Data * data);
-    //! Copy constructor
-    Arguments(Arguments &args);
-    //! Destructor
-    ~Arguments();
-    //! Overload assignment operator, performs deep copy of information
-    Arguments& operator=(const Arguments &args);
-
-};
-
-
+#include "backRKArgs.h"
 
 //! Semi-implicit second order Runge-Kutta time integrator
 /*!
@@ -43,7 +15,7 @@ class BackwardsRK2 : public RKSplit
   public:
 
     //! Additional arguments class
-    Arguments args;
+    BackRKArguments args;
 
     //! Constructor
     /*!
@@ -60,7 +32,7 @@ class BackwardsRK2 : public RKSplit
       t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
     */
-    void step(double * cons, double * prims, double * aux);
+    void step(double * cons, double * prims, double * aux, double dt=0);
 
 };
 

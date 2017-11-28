@@ -6,63 +6,25 @@
 //! Residual function for implicit source
 int backwardsRKresidual(void *p, int n, const double *x, double *fvec, int iflag);
 
-//! Additional arguments parameterized constructor
-Arguments::Arguments(Data * data) : data(data)
-{
-  // Small arrays, no need to malloc
-  constar    = new double[data->Ncons ];
-  primstar   = new double[data->Nprims];
-  auxstar    = new double[data->Naux  ];
-  sourcestar = new double[data->Ncons ];
-  allocd = 1;
-}
-
-Arguments::~Arguments()
-{
-  delete [] constar;
-  delete [] primstar;
-  delete [] auxstar;
-  delete [] sourcestar;
-}
-
-//! Overload assignment operator
-Arguments& Arguments::operator=(const Arguments &args)
-{
-  // Set simulation data
-  data = args.data;
-
-  // If no memory has been allocated, allocate
-  if (!allocd) {
-    constar    = new double[data->Ncons ];
-    primstar   = new double[data->Nprims];
-    auxstar    = new double[data->Naux  ];
-    sourcestar = new double[data->Ncons ];
-  }
-
-  // Copy accross data
-  for (int i(0); i < data->Ncons ; i++) constar[i]    = args.constar[i];
-  for (int i(0); i < data->Nprims; i++) primstar[i]   = args.primstar[i];
-  for (int i(0); i < data->Naux  ; i++) auxstar[i]    = args.auxstar[i];
-  for (int i(0); i < data->Ncons ; i++) sourcestar[i] = args.sourcestar[i];
-  return *this;
-}
-
-
 //! BackwardsRK parameterized constructor
 BackwardsRK2::BackwardsRK2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
               RKSplit(data, model, bc, fluxMethod)
 {
-  this->args = Arguments(data);
+  this->args = BackRKArguments(data);
 }
 
 //! Single step function
-void BackwardsRK2::step(double * cons, double * prims, double * aux)
+void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Hybrd variables
   int Ntot(d->Nx * d->Ny * d->Nz);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+  args.dt = dt;
+
+  // Hybrd1 variables
   int info;
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   double tol(1e-8);
@@ -96,10 +58,22 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
   }
 
   // Use RKSplit as estimate for solution, and use this estimate to start rootfind
-  RKSplit::step(initGuess, tempPrims, tempAux);
+  RKSplit::step(initGuess, tempPrims, tempAux, dt);
+  // this->model->sourceTerm(initGuess, tempPrims, tempAux, tempSource);
+  // for (int var(0); var < d->Ncons; var++) {
+  //   for (int i(0); i < d->Nx; i++) {
+  //     for (int j(0); j < d->Ny; j++) {
+  //       for (int k(0); k < d->Nz; k++) {
+  //         initGuess[d->id(var, i, j, k)] += dt * tempSource[d->id(var, i, j, k)];
+  //         initGuess[d->id(var, i, j, k)] *= 0.5;
+  //       }
+  //     }
+  //   }
+  // }
+
 
   // Also step given variables so we now have the explicit contribution due to fluxes
-  RK2::step(cons, prims, aux);
+  RK2::step(cons, prims, aux, dt);
 
   // Loop over all cells determining the new cons values
   for (int i(0); i < d->Nx; i++) {
@@ -114,9 +88,9 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux)
         args.j = j;
         args.k = k;
         // Call hybrd1
-        if (info = __cminpack_func__(hybrd1)(backwardsRKresidual, this, d->Ncons, x, fvec, tol, wa, lwa)) {
+        if ((info = __cminpack_func__(hybrd1)(backwardsRKresidual, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
           // Rootfind successful
-          for (int var(0); var < d->Ncons ; var++) cons[d->id(var, i, j, k)]  = x[var];
+          for (int var(0); var < d->Ncons; var++) cons[d->id(var, i, j, k)]  = x[var];
         }
         else {
           std::cout << "BackwardsRK2 failed in cell (" << i << ", " << j << ", " << k << ") with info=" << info << std::endl;
@@ -166,7 +140,7 @@ int backwardsRKresidual(void *p, int n, const double *x, double *fvec, int iflag
                                       timeInt->args.sourcestar);
 
   for (int i(0); i < n; i++) {
-    fvec[i] = x[i] - timeInt->args.constar[i] - timeInt->args.data->dt * timeInt->args.sourcestar[i];
+    fvec[i] = x[i] - timeInt->args.constar[i] - timeInt->args.dt * timeInt->args.sourcestar[i];
   }
 
   return 0;
