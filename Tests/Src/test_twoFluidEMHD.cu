@@ -43,7 +43,7 @@ namespace
     TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
     {
       // Discontinuity in x direction
-      Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+      Data dx(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modelx(&dx);
       FVS fluxMethodx(&dx, &modelx);
       Simulation simx(&dx);
@@ -56,7 +56,7 @@ namespace
 
 
       // Discontinuity in y direction
-      Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+      Data dy(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modely(&dy);
       FVS fluxMethody(&dy, &modely);
       Simulation simy(&dy);
@@ -68,7 +68,7 @@ namespace
       simy.updateTime();
 
       // Discontinuity in z direction
-      Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+      Data dz(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD modelz(&dz);
       FVS fluxMethodz(&dz, &modelz);
       Simulation simz(&dz);
