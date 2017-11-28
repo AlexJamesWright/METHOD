@@ -1,11 +1,13 @@
 #include "RK2.h"
 #include <iostream>
 
-void RK2::step(double * cons, double * prims, double * aux)
+void RK2::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
 
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
 
   // Need some work arrays
   double *p1cons, *p1prims, *p1aux, *args1, *args2;
@@ -46,7 +48,7 @@ void RK2::step(double * cons, double * prims, double * aux)
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
-           p1cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - d->dt * args1[d->id(var, i, j, k)];
+           p1cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - dt * args1[d->id(var, i, j, k)];
          }
        }
      }
@@ -66,7 +68,7 @@ void RK2::step(double * cons, double * prims, double * aux)
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
            cons[d->id(var, i, j, k)] = 0.5 * (cons[d->id(var, i, j, k)] + p1cons[d->id(var, i, j, k)] -
-                                       d->dt * args2[d->id(var, i, j, k)]);
+                                       dt * args2[d->id(var, i, j, k)]);
          }
        }
      }

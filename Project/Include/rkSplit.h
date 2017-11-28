@@ -32,7 +32,7 @@ class RKSplit : public RK2
       t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
     */
-    void step(double * cons, double * prims, double * aux);
+    void step(double * cons, double * prims, double * aux, double dt=0);
 
 };
 
