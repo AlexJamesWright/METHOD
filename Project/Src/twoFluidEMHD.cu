@@ -735,7 +735,7 @@ static void newton(double *Z, const double StildeSqs, const double Ds, const dou
   double x0(*Z);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.48e-14);
+  double tol(1.0e-12);
   double x2;
   double bestF;
   double f0(residual(x0, StildeSqs, Ds, tauTildes, gamma));
