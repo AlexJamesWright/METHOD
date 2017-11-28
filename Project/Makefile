@@ -39,6 +39,9 @@ SRCS = main.cu \
 			 RK2.cu \
 			 rkSplit.cu \
 			 backwardsRK.cu \
+			 backRKArgs.cu \
+			 SSP2.cu \
+			 IMEX2Args.cu \
 			 boundaryConds.cu \
 			 saveData.cu \
 			 fluxVectorSplitting.cu
@@ -113,7 +116,7 @@ simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) $(CXXFLAGS)
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -124,9 +127,17 @@ RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
 rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
+backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
+backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_DIR)/backRKArgs.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/backwardsRK.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
