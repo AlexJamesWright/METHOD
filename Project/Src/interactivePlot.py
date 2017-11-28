@@ -423,8 +423,10 @@ def plotTwoFluidCurrentSheetAgainstExact(By, c):
     plt.plot(xs, By[c['Ng']:-c['Ng'], 0, 0], label='Numerical')
     plt.plot(xs, exact, label='Exact')
     plt.xlim([c['xmin'], c['xmax']])
+    plt.ylim([-1.2, 1.2])
     plt.xlabel(r'$x$')
     plt.ylabel(r'$B_y$')
+    plt.title(r'Comparison of exact and numerical $B_y$ at $t={:.4f}$'.format(c['t']+1))
     plt.legend(loc='upper left')
     plt.show()
 
