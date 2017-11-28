@@ -401,7 +401,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       std::vector<Failed> neighbours;
       if (x > 0) neighbours.push_back(Failed {x-1, y, z});
       if (y > 0) neighbours.push_back(Failed {x, y-1, z});
-      if (z > 0) neighbours.push_back(Failed {x, y, z=1});
+      if (z > 0) neighbours.push_back(Failed {x, y, z-1});
       if (x < d->Nx - 1) neighbours.push_back(Failed {x+1, y, z});
       if (y < d->Ny - 1) neighbours.push_back(Failed {x, y+1, z});
       if (z < d->Nz - 1) neighbours.push_back(Failed {x, y, z+1});
