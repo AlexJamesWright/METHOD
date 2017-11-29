@@ -13,7 +13,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   if (dir == 0) alpha = d->alphaX;
   else if (dir == 1) alpha = d->alphaY;
   else alpha = d->alphaZ;
-
+  
   // Up and downwind fluxes
   double *fplus, *fminus;
   cudaHostAlloc((void **)&fplus, sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz,
