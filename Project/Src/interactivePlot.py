@@ -96,7 +96,7 @@ def gatherData():
             else:
                 temp = line.split()
                 for k in range(c['Nz']):
-                    prims[getVarFromLine(i, c['Nx'], c['Ny'])][getXIndexFromLine(i, c['Nx'], c['Ny'])][getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                    prims[_getVarFromLine(i, c['Nx'], c['Ny'])][_getXIndexFromLine(i, c['Nx'], c['Ny'])][_getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
 
     # Clean up labels (remove the commas)
     cleanPrimLabels = []
@@ -118,7 +118,7 @@ def gatherData():
             else:
                 temp = line.split()
                 for k in range(c['Nz']):
-                    cons[getVarFromLine(i, c['Nx'], c['Ny'])][getXIndexFromLine(i, c['Nx'], c['Ny'])][getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                    cons[_getVarFromLine(i, c['Nx'], c['Ny'])][_getXIndexFromLine(i, c['Nx'], c['Ny'])][_getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
 
     # Clean up labels (remove the commas)
     cleanConsLabels = []
@@ -140,7 +140,7 @@ def gatherData():
             else:
                 temp = line.split()
                 for k in range(c['Nz']):
-                    aux[getVarFromLine(i, c['Nx'], c['Ny'])][getXIndexFromLine(i, c['Nx'], c['Ny'])][getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                    aux[_getVarFromLine(i, c['Nx'], c['Ny'])][_getXIndexFromLine(i, c['Nx'], c['Ny'])][_getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
 
     # Clean up labels (remove the commas)
     cleanAuxLabels = []
@@ -153,7 +153,7 @@ def gatherData():
     
     
 
-def getVarFromLine(line, Nx, Ny):
+def _getVarFromLine(line, Nx, Ny):
     """
     Given the line number that the iterator is on, and the size of the x-domain,
     returns the index of the primitive variable this data belongs to.
@@ -184,7 +184,7 @@ def getVarFromLine(line, Nx, Ny):
         return ((line-1)//Ny)//Nx
 
 
-def getXIndexFromLine(line, Nx, Ny):
+def _getXIndexFromLine(line, Nx, Ny):
     """
     Given the line number that the iterator is on, and the size of the x-domain,
     returns the x-index of this line's data.
@@ -206,7 +206,7 @@ def getXIndexFromLine(line, Nx, Ny):
     """
     return ((line-1)//Ny)%Nx
 
-def getYIndexFromLine(line, Nx, Ny):
+def _getYIndexFromLine(line, Nx, Ny):
     """
     Given the line number that the iterator is on, and the size of the y-domain,
     returns the y-index of this line's data.
@@ -227,6 +227,16 @@ def getYIndexFromLine(line, Nx, Ny):
             The y-index of the current line's data.
     """
     return (line-1)%Ny
+
+
+
+
+###############################################################################
+#                             Plotting  Functions                             #
+###############################################################################
+
+
+
 
 def plotHeatMaps(data, dataLabels, c, color=None, axis=2):
     """
