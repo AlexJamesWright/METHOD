@@ -288,11 +288,93 @@ int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag)
 
 void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
-  std::cout << std::endl << std::endl << "**************************************" << std::endl;
-  std::cout << "WARNING:" << std::endl << "Trying to use cons2prims consversion for" << std::endl;
-  std::cout << "single cell in SRMHD class, but method has not been implemented. Use" << std::endl;
-  std::cout << "explicit method or implement. " << std::endl << "Exiting..." << std::endl;
-  std::exit(1);
+  // Syntax
+  Data * d(this->data);
+  // Solutions
+  double * solution;
+  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
+                cudaHostAllocPortable);
+
+  // Hybrd1 set-up
+  Args args;                          // Additional arguments structure
+  const int n(2);                     // Size of system
+  double sol[2];                      // Guess and solution vector
+  double res[2];                      // Residual/fvec vector
+  int info;                           // Rootfinder flag
+  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
+  double wa[lwa];                     // Work array
+
+
+  // Update possible values
+  // Bx, By, Bz
+  prims[5] = cons[5];
+  prims[6] = cons[6];
+  prims[7] = cons[8];
+
+  // BS
+  aux[10] = cons[5] * cons[1] + cons[6] * cons[2] + cons[7] * cons[3];
+  // Bsq
+  aux[11] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+  // Ssq
+  aux[12] = cons[1] * cons[1] + cons[2] * cons[2] + cons[3] * cons[3];
+
+
+  // Set additional args for rootfind
+  args.D = cons[0];
+  args.g = d->gamma;
+  args.BS = aux[10];
+  args.Bsq = aux[11];
+  args.Ssq = aux[12];
+  args.tau = cons[4];
+
+  sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+  sol[1] = prims[0] * aux[0] /
+           (1 - sol[0]);
+
+  // Solve residual = 0
+  info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
+                                    tol, wa, lwa);
+  // If root find fails, add failed cell to the list
+  if (info==1) {
+    // Now have the correct values for vsq and rho*h*Wsq
+    solution[0] = sol[0];
+    solution[1] = sol[1];
+  }
+  else {
+    printf("C2P single cell failed for cell (%d, %d, %d), hybrd returns info=%d\n", i, j, k, info);
+    exit(1);
+  }
+  // W
+  aux[1] = 1 / sqrt(1 - solution[0]);
+  // rho
+  prims[0] = cons[0] / aux[1];
+  // h
+  aux[0] = solution[1] / (prims[0] * aux[1] * aux[1]);
+  // p
+  prims[4] = (aux[0] - 1) * prims[0] *
+                             (d->gamma - 1) / d->gamma;
+  // e
+  aux[2] = prims[4] / (prims[0] * (d->gamma - 1));
+  // vx, vy, vz
+  prims[1] = (cons[5] * aux[10] + cons[1] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
+  prims[2] = (cons[6] * aux[10] + cons[2] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
+  prims[3] = (cons[7] * aux[10] + cons[3] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
+  // vsq
+  aux[9] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+  // c
+  aux[3] = sqrt(aux[2] * d->gamma * (d->gamma - 1) /   aux[0]);
+  // b0
+  aux[4] = aux[1] * (cons[5] * prims[1] + cons[6] * prims[2] + cons[7] * prims[3]);
+  // bx, by, bz
+  aux[5] = cons[5] / aux[1] + aux[4] * prims[1];
+  aux[6] = cons[6] / aux[1] + aux[4] * prims[2];
+  aux[7] = cons[7] / aux[1] + aux[4] * prims[3];
+  // bsq
+  aux[8] = (prims[5] * prims[5] + prims[6] * prims[6] + prims[7] * prims[7] +
+                           aux[4] * aux[4]) / (aux[1] * aux[1]);
+
+
 }
 
 
@@ -369,7 +451,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                           tol, wa, lwa);
         // If root find fails, add failed cell to the list
         if (info!=1) {
-
+          printf("Gonna smart guess\n");
           Failed fail = {i, j, k};
           fails.push_back(fail);
         }
