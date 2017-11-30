@@ -98,7 +98,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
   //########################### STAGE ONE #############################//
-
   // Copy data and determine first stage
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -150,16 +149,15 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
   // Euler step as guess for second stage part 1 solution
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(is); i < ie; i++) {
+    for (int j(js); j < je; j++) {
+      for (int k(ks); k < ke; k++) {
         for (int var(0); var < d->Ncons; var++)  U2guess[d->id(var, i, j, k)]   = U1[d->id(var, i, j, k)] - dt*flux1[d->id(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
         for (int var(0); var < d->Naux; var++)   tempaux[d->id(var, i, j, k)]   = aux[d->id(var, i, j, k)];
       }
     }
   }
-
 
   // Determine just the source contribution to U2
   for (int i(is); i < ie; i++) {
@@ -187,11 +185,10 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-
   // Construct guess for second stage
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(is); i < ie; i++) {
+    for (int j(js); j < je; j++) {
+      for (int k(ks); k < ke; k++) {
         for (int var(0); var < d->Ncons ; var++)
           U2guess[d->id(var, i, j, k)]   = 0.5 * (U2S[d->id(var, i, j, k)] + U2F[d->id(var, i, j, k)]);
         for (int var(0); var < d->Nprims; var++)
@@ -207,6 +204,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
   //########################### STAGE TWOb #############################//
+
   // Determine solution to stage 2
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
@@ -223,8 +221,8 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
           // Rootfind successful
           for (int var(0); var < d->Ncons ; var++) U2[d->id(var, i, j, k)]        = x[var];
-          // for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] = args.prims[var];
-          // for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   = args.aux[var];
+          for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] = args.prims[var];
+          for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   = args.aux[var];
 
         }
         else {
@@ -240,15 +238,14 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   this->fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
   this->bcs->apply(flux2);
 
-
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
     for (int i(is); i < ie; i++) {
       for (int j(js); j < je; j++) {
         for (int k(ks); k < ke; k++) {
           cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - 0.5 * dt *
-              (flux1[d->id(var, i, j, k)] + flux2[d->id(var, i, j, k)] -
-              source1[d->id(var, i, j, k)] - source2[d->id(var, i, j, k)]);
+                    (flux1[d->id(var, i, j, k)] + flux2[d->id(var, i, j, k)] -
+                    source1[d->id(var, i, j, k)] - source2[d->id(var, i, j, k)]);
         }
       }
     }
