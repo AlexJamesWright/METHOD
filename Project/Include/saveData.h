@@ -14,13 +14,6 @@ class SaveData
 {
   private:
 
-    //! Saves all cons, prims, aux and constant data
-    /*!
-        This calls the other member functions to save their respective
-      simulation data. Automatically called by the constructor.
-    */
-    void saveAll();
-
     //! Saves the conserved vector state
     void saveCons();
 
@@ -48,6 +41,13 @@ class SaveData
     {
       this->saveAll();
     }
+
+    //! Saves all cons, prims, aux and constant data
+    /*!
+        This calls the other member functions to save their respective
+      simulation data. Automatically called by the constructor.
+    */
+    void saveAll();
 
 };
 
