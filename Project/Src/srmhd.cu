@@ -343,7 +343,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   }
   else {
     printf("C2P single cell failed for cell (%d, %d, %d), hybrd returns info=%d\n", i, j, k, info);
-    exit(1);
+    throw std::runtime_error("C2P could not converge.\n");
   }
   // W
   aux[1] = 1 / sqrt(1 - solution[0]);

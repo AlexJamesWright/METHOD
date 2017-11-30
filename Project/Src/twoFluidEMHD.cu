@@ -765,7 +765,7 @@ static void newton(double *Z, const double StildeSqs, const double Ds, const dou
   if (!found) {
     // Store result of Z=rho*h*W**2
     *Z = bestX;
-    printf("Could not find C2P root in %d iterations. Returning %18.16f with residual %18.16f\nCell no. is (%d, %d, %d) for fluid %d\n", iter, bestX, residual(*Z, StildeSqs, Ds, tauTildes, gamma), i, j, k, fluid);
-    std::exit(1);
+    printf("Could not find C2P root in %d iterations. Value was %18.16f with residual %18.16f\nCell no. is (%d, %d, %d) for fluid %d\n", iter, bestX, residual(*Z, StildeSqs, Ds, tauTildes, gamma), i, j, k, fluid);
+    throw std::runtime_error("C2P could not converge.\n");
   }
 }
