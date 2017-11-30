@@ -21,7 +21,7 @@ class IMEX2Arguments
     //! Default constructor
     IMEX2Arguments() : allocd(0),
                        gam(0.2928932188134525),
-                       om2gam(0.4142135623730949) {}
+                       om2gam(0.4142135623730950) { }
     //! Parameterized constructor
     IMEX2Arguments(Data * data);
     //! Copy constructor
