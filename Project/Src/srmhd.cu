@@ -451,7 +451,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                           tol, wa, lwa);
         // If root find fails, add failed cell to the list
         if (info!=1) {
-          printf("Gonna smart guess\n");
           Failed fail = {i, j, k};
           fails.push_back(fail);
         }
