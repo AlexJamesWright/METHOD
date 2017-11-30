@@ -54,8 +54,8 @@ int main(void) {
 
   Periodic bcs(&data);
 
-  // SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod);
