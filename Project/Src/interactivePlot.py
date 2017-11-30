@@ -277,7 +277,7 @@ def plotHeatMaps(data, dataLabels, c, color=None, axis=2):
             
         if color==None:
             color = cm.plasma
-        surf = plt.imshow(plotVars, cmap=color, interpolation='nearest')
+        surf = plt.imshow(plotVars, cmap=color, interpolation='bicubic')
         plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
         plt.xlabel(axisLabel2)
         plt.ylabel(axisLabel1)
