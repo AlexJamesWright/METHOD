@@ -21,6 +21,12 @@ class SSP2 : public BackwardsRK2
     //! Additional arguments class
     IMEX2Arguments args;
 
+    //! Work arrays for step function
+    double *x, *fvec, *wa,
+           *U1, *U2, *U2F, *U2S, *U2guess,
+           *source1, *flux1, *source2, *flux2,
+           *tempprims, *tempaux;
+
     //! Constructor
     /*!
         Constructor requires simulation data and the flux and source functions
@@ -28,6 +34,8 @@ class SSP2 : public BackwardsRK2
     */
     SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod);
 
+    //! Destructor
+    ~SSP2();
 
     //! Performs a single time step
     /*!
