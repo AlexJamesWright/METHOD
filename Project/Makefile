@@ -23,7 +23,7 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 TEST_DIR = ../Tests
 
 # C++ compiler flags
-CXXFLAGS = -Xcompiler -fopenmp
+CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
 
 # NVIDIA compiler flags
 NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets
