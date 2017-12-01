@@ -13,7 +13,7 @@ class IMEX2Arguments
   public:
     //! Local variables
     Data * data;
-    double *cons, *prims, *aux, *source, *source1, *flux, *flux1;
+    double *cons, *prims, *aux, *source, *source1, *flux1;
     double gam, om2gam; // IMEX gamma(0.2928932188134525) and 1-2*gamma
     double dt;          // The timestep
     int allocd;         // Signifies is the prim aux and source arrays have been allocated memory
