@@ -757,7 +757,7 @@ static void newton(double *Z, const double StildeSqs, const double Ds, const dou
     x0 = x2;
     f1 = f0;
     f0 = residual(x0, StildeSqs, Ds, tauTildes, gamma);
-    if (f0 < bestF) {
+    if (fabs(f0) < fabs(bestF)) {
       bestX = x0;
       bestF = f0;
     }
