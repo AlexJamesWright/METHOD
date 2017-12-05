@@ -49,9 +49,9 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         d->prims[d->id(0, i, j, k)] = 0.5;
-        d->prims[d->id(4, i, j, k)] = 50.0;
+        d->prims[d->id(4, i, j, k)] = 25.0;
         d->prims[d->id(5, i, j, k)] = 0.5;
-        d->prims[d->id(9, i, j, k)] = 50.0;
+        d->prims[d->id(9, i, j, k)] = 25.0;
         d->prims[d->id(11, i, j, k)] = erf(0.5 * d->x[i] * sqrt(d->sigma));
       }
     }
@@ -174,8 +174,8 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
         // Left side
         d->prims[d->id(0, i, j, k)] = 0.5;
         d->prims[d->id(5, i, j, k)] = 0.5;
-        d->prims[d->id(4, i, j, k)] = 1.0;
-        d->prims[d->id(9, i, j, k)] = 1.0;
+        d->prims[d->id(4, i, j, k)] = 0.5;
+        d->prims[d->id(9, i, j, k)] = 0.5;
         d->prims[d->id(10, i, j, k)] = lBx;
         d->prims[d->id(11, i, j, k)] = lBy;
         d->prims[d->id(12, i, j, k)] = lBz;
@@ -183,8 +183,8 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
         // Right side
         d->prims[d->id(0, endX - i, endY - j, endZ - k)] = 0.075;
         d->prims[d->id(5, endX - i, endY - j, endZ - k)] = 0.075;
-        d->prims[d->id(4, endX - i, endY - j, endZ - k)] = 0.1;
-        d->prims[d->id(9, endX - i, endY - j, endZ - k)] = 0.1;
+        d->prims[d->id(4, endX - i, endY - j, endZ - k)] = 0.05;
+        d->prims[d->id(9, endX - i, endY - j, endZ - k)] = 0.05;
         d->prims[d->id(10, endX - i, endY - j, endZ - k)] = rBx;
         d->prims[d->id(11, endX - i, endY - j, endZ - k)] = rBy;
         d->prims[d->id(12, endX - i, endY - j, endZ - k)] = rBz;
