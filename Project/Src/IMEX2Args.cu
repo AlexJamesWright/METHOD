@@ -5,7 +5,6 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
                                               gam(0.2928932188134525),
                                               om2gam(0.4142135623730949)
 {
-  printf("Allocating IMEX2Args...\n");
   // // Small arrays, no need to malloc
   cons     = new double[data->Ncons ];
   prims    = new double[data->Nprims];
@@ -14,24 +13,10 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   source1  = new double[data->Ncons ];
   flux1    = new double[data->Ncons ];
   allocd = 1;
-  // cudaHostAlloc((void **)&cons, sizeof(double) * data->Ncons,
-  //           cudaHostAllocPortable);
-  // cudaHostAlloc((void **)&source, sizeof(double) * data->Ncons,
-  //           cudaHostAllocPortable);
-  // cudaHostAlloc((void **)&source1, sizeof(double) * data->Ncons,
-  //           cudaHostAllocPortable);
-  // cudaHostAlloc((void **)&flux1, sizeof(double) * data->Ncons,
-  //           cudaHostAllocPortable);
-  // cudaHostAlloc((void **)&prims, sizeof(double) * data->Nprims,
-  //               cudaHostAllocPortable);
-  // cudaHostAlloc((void **)&aux, sizeof(double) * data->Naux,
-  //               cudaHostAllocPortable);
-  // allocd = 1;
 }
 
 IMEX2Arguments::~IMEX2Arguments()
 {
-  printf("Deleting IMEX2Args...\n");
 
   delete [] cons;
   delete [] prims;
@@ -39,12 +24,7 @@ IMEX2Arguments::~IMEX2Arguments()
   delete [] source;
   delete [] source1;
   delete [] flux1;
-  // cudaFreeHost(cons);
-  // cudaFreeHost(prims);
-  // cudaFreeHost(aux);
-  // cudaFreeHost(source);
-  // cudaFreeHost(source1);
-  // cudaFreeHost(flux1);
+  allocd = 0;
 }
 
 //! Overload assignment operator
@@ -55,7 +35,6 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
 
   // If no memory has been allocated, allocate
   if (!allocd) {
-    printf("Allocating IMEX2Args in op...\n");
 
     cons     = new double[data->Ncons ];
     prims    = new double[data->Nprims];
@@ -63,18 +42,6 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     source   = new double[data->Ncons ];
     source1  = new double[data->Ncons ];
     flux1    = new double[data->Ncons ];
-    // cudaHostAlloc((void **)&cons, sizeof(double) * data->Ncons,
-    //           cudaHostAllocPortable);
-    // cudaHostAlloc((void **)&source, sizeof(double) * data->Ncons,
-    //           cudaHostAllocPortable);
-    // cudaHostAlloc((void **)&source1, sizeof(double) * data->Ncons,
-    //           cudaHostAllocPortable);
-    // cudaHostAlloc((void **)&flux1, sizeof(double) * data->Ncons,
-    //           cudaHostAllocPortable);
-    // cudaHostAlloc((void **)&prims, sizeof(double) * data->Nprims,
-    //               cudaHostAllocPortable);
-    // cudaHostAlloc((void **)&aux, sizeof(double) * data->Naux,
-    //               cudaHostAllocPortable);
     allocd = 1;
   }
 
