@@ -1,31 +1,16 @@
 #include "IMEX3Args.h"
 
 //! Additional arguments parameterized constructor
-IMEX3Arguments::IMEX3Arguments(Data * data) : data(data),
-                                              gam(0.2928932188134525),
-                                              om2gam(0.4142135623730949),
+IMEX3Arguments::IMEX3Arguments(Data * data) : IMEX2Arguments(data),
                                               hmgam(0.2071067811865475)
 {
   // // Small arrays, no need to malloc
-  cons     = new double[data->Ncons ];
-  prims    = new double[data->Nprims];
-  aux      = new double[data->Naux  ];
-  source   = new double[data->Ncons ];
-  source1  = new double[data->Ncons ];
-  flux1    = new double[data->Ncons ];
   flux2    = new double[data->Ncons ];
   allocd = 1;
 }
 
 IMEX3Arguments::~IMEX3Arguments()
 {
-
-  delete [] cons;
-  delete [] prims;
-  delete [] aux;
-  delete [] source;
-  delete [] source1;
-  delete [] flux1;
   delete [] flux2;
   allocd = 0;
 }
@@ -38,7 +23,6 @@ IMEX3Arguments& IMEX3Arguments::operator=(const IMEX3Arguments &args)
 
   // If no memory has been allocated, allocate
   if (!allocd) {
-
     cons     = new double[data->Ncons ];
     prims    = new double[data->Nprims];
     aux      = new double[data->Naux  ];
