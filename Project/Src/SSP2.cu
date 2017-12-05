@@ -18,8 +18,6 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   int Ntot = data->Nx * data->Ny * data->Nz;
   // Need work arrays
-  printf("Allocating IMEX2 work arrays...\n");
-
   cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&fvec, sizeof(double) * d->Ncons,
@@ -53,7 +51,6 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
 SSP2::~SSP2()
 {
-  printf("Freeing IMEX2 work arrays...\n");
 
   // Clean up your mess
   cudaFreeHost(x);
@@ -156,53 +153,54 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   printf("S2a...\n");
 
 
+  // // Determine just the source contribution to U2
+  // for (int i(is); i < ie; i++) {
+  //   for (int j(js); j < je; j++) {
+  //     for (int k(ks); k < ke; k++) {
+  //       for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Ncons ; var++) x[var]            = U1[d->id(var, i, j, k)];
+  //       args.i = i;
+  //       args.j = j;
+  //       args.k = k;
+  //       // Call hybrd1
+  //       try {
+  //         if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+  //           // Rootfind successful
+  //           for (int var(0); var < d->Ncons ; var++) U2S[d->id(var, i, j, k)]        = x[var];
+  //           for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] += args.prims[var];
+  //           for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   += args.aux[var];
+  //         }
+  //         else {
+  //           char s[200];
+  //           sprintf(s, "SSP2 stage 2a failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
+  //           throw std::runtime_error(s);
+  //         }
+  //       }
+  //       catch (const std::exception& e) {
+  //         printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
+  //         throw e;
+  //       }
+  //     }
+  //   }
+  // }
   // Determine just the Flux contribution to U2
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++)
-            U2F[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - dt * flux1[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++)
-            tempprims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux; var++)
-            tempaux[d->id(var, i, j, k)] = aux[d->id(var, i, j, k)];
-      }
-    }
-  }
-  this->model->getPrimitiveVars(U2F, tempprims, tempaux);
+  // for (int i(0); i < d->Nx; i++) {
+  //   for (int j(0); j < d->Ny; j++) {
+  //     for (int k(0); k < d->Nz; k++) {
+  //       for (int var(0); var < d->Ncons; var++)
+  //           U2F[d->id(var, i, j, k)] = U1[d->id(var, i, j, k)] - dt * flux1[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Nprims; var++)
+  //           tempprims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
+  //       for (int var(0); var < d->Naux; var++)
+  //           tempaux[d->id(var, i, j, k)] = aux[d->id(var, i, j, k)];
+  //     }
+  //   }
+  // }
+  // this->model->getPrimitiveVars(U2F, tempprims, tempaux);
 
-  // Determine just the source contribution to U2
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
-        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) x[var]            = U1[d->id(var, i, j, k)];
-        args.i = i;
-        args.j = j;
-        args.k = k;
-        // Call hybrd1
-        try {
-          if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
-            // Rootfind successful
-            for (int var(0); var < d->Ncons ; var++) U2S[d->id(var, i, j, k)]        = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] += args.prims[var];
-            for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   += args.aux[var];
-          }
-          else {
-            char s[200];
-            sprintf(s, "SSP2 stage 2a failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
-            throw std::runtime_error(s);
-          }
-        }
-        catch (const std::exception& e) {
-          printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
-          throw e;
-        }
-      }
-    }
-  }
 
 
   // Construct guess for second stage
@@ -210,17 +208,17 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
         for (int var(0); var < d->Ncons ; var++)
-          U2guess[d->id(var, i, j, k)] = U2S[d->id(var, i, j, k)] + U2F[d->id(var, i, j, k)] - U1[d->id(var, i, j, k)];
+          // U2guess[d->id(var, i, j, k)] = U2F[d->id(var, i, j, k)];// - U1[d->id(var, i, j, k)];
           // U2guess[d->id(var, i, j, k)] = 0.5 * (U2S[d->id(var, i, j, k)] + U2F[d->id(var, i, j, k)]);
-          // U2guess[d->id(var, i, j, k)] = U1[d->id(var, i, j, k)];
+          U2guess[d->id(var, i, j, k)] = U1[d->id(var, i, j, k)];
 
-        for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] *= 0.5;
-        for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   *= 0.5;
+        // for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] *= 0.5;
+        // for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   *= 0.5;
       }
     }
   }
-  this->bcs->apply(U2guess, tempprims, tempaux);
-  this->model->getPrimitiveVars(U2guess, tempprims, tempaux);
+  // this->bcs->apply(U2guess, tempprims, tempaux);
+  // this->model->getPrimitiveVars(U2guess, tempprims, tempaux);
 
 
 
@@ -230,6 +228,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
+        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[d->id(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[d->id(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[d->id(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[d->id(var, i, j, k)];
@@ -265,6 +264,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   this->model->sourceTerm(U2, tempprims, tempaux, source2);
   this->fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
   this->bcs->apply(flux2);
+
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
@@ -309,14 +309,21 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   SSP2 * timeInt = (SSP2 *)p;
   IMEX2Arguments * a(&timeInt->args);
 
-  // First determine the prim and aux vars due to guess x
-  timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-  // Determine the source contribution due to the guess x
-  timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+  try {
+    // First determine the prim and aux vars due to guess x
+    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+    // Determine the source contribution due to the guess x
+    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
 
-  // Set residual
-  for (int i(0); i < n; i++) {
-    fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
+    // Set residual
+    for (int i(0); i < n; i++) {
+      fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
+    }
+  }
+  catch (const std::exception& e) {
+    for (int i(0); i < n; i++) {
+      fvec[i] = 1.0e6;
+    }
   }
 
   return 0;
@@ -349,14 +356,21 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   SSP2 * timeInt = (SSP2 *)p;
   IMEX2Arguments * a(&timeInt->args);
 
-  // First determine the prim and aux vars due to guess x
-  timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-  // Determine the source contribution due to the guess x
-  timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+  try {
+    // First determine the prim and aux vars due to guess x
+    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+    // Determine the source contribution due to the guess x
+    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
 
-  // Set residual
-  for (int i(0); i < n; i++) {
-    fvec[i] = x[i] - a->cons[i] - a->dt * ( a->om2gam * a->source1[i] + a->gam * a->source[i]);
+    // Set residual
+    for (int i(0); i < n; i++) {
+      fvec[i] = x[i] - a->cons[i] - a->dt * ( a->om2gam * a->source1[i] + a->gam * a->source[i]);
+    }
+  }
+  catch (const std::exception& e) {
+    for (int i(0); i < n; i++) {
+      fvec[i] = 1.0e6;
+    }
   }
 
   return 0;
@@ -389,15 +403,22 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   SSP2 * timeInt = (SSP2 *)p;
   IMEX2Arguments * a(&timeInt->args);
 
-  // First determine the prim and aux vars due to guess x
-  timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-  // Determine the source contribution due to the guess x
-  timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
-
-  // Set residual
-  for (int i(0); i < n; i++) {
-    fvec[i] = x[i] - a->cons[i] - a->dt * (-1*a->flux1[i] + a->om2gam * a->source1[i] + a->gam * a->source[i]);
+  try {
+    // First determine the prim and aux vars due to guess x
+    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+    // Determine the source contribution due to the guess x
+    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+    // Set residual
+    for (int i(0); i < n; i++) {
+      fvec[i] = x[i] - a->cons[i] + a->dt * (a->flux1[i] - a->om2gam * a->source1[i] - a->gam * a->source[i]);
+    }
   }
+  catch (const std::exception& e) {
+    for (int i(0); i < n; i++) {
+      fvec[i] = 1.0e6;
+    }
+  }
+
 
   return 0;
   }
