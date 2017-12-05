@@ -1,7 +1,7 @@
 #ifndef SSP2_H
 #define SSP2_H
 
-#include "backwardsRK.h"
+#include "timeInt.h"
 #include "IMEX2Args.h"
 #include "cminpack.h"
 
@@ -14,7 +14,7 @@
   methods are from Pareschi & Russo 2004, `Implicit-Explicit Runga-Kutta schemes
   and appl...`.
 */
-class SSP2 : public BackwardsRK2
+class SSP2 : public TimeIntegrator
 {
   public:
 

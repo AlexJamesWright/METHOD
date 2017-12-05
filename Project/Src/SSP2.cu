@@ -10,7 +10,7 @@ int IMEX2Residual2b(void *p, int n, const double *x, double *fvec, int iflag);
 
 //! BackwardsRK parameterized constructor
 SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
-              BackwardsRK2(data, model, bc, fluxMethod)
+              TimeIntegrator(data, model, bc, fluxMethod)
 
 {
   Data * d(this->data);
@@ -109,6 +109,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   }
 
   //########################### STAGE ONE #############################//
+  this->model->sourceTerm(cons, prims, aux, d->source);
 
   // Copy data and determine first stage
   for (int i(0); i < d->Nx; i++) {
@@ -217,7 +218,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
   //########################### STAGE TWOb #############################//
-  printf("S2b...\n");
+
   // Determine solution to stage 2
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
@@ -327,7 +328,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
   //! Residual function to minimize for source contribution in stage two of IMEX SSP2
   /*!
-    Root of this function gives the values for U^(1).
+    Root of this function gives the values for Us^(2).
 
     Parameters
     ----------
@@ -372,13 +373,13 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
 
-  //! Residual function to minimize for source contribution in stage two of IMEX SSP2
+  //! Residual function to minimize for stage two of IMEX SSP2
   /*!
-    Root of this function gives the values for U^(1).
+    Root of this function gives the values for U^(2).
 
     Parameters
     ----------
-    p : pointer to BackwardsRK2 object
+    p : pointer to SSP2 object
       The integrator object contains the argument object with the constar, primstar
       etc. arrays and the model object required for the single cell source term
       method.
