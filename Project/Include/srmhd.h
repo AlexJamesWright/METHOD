@@ -23,12 +23,15 @@ class SRMHD : public Model
 
   public:
 
+    // Number of smart guess
     int smartGuesses;
+    // Array to hold solution of C2P
+    double * solution;
 
     //! Constructors and destructors
     SRMHD();
     SRMHD(Data * data);
-    ~SRMHD() { }
+    ~SRMHD();
 
 
     //! Single cell source term contribution

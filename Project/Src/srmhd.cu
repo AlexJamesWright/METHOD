@@ -28,6 +28,10 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->Nprims = (this->data)->Nprims = 8;
   this->Naux = (this->data)->Naux = 13;
 
+  // Solutions for C2P all cells
+  cudaHostAlloc((void **)&solution, sizeof(double)*2*data->Nx*data->Ny*data->Nz,
+                cudaHostAllocPortable);
+
   smartGuesses = 0;
 
   this->data->consLabels.push_back("D");   this->data->consLabels.push_back("Sx");
@@ -48,6 +52,11 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->data->auxLabels.push_back("bsq"); this->data->auxLabels.push_back("vsq");
   this->data->auxLabels.push_back("BS");  this->data->auxLabels.push_back("Bsq");
   this->data->auxLabels.push_back("Ssq");
+}
+
+SRMHD::~SRMHD()
+{
+  cudaFreeHost(solution);
 }
 
 
@@ -290,10 +299,6 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
 {
   // Syntax
   Data * d(this->data);
-  // Solutions
-  double * solution;
-  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
-                cudaHostAllocPortable);
 
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
@@ -336,30 +341,25 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                     tol, wa, lwa);
   // If root find fails, add failed cell to the list
-  if (info==1) {
-    // Now have the correct values for vsq and rho*h*Wsq
-    solution[0] = sol[0];
-    solution[1] = sol[1];
-  }
-  else {
-    printf("C2P single cell failed for cell (%d, %d, %d), hybrd returns info=%d\n", i, j, k, info);
+  if (info!=1) {
+    //printf("C2P single cell failed for cell (%d, %d, %d), hybrd returns info=%d\n", i, j, k, info);
     throw std::runtime_error("C2P could not converge.\n");
   }
   // W
-  aux[1] = 1 / sqrt(1 - solution[0]);
+  aux[1] = 1 / sqrt(1 - sol[0]);
   // rho
   prims[0] = cons[0] / aux[1];
   // h
-  aux[0] = solution[1] / (prims[0] * aux[1] * aux[1]);
+  aux[0] = sol[1] / (prims[0] * aux[1] * aux[1]);
   // p
   prims[4] = (aux[0] - 1) * prims[0] *
                              (d->gamma - 1) / d->gamma;
   // e
   aux[2] = prims[4] / (prims[0] * (d->gamma - 1));
   // vx, vy, vz
-  prims[1] = (cons[5] * aux[10] + cons[1] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
-  prims[2] = (cons[6] * aux[10] + cons[2] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
-  prims[3] = (cons[7] * aux[10] + cons[3] * solution[1]) / (solution[1] * (aux[11] + solution[1]));
+  prims[1] = (cons[5] * aux[10] + cons[1] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+  prims[2] = (cons[6] * aux[10] + cons[2] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+  prims[3] = (cons[7] * aux[10] + cons[3] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
   // vsq
   aux[9] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
   // c
