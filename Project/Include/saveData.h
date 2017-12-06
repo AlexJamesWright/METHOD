@@ -28,8 +28,8 @@ class SaveData
 
 
   public:
-    //! Simulation data to be saved
-    Data * d;
+
+    Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
     /*!

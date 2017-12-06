@@ -12,20 +12,22 @@
 class IMEX3Arguments : public IMEX2Arguments
 {
   public:
-    //! Local variables
-    double *flux2;
-    double hmgam; // 0.5-gamma
+    double *flux2;  //!< Flux due to stage 2 solution, i.e. Fnet(U2)
+    double hmgam;   //!< (h)alf (m)inus (gam)ma = 0.5-gamma
 
-    //! Default constructor
+    //!< Default constructor
     IMEX3Arguments() : IMEX2Arguments(),
                        hmgam(0.2071067811865475) { }
-    //! Parameterized constructor
+    //!< Parameterized constructor
     IMEX3Arguments(Data * data);
-    //! Copy constructor
+
+    //!< Deep copy constructor
     IMEX3Arguments(IMEX3Arguments &args);
-    //! Destructor
+
+    //!< Destructor
     ~IMEX3Arguments();
-    //! Overload assignment operator, performs deep copy of information
+
+    //!< Overload assignment operator, performs deep copy of information
     IMEX3Arguments& operator=(const IMEX3Arguments &args);
 };
 

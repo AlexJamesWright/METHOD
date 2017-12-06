@@ -13,12 +13,16 @@ class InitialFunc
 {
   private:
 
-    //! simData class containing all necessary variables
-    Data * data;
+    Data * data; //!< Pointer to Data class containing global simulation data
 
   public:
 
     //! Constructor stores the location of the simData and sets all arrays to zero
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param *data Pointer to Data class containing global simulation data
+    */
     InitialFunc(Data * data);
 };
 
@@ -34,6 +38,11 @@ class CurrentSheetTwoFluid : public InitialFunc
   public:
 
     //! Current sheet initial data for two fluids
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param *data Pointer to Data class containing global simulation data
+    */
     CurrentSheetTwoFluid(Data * data);
 };
 
@@ -53,6 +62,11 @@ class OTVortexSingleFluid : public InitialFunc
   public:
 
     //! Orzsang-Tang vortex initial data for single fluid
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param *data Pointer to Data class containing global simulation data
+    */
     OTVortexSingleFluid(Data * data);
 };
 
@@ -78,6 +92,11 @@ class BrioWuTwoFluid : public InitialFunc
       some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric
       3D generalisation is also selected by default (setUp=0), but for the values
       used in Amano 2016 use setUp=1.
+        Stores a pointer to the Data class for reference in its methods
+
+    @param *data Pointer to Data class containing global simulation data
+    @param dir direction in which to place the discontinuity. (0, 1, 2) = along (x, y, z) axis
+    @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case 
     */
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
 };

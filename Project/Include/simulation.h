@@ -22,27 +22,26 @@ class Simulation
 
   private:
 
-    //! Initial function object to set up starting data
-    InitialFunc * init;
+    InitialFunc * init;         //!< Pointer to InitialFunc object to set up starting data
 
-    //! Form of simulation, governing equations and spectral decomposition
-    Model * model;
+    Model * model;              //!< Pointer to Model object, contains governing equations and spectral decomposition
 
-    //! Time integrator object
-    TimeIntegrator * timeInt;
+    TimeIntegrator * timeInt;   //!< Pointer to TimeIntegrator object
 
-    //! Boundary condition
-    Bcs * bcs;
+    Bcs * bcs;                  //!< Pointer to boundary conditions, Bcs, object
 
-    //! Flux method
-    FluxMethod * fluxMethod;
+    FluxMethod * fluxMethod;    //!< Pointer to FluxMethod object
 
   public:
 
-    //! simData class containing all necessary variables
-    Data * data;
+    Data * data;                //!< Pointer to Data class containing global simulation data
 
-    //! Constructor sets data and allocates memory
+    //! Constructor
+    /*!
+      Stores and set data, and allocates memory for working arrays.
+      
+      @param *data Pointer to Data class containing global simulation data
+    */
     Simulation(Data * data);
 
     //! Destructor frees alloc'd memory
@@ -56,6 +55,12 @@ class Simulation
       conserved and auxilliary variables that correspond to the initial primitive
       data.
         This function must be called before calling either evolve() or updateTime().
+
+      @param *init pointer to InitialFunc object
+      @param *model pointer to Model object
+      @param *timeInt pointer to TimeIntegrator object
+      @param *bcs pointer to Bcs object
+      @param *fluxMethod pointer to FluxMethod object
     */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,
@@ -67,7 +72,8 @@ class Simulation
     /*!
         When calling updateTime(), all primitive and auxilliary variables must be
       set. I.e. they must correspond to the values of the conserved vector at that
-      time step. Given this, the conserved variables are evolved using the given
+      time step.
+        Given this, the conserved variables are evolved using the given
       time integrator according to the selected model. All primitive and auxilliary
       variables are then found and the updated values are saved in the Data class.
     */

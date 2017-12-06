@@ -13,10 +13,11 @@
 class Bcs
 {
   protected:
-    Data * data;
+
+    Data * data; //!< Pointer to Data class containing global simulation data
+
     //! Constructor store data about simulation (needed for domain)
     Bcs(Data * data) : data(data) { }
-
 
   public:
 

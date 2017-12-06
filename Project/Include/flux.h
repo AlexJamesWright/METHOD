@@ -15,8 +15,9 @@
 class FluxMethod
 {
   public:
-    Data * data;
-    Model * model;
+
+    Data * data;    //!< Pointer to data class containing global simulation data
+    Model * model;  //!< Pointer to model class containing method for computing flux vector
 
     //! Base constructor
     FluxMethod(Data * data, Model * model) : data(data), model(model) { }
