@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="5,56,88,83"/>
+<area shape="rect" id="node2" href="$classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="153,5,271,32"/>
+<area shape="rect" id="node3" href="$classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="136,56,288,83"/>
+<area shape="rect" id="node4" href="$classOTVortexSingleFluid.html" title="Orszag&#45;Tang voretx initial data (2D) for single fluid. " alt="" coords="141,107,283,133"/>
+</map>

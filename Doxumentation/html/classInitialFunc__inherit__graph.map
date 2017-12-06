@@ -1,0 +1,5 @@
+<map id="InitialFunc" name="InitialFunc">
+<area shape="rect" id="node2" href="$classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="5,80,124,107"/>
+<area shape="rect" id="node3" href="$classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="149,80,301,107"/>
+<area shape="rect" id="node4" href="$classOTVortexSingleFluid.html" title="Orszag&#45;Tang voretx initial data (2D) for single fluid. " alt="" coords="325,80,468,107"/>
+</map>
