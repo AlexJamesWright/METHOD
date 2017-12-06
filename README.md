@@ -23,7 +23,7 @@ To build and run all tests, navigate to the `Tests` directory and run
   
 ### Rootfinder
 Some simulations will require the use of an N-dimensional footfinder, either for a (semi-) implicit time integrator or
-for the conservative to primitive transformation. We have elected to use the CMINPACK library\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
+for the conservative to primitive transformation. We have elected to use the [CMINPACK library](https://github.com/devernay/cminpack)\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
   `make`
  to compile all the object files. Then, if the build was successful, for gods sake dont touch/look at this library again.
 
@@ -48,4 +48,4 @@ in *main* after the initial data has been evolved. Running the python script as 
 
 
 
-\* *found at https://github.com/devernay/cminpack, but due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*
+\* *due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*
