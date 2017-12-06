@@ -8,3 +8,7 @@ test_cminpack
 test_boundaryConds
 test_twoFluidEMHD
 gtest_main.a
+
+Doxumentation/*
+!Doxumentation/config.txt
+!Doxumentation/html/index.html
