@@ -4,7 +4,7 @@
 ## Multifluid Electromagneto-HydroDynamics
 ---------------------------------------------
 
-[![Build Status](http://152.78.41.33:8080/job/METHOD/badge/icon)](http://152.78.41.33:8080/job/METHOD/)
+[![Build Status](http://152.78.41.33:8080/buildStatus/icon?job=METHOD)](http://152.78.41.33:8080/job/METHOD/)
 
 A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++.
 
