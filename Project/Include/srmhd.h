@@ -28,7 +28,7 @@ class SRMHD : public Model
     double * solution;    //!< Pointer to array to hold solution of C2P for every cell. Size is 2*Nx*Ny*Nz
 
 
-    SRMHD() : data(NULL) {}     //!< Default constructor
+    SRMHD();     //!< Default constructor
 
     //! Parameterized constructor
     /*!
@@ -36,9 +36,9 @@ class SRMHD : public Model
 
       @param *data Pointer to Data class containing global simulation data
     */
-    SRMHD(Data * data) : Model(data) { }
+    SRMHD(Data * data);
 
-    ~SRMHD() {}     //!< Destructor
+    ~SRMHD();     //!< Destructor
 
 
     //! Single cell source term contribution
