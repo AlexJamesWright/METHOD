@@ -23,9 +23,9 @@
   Thirty-five auxilliary variables:                                                                   <br>
 (0)   h1, W1, e1, vsq1, Z1, D1, Stildex1, Stildey1, Stildez1, tauTilde1,                              <br>
 (10)  h2, W2, e2, vsq2, Z2, D2, Stildex2, Stildey2, Stildez2, tauTilde2,                              <br>
-(22)  Jx, Jy, Jz,                                                                                     <br>
-(25)  Stildex, Stildey, Stildez, tauTilde,                                                            <br>
-(20)  Bsq, Esq                                                                                        <br>
+(20)  Jx, Jy, Jz,                                                                                     <br>
+(23)  Stildex, Stildey, Stildez, tauTilde,                                                            <br>
+(27)  Bsq, Esq                                                                                        <br>
 (29)  rhoCh0, rhoCh,                                                                                  <br>
 (31)  ux, uy, uz, W                                                                                   <br><b>
 
