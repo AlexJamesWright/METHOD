@@ -49,15 +49,19 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   const double PI(3.14159265358979323);
   const double rho(1.0);
   const double p(50.0);
+  double tmp1, tmp2;
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
+        tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+
         d->prims[d->id(0, i, j, k)] = rho / 2.0;
-        d->prims[d->id(3, i, j, k)] = (B0 / (d->mu1 * rho) * sqrt(d->sigma / PI)) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        d->prims[d->id(3, i, j, k)] = tmp1 / sqrt(1 - tmp1*tmp1);
         d->prims[d->id(4, i, j, k)] = p / 2.0;
         d->prims[d->id(5, i, j, k)] = rho / 2.0;
-        d->prims[d->id(8, i, j, k)] = (B0 / (d->mu2 * rho) * sqrt(d->sigma / PI)) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        d->prims[d->id(8, i, j, k)] = tmp2 / sqrt(1 - tmp2*tmp2);
         d->prims[d->id(9, i, j, k)] = p / 2.0;
         d->prims[d->id(11, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
       }
