@@ -11,6 +11,7 @@ int counter(0);
 #include <cstdio>
 #include <iostream>
 
+
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);
 static int newton(double *, const double, const double, const double, double, int, int, int, int);
@@ -295,30 +296,28 @@ void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux
 
   double wpsq(d->mu1 * d->mu1 * prims[0] + d->mu2 * d->mu2 * prims[5]);
 
-  for (int var(0); var < d->Ncons; var++) {
-    source[0] = 0;
-    source[1] = 0;
-    source[2] = 0;
-    source[3] = 0;
-    source[4] = 0;
-    source[5] = 0;
-    source[6] = wpsq * (aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
-                                (aux[20] - aux[29] * aux[31]) / d->sigma);
-    source[7] = wpsq * (aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
-                                (aux[21] - aux[29] * aux[32]) / d->sigma);
-    source[8] = wpsq * (aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
-                                (aux[22] - aux[29] * aux[33]) / d->sigma);
-    source[9] = wpsq * (aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
-                                (aux[30] - aux[29] * aux[34]) / d->sigma);
-    source[10] = 0;
-    source[11] = 0;
-    source[12] = 0;
-    source[13] = - aux[20];
-    source[14] = - aux[21];
-    source[15] = - aux[22];
-    source[16] = aux[30] - cons[16] / (d->cp * d->cp);
-    source[17] = - cons[17] / (d->cp * d->cp);
-  }
+  source[0] = 0;
+  source[1] = 0;
+  source[2] = 0;
+  source[3] = 0;
+  source[4] = 0;
+  source[5] = 0;
+  source[6] = wpsq * (aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
+                              (aux[20] - aux[29] * aux[31]) / d->sigma);
+  source[7] = wpsq * (aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
+                              (aux[21] - aux[29] * aux[32]) / d->sigma);
+  source[8] = wpsq * (aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
+                              (aux[22] - aux[29] * aux[33]) / d->sigma);
+  source[9] = wpsq * (aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
+                              (aux[30] - aux[29] * aux[34]) / d->sigma);
+  source[10] = 0;
+  source[11] = 0;
+  source[12] = 0;
+  source[13] = - aux[20];
+  source[14] = - aux[21];
+  source[15] = - aux[22];
+  source[16] = aux[30] - cons[16] / (d->cp * d->cp);
+  source[17] = - cons[17] / (d->cp * d->cp);
 }
 
 void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
@@ -833,7 +832,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
     // Store result of Z=rho*h*W**2
     *Z = bestX;
     printf("Original C2P could not converge in cell (%d, %d, %d) for fluid %d\n", i, j, k, fluid);
-    throw std::runtime_error("C2P could not converge.\n");
+    // throw std::runtime_error("C2P could not converge.\n");
     return 0;
   }
   return 1;
