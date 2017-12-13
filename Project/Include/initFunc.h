@@ -26,6 +26,45 @@ class InitialFunc
     InitialFunc(Data * data);
 };
 
+//! Two-fluid circularly polarized Alfven wave
+/*!
+    Two fluid version of the CP Alfven wave test. See Amano 2016 for description.
+  Such a set up is an exact solution and so should be useful for convergence testing.
+
+  @sa CPAlfvenWaveSingleFluid
+*/
+class CPAlfvenWaveTwoFluid : public InitialFunc
+{
+  public:
+    //! CP Alfven wave initial data for a two-fluid
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param *data Pointer to Data class containing global simulation data
+    */
+    CPAlfvenWaveTwoFluid(Data * data);
+};
+
+//! Single fluid circularly polarized Alfven wave
+/*!
+    See Del Zanna et al. 2007 for the details. Such a set up is an exact solution
+  and as such can be used as a method for plotting convergence.
+
+  @sa CPAlfvenWaveTwoFluid
+*/
+class CPAlfvenWaveSingleFluid : public InitialFunc
+{
+  public:
+
+    //! CP Alfven wave initial data for single fluid
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param *data Pointer to Data class containing global simulation data
+    */
+    CPAlfvenWaveSingleFluid(Data * data);
+};
+
 //! Two fluid self similar current sheet
 /*!
     See Palenzuela et al 2009, `Beyond ideal MHD: Towards a more...` for explanation.
@@ -96,7 +135,7 @@ class BrioWuTwoFluid : public InitialFunc
 
     @param *data Pointer to Data class containing global simulation data
     @param dir direction in which to place the discontinuity. (0, 1, 2) = along (x, y, z) axis
-    @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case 
+    @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case
     */
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
 };
