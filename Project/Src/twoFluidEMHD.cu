@@ -70,12 +70,12 @@ TwoFluidEMHD::TwoFluidEMHD(Data * data) : Model(data)
   d->auxLabels.push_back("Z2");       d->auxLabels.push_back("D2");
   d->auxLabels.push_back("Stildex2"); d->auxLabels.push_back("Stildey2");
   d->auxLabels.push_back("Stildez2"); d->auxLabels.push_back("tauTilde2");
-  d->auxLabels.push_back("Bsq");      d->auxLabels.push_back("Esq");
   d->auxLabels.push_back("Jx");       d->auxLabels.push_back("Jy");
   d->auxLabels.push_back("Jz");       d->auxLabels.push_back("Stildex");
-  d->auxLabels.push_back("Stildey");  d->auxLabels.push_back("Stilfdez");
-  d->auxLabels.push_back("tauTilde"); d->auxLabels.push_back("rhoCh");
-  d->auxLabels.push_back("rhoCh0");   d->auxLabels.push_back("ux");
+  d->auxLabels.push_back("Stildey");  d->auxLabels.push_back("Stildez");
+  d->auxLabels.push_back("tauTilde"); d->auxLabels.push_back("Bsq");
+  d->auxLabels.push_back("Esq");      d->auxLabels.push_back("rhoCh0");
+  d->auxLabels.push_back("rhoCh");    d->auxLabels.push_back("ux");
   d->auxLabels.push_back("uy");       d->auxLabels.push_back("uz");
   d->auxLabels.push_back("W");
 }
@@ -313,11 +313,11 @@ void TwoFluidEMHD::sourceTermSingleCell(double *cons, double *prims, double *aux
     source[10] = 0;
     source[11] = 0;
     source[12] = 0;
-    source[13] = wpsq * (- aux[20]);
-    source[14] = wpsq * (- aux[21]);
-    source[15] = wpsq * (- aux[22]);
-    source[16] = wpsq * (aux[30] - cons[16] / (d->cp * d->cp));
-    source[17] = wpsq * (- cons[17] / (d->cp * d->cp));
+    source[13] = - aux[20];
+    source[14] = - aux[21];
+    source[15] = - aux[22];
+    source[16] = aux[30] - cons[16] / (d->cp * d->cp);
+    source[17] = - cons[17] / (d->cp * d->cp);
   }
 }
 
@@ -527,41 +527,41 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
     aux[4] = prims[0] * aux[0] * aux[1] * aux[1];
     aux[14] = prims[5] * aux[10] * aux[11] * aux[11];
     }
-    else if (/*Switch off for now as incomplete*/0 && newtonAmano(&vmag1, Stilde1sq, aux[5], aux[9], d->gamma, i, j, k, 0) &&
-             newtonAmano(&vmag2, Stilde2sq, aux[15], aux[19], d->gamma, i, j, k, 1)) {
-      // vsq1, vsq2
-      aux[3] = vmag1*vmag1;
-      aux[13] = vmag2*vmag2;
-      // W1, W2
-      aux[1] = 1 / sqrt(1 - aux[3]);
-      aux[11] = 1 / sqrt(1 - aux[13]);
-      // rho1, rho2
-      prims[0] = aux[5] / aux[1];
-      prims[5] = aux[15] / aux[11];
-      // Z1, Z2
-      if (Stilde1sq < 1.0e-15) aux[4] = 0;
-      else aux[4] = sqrt(Stilde1sq / aux[3]);
-      if (Stilde2sq < 1.0e-15) aux[14] = 0;
-      else aux[14] = sqrt(Stilde2sq / aux[13]);
-      // e1, e2
-      aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (d->gamma * prims[0]);
-      aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[5]);
-      // h1, h2
-      aux[0] = aux[4] / (prims[0] * aux[1] * aux[1]);
-      aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
-      // p1, p2
-      prims[4] = prims[0] * aux[2] * (d->gamma - 1);
-      prims[9] = prims[5] * aux[12] * (d->gamma - 1);
-      // vx1, vy1, vz1
-      prims[1] = aux[6] / aux[4];
-      prims[2] = aux[7] / aux[4];
-      prims[3] = aux[8] / aux[4];
-      // if (i == 0) printf("%19.16f, %19.16f, %19.16f\n", prims[3], aux[8], aux[4]);
-      // vx2, vy2, vz2
-      prims[6] = aux[16] / aux[14];
-      prims[7] = aux[17] / aux[14];
-      prims[8] = aux[18] / aux[14];
-    }
+    // else if (/*Switch off for now as incomplete*/0 && newtonAmano(&vmag1, Stilde1sq, aux[5], aux[9], d->gamma, i, j, k, 0) &&
+    //          newtonAmano(&vmag2, Stilde2sq, aux[15], aux[19], d->gamma, i, j, k, 1)) {
+    //   // vsq1, vsq2
+    //   aux[3] = vmag1*vmag1;
+    //   aux[13] = vmag2*vmag2;
+    //   // W1, W2
+    //   aux[1] = 1 / sqrt(1 - aux[3]);
+    //   aux[11] = 1 / sqrt(1 - aux[13]);
+    //   // rho1, rho2
+    //   prims[0] = aux[5] / aux[1];
+    //   prims[5] = aux[15] / aux[11];
+    //   // Z1, Z2
+    //   if (Stilde1sq < 1.0e-15) aux[4] = 0;
+    //   else aux[4] = sqrt(Stilde1sq / aux[3]);
+    //   if (Stilde2sq < 1.0e-15) aux[14] = 0;
+    //   else aux[14] = sqrt(Stilde2sq / aux[13]);
+    //   // e1, e2
+    //   aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (d->gamma * prims[0]);
+    //   aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[5]);
+    //   // h1, h2
+    //   aux[0] = aux[4] / (prims[0] * aux[1] * aux[1]);
+    //   aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
+    //   // p1, p2
+    //   prims[4] = prims[0] * aux[2] * (d->gamma - 1);
+    //   prims[9] = prims[5] * aux[12] * (d->gamma - 1);
+    //   // vx1, vy1, vz1
+    //   prims[1] = aux[6] / aux[4];
+    //   prims[2] = aux[7] / aux[4];
+    //   prims[3] = aux[8] / aux[4];
+    //   // if (i == 0) printf("%19.16f, %19.16f, %19.16f\n", prims[3], aux[8], aux[4]);
+    //   // vx2, vy2, vz2
+    //   prims[6] = aux[16] / aux[14];
+    //   prims[7] = aux[17] / aux[14];
+    //   prims[8] = aux[18] / aux[14];
+    // }
     else {
       // Could solve cons to prims, raise error
       printf("Exiting at time t=%18.16f, after %d iterations.\n", d->t, d->iters);
@@ -833,7 +833,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
     // Store result of Z=rho*h*W**2
     *Z = bestX;
     printf("Original C2P could not converge in cell (%d, %d, %d) for fluid %d\n", i, j, k, fluid);
-    // throw std::runtime_error("C2P could not converge.\n");
+    throw std::runtime_error("C2P could not converge.\n");
     return 0;
   }
   return 1;
