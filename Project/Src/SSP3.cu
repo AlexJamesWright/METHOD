@@ -6,8 +6,8 @@
 //! Residual function for each stage of SSP3(332)
 int IMEX3Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX3Residual2(void *p, int n, const double *x, double *fvec, int iflag);
+int IMEX3Residual3a(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX3Residual3(void *p, int n, const double *x, double *fvec, int iflag);
-int IMEX3Residual3b(void *p, int n, const double *x, double *fvec, int iflag);
 
 //! BackwardsRK parameterized constructor
 SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
@@ -230,7 +230,7 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
         args.k = k;
         // Call hybrd1
         try {
-          if ((info = __cminpack_func__(hybrd1)(IMEX3Residual3b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+          if ((info = __cminpack_func__(hybrd1)(IMEX3Residual3a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
             // Rootfind successful
             for (int var(0); var < d->Ncons ; var++) U3guess[d->id(var, i, j, k)]   += x[var];
             for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] += args.prims[var];
@@ -239,7 +239,7 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
           }
           else {
             char s[200];
-            sprintf(s, "SSP3 stage 3 failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2b.\n", i, j, k, info);
+            sprintf(s, "SSP3 stage 3 failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 3a.\n", i, j, k, info);
             throw std::runtime_error(s);
           }
         }
@@ -292,7 +292,7 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
           }
           else {
             char s[200];
-            sprintf(s, "SSP3 stage 3 failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2b.\n", i, j, k, info);
+            sprintf(s, "SSP3 stage 3 failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 3b.\n", i, j, k, info);
             throw std::runtime_error(s);
           }
         }
@@ -421,6 +421,53 @@ int IMEX3Residual2(void *p, int n, const double *x, double *fvec, int iflag)
 
 
 
+//! Residual function to minimize in stage three A of IMEX SSP3(332)
+/*!
+  Root of this function gives the values for the guess for stage 3.
+
+  Parameters
+  ----------
+  p : pointer to SSP3 object
+    The integrator object contains the argument object with the constar, primstar
+    etc. arrays and the model object required for the single cell source term
+    method.
+  n : int
+    Size of system
+  x : pointer to double
+    The array containing the guess
+  fvec : pointer to double
+    The array containing the residual as a result of the guess x
+  iflag : int
+    Error flag
+*/
+int IMEX3Residual3a(void *p, int n, const double *x, double *fvec, int iflag)
+{
+  // Cast void pointer
+  SSP3 * timeInt = (SSP3 *)p;
+  IMEX3Arguments * a(&timeInt->args);
+
+  try {
+    // First determine the prim and aux vars due to guess x
+    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+    // Determine the source contribution due to the guess x
+    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+
+    // Set residual
+    for (int i(0); i < n; i++) {
+      fvec[i] = x[i] - a->cons[i] - a->dt * (a->hmgam * a->source1[i] + a->gam * a->source[i]);
+    }
+  }
+  catch (const std::exception& e) {
+    for (int i(0); i < n; i++) {
+      fvec[i] = 1.0e6;
+    }
+  }
+
+  return 0;
+}
+
+
+
 
 //! Residual function to minimize in stage three of IMEX SSP3(332)
 /*!
@@ -456,33 +503,6 @@ int IMEX3Residual3(void *p, int n, const double *x, double *fvec, int iflag)
     // Set residual
     for (int i(0); i < n; i++) {
       fvec[i] = x[i] - a->cons[i] + a->dt * (a->flux1[i] + a->flux2[i]) / 4.0 - a->dt * (a->hmgam * a->source1[i] + a->gam * a->source[i]);
-    }
-  }
-  catch (const std::exception& e) {
-    for (int i(0); i < n; i++) {
-      fvec[i] = 1.0e6;
-    }
-  }
-
-  return 0;
-}
-
-
-int IMEX3Residual3b(void *p, int n, const double *x, double *fvec, int iflag)
-{
-  // Cast void pointer
-  SSP3 * timeInt = (SSP3 *)p;
-  IMEX3Arguments * a(&timeInt->args);
-
-  try {
-    // First determine the prim and aux vars due to guess x
-    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-    // Determine the source contribution due to the guess x
-    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
-
-    // Set residual
-    for (int i(0); i < n; i++) {
-      fvec[i] = x[i] - a->cons[i] - a->dt * (a->hmgam * a->source1[i] + a->gam * a->source[i]);
     }
   }
   catch (const std::exception& e) {
