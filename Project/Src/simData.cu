@@ -42,4 +42,8 @@ Data::Data(int nx, int ny, int nz,
   if (this->sigma <= 0.0) {
     throw std::invalid_argument("Conductivity must be positive, sigma > 0.\n");
   }
+  // Ensure charges are correct way round
+  if (this->mu1 > 0.0 or this->mu2 < 0.0) {
+    throw std::invalid_argument("Species 1 must have negative charge, mu1 < 0, and species 2 must have positive charge, mu2 > 0.\n");
+  }
 }
