@@ -7,6 +7,7 @@
 #include "rkSplit.h"
 #include "backwardsRK.h"
 #include "SSP2.h"
+#include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include <cstdio>
@@ -17,53 +18,57 @@
 
 int main(void) {
 
-
+  const double PI(3.14159265358979323);
+  const double MU(1000);
   // Set up domain
-  int nx(30);
-  int ny(30);
+  int nx(400);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
-  double xmax(1.0);
+  double xmax(1);
   double ymin(0.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.2);
-  double cfl(0.4);
+  double endTime(0.3);
+  double cfl(0.01);
   int Ng(4);
   double gamma(2.0);
-  double sigma(1e2);
-  double cp(0.1);
-  double mu1(-1.0e4);
-  double mu2(1.0e4);
+  double sigma(1.0e17);
+  double cp(1.0);
+  double mu1(-MU);
+  double mu2(MU);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2);
 
   // Choose particulars of simulation
-  SRMHD model(&data);
+  // SRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  // int dir(0); // x-direction
-  // int setUp(1); // Amano set up
-  // BrioWuTwoFluid init(&data, dir, setUp);
-  OTVortexSingleFluid init(&data);
+  int dir(0); // x-direction
+  int setUp(1); // Amano set up
+  BrioWuTwoFluid init(&data, dir, setUp);
+  // CurrentSheetTwoFluid init(&data);
+  // CPAlfvenWaveTwoFluid init(&data);
 
-  Periodic bcs(&data);
+  Outflow bcs(&data);
+  // Periodic bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod);
-
   // Time execution of programme
   double startTime(omp_get_wtime());
 
   // // Run until end time and save results
+
   SaveData save(&data);
   while (data.t < data.endTime) {
     sim.updateTime();
@@ -71,8 +76,11 @@ int main(void) {
   }
   // sim.evolve();
   // sim.updateTime();
-  // sim.updateTime();
   // SaveData save(&data);
+
+  // SaveData save(&data);
+  // sim.updateTime();
+  // sim.updateTime();
 
 
   double timeTaken(omp_get_wtime() - startTime);
