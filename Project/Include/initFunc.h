@@ -3,11 +3,11 @@
 
 #include "simData.h"
 
-//! Base Class implements the initial data.
+//! <b> Abstract base class for any future initial data classes </b>
 /*!
-    All initial set ups are contained within the InitialFunc object. The class
-  is initialised with just the simData class, and then one of the member functions
-  is selected to be applied.
+  @par
+    All initial set ups are derived from the InitialFunc object. This class will
+  set all initial primitive data to zero.
 */
 class InitialFunc
 {
@@ -17,11 +17,12 @@ class InitialFunc
 
   public:
 
-    //! Constructor stores the location of the simData and sets all arrays to zero
+    //! Constructor
     /*!
-        Stores a pointer to the Data class for reference in its methods
+        Stores a pointer to the Data class for reference in its methods and
+      initializes all primtive variables are zero.
 
-      @param *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class
     */
     InitialFunc(Data * data);
 };
@@ -31,6 +32,7 @@ class InitialFunc
     Two fluid version of the CP Alfven wave test. See Amano 2016 for description.
   Such a set up is an exact solution and so should be useful for convergence testing.
 
+  @todo WARNING!! This set up seems not to be self-consistent!
   @sa CPAlfvenWaveSingleFluid
 */
 class CPAlfvenWaveTwoFluid : public InitialFunc
@@ -40,7 +42,8 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
 
-      @param *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
     */
     CPAlfvenWaveTwoFluid(Data * data);
 };
@@ -51,6 +54,7 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
   and as such can be used as a method for plotting convergence.
 
   @sa CPAlfvenWaveTwoFluid
+  @sa InitialFunc
 */
 class CPAlfvenWaveSingleFluid : public InitialFunc
 {
@@ -60,7 +64,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
 
-      @param *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class containing global simulation data
     */
     CPAlfvenWaveSingleFluid(Data * data);
 };
@@ -71,6 +75,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
   Set up is one dimensional (x-direction, although may be run in multiple Ds),
   in equilibrium, with initial By field given by the error function. Behaviour
   should be diffusive for moderate resistivities.
+    See Amano 2016 for two fluid details.
 */
 class CurrentSheetTwoFluid : public InitialFunc
 {
@@ -80,13 +85,14 @@ class CurrentSheetTwoFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
 
-      @param *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
     */
     CurrentSheetTwoFluid(Data * data);
 };
 
 
-//! Orszag-Tang voretx initial data (2D) for single fluid
+//! Single fluid Orszag-Tang voretx
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
@@ -104,7 +110,7 @@ class OTVortexSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
 
-      @param *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class containing global simulation data
     */
     OTVortexSingleFluid(Data * data);
 };
@@ -113,12 +119,8 @@ class OTVortexSingleFluid : public InitialFunc
 
 //! Brio-Wu shock tube initial data (1D)
 /*!
-    Not sure if values are correct atm.....
-    Construct takes pointer to data class as per usual, and also an integar, specifying
-    the axis along which the system is partitioned.
-    dir = 0: dicontinuity in x-direction
-    dir = 1: dicontinuity in y-direction
-    dir = 2: dicontinuity in z-direction
+    Standard shock tube test taken from Amano 2016.
+
 */
 
 class BrioWuTwoFluid : public InitialFunc
@@ -133,9 +135,10 @@ class BrioWuTwoFluid : public InitialFunc
       used in Amano 2016 use setUp=1.
         Stores a pointer to the Data class for reference in its methods
 
-    @param *data Pointer to Data class containing global simulation data
-    @param dir direction in which to place the discontinuity. (0, 1, 2) = along (x, y, z) axis
+    @param[in] *data Pointer to Data class containing global simulation data
+    @param dir direction in which to place the discontinuity. (0, 1, 2) = (x, y, z) axis
     @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case
+    @sa InitialFunc
     */
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
 };

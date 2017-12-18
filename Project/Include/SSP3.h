@@ -7,12 +7,29 @@
 
 
 
-//! Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator
+//! <b> Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator </b>
 /*!
+  @par
     Integrator is second order, solves the non-stiff fluxes explicitly and the
   (possibly) stiff sources implicitly. Values for the constants and general
-  methods are from Pareschi & Russo 2004, `Implicit-Explicit Runga-Kutta schemes
-  and appl...`.
+  methods are from Pareschi & Russo 2004.
+  @par
+    What follows is a brief description of the method. For a system of conservation
+  equations, given in general by
+  \f{align}{
+    \partial_t U = F(U) + \psi(U)
+  \f}
+  the third order SSP3(332) IMEX scheme takes the following form:
+  \f{align}{
+    U^{(1)} &= U^n + \gamma dt \psi(U^{(1)}) \\
+    U^{(2)} &= U^n + dt \big[F(U^{(1)}) + (1-2\gamma)\psi(U^{(1)}) + \gamma \psi(U^{(2)})\big] \\
+    U^{(3)} &= U^n + \frac{dt}{4} \big[F(U^{(1)}) + F(U^{(2)})\big] + dt \big[(0.5 - \gamma) \psi(U^{(1)}) + \gamma \psi(U^{(3)})\big] \\
+    U^{n+1} &= U^n + \frac{dt}{6} \big[F{U^{(1)}} + F(U^{(2)}) + 4F(U^{(3)}) + \psi{U^{(1)}} + \psi(U^{(2)}) + 4\psi(U^{(3)}) \big]
+  \f}.
+  @par
+    The sources are necessarily solved via an implicit rootfind, using a multidimensional
+  Newton-Secant method found [here](https://github.com/devernay/cminpack).
+
 */
 class SSP3 : public SSP2
 {
@@ -35,6 +52,7 @@ class SSP3 : public SSP2
 
     //! Constructor
     /*!
+      @par
         Constructor requires simulation data and the flux and source functions
       from the model class.
 
@@ -45,13 +63,14 @@ class SSP3 : public SSP2
       @sa TimeIntegrator::TimeIntegrator
       @sa SSP2::SSP2
     */
-    SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod);
+    SSP3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
     //! Destructor
     ~SSP3();
 
     //! Performs a single time step
     /*!
+      @par
         The timestep will use the current values of the conserved, primitive and
       auxilliary variables at t=t0 and compute the values of all of them at time
       t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding

@@ -5,23 +5,14 @@
 /*!
     Required for the flux reconstruction. See Shu, `Essentially
   Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic
-  Conservation Laws` for more.
+  Conservation Laws` for more. <br>
+    Method is second order accurate in space.
 
-  Parameters
-  ----------
-  vec0: double
-    First element of the field vector to be reconstructed
-  vec1: double
-    Second element of the field vector to be reconstructed
-  vec2: double
-    Third element of the field vector to be reconstructed
-  Returns
-  -------
-    ret: double
-      The reconstructed value of the right face of the middle cell of the field
-      vector
+  @param vec0 first element of the field vector to be reconstructed
+  @param vec1 second element of the field vector to be reconstructed
+  @param vec2 third element of the field vector to be reconstructed
+  @return The reconstructed value of the right face of the middle cell of the field vector
 */
-
 double weno3_upwind(double vec0, double vec1, double vec2);
 
 #endif

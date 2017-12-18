@@ -3,8 +3,9 @@
 
 #include "simData.h"
 
-//! Physical model that we want to use
+//! <b> Physics model that we want to use </b>
 /*!
+  @par
     We're using an abstract base class to form the foundations of the models preparing
   for additional set ups. Systems will derive from Model and supply their own
   spectral analyses for cons2prims, prims2cons functions and the flux vectors.
@@ -27,8 +28,8 @@ class Model
     //! Parameterized constructor
     /*!
         Stores a pointer to the Data class for reference in its methods
-        
-      @param *data Pointer to Data class containing global simulation data
+
+      @param[in] *data pointer to Data class containing global simulation data
     */
     Model(Data * data) : data(data) {}
 
@@ -42,13 +43,14 @@ class Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons
-      @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
-      @param *source pointer to source vector work array. Size is Ncons
-      @param i cell number in x-direction (optional)
-      @param j cell number in y-direction (optional)
-      @param k cell number in z-direction (optional)
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
+      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param[out] *source pointer to source vector work array. Size is \f$N_{cons}\f$
+      @param i optional cell number in x-direction
+      @param j optional cell number in y-direction
+      @param k optional cell number in z-direction
+      @sa sourceTerm
     */
     virtual void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1) = 0;
 
@@ -57,11 +59,11 @@ class Model
         Generates the source term contribution to the values of the conserved
       variables required for the time integrator.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
-      @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
-      @param *source pointer to source vector work array. Size is Ncons*Nx*Ny*Nz
-
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[out] *source pointer to source vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @sa sourceTermSingleCell
     */
     virtual void sourceTerm(double *cons, double *prims, double *aux, double *source) = 0;
 
@@ -72,12 +74,13 @@ class Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons
-      @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
-      @param i cell number in x-direction (optional)
-      @param j cell number in y-direction (optional)
-      @param k cell number in z-direction (optional)
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
+      @param[in, out] *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
+      @param[in, out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param i optional cell number in x-direction
+      @param j optional cell number in y-direction
+      @param k optional cell number in z-direction
+      @sa getPrimitiveVars
     */
     virtual void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1) = 0;
 
@@ -87,9 +90,9 @@ class Model
       conserved vector, for use in the source and flux contributions to the
       conserved vector.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
-      @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in, out] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in, out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
     */
     virtual void getPrimitiveVars(double *cons, double *prims, double *aux) = 0;
 
@@ -98,9 +101,9 @@ class Model
         Generates conserved and auxilliary vector from primitive vector, reqiored
       to get simulation started---initial data is given in primitive form.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
-      @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param[out] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
     */
     virtual void primsToAll(double *cons, double *prims, double *aux) = 0;
 
@@ -112,12 +115,11 @@ class Model
       approximation to determine the flux. `dir` corresponds to the direction in
       which we want the flux: 0=x-direction, 1=y-direction.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
-      @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
-      @param *f pointer to flux vector work array. Size is Ncons*Nx*Ny*Nz
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[out] *f pointer to flux vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param dir direction in which to generate flux vector. (x, y, z) = (0, 1, 2)
-
     */
     virtual void fluxVector(double *cons, double *prims, double *aux, double *f, int dir) = 0;
 

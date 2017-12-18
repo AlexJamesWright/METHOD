@@ -3,10 +3,17 @@
 
 #include "timeInt.h"
 
-//! Fully explicit Runge-Kutta second order time integrator, does not handle source terms
+//! <b> TVD Runge-Kutta 2nd order time integrator </b>
 /*!
-    Integrator only deals with the flux contributions performing the two stages
-  of the second order Runge-Kutta integrator.
+  @par
+    Integrator performs a single step using the TVD RK2 algorithm. See Shu & Osher 1988
+  for original description.
+
+  @note
+    Method is fully explicit and only deals with the flux contributions of the
+  two stages of the second order Runge-Kutta integrator. Method should not really
+  be used in isolation as most (if not all) models we will be using will contain
+  some source terms.
 */
 class RK2 : public TimeIntegrator
 {
@@ -16,10 +23,10 @@ class RK2 : public TimeIntegrator
         Constructor requires simulation data and the flux and source functions
       from the model class. Stores the necessary pointer.
 
-      @param *data Pointer to Data class containing global simulation data
-      @param *model pointer to Model object
-      @param *bcs pointer to Bcs object
-      @param *fluxMethod pointer to FluxMethod object
+      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] *model pointer to Model object
+      @param[in] *bcs pointer to Bcs object
+      @param[in] *fluxMethod pointer to FluxMethod object
       @sa TimeIntegrator::TimeIntegrator
     */
     RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod) :
@@ -29,12 +36,12 @@ class RK2 : public TimeIntegrator
     /*!
         The timestep will use the current values of the conserved, primitive and
       auxilliary variables at t=t0 and compute the values of all of them at time
-      t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding
+      \f$t=t_0 + dt\f$. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
 
-      @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
-      @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxilliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
     */

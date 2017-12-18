@@ -3,8 +3,9 @@
 
 #include "simData.h"
 
-//! Class used to save simulation data
+//! <b> Class used to save simulation data </b>
 /*!
+  @par
     Class is initialized with the data that is to be saved. Saves the simulation
   data in the Data directory, located within the Project folder. All data is
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
@@ -33,9 +34,12 @@ class SaveData
 
     //! Constructor
     /*!
+      @par
         The constructor take a pointer to the data class which the user wants
       to save. All this data is automatically saved in the Data directory, located
       in the Project folder.
+
+      @param *data pointer to the Data class
     */
     SaveData(Data * data) : d(data)
     {
@@ -44,6 +48,7 @@ class SaveData
 
     //! Saves all cons, prims, aux and constant data
     /*!
+      @par
         This calls the other member functions to save their respective
       simulation data. Automatically called by the constructor.
     */

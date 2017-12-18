@@ -9,11 +9,12 @@
 #include "flux.h"
 
 
-//! The Simulation interface for the programme
+//! <b> The Simulation interface for the programme </b>
 /*!
+  @par
     The Simulation object is the furthest abstracted class of the project. All
   modules will be held in here, and they should have no knowledge of this class.
-  The constructor takes a simData object (such that in this constructor we can
+  The constructor takes a Data object (such that in this constructor we can
   allocate memory for the state vectors). All other system objects are set with
   the corresponding set functions.
 */
@@ -38,9 +39,14 @@ class Simulation
 
     //! Constructor
     /*!
-      Stores and set data, and allocates memory for working arrays.
-      
-      @param *data Pointer to Data class containing global simulation data
+      @par
+        Stores data and allocates memory for working arrays.
+      @note
+        This constructor must be called after the model has be initiated such that
+      it knows how many conserved, primitive and auxilliary to allocate memory for,
+      and once this has been completed, the initial function class may be implemented.
+
+      @param[in] *data pointer to Data class containing global simulation data
     */
     Simulation(Data * data);
 
@@ -51,16 +57,20 @@ class Simulation
 
     //! Sets up the simulation ready to be evolved
     /*!
+      @par
         This stores the model type and general simulation form and finds the
       conserved and auxilliary variables that correspond to the initial primitive
       data.
-        This function must be called before calling either evolve() or updateTime().
+      @note
+        This function must be called before calling either evolve() or updateTime(),
+      but after the initial function, boundary conditions and time integrator have
+      but initiated.
 
-      @param *init pointer to InitialFunc object
-      @param *model pointer to Model object
-      @param *timeInt pointer to TimeIntegrator object
-      @param *bcs pointer to Bcs object
-      @param *fluxMethod pointer to FluxMethod object
+      @param[in] *init pointer to InitialFunc object
+      @param[in] *model pointer to Model object
+      @param[in] *timeInt pointer to TimeIntegrator object
+      @param[in] *bcs pointer to Bcs object
+      @param[in] *fluxMethod pointer to FluxMethod object
     */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,

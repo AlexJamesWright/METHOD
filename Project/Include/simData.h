@@ -4,15 +4,17 @@
 #include <vector>
 #include <string>
 
-class Data
-/*
+//! <b> Data object </b>
+/*!
+  @par
     Class contains all the data of the simulation relevant to any of the other
   modules. Containing it in this way prevents issues of cyclic includes, also
   results in Simulation as more of an interface than a class that needs to be
-  known to lower objects---good practice.
+  known to lower objects---good practice. <br>
 
-  Usage
-  -----
+  Usage <br>
+  =========
+  @par
     Call the constructor with at least: the number of cells and domain limits in
   the x, y, and z direction, and the simulation end time. As ghost cells are
   automatically added to the domain, there would be a minimum number of total cells
@@ -20,20 +22,24 @@ class Data
   than necessary. To combat this, you can request zero cells in the z-direction
   which is equivalent to a 2D domain where Nz=1. Keep this behaviour in mind when
   constructing new models.
+  @par
     Other variables, such as the courant factor, can also be set in the constructor
   but by default have sensible values that should work for most set ups, these can
-  largely be ignored unless the simulation is failing to converge.
+  largely be ignored unless the simulation is failing to converge. <br>
+  @par
     Selecting a model will automatically set the number of cons prims and aux vars,
   both inside the model class and in the data class (although it is the data class
-  values that are accessed by the various functions).
+  values that are accessed by the various functions). <br>
+  @par
     The elementID function data.id(var, i, j, k) is a useful shortcut for accessing
   data belonging to a specific cell, where var is the id of the variable in the array
-  we wish to access, and (i, j, k) corresond to the (x, y, z) coordinates of the
+  we wish to access, and \f$(i, j, k)\f$ corresond to the\f$ (x, y, z)\f$ coordinates of the
   cell we wish to access. Note: this includes ghost cells, so in practice these values
-  can range from 0 <= (i,j,k) < (nx,ny,nz)+2*Ng
-            or   0 <= (i,j,k) < (Nx,Ny,Nz)        assuming we are working in 3D.
-  For 2D simulations, k=0 at all times.
+  can range from \f$ 0 \le (i,j,k) < (nx,ny,nz)+2 Ng \f$ or \f$0 \le (i,j,k) < (Nx,Ny,Nz) \f$
+  assuming we are working in 3D. <br>
+  For 2D simulations, k=0 at all times, and similarly j=0 for 1D simulations.
 */
+class Data
 {
   public:
     int
@@ -92,6 +98,7 @@ class Data
     //@}
     //! Element ID function
     /*!
+    @par
         To access the 2nd conserved variable at (x, y) = (12, 4) for example,
       we call elem=data.id(2, 12, 4) and use this in d.cons[elem].
 
@@ -106,6 +113,7 @@ class Data
 
     //! Constructor
     /*!
+      @par
         Allocates the memory required for the state arrays and sets the simulation
       constants to the given values. Does not set initial state, thats done by
       the initialFunc object.
