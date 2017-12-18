@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,7 +79,7 @@ Inheritance diagram for IMEX3Arguments:</div>
 <div class="dyncontent">
 <div class="center"><img src="classIMEX3Arguments__inherit__graph.png" border="0" usemap="#IMEX3Arguments_inherit__map" alt="Inheritance graph"/></div>
 <map name="IMEX3Arguments_inherit__map" id="IMEX3Arguments_inherit__map">
-<area shape="rect" id="node2" href="classIMEX2Arguments.html" title="IMEX&#45;SSP2 Arguments class. " alt="" coords="5,5,131,32"/>
+<area shape="rect" id="node2" href="classIMEX2Arguments.html" title=" IMEX&#45;SSP2 Arguments class &#160;" alt="" coords="5,5,131,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -81,8 +87,8 @@ Collaboration diagram for IMEX3Arguments:</div>
 <div class="dyncontent">
 <div class="center"><img src="classIMEX3Arguments__coll__graph.png" border="0" usemap="#IMEX3Arguments_coll__map" alt="Collaboration graph"/></div>
 <map name="IMEX3Arguments_coll__map" id="IMEX3Arguments_coll__map">
-<area shape="rect" id="node2" href="classIMEX2Arguments.html" title="IMEX&#45;SSP2 Arguments class. " alt="" coords="5,95,131,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="43,5,93,32"/>
+<area shape="rect" id="node2" href="classIMEX2Arguments.html" title=" IMEX&#45;SSP2 Arguments class &#160;" alt="" coords="5,95,131,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="43,5,93,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -147,10 +153,12 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a34ad76ef87d1c480b9fc097d073b6254 inherit pub_attribs_classIMEX2Arguments"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>IMEX-SSP3(332) Arguments class. </p>
-<p>Implicit-Explicit rootfinder requires additional work arrays for the residual functions. </p>
+<div class="textblock"><p><b> IMEX-SSP3(332) Arguments class </b> </p>
+<dl class="section user"><dt></dt><dd>Implicit-Explicit rootfinder requires additional work arrays for the residual functions. These work arrays are located within this classes member data along with necessary constants for each stage. <br />
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>This class derives from the <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> class. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00012">12</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00016">16</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8c9c2d48e6690a05d9fd0f86ad9507c9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8c9c2d48e6690a05d9fd0f86ad9507c9">&#9670;&nbsp;</a></span>IMEX3Arguments() <span class="overload">[1/3]</span></h2>
@@ -176,8 +184,10 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Parameterized constructor. </p>
+<p>Calls the <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> constructor to store pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> and sets the simulation constants</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classIMEX2Arguments.html#a1daa27317f85e2570d245de84de662b6" title="Default constructor. ">IMEX2Arguments::IMEX2Arguments</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00029">29</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
 
 </div>
 </div>
@@ -198,6 +208,14 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Deep copy constructor. </p>
+<p>Allocates arrays for the interstage work arrays and stores pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class for this simulation. Once memory has been allocated to work arrays the member allocd is set to true (1).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classIMEX2Arguments.html#a1daa27317f85e2570d245de84de662b6" title="Default constructor. ">IMEX2Arguments::IMEX2Arguments</a> </dd></dl>
 
 </div>
 </div>
@@ -218,6 +236,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
+<p>Performs a deep copy of all data in the pointed to <a class="el" href="classIMEX3Arguments.html" title=" IMEX-SSP3(332) Arguments class  ">IMEX3Arguments</a> class to this instance. If this instance has allocd set as false, the arrays will be allocated and allocd set to true. Copy constructor is required for the overload assignment operator.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>pointer to <a class="el" href="classIMEX3Arguments.html" title=" IMEX-SSP3(332) Arguments class  ">IMEX3Arguments</a> class that needs to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -236,7 +261,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Overload assignment operator, performs deep copy of information. </p>
+<p>Overload assignment operator. </p>
+<p>Frees allocated memory. </p>
 
 </div>
 </div>
@@ -256,6 +282,13 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Performs deep copy of the pointed to <a class="el" href="classIMEX3Arguments.html" title=" IMEX-SSP3(332) Arguments class  ">IMEX3Arguments</a> class on assignment.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>address of <a class="el" href="classIMEX3Arguments.html" title=" IMEX-SSP3(332) Arguments class  ">IMEX3Arguments</a> class that is to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -274,7 +307,7 @@ Public Attributes</h2></td></tr>
 
 <p>Flux due to stage 2 solution, i.e. Fnet(U2) </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00015">15</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
 
 </div>
 </div>
@@ -293,7 +326,7 @@ Public Attributes</h2></td></tr>
 <p>(h)alf (m)inus (gam)ma = 0.5-gamma </p>
 <p>Default constructor </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00016">16</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX3Args_8h_source.html#l00020">20</a> of file <a class="el" href="IMEX3Args_8h_source.html">IMEX3Args.h</a>.</p>
 
 </div>
 </div>

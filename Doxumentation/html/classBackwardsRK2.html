@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,9 +79,9 @@ Inheritance diagram for BackwardsRK2:</div>
 <div class="dyncontent">
 <div class="center"><img src="classBackwardsRK2__inherit__graph.png" border="0" usemap="#BackwardsRK2_inherit__map" alt="Inheritance graph"/></div>
 <map name="BackwardsRK2_inherit__map" id="BackwardsRK2_inherit__map">
-<area shape="rect" id="node2" href="classRKSplit.html" title="Fully explicit Runge&#45;Kutta second order time integrator that handles source terms. " alt="" coords="29,155,95,181"/>
-<area shape="rect" id="node3" href="classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="38,80,86,107"/>
-<area shape="rect" id="node4" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="9,5,115,32"/>
+<area shape="rect" id="node2" href="classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="29,155,95,181"/>
+<area shape="rect" id="node3" href="classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="38,80,86,107"/>
+<area shape="rect" id="node4" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="9,5,115,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -83,21 +89,21 @@ Collaboration diagram for BackwardsRK2:</div>
 <div class="dyncontent">
 <div class="center"><img src="classBackwardsRK2__coll__graph.png" border="0" usemap="#BackwardsRK2_coll__map" alt="Collaboration graph"/></div>
 <map name="BackwardsRK2_coll__map" id="BackwardsRK2_coll__map">
-<area shape="rect" id="node2" href="classRKSplit.html" title="Fully explicit Runge&#45;Kutta second order time integrator that handles source terms. " alt="" coords="151,449,218,476"/>
-<area shape="rect" id="node3" href="classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="146,373,194,400"/>
-<area shape="rect" id="node4" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="112,297,219,324"/>
-<area shape="rect" id="node5" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="27,196,118,223"/>
-<area shape="rect" id="node6" href="classModel.html" title="Physical model that we want to use. " alt="" coords="126,95,184,121"/>
-<area shape="rect" id="node7" href="classData.html" title="Data" alt="" coords="130,5,180,32"/>
-<area shape="rect" id="node8" href="classBcs.html" title="Boundary Conditions. " alt="" coords="226,145,271,172"/>
-<area shape="rect" id="node9" href="classBackRKArguments.html" title="BackwardsRK Arguments class. " alt="" coords="274,247,409,273"/>
+<area shape="rect" id="node2" href="classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="151,449,218,476"/>
+<area shape="rect" id="node3" href="classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="146,373,194,400"/>
+<area shape="rect" id="node4" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="112,297,219,324"/>
+<area shape="rect" id="node5" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="27,196,118,223"/>
+<area shape="rect" id="node6" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="126,95,184,121"/>
+<area shape="rect" id="node7" href="classData.html" title=" Data object &#160;" alt="" coords="130,5,180,32"/>
+<area shape="rect" id="node8" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="226,145,271,172"/>
+<area shape="rect" id="node9" href="classBackRKArguments.html" title=" BackwardsRK Arguments class &#160;" alt="" coords="274,247,409,273"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a95fe23f51ceb9f72d1fd40bbef252b14"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBackwardsRK2.html#a95fe23f51ceb9f72d1fd40bbef252b14">BackwardsRK2</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *bc, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
-<tr class="separator:a95fe23f51ceb9f72d1fd40bbef252b14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecdc6264785f280dd5fe99423c6d20cd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBackwardsRK2.html#aecdc6264785f280dd5fe99423c6d20cd">BackwardsRK2</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *<a class="el" href="classTimeIntegrator.html#ace6b5b6e5b495bed207d6ebbb4c9772e">bcs</a>, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
+<tr class="separator:aecdc6264785f280dd5fe99423c6d20cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f977b186e2fd63ac46c7187673251c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBackwardsRK2.html#a0f977b186e2fd63ac46c7187673251c6">step</a> (double *cons, double *prims, double *aux, double dt=0)</td></tr>
 <tr class="separator:a0f977b186e2fd63ac46c7187673251c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classRKSplit"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classRKSplit')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classRKSplit.html">RKSplit</a></td></tr>
@@ -127,13 +133,24 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aeb82985d7396573e196a6a919c1b75d7 inherit pub_attribs_classTimeIntegrator"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Semi-implicit second order Runge-Kutta time integrator. </p>
-<p>Integrator deals with the flux contribution explicitly and the source terms implicitly. Soecifically, the explicit step is performed by a second order RK method, and the implicit is a backwards euler formulism. </p>
+<div class="textblock"><p><b> Semi-implicit second order Runge-Kutta time integrator </b> </p>
+<dl class="section user"><dt></dt><dd>Integrator deals with the flux contribution explicitly and the source terms implicitly. Soecifically, the explicit step is performed by a second order RK method, and the implicit is a backwards euler formulism. <br />
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>The form of the forward step is TVD second order <a class="el" href="classRK2.html" title=" TVD Runge-Kutta 2nd order time integrator  ">RK2</a>. Such that the intermediate state due to the flux contribution is <br />
+ <p class="formulaDsp">
+\begin{align} U^* = RK2(U^n) \end{align}
+</p>
+ with the source contribution determined via a backwards Euler step, <br />
+ <p class="formulaDsp">
+\begin{align} U^{n+1} = U^* + \Psi(U^{n+1}) \end{align}
+</p>
+ where \(\Psi(U)\) is the source vector due to the conserved vector \(U\). </dd></dl>
+<dl class="section user"><dt></dt><dd>The backwards step is solved using a multidimensional newton secant method, which we've implemented using the hydr1 rootfinder available <a href="https://github.com/devernay/cminpack">here</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="backwardsRK_8h_source.html#l00013">13</a> of file <a class="el" href="backwardsRK_8h_source.html">backwardsRK.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backwardsRK_8h_source.html#l00028">28</a> of file <a class="el" href="backwardsRK_8h_source.html">backwardsRK.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a95fe23f51ceb9f72d1fd40bbef252b14"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a95fe23f51ceb9f72d1fd40bbef252b14">&#9670;&nbsp;</a></span>BackwardsRK2()</h2>
+<a id="aecdc6264785f280dd5fe99423c6d20cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecdc6264785f280dd5fe99423c6d20cd">&#9670;&nbsp;</a></span>BackwardsRK2()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -154,7 +171,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classBcs.html">Bcs</a> *&#160;</td>
-          <td class="paramname"><em>bc</em>, </td>
+          <td class="paramname"><em>bcs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -174,10 +191,10 @@ Public Attributes</h2></td></tr>
 <p>Constructor requires simulation data and the flux and source functions from the model class.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
-    <tr><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> object </td></tr>
-    <tr><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title="Boundary Conditions. ">Bcs</a> object </td></tr>
-    <tr><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title="Abstract base class for the flux Method. ">FluxMethod</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title=" Boundary Conditions  ">Bcs</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title=" Abstract base class for any future flux methods  ">FluxMethod</a> object </td></tr>
   </table>
   </dd>
 </dl>
@@ -237,13 +254,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Performs a single time step. </p>
-<p>The timestep will use the current values of the conserved, primitive and auxilliary variables at t=t0 and compute the values of all of them at time t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding prims and aux vars are found.</p>
+<p>The timestep will use the current values of the conserved, primitive and auxilliary variables at t=t0 and compute the values of all of them at time \(t=t0 + dt\). I.e. the conserved vector is evolved forward, and the corresponding prims and aux vars are found.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html">Data</a> class </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
   </table>
   </dd>
 </dl>
@@ -270,9 +287,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="classBackRKArguments.html" title="BackwardsRK Arguments class. ">BackRKArguments</a>, additional arguments class. </p>
+<p><a class="el" href="classBackRKArguments.html" title=" BackwardsRK Arguments class  ">BackRKArguments</a>, additional arguments class. </p>
 
-<p class="definition">Definition at line <a class="el" href="backwardsRK_8h_source.html#l00017">17</a> of file <a class="el" href="backwardsRK_8h_source.html">backwardsRK.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backwardsRK_8h_source.html#l00032">32</a> of file <a class="el" href="backwardsRK_8h_source.html">backwardsRK.h</a>.</p>
 
 </div>
 </div>

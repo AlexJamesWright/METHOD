@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,9 +79,11 @@ Inheritance diagram for InitialFunc:</div>
 <div class="dyncontent">
 <div class="center"><img src="classInitialFunc__inherit__graph.png" border="0" usemap="#InitialFunc_inherit__map" alt="Inheritance graph"/></div>
 <map name="InitialFunc_inherit__map" id="InitialFunc_inherit__map">
-<area shape="rect" id="node2" href="classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="5,80,124,107"/>
-<area shape="rect" id="node3" href="classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="149,80,301,107"/>
-<area shape="rect" id="node4" href="classOTVortexSingleFluid.html" title="Orszag&#45;Tang voretx initial data (2D) for single fluid. " alt="" coords="325,80,468,107"/>
+<area shape="rect" id="node2" href="classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="165,5,283,32"/>
+<area shape="rect" id="node3" href="classCPAlfvenWaveSingleFluid.html" title="Single fluid circularly polarized Alfven wave. " alt="" coords="136,56,312,83"/>
+<area shape="rect" id="node4" href="classCPAlfvenWaveTwoFluid.html" title="Two&#45;fluid circularly polarized Alfven wave. " alt="" coords="141,107,307,133"/>
+<area shape="rect" id="node5" href="classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="148,157,300,184"/>
+<area shape="rect" id="node6" href="classOTVortexSingleFluid.html" title="Single fluid Orszag&#45;Tang voretx. " alt="" coords="153,208,295,235"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -83,7 +91,7 @@ Collaboration diagram for InitialFunc:</div>
 <div class="dyncontent">
 <div class="center"><img src="classInitialFunc__coll__graph.png" border="0" usemap="#InitialFunc_coll__map" alt="Collaboration graph"/></div>
 <map name="InitialFunc_coll__map" id="InitialFunc_coll__map">
-<area shape="rect" id="node2" href="classData.html" title="Data" alt="" coords="21,5,72,32"/>
+<area shape="rect" id="node2" href="classData.html" title=" Data object &#160;" alt="" coords="21,5,72,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -98,8 +106,8 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a23016a3243c136de4bd916e985f8906b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Base Class implements the initial data. </p>
-<p>All initial set ups are contained within the <a class="el" href="classInitialFunc.html" title="Base Class implements the initial data. ">InitialFunc</a> object. The class is initialised with just the simData class, and then one of the member functions is selected to be applied. </p>
+<div class="textblock"><p><b> Abstract base class for any future initial data classes </b> </p>
+<dl class="section user"><dt></dt><dd>All initial set ups are derived from the <a class="el" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes  ">InitialFunc</a> object. This class will set all initial primitive data to zero. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00012">12</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
@@ -119,11 +127,11 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor stores the location of the simData and sets all arrays to zero. </p>
-<p>Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<p>Constructor. </p>
+<p>Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods and initializes all primtive variables are zero.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
   </table>
   </dd>
 </dl>
@@ -151,7 +159,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
 <p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00016">16</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
 

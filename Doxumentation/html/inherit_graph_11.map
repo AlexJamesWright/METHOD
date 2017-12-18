@@ -1,8 +1,8 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="5,31,112,57"/>
-<area shape="rect" id="node2" href="$classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="164,5,212,32"/>
-<area shape="rect" id="node5" href="$classSSP2.html" title="Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator. " alt="" coords="160,56,216,83"/>
-<area shape="rect" id="node3" href="$classRKSplit.html" title="Fully explicit Runge&#45;Kutta second order time integrator that handles source terms. " alt="" coords="264,5,331,32"/>
-<area shape="rect" id="node4" href="$classBackwardsRK2.html" title="Semi&#45;implicit second order Runge&#45;Kutta time integrator. " alt="" coords="379,5,492,32"/>
-<area shape="rect" id="node6" href="$classSSP3.html" title="Implicit&#45;Explicit Runge&#45;Kutta third order SSP3(332) time integrator. " alt="" coords="269,56,325,83"/>
+<area shape="rect" id="node1" href="$classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="5,31,112,57"/>
+<area shape="rect" id="node2" href="$classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="164,5,212,32"/>
+<area shape="rect" id="node5" href="$classSSP2.html" title=" Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator &#160;" alt="" coords="160,56,216,83"/>
+<area shape="rect" id="node3" href="$classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="264,5,331,32"/>
+<area shape="rect" id="node4" href="$classBackwardsRK2.html" title=" Semi&#45;implicit second order Runge&#45;Kutta time integrator &#160;" alt="" coords="379,5,492,32"/>
+<area shape="rect" id="node6" href="$classSSP3.html" title=" Implicit&#45;Explicit Runge&#45;Kutta third order SSP3(332) time integrator &#160;" alt="" coords="269,56,325,83"/>
 </map>

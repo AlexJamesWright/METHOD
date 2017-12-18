@@ -1,5 +1,7 @@
 <map id="InitialFunc" name="InitialFunc">
-<area shape="rect" id="node2" href="$classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="5,80,124,107"/>
-<area shape="rect" id="node3" href="$classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="149,80,301,107"/>
-<area shape="rect" id="node4" href="$classOTVortexSingleFluid.html" title="Orszag&#45;Tang voretx initial data (2D) for single fluid. " alt="" coords="325,80,468,107"/>
+<area shape="rect" id="node2" href="$classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="165,5,283,32"/>
+<area shape="rect" id="node3" href="$classCPAlfvenWaveSingleFluid.html" title="Single fluid circularly polarized Alfven wave. " alt="" coords="136,56,312,83"/>
+<area shape="rect" id="node4" href="$classCPAlfvenWaveTwoFluid.html" title="Two&#45;fluid circularly polarized Alfven wave. " alt="" coords="141,107,307,133"/>
+<area shape="rect" id="node5" href="$classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="148,157,300,184"/>
+<area shape="rect" id="node6" href="$classOTVortexSingleFluid.html" title="Single fluid Orszag&#45;Tang voretx. " alt="" coords="153,208,295,235"/>
 </map>

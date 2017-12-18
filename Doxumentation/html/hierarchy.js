@@ -16,6 +16,8 @@ var hierarchy =
     ] ],
     [ "InitialFunc", "classInitialFunc.html", [
       [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", null ],
+      [ "CPAlfvenWaveSingleFluid", "classCPAlfvenWaveSingleFluid.html", null ],
+      [ "CPAlfvenWaveTwoFluid", "classCPAlfvenWaveTwoFluid.html", null ],
       [ "CurrentSheetTwoFluid", "classCurrentSheetTwoFluid.html", null ],
       [ "OTVortexSingleFluid", "classOTVortexSingleFluid.html", null ]
     ] ],

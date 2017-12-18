@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -74,7 +80,7 @@ Collaboration diagram for SaveData:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSaveData__coll__graph.png" border="0" usemap="#SaveData_coll__map" alt="Collaboration graph"/></div>
 <map name="SaveData_coll__map" id="SaveData_coll__map">
-<area shape="rect" id="node2" href="classData.html" title="Data" alt="" coords="20,5,71,32"/>
+<area shape="rect" id="node2" href="classData.html" title=" Data object &#160;" alt="" coords="20,5,71,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -102,10 +108,10 @@ Private Member Functions</h2></td></tr>
 <tr class="separator:ab1773a5c319542e126818836497ee4b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Class used to save simulation data. </p>
-<p>Class is initialized with the data that is to be saved. Saves the simulation data in the <a class="el" href="classData.html">Data</a> directory, located within the Project folder. All data is saved automatically, including all constant data (xmin, ymax, endTime etc) and and the values of all prims, aux and cons variables. </p>
+<div class="textblock"><p><b> Class used to save simulation data </b> </p>
+<dl class="section user"><dt></dt><dd>Class is initialized with the data that is to be saved. Saves the simulation data in the <a class="el" href="classData.html" title=" Data object  ">Data</a> directory, located within the Project folder. All data is saved automatically, including all constant data (xmin, ymax, endTime etc) and and the values of all prims, aux and cons variables. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00013">13</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00014">14</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a299a21184b0c5ae6db0cd264afe4ea0e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a299a21184b0c5ae6db0cd264afe4ea0e">&#9670;&nbsp;</a></span>SaveData()</h2>
@@ -132,9 +138,15 @@ Private Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>The constructor take a pointer to the data class which the user wants to save. All this data is automatically saved in the <a class="el" href="classData.html">Data</a> directory, located in the Project folder. </p>
+<dl class="section user"><dt></dt><dd>The constructor take a pointer to the data class which the user wants to save. All this data is automatically saved in the <a class="el" href="classData.html" title=" Data object  ">Data</a> directory, located in the Project folder.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">*data</td><td>pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00040">40</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00044">44</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
 
 </div>
 </div>
@@ -155,7 +167,7 @@ Private Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Saves all cons, prims, aux and constant data. </p>
-<p>This calls the other member functions to save their respective simulation data. Automatically called by the constructor. </p>
+<dl class="section user"><dt></dt><dd>This calls the other member functions to save their respective simulation data. Automatically called by the constructor. </dd></dl>
 
 </div>
 </div>
@@ -278,9 +290,9 @@ Private Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00032">32</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="saveData_8h_source.html#l00033">33</a> of file <a class="el" href="saveData_8h_source.html">saveData.h</a>.</p>
 
 </div>
 </div>

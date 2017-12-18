@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,7 +78,7 @@ Inheritance diagram for BrioWuTwoFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classBrioWuTwoFluid__inherit__graph.png" border="0" usemap="#BrioWuTwoFluid_inherit__map" alt="Inheritance graph"/></div>
 <map name="BrioWuTwoFluid_inherit__map" id="BrioWuTwoFluid_inherit__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="23,5,106,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="23,5,106,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -80,8 +86,8 @@ Collaboration diagram for BrioWuTwoFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classBrioWuTwoFluid__coll__graph.png" border="0" usemap="#BrioWuTwoFluid_coll__map" alt="Collaboration graph"/></div>
 <map name="BrioWuTwoFluid_coll__map" id="BrioWuTwoFluid_coll__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="23,95,106,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="39,5,90,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="23,95,106,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="39,5,90,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -95,9 +101,9 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Brio-Wu shock tube initial data (1D) </p>
-<p>Not sure if values are correct atm..... Construct takes pointer to data class as per usual, and also an integar, specifying the axis along which the system is partitioned. dir = 0: dicontinuity in x-direction dir = 1: dicontinuity in y-direction dir = 2: dicontinuity in z-direction </p>
+<p>Standard shock tube test taken from Amano 2016. </p>
 
-<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00085">85</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00126">126</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="acb629e4b8efd5f96850b7030571bfdac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#acb629e4b8efd5f96850b7030571bfdac">&#9670;&nbsp;</a></span>BrioWuTwoFluid()</h2>
@@ -132,15 +138,16 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Brio-Wu shock tube initial data for two-fluid model. </p>
-<p>Few options for the set up. All set ups will place a discontinuity along some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric 3D generalisation is also selected by default (setUp=0), but for the values used in Amano 2016 use setUp=1. Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<p>Few options for the set up. All set ups will place a discontinuity along some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric 3D generalisation is also selected by default (setUp=0), but for the values used in Amano 2016 use setUp=1. Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
-    <tr><td class="paramname">dir</td><td>direction in which to place the discontinuity. (0, 1, 2) = along (x, y, z) axis </td></tr>
-    <tr><td class="paramname">setUp</td><td>Type of set up, 0=3D consistent, 1=Amano 1D case </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">dir</td><td>direction in which to place the discontinuity. (0, 1, 2) = (x, y, z) axis </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">setUp</td><td>Type of set up, 0=3D consistent, 1=Amano 1D case </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes  ">InitialFunc</a> </dd></dl>
 
 </div>
 </div>

@@ -1,8 +1,8 @@
 <map id="RKSplit" name="RKSplit">
-<area shape="rect" id="node2" href="$classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="96,361,144,388"/>
-<area shape="rect" id="node3" href="$classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="67,285,174,312"/>
-<area shape="rect" id="node4" href="$classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="27,196,118,223"/>
-<area shape="rect" id="node5" href="$classModel.html" title="Physical model that we want to use. " alt="" coords="116,95,173,121"/>
-<area shape="rect" id="node6" href="$classData.html" title="Data" alt="" coords="68,5,119,32"/>
-<area shape="rect" id="node7" href="$classBcs.html" title="Boundary Conditions. " alt="" coords="220,145,266,172"/>
+<area shape="rect" id="node2" href="$classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="96,361,144,388"/>
+<area shape="rect" id="node3" href="$classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="67,285,174,312"/>
+<area shape="rect" id="node4" href="$classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="27,196,118,223"/>
+<area shape="rect" id="node5" href="$classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="116,95,173,121"/>
+<area shape="rect" id="node6" href="$classData.html" title=" Data object &#160;" alt="" coords="68,5,119,32"/>
+<area shape="rect" id="node7" href="$classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="220,145,266,172"/>
 </map>

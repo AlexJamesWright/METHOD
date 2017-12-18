@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,9 +78,9 @@ Inheritance diagram for RKSplit:</div>
 <div class="dyncontent">
 <div class="center"><img src="classRKSplit__inherit__graph.png" border="0" usemap="#RKSplit_inherit__map" alt="Inheritance graph"/></div>
 <map name="RKSplit_inherit__map" id="RKSplit_inherit__map">
-<area shape="rect" id="node4" href="classBackwardsRK2.html" title="Semi&#45;implicit second order Runge&#45;Kutta time integrator. " alt="" coords="5,229,119,256"/>
-<area shape="rect" id="node2" href="classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="38,80,86,107"/>
-<area shape="rect" id="node3" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="9,5,115,32"/>
+<area shape="rect" id="node4" href="classBackwardsRK2.html" title=" Semi&#45;implicit second order Runge&#45;Kutta time integrator &#160;" alt="" coords="5,229,119,256"/>
+<area shape="rect" id="node2" href="classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="38,80,86,107"/>
+<area shape="rect" id="node3" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="9,5,115,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -82,12 +88,12 @@ Collaboration diagram for RKSplit:</div>
 <div class="dyncontent">
 <div class="center"><img src="classRKSplit__coll__graph.png" border="0" usemap="#RKSplit_coll__map" alt="Collaboration graph"/></div>
 <map name="RKSplit_coll__map" id="RKSplit_coll__map">
-<area shape="rect" id="node2" href="classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="96,361,144,388"/>
-<area shape="rect" id="node3" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="67,285,174,312"/>
-<area shape="rect" id="node4" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="27,196,118,223"/>
-<area shape="rect" id="node5" href="classModel.html" title="Physical model that we want to use. " alt="" coords="116,95,173,121"/>
-<area shape="rect" id="node6" href="classData.html" title="Data" alt="" coords="68,5,119,32"/>
-<area shape="rect" id="node7" href="classBcs.html" title="Boundary Conditions. " alt="" coords="220,145,266,172"/>
+<area shape="rect" id="node2" href="classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="96,361,144,388"/>
+<area shape="rect" id="node3" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="67,285,174,312"/>
+<area shape="rect" id="node4" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="27,196,118,223"/>
+<area shape="rect" id="node5" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="116,95,173,121"/>
+<area shape="rect" id="node6" href="classData.html" title=" Data object &#160;" alt="" coords="68,5,119,32"/>
+<area shape="rect" id="node7" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="220,145,266,172"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -117,10 +123,11 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:aeb82985d7396573e196a6a919c1b75d7 inherit pub_attribs_classTimeIntegrator"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Fully explicit Runge-Kutta second order time integrator that handles source terms. </p>
-<p>Integrator deals with the flux and source contributions separately, first performing the two stages as a result of the flux integration, and the adds the contribution of the source with the new values of the fields. Note: this is a fully explicit method at dealing with the source contributions, do not expect this integrator to converge for large source contributions, i.e. for sources that act on a fast timescale compared to the flux terms. For stiff hyperbolic systems, we need to solve the sources implicitly to ensure stability. </p>
+<div class="textblock"><p><b> Operator splitting <a class="el" href="classRK2.html" title=" TVD Runge-Kutta 2nd order time integrator  ">RK2</a> integrator </b> </p>
+<dl class="section user"><dt></dt><dd>Integrator deals with the flux and source contributions separately, first performing the two stages as a result of the flux integration, and the adds the contribution of the source with the new values of the fields.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This is a fully explicit method at dealing with the source contributions, do not expect this integrator to converge for large source contributions, i.e. for sources that act on a fast timescale compared to the flux terms. For stiff hyperbolic systems, we need to solve the sources implicitly to ensure stability. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rkSplit_8h_source.html#l00016">16</a> of file <a class="el" href="rkSplit_8h_source.html">rkSplit.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rkSplit_8h_source.html#l00019">19</a> of file <a class="el" href="rkSplit_8h_source.html">rkSplit.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0ebb019c1f6adf1fc917966b752cb2fc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0ebb019c1f6adf1fc917966b752cb2fc">&#9670;&nbsp;</a></span>RKSplit()</h2>
@@ -172,10 +179,10 @@ Additional Inherited Members</h2></td></tr>
 <p>Constructor requires simulation data and the flux and source functions from the model class.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
-    <tr><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> object </td></tr>
-    <tr><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title="Boundary Conditions. ">Bcs</a> object </td></tr>
-    <tr><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title="Abstract base class for the flux Method. ">FluxMethod</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title=" Boundary Conditions  ">Bcs</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title=" Abstract base class for any future flux methods  ">FluxMethod</a> object </td></tr>
   </table>
   </dd>
 </dl>
@@ -183,7 +190,7 @@ Additional Inherited Members</h2></td></tr>
 <dd>
 <a class="el" href="classRK2.html#a03c21edb47deef6233ed359762a63277" title="Constructor. ">RK2::RK2</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="rkSplit_8h_source.html#l00032">32</a> of file <a class="el" href="rkSplit_8h_source.html">rkSplit.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="rkSplit_8h_source.html#l00035">35</a> of file <a class="el" href="rkSplit_8h_source.html">rkSplit.h</a>.</p>
 
 </div>
 </div>
@@ -238,10 +245,10 @@ Additional Inherited Members</h2></td></tr>
 <p>The timestep will use the current values of the conserved, primitive and auxilliary variables at t=t0 and compute the values of all of them at time t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding prims and aux vars are found.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html">Data</a> class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
   </table>
   </dd>
 </dl>

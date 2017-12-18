@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -114,10 +120,17 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Second order weno reconstruction. </p>
-<p>Required for the flux reconstruction. See Shu, `Essentially Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic Conservation Laws` for more.</p>
-<h2>Parameters </h2>
-<p>vec0: double First element of the field vector to be reconstructed vec1: double Second element of the field vector to be reconstructed vec2: double Third element of the field vector to be reconstructed </p><h2>Returns </h2>
-<p>ret: double The reconstructed value of the right face of the middle cell of the field vector </p>
+<p>Required for the flux reconstruction. See Shu, `Essentially Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic Conservation Laws` for more. <br />
+ Method is second order accurate in space.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vec0</td><td>first element of the field vector to be reconstructed </td></tr>
+    <tr><td class="paramname">vec1</td><td>second element of the field vector to be reconstructed </td></tr>
+    <tr><td class="paramname">vec2</td><td>third element of the field vector to be reconstructed </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The reconstructed value of the right face of the middle cell of the field vector </dd></dl>
 
 </div>
 </div>

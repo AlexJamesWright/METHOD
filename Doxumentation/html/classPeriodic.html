@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,7 +78,7 @@ Inheritance diagram for Periodic:</div>
 <div class="dyncontent">
 <div class="center"><img src="classPeriodic__inherit__graph.png" border="0" usemap="#Periodic_inherit__map" alt="Inheritance graph"/></div>
 <map name="Periodic_inherit__map" id="Periodic_inherit__map">
-<area shape="rect" id="node2" href="classBcs.html" title="Boundary Conditions. " alt="" coords="17,5,63,32"/>
+<area shape="rect" id="node2" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="17,5,63,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -80,8 +86,8 @@ Collaboration diagram for Periodic:</div>
 <div class="dyncontent">
 <div class="center"><img src="classPeriodic__coll__graph.png" border="0" usemap="#Periodic_coll__map" alt="Collaboration graph"/></div>
 <map name="Periodic_coll__map" id="Periodic_coll__map">
-<area shape="rect" id="node2" href="classBcs.html" title="Boundary Conditions. " alt="" coords="17,95,63,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="15,5,65,32"/>
+<area shape="rect" id="node2" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="17,95,63,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="15,5,65,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -103,9 +109,21 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classPeriodic.html" title="Periodic boundary conditions. ">Periodic</a> boundary conditions. </p>
-<p>Flows that exit across one domain boundary re-enter at the opposing end. </p>
+<p>Flows that exit across one domain boundary re-enter at the opposing end. I.e. the N ghost cells at one edge of the domain are set to the values of the N physical cells before the ghost cells at the opposing edge.</p>
+<p>For left-right reconstruction:<br />
+ Before...<br />
+ ____________________________<br />
+ |0|1|2|3||4|5|6|..... |13||14|15|16|17|<br />
+ |0|1|2|3||4|5|6|..... |13||14|15|16|17|<br />
+ <br />
+ After....<br />
+ ____________________________<br />
+ |10|11|12|13||4|5|6|..... |13||4|5|6|7|<br />
+ |10|11|12|13||4|5|6|..... |13||4|5|6|7|<br />
+ <br />
+ ..and similar in other directions. </p>
 
-<p class="definition">Definition at line <a class="el" href="boundaryConds_8h_source.html#l00053">53</a> of file <a class="el" href="boundaryConds_8h_source.html">boundaryConds.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="boundaryConds_8h_source.html#l00110">110</a> of file <a class="el" href="boundaryConds_8h_source.html">boundaryConds.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a9e43d2d6639a3f04918338c9972fb85f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9e43d2d6639a3f04918338c9972fb85f">&#9670;&nbsp;</a></span>Periodic()</h2>
@@ -131,7 +149,17 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="boundaryConds_8h_source.html#l00057">57</a> of file <a class="el" href="boundaryConds_8h_source.html">boundaryConds.h</a>.</p>
+<p>Constructor. </p>
+<p>Calls constructor of base class to store the pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classBcs.html#a1e521959978e887149f2af5a80b387e9" title="Constructor store data about simulation (needed for domain) ">Bcs::Bcs</a> </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="boundaryConds_8h_source.html#l00122">122</a> of file <a class="el" href="boundaryConds_8h_source.html">boundaryConds.h</a>.</p>
 
 </div>
 </div>
@@ -177,7 +205,16 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Application function. </p>
-<p>Each derived class must have a function to apply the corresponding condition at the boundary. </p>
+<p>Applies the <a class="el" href="classPeriodic.html" title="Periodic boundary conditions. ">Periodic</a> boundary conditions to the ghost cells.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*cons</td><td>pointer to the conservative (sized) vector </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*prims</td><td>optional pointer to the primitive vector </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*aux</td><td>optional pointer to the primitive vector </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classBcs.html#a9b37224658fc0cb7e26791e8e629005f" title="Application function. ">Bcs::apply</a> </dd></dl>
 
 <p>Implements <a class="el" href="classBcs.html#a9b37224658fc0cb7e26791e8e629005f">Bcs</a>.</p>
 

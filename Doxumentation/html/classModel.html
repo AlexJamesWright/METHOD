@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,8 +79,8 @@ Inheritance diagram for Model:</div>
 <div class="dyncontent">
 <div class="center"><img src="classModel__inherit__graph.png" border="0" usemap="#Model_inherit__map" alt="Inheritance graph"/></div>
 <map name="Model_inherit__map" id="Model_inherit__map">
-<area shape="rect" id="node2" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics. " alt="" coords="5,80,77,107"/>
-<area shape="rect" id="node3" href="classTwoFluidEMHD.html" title="Two&#45;Fluid ElectroMagnetoHydroDynamics. " alt="" coords="101,80,216,107"/>
+<area shape="rect" id="node2" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics &#160;" alt="" coords="5,80,77,107"/>
+<area shape="rect" id="node3" href="classTwoFluidEMHD.html" title=" Two&#45;Fluid ElectroMagnetoHydroDynamics &#160;" alt="" coords="101,80,216,107"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -82,7 +88,7 @@ Collaboration diagram for Model:</div>
 <div class="dyncontent">
 <div class="center"><img src="classModel__coll__graph.png" border="0" usemap="#Model_coll__map" alt="Collaboration graph"/></div>
 <map name="Model_coll__map" id="Model_coll__map">
-<area shape="rect" id="node2" href="classData.html" title="Data" alt="" coords="9,5,59,32"/>
+<area shape="rect" id="node2" href="classData.html" title=" Data object &#160;" alt="" coords="9,5,59,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -120,10 +126,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a8a83cf2414466090b5dbd4b17ff07dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Physical model that we want to use. </p>
-<p>We're using an abstract base class to form the foundations of the models preparing for additional set ups. Systems will derive from <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> and supply their own spectral analyses for cons2prims, prims2cons functions and the flux vectors. Constructors must require access to public <a class="el" href="classSimulation.html" title="The Simulation interface for the programme. ">Simulation</a> data. </p>
+<div class="textblock"><p><b> Physics model that we want to use </b> </p>
+<dl class="section user"><dt></dt><dd>We're using an abstract base class to form the foundations of the models preparing for additional set ups. Systems will derive from <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> and supply their own spectral analyses for cons2prims, prims2cons functions and the flux vectors. Constructors must require access to public <a class="el" href="classSimulation.html" title=" The Simulation interface for the programme  ">Simulation</a> data. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00014">14</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00015">15</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ae3b375de5f6df4faf74a95d64748e048"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae3b375de5f6df4faf74a95d64748e048">&#9670;&nbsp;</a></span>Model() <span class="overload">[1/2]</span></h2>
@@ -150,7 +156,7 @@ Public Attributes</h2></td></tr>
 
 <p>Default constructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00025">25</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00026">26</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -179,15 +185,15 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Parameterized constructor. </p>
-<p>Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<p>Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00033">33</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00034">34</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -216,7 +222,7 @@ Public Attributes</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00035">35</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00036">36</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -277,16 +283,16 @@ Public Attributes</h2></td></tr>
 <p>Generates the values of the net numerical flux of the conserved variables at the cell faces. Method uses the flux vector splitting method along with a lax-friedrichs approximation to determine the flux. <code>dir</code> corresponds to the direction in which we want the flux: 0=x-direction, 1=y-direction.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*f</td><td>pointer to flux vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">dir</td><td>direction in which to generate flux vector. (x, y, z) = (0, 1, 2) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*f</td><td>pointer to flux vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">dir</td><td>direction in which to generate flux vector. (x, y, z) = (0, 1, 2) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#a48ab7fd82bfcca056e6c83354b1c53e5">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#a2a09245fd222f716b2e11bb02cf7d476">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#a2a09245fd222f716b2e11bb02cf7d476">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#a48ab7fd82bfcca056e6c83354b1c53e5">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -334,14 +340,14 @@ Public Attributes</h2></td></tr>
 <p>Determines the values of the primitive and auxilliary vectors given some conserved vector, for use in the source and flux contributions to the conserved vector.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#a898ba29f4b21c2edca66b6e0880bcb3b">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#a94867e7b7f8c0bbb6c01229c3c3ca57d">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#a94867e7b7f8c0bbb6c01229c3c3ca57d">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#a898ba29f4b21c2edca66b6e0880bcb3b">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -407,17 +413,18 @@ Public Attributes</h2></td></tr>
 <p>For the same reason as outlined in sourceTermSingleCell, some models will require a single celled primitive conversion method. Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux </td></tr>
-    <tr><td class="paramname">i</td><td>cell number in x-direction (optional) </td></tr>
-    <tr><td class="paramname">j</td><td>cell number in y-direction (optional) </td></tr>
-    <tr><td class="paramname">k</td><td>cell number in z-direction (optional) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}\) </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}\) </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">i</td><td>optional cell number in x-direction </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">j</td><td>optional cell number in y-direction </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">k</td><td>optional cell number in z-direction </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classModel.html#a00f39117ffbc5c3198c7fc7ffe0ed423" title="Spectral analysis. ">getPrimitiveVars</a> </dd></dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#a7ea81610f542ef915e0ddf3cc525bc10">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#a08537e2bbb447a77e27941cf9c71d3e8">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#a08537e2bbb447a77e27941cf9c71d3e8">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#a7ea81610f542ef915e0ddf3cc525bc10">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -465,14 +472,14 @@ Public Attributes</h2></td></tr>
 <p>Generates conserved and auxilliary vector from primitive vector, reqiored to get simulation started&mdash;initial data is given in primitive form.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#ae4aac0501935cba7e8d8a5f1ae28b4a9">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#aaafc65581082d7cfe0d31a9d3f011410">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#aaafc65581082d7cfe0d31a9d3f011410">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#ae4aac0501935cba7e8d8a5f1ae28b4a9">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -526,15 +533,16 @@ Public Attributes</h2></td></tr>
 <p>Generates the source term contribution to the values of the conserved variables required for the time integrator.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux} \times N_x \times N_y \times N_z\) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*source</td><td>pointer to source vector work array. Size is \(N_{cons} \times N_x \times N_y \times N_z\) </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classModel.html#ab0b378a3cf927b04d38eff5e269deb07" title="Single cell source term contribution. ">sourceTermSingleCell</a> </dd></dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#a8ef141e3c83c1b6da77041d75e0621b3">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#a52cf8ad8b0cfe5913164dcd2bab4d991">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#a52cf8ad8b0cfe5913164dcd2bab4d991">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#a8ef141e3c83c1b6da77041d75e0621b3">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -606,18 +614,19 @@ Public Attributes</h2></td></tr>
 <p>Models that can posess a stiff source term and hence (semi-)implicit time integrators will require a source contribution (and cons2prims method) that applies to a single cell. Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux </td></tr>
-    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">i</td><td>cell number in x-direction (optional) </td></tr>
-    <tr><td class="paramname">j</td><td>cell number in y-direction (optional) </td></tr>
-    <tr><td class="paramname">k</td><td>cell number in z-direction (optional) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}\) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}\) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*source</td><td>pointer to source vector work array. Size is \(N_{cons}\) </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">i</td><td>optional cell number in x-direction </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">j</td><td>optional cell number in y-direction </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">k</td><td>optional cell number in z-direction </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classModel.html#ae8672561fdcb07700ea12486bf2c3a67" title="Source term contribution. ">sourceTerm</a> </dd></dl>
 
-<p>Implemented in <a class="el" href="classTwoFluidEMHD.html#aae3fbdddb3dd4c9f02afb9a920170f2b">TwoFluidEMHD</a>, and <a class="el" href="classSRMHD.html#a36c09483aaf520292a3990522fc264a0">SRMHD</a>.</p>
+<p>Implemented in <a class="el" href="classSRMHD.html#a36c09483aaf520292a3990522fc264a0">SRMHD</a>, and <a class="el" href="classTwoFluidEMHD.html#aae3fbdddb3dd4c9f02afb9a920170f2b">TwoFluidEMHD</a>.</p>
 
 </div>
 </div>
@@ -634,9 +643,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00018">18</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00019">19</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -654,7 +663,7 @@ Public Attributes</h2></td></tr>
 
 <p>Size of specified vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00022">22</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00023">23</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -672,7 +681,7 @@ Public Attributes</h2></td></tr>
 
 <p>Size of specified vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00022">22</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00023">23</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>
@@ -690,7 +699,7 @@ Public Attributes</h2></td></tr>
 
 <p>Size of specified vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00022">22</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="model_8h_source.html#l00023">23</a> of file <a class="el" href="model_8h_source.html">model.h</a>.</p>
 
 </div>
 </div>

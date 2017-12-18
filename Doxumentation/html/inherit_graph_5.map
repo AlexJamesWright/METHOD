@@ -1,4 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="5,5,96,32"/>
-<area shape="rect" id="node2" href="$classFVS.html" title="Flux vector splitting method. " alt="" coords="144,5,192,32"/>
+<area shape="rect" id="node1" href="$classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node2" href="$classFVS.html" title=" Flux vector splitting method &#160;" alt="" coords="144,5,192,32"/>
 </map>

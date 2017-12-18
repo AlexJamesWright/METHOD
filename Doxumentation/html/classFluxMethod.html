@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,7 +79,7 @@ Inheritance diagram for FluxMethod:</div>
 <div class="dyncontent">
 <div class="center"><img src="classFluxMethod__inherit__graph.png" border="0" usemap="#FluxMethod_inherit__map" alt="Inheritance graph"/></div>
 <map name="FluxMethod_inherit__map" id="FluxMethod_inherit__map">
-<area shape="rect" id="node2" href="classFVS.html" title="Flux vector splitting method. " alt="" coords="27,80,75,107"/>
+<area shape="rect" id="node2" href="classFVS.html" title=" Flux vector splitting method &#160;" alt="" coords="27,80,75,107"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -81,8 +87,8 @@ Collaboration diagram for FluxMethod:</div>
 <div class="dyncontent">
 <div class="center"><img src="classFluxMethod__coll__graph.png" border="0" usemap="#FluxMethod_coll__map" alt="Collaboration graph"/></div>
 <map name="FluxMethod_coll__map" id="FluxMethod_coll__map">
-<area shape="rect" id="node2" href="classModel.html" title="Physical model that we want to use. " alt="" coords="74,95,131,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="25,5,76,32"/>
+<area shape="rect" id="node2" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="74,95,131,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="25,5,76,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -101,10 +107,11 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a31f71afc31b5fd591339f84b9062b853"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Abstract base class for the flux Method. </p>
-<p>May want to implement various numerical flux functions. Should all have same API. Functions use the form of the flux vector from the given model and, via their respective methods, determine the net flux through each cell for use in the time integrators. </p>
+<div class="textblock"><p><b> Abstract base class for any future flux methods </b> </p>
+<dl class="section user"><dt></dt><dd>May want to implement various numerical flux functions. Should all have same API. </dd></dl>
+<dl class="section user"><dt></dt><dd>Functions use the form of the flux vector from the given model and, via their respective methods, determine the net flux through each cell for use in the time integrators. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00015">15</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00017">17</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a30c1177af42a3055ecab3d004cd3d074"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30c1177af42a3055ecab3d004cd3d074">&#9670;&nbsp;</a></span>FluxMethod()</h2>
@@ -141,8 +148,16 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Base constructor. </p>
+<p>Constructor stores pointers to the <a class="el" href="classData.html" title=" Data object  ">Data</a> and <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> classes.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00023">23</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00031">31</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
 
 </div>
 </div>
@@ -200,7 +215,17 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Numerical flux function. </p>
-<p>For a given state described by cons prims and aux arrays, determines an approximation of the net flux of the conserved quantities through all cells. </p>
+<p>Pure virtual function to set the API for the flux reconstruction. The net flux through a cell is stored in the fnet vector as a result of the state vectors given.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*f</td><td>pointer to a flux work array to store the initial flux vector </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*fnet</td><td>pointer to the array containing the net flux through every cell </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Implemented in <a class="el" href="classFVS.html#a60eeb88f17332b165df48cf6dee5c02b">FVS</a>.</p>
 
@@ -221,7 +246,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to data class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00019">19</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00021">21</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
 
 </div>
 </div>
@@ -239,7 +264,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to model class containing method for computing flux vector. </p>
 
-<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00020">20</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="flux_8h_source.html#l00022">22</a> of file <a class="el" href="flux_8h_source.html">flux.h</a>.</p>
 
 </div>
 </div>

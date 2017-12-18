@@ -1,4 +1,4 @@
 <map id="CurrentSheetTwoFluid" name="CurrentSheetTwoFluid">
-<area shape="rect" id="node2" href="$classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="40,95,123,121"/>
-<area shape="rect" id="node3" href="$classData.html" title="Data" alt="" coords="56,5,107,32"/>
+<area shape="rect" id="node2" href="$classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="40,95,123,121"/>
+<area shape="rect" id="node3" href="$classData.html" title=" Data object &#160;" alt="" coords="56,5,107,32"/>
 </map>

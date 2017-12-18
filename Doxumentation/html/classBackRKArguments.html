@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,7 +79,7 @@ Collaboration diagram for BackRKArguments:</div>
 <div class="dyncontent">
 <div class="center"><img src="classBackRKArguments__coll__graph.png" border="0" usemap="#BackRKArguments_coll__map" alt="Collaboration graph"/></div>
 <map name="BackRKArguments_coll__map" id="BackRKArguments_coll__map">
-<area shape="rect" id="node2" href="classData.html" title="Data" alt="" coords="47,5,98,32"/>
+<area shape="rect" id="node2" href="classData.html" title=" Data object &#160;" alt="" coords="47,5,98,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -116,10 +122,11 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a2da3e774ed1848236713da714d2b5ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>BackwardsRK Arguments class. </p>
-<p>Implicit rootfinder requires additional arrays to hold the primitive, aux, and source vectors due to the guess in the residual function. These arrays lie within this class. </p>
+<div class="textblock"><p><b> BackwardsRK Arguments class </b> </p>
+<dl class="section user"><dt></dt><dd>Implicit rootfinder requires additional arrays to hold the primitive, aux, and source vectors due to the guess in the residual function. These arrays lie within this class.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd>BackwardsRK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00012">12</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00015">15</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a3e9c7c1e3a90ca4d08a0f5def57ce929"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3e9c7c1e3a90ca4d08a0f5def57ce929">&#9670;&nbsp;</a></span>BackRKArguments() <span class="overload">[1/3]</span></h2>
@@ -145,8 +152,9 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Default constructor. </p>
+<p>Sets the allocd variable to zero. No arrays exist at this point. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00032">32</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00038">38</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -167,6 +175,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Parameterized constructor. </p>
+<p>Allocates arrays for the interstage work arrays and stores pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class for this simulation. One memory has been allocated to work arrays the member allocd is set to true (1).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -187,6 +202,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Deep copy constructor. </p>
+<p>Performs a deep copy of all data in the pointed to <a class="el" href="classBackRKArguments.html" title=" BackwardsRK Arguments class  ">BackRKArguments</a> class to this instance. If this instance has allocd set as false, the arrays will be allocated and allocd set to true. Copy constructor is required for the overload assignment operator.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>pointer to <a class="el" href="classBackRKArguments.html" title=" BackwardsRK Arguments class  ">BackRKArguments</a> class that needs to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -206,6 +228,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
+<p>Frees allocated memory. </p>
 
 </div>
 </div>
@@ -226,7 +249,14 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Overload assignment operator, performs deep copy of information. </p>
+<p>Overload assignment operator. </p>
+<p>Performs deep copy of the pointed to <a class="el" href="classBackRKArguments.html" title=" BackwardsRK Arguments class  ">BackRKArguments</a> class on assignment.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>address of <a class="el" href="classBackRKArguments.html" title=" BackwardsRK Arguments class  ">BackRKArguments</a> class that is to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -245,7 +275,7 @@ Public Attributes</h2></td></tr>
 
 <p>Signifies if the prim aux and source arrays have been allocated memory. 1 if allocated, 0 otherwise. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00026">26</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00029">29</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -263,7 +293,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Interstage work array for specified variable </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00021">21</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00024">24</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -281,7 +311,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Interstage work array for specified variable </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00021">21</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00024">24</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -297,9 +327,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00016">16</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00019">19</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -317,7 +347,7 @@ Public Attributes</h2></td></tr>
 
 <p>Size of current timestep. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00021">21</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00024">24</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -335,7 +365,7 @@ Public Attributes</h2></td></tr>
 
 <p>Which cell is currently being solved. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00026">26</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00029">29</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -353,7 +383,7 @@ Public Attributes</h2></td></tr>
 
 <p>Which cell is currently being solved. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00026">26</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00029">29</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -371,7 +401,7 @@ Public Attributes</h2></td></tr>
 
 <p>Which cell is currently being solved. </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00026">26</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00029">29</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -389,7 +419,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Interstage work array for specified variable </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00021">21</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00024">24</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>
@@ -407,7 +437,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Interstage work array for specified variable </p>
 
-<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00021">21</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="backRKArgs_8h_source.html#l00024">24</a> of file <a class="el" href="backRKArgs_8h_source.html">backRKArgs.h</a>.</p>
 
 </div>
 </div>

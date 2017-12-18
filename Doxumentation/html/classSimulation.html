@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -74,12 +80,12 @@ Collaboration diagram for Simulation:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSimulation__coll__graph.png" border="0" usemap="#Simulation_coll__map" alt="Collaboration graph"/></div>
 <map name="Simulation_coll__map" id="Simulation_coll__map">
-<area shape="rect" id="node2" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="5,196,96,223"/>
-<area shape="rect" id="node7" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="113,285,220,312"/>
-<area shape="rect" id="node3" href="classModel.html" title="Physical model that we want to use. " alt="" coords="214,95,271,121"/>
-<area shape="rect" id="node4" href="classData.html" title="Data" alt="" coords="265,5,316,32"/>
-<area shape="rect" id="node5" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="429,145,512,172"/>
-<area shape="rect" id="node6" href="classBcs.html" title="Boundary Conditions. " alt="" coords="309,196,355,223"/>
+<area shape="rect" id="node2" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,196,96,223"/>
+<area shape="rect" id="node7" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="113,285,220,312"/>
+<area shape="rect" id="node3" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="214,95,271,121"/>
+<area shape="rect" id="node4" href="classData.html" title=" Data object &#160;" alt="" coords="265,5,316,32"/>
+<area shape="rect" id="node5" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="429,145,512,172"/>
+<area shape="rect" id="node6" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="309,196,355,223"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -115,10 +121,10 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a6d8cc85f8c3e27bbd13d3dfc6bfe8bb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="classSimulation.html" title="The Simulation interface for the programme. ">Simulation</a> interface for the programme. </p>
-<p>The <a class="el" href="classSimulation.html" title="The Simulation interface for the programme. ">Simulation</a> object is the furthest abstracted class of the project. All modules will be held in here, and they should have no knowledge of this class. The constructor takes a simData object (such that in this constructor we can allocate memory for the state vectors). All other system objects are set with the corresponding set functions. </p>
+<div class="textblock"><p><b> The <a class="el" href="classSimulation.html" title=" The Simulation interface for the programme  ">Simulation</a> interface for the programme </b> </p>
+<dl class="section user"><dt></dt><dd>The <a class="el" href="classSimulation.html" title=" The Simulation interface for the programme  ">Simulation</a> object is the furthest abstracted class of the project. All modules will be held in here, and they should have no knowledge of this class. The constructor takes a <a class="el" href="classData.html" title=" Data object  ">Data</a> object (such that in this constructor we can allocate memory for the state vectors). All other system objects are set with the corresponding set functions. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00020">20</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00021">21</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a037f705876338fdea2418fd1b44b12f5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a037f705876338fdea2418fd1b44b12f5">&#9670;&nbsp;</a></span>Simulation()</h2>
@@ -137,10 +143,11 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>Stores and set data, and allocates memory for working arrays.</p>
+<dl class="section user"><dt></dt><dd>Stores data and allocates memory for working arrays. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This constructor must be called after the model has be initiated such that it knows how many conserved, primitive and auxilliary to allocate memory for, and once this has been completed, the initial function class may be implemented.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
   </table>
   </dd>
 </dl>
@@ -232,14 +239,15 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Sets up the simulation ready to be evolved. </p>
-<p>This stores the model type and general simulation form and finds the conserved and auxilliary variables that correspond to the initial primitive data. This function must be called before calling either <a class="el" href="classSimulation.html#a0892ba78c1bc7286488761b4fca76c52" title="Run the current set up until the end time. ">evolve()</a> or <a class="el" href="classSimulation.html#a3a266cc40a6fbd958adb3bcb865259d8" title="Incrememt the system forward by a single timestep. ">updateTime()</a>.</p>
+<dl class="section user"><dt></dt><dd>This stores the model type and general simulation form and finds the conserved and auxilliary variables that correspond to the initial primitive data. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function must be called before calling either <a class="el" href="classSimulation.html#a0892ba78c1bc7286488761b4fca76c52" title="Run the current set up until the end time. ">evolve()</a> or <a class="el" href="classSimulation.html#a3a266cc40a6fbd958adb3bcb865259d8" title="Incrememt the system forward by a single timestep. ">updateTime()</a>, but after the initial function, boundary conditions and time integrator have but initiated.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*init</td><td>pointer to <a class="el" href="classInitialFunc.html" title="Base Class implements the initial data. ">InitialFunc</a> object </td></tr>
-    <tr><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> object </td></tr>
-    <tr><td class="paramname">*timeInt</td><td>pointer to <a class="el" href="classTimeIntegrator.html" title="General form of the time integrator. ">TimeIntegrator</a> object </td></tr>
-    <tr><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title="Boundary Conditions. ">Bcs</a> object </td></tr>
-    <tr><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title="Abstract base class for the flux Method. ">FluxMethod</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*init</td><td>pointer to <a class="el" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes  ">InitialFunc</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*timeInt</td><td>pointer to <a class="el" href="classTimeIntegrator.html" title=" General form of the time integrator  ">TimeIntegrator</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title=" Boundary Conditions  ">Bcs</a> object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title=" Abstract base class for any future flux methods  ">FluxMethod</a> object </td></tr>
   </table>
   </dd>
 </dl>
@@ -262,7 +270,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Incrememt the system forward by a single timestep. </p>
-<p>When calling <a class="el" href="classSimulation.html#a3a266cc40a6fbd958adb3bcb865259d8" title="Incrememt the system forward by a single timestep. ">updateTime()</a>, all primitive and auxilliary variables must be set. I.e. they must correspond to the values of the conserved vector at that time step. Given this, the conserved variables are evolved using the given time integrator according to the selected model. All primitive and auxilliary variables are then found and the updated values are saved in the <a class="el" href="classData.html">Data</a> class. </p>
+<p>When calling <a class="el" href="classSimulation.html#a3a266cc40a6fbd958adb3bcb865259d8" title="Incrememt the system forward by a single timestep. ">updateTime()</a>, all primitive and auxilliary variables must be set. I.e. they must correspond to the values of the conserved vector at that time step. Given this, the conserved variables are evolved using the given time integrator according to the selected model. All primitive and auxilliary variables are then found and the updated values are saved in the <a class="el" href="classData.html" title=" Data object  ">Data</a> class. </p>
 
 </div>
 </div>
@@ -287,9 +295,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to boundary conditions, <a class="el" href="classBcs.html" title="Boundary Conditions. ">Bcs</a>, object. </p>
+<p>Pointer to boundary conditions, <a class="el" href="classBcs.html" title=" Boundary Conditions  ">Bcs</a>, object. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00031">31</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00032">32</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>
@@ -305,9 +313,9 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00037">37</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00038">38</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>
@@ -331,9 +339,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classFluxMethod.html" title="Abstract base class for the flux Method. ">FluxMethod</a> object. </p>
+<p>Pointer to <a class="el" href="classFluxMethod.html" title=" Abstract base class for any future flux methods  ">FluxMethod</a> object. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00033">33</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00034">34</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>
@@ -357,9 +365,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classInitialFunc.html" title="Base Class implements the initial data. ">InitialFunc</a> object to set up starting data. </p>
+<p>Pointer to <a class="el" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes  ">InitialFunc</a> object to set up starting data. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00025">25</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00026">26</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>
@@ -383,9 +391,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> object, contains governing equations and spectral decomposition. </p>
+<p>Pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> object, contains governing equations and spectral decomposition. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00027">27</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00028">28</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>
@@ -409,9 +417,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classTimeIntegrator.html" title="General form of the time integrator. ">TimeIntegrator</a> object. </p>
+<p>Pointer to <a class="el" href="classTimeIntegrator.html" title=" General form of the time integrator  ">TimeIntegrator</a> object. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00029">29</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation_8h_source.html#l00030">30</a> of file <a class="el" href="simulation_8h_source.html">simulation.h</a>.</p>
 
 </div>
 </div>

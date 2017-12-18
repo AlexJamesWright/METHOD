@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,8 +79,8 @@ Inheritance diagram for SSP3:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSSP3__inherit__graph.png" border="0" usemap="#SSP3_inherit__map" alt="Inheritance graph"/></div>
 <map name="SSP3_inherit__map" id="SSP3_inherit__map">
-<area shape="rect" id="node2" href="classSSP2.html" title="Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator. " alt="" coords="31,80,87,107"/>
-<area shape="rect" id="node3" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="5,5,112,32"/>
+<area shape="rect" id="node2" href="classSSP2.html" title=" Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator &#160;" alt="" coords="31,80,87,107"/>
+<area shape="rect" id="node3" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="5,5,112,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -82,28 +88,28 @@ Collaboration diagram for SSP3:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSSP3__coll__graph.png" border="0" usemap="#SSP3_coll__map" alt="Collaboration graph"/></div>
 <map name="SSP3_coll__map" id="SSP3_coll__map">
-<area shape="rect" id="node2" href="classSSP2.html" title="Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator. " alt="" coords="171,375,227,401"/>
-<area shape="rect" id="node3" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="115,285,221,312"/>
-<area shape="rect" id="node4" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="29,196,120,223"/>
-<area shape="rect" id="node5" href="classModel.html" title="Physical model that we want to use. " alt="" coords="129,95,186,121"/>
-<area shape="rect" id="node6" href="classData.html" title="Data" alt="" coords="132,5,183,32"/>
-<area shape="rect" id="node7" href="classBcs.html" title="Boundary Conditions. " alt="" coords="228,145,273,172"/>
-<area shape="rect" id="node8" href="classIMEX2Arguments.html" title="IMEX&#45;SSP2 Arguments class. " alt="" coords="251,285,376,312"/>
-<area shape="rect" id="node9" href="classIMEX3Arguments.html" title="IMEX&#45;SSP3(332) Arguments class. " alt="" coords="251,375,376,401"/>
+<area shape="rect" id="node2" href="classSSP2.html" title=" Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator &#160;" alt="" coords="171,375,227,401"/>
+<area shape="rect" id="node3" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="115,285,221,312"/>
+<area shape="rect" id="node4" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="29,196,120,223"/>
+<area shape="rect" id="node5" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="129,95,186,121"/>
+<area shape="rect" id="node6" href="classData.html" title=" Data object &#160;" alt="" coords="132,5,183,32"/>
+<area shape="rect" id="node7" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="228,145,273,172"/>
+<area shape="rect" id="node8" href="classIMEX2Arguments.html" title=" IMEX&#45;SSP2 Arguments class &#160;" alt="" coords="251,285,376,312"/>
+<area shape="rect" id="node9" href="classIMEX3Arguments.html" title=" IMEX&#45;SSP3(332) Arguments class &#160;" alt="" coords="251,375,376,401"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad59c7904e6dcdac9d83d5ecaef3bccae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP3.html#ad59c7904e6dcdac9d83d5ecaef3bccae">SSP3</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *bc, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
-<tr class="separator:ad59c7904e6dcdac9d83d5ecaef3bccae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b957abf65baca65f1d7f9c882d8d388"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP3.html#a0b957abf65baca65f1d7f9c882d8d388">SSP3</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *<a class="el" href="classTimeIntegrator.html#ace6b5b6e5b495bed207d6ebbb4c9772e">bcs</a>, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
+<tr class="separator:a0b957abf65baca65f1d7f9c882d8d388"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a355b4cd9a755914986ea6e13a506f212"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP3.html#a355b4cd9a755914986ea6e13a506f212">~SSP3</a> ()</td></tr>
 <tr class="separator:a355b4cd9a755914986ea6e13a506f212"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a613dd4d0fdf5a6f764f26c8217cdd8ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP3.html#a613dd4d0fdf5a6f764f26c8217cdd8ba">step</a> (double *cons, double *prims, double *aux, double dt=0)</td></tr>
 <tr class="separator:a613dd4d0fdf5a6f764f26c8217cdd8ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classSSP2"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classSSP2')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classSSP2.html">SSP2</a></td></tr>
-<tr class="memitem:ab01b25b456a7a04415850b653914f9ea inherit pub_methods_classSSP2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP2.html#ab01b25b456a7a04415850b653914f9ea">SSP2</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *bc, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
-<tr class="separator:ab01b25b456a7a04415850b653914f9ea inherit pub_methods_classSSP2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59e321d13267a09275029166e6bdf069 inherit pub_methods_classSSP2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP2.html#a59e321d13267a09275029166e6bdf069">SSP2</a> (<a class="el" href="classData.html">Data</a> *<a class="el" href="classTimeIntegrator.html#a8e432b8fa229e9234e3a6d577ca7ec03">data</a>, <a class="el" href="classModel.html">Model</a> *<a class="el" href="classTimeIntegrator.html#ac991e0c53bfcc80fe51e9445576dc1df">model</a>, <a class="el" href="classBcs.html">Bcs</a> *<a class="el" href="classTimeIntegrator.html#ace6b5b6e5b495bed207d6ebbb4c9772e">bcs</a>, <a class="el" href="classFluxMethod.html">FluxMethod</a> *<a class="el" href="classTimeIntegrator.html#aeb82985d7396573e196a6a919c1b75d7">fluxMethod</a>)</td></tr>
+<tr class="separator:a59e321d13267a09275029166e6bdf069 inherit pub_methods_classSSP2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a607e7d2d39fbdbc6a86fad6fa1531150 inherit pub_methods_classSSP2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSSP2.html#a607e7d2d39fbdbc6a86fad6fa1531150">~SSP2</a> ()</td></tr>
 <tr class="separator:a607e7d2d39fbdbc6a86fad6fa1531150 inherit pub_methods_classSSP2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classTimeIntegrator"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classTimeIntegrator')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classTimeIntegrator.html">TimeIntegrator</a></td></tr>
@@ -190,13 +196,21 @@ Public Attributes</h2></td></tr>
 <tr class="separator:aeb82985d7396573e196a6a919c1b75d7 inherit pub_attribs_classTimeIntegrator"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implicit-Explicit Runge-Kutta third order <a class="el" href="classSSP3.html" title="Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator. ">SSP3(332)</a> time integrator. </p>
-<p>Integrator is second order, solves the non-stiff fluxes explicitly and the (possibly) stiff sources implicitly. Values for the constants and general methods are from Pareschi &amp; Russo 2004, <code>Implicit-Explicit Runga-Kutta schemes and appl...</code>. </p>
+<div class="textblock"><p><b> Implicit-Explicit Runge-Kutta third order <a class="el" href="classSSP3.html" title=" Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator  ">SSP3(332)</a> time integrator </b> </p>
+<dl class="section user"><dt></dt><dd>Integrator is second order, solves the non-stiff fluxes explicitly and the (possibly) stiff sources implicitly. Values for the constants and general methods are from Pareschi &amp; Russo 2004. </dd></dl>
+<dl class="section user"><dt></dt><dd>What follows is a brief description of the method. For a system of conservation equations, given in general by <p class="formulaDsp">
+\begin{align} \partial_t U = F(U) + \psi(U) \end{align}
+</p>
+ the third order <a class="el" href="classSSP3.html" title=" Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator  ">SSP3(332)</a> IMEX scheme takes the following form: <p class="formulaDsp">
+\begin{align} U^{(1)} &amp;= U^n + \gamma dt \psi(U^{(1)}) \\ U^{(2)} &amp;= U^n + dt \big[F(U^{(1)}) + (1-2\gamma)\psi(U^{(1)}) + \gamma \psi(U^{(2)})\big] \\ U^{(3)} &amp;= U^n + \frac{dt}{4} \big[F(U^{(1)}) + F(U^{(2)})\big] + dt \big[(0.5 - \gamma) \psi(U^{(1)}) + \gamma \psi(U^{(3)})\big] \\ U^{n+1} &amp;= U^n + \frac{dt}{6} \big[F{U^{(1)}} + F(U^{(2)}) + 4F(U^{(3)}) + \psi{U^{(1)}} + \psi(U^{(2)}) + 4\psi(U^{(3)}) \big] \end{align}
+</p>
+. </dd></dl>
+<dl class="section user"><dt></dt><dd>The sources are necessarily solved via an implicit rootfind, using a multidimensional Newton-Secant method found <a href="https://github.com/devernay/cminpack">here</a>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00017">17</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00034">34</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ad59c7904e6dcdac9d83d5ecaef3bccae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad59c7904e6dcdac9d83d5ecaef3bccae">&#9670;&nbsp;</a></span>SSP3()</h2>
+<a id="a0b957abf65baca65f1d7f9c882d8d388"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b957abf65baca65f1d7f9c882d8d388">&#9670;&nbsp;</a></span>SSP3()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -217,7 +231,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classBcs.html">Bcs</a> *&#160;</td>
-          <td class="paramname"><em>bc</em>, </td>
+          <td class="paramname"><em>bcs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -234,19 +248,19 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>Constructor requires simulation data and the flux and source functions from the model class.</p>
+<dl class="section user"><dt></dt><dd>Constructor requires simulation data and the flux and source functions from the model class.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
-    <tr><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> object </td></tr>
-    <tr><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title="Boundary Conditions. ">Bcs</a> object </td></tr>
-    <tr><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title="Abstract base class for the flux Method. ">FluxMethod</a> object </td></tr>
+    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> object </td></tr>
+    <tr><td class="paramname">*bcs</td><td>pointer to <a class="el" href="classBcs.html" title=" Boundary Conditions  ">Bcs</a> object </td></tr>
+    <tr><td class="paramname">*fluxMethod</td><td>pointer to <a class="el" href="classFluxMethod.html" title=" Abstract base class for any future flux methods  ">FluxMethod</a> object </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="classTimeIntegrator.html#a65ee62c4d7c7152b13e9cb7f9c3a9ae9" title="Constructor. ">TimeIntegrator::TimeIntegrator</a> </dd>
 <dd>
-<a class="el" href="classSSP2.html#ab01b25b456a7a04415850b653914f9ea" title="Constructor. ">SSP2::SSP2</a> </dd></dl>
+<a class="el" href="classSSP2.html#a59e321d13267a09275029166e6bdf069" title="Constructor. ">SSP2::SSP2</a> </dd></dl>
 
 </div>
 </div>
@@ -317,13 +331,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Performs a single time step. </p>
-<p>The timestep will use the current values of the conserved, primitive and auxilliary variables at t=t0 and compute the values of all of them at time t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding prims and aux vars are found.</p>
+<dl class="section user"><dt></dt><dd>The timestep will use the current values of the conserved, primitive and auxilliary variables at t=t0 and compute the values of all of them at time t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding prims and aux vars are found.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
     <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
     <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html">Data</a> class </td></tr>
+    <tr><td class="paramname">dt</td><td>the step size desired to move by. Defaults to the value in the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
   </table>
   </dd>
 </dl>
@@ -348,9 +362,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p><a class="el" href="classIMEX3Arguments.html" title="IMEX-SSP3(332) Arguments class. ">IMEX3Arguments</a>, additional arguments class, stores single cell data for hydrb rootfinder. </p>
+<p><a class="el" href="classIMEX3Arguments.html" title=" IMEX-SSP3(332) Arguments class  ">IMEX3Arguments</a>, additional arguments class, stores single cell data for hydrb rootfinder. </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00021">21</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00038">38</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -368,7 +382,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -386,7 +400,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -404,7 +418,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -422,7 +436,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for the hybrd rootfinder </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -440,7 +454,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -458,7 +472,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -476,7 +490,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -494,7 +508,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -512,7 +526,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -530,7 +544,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -548,7 +562,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -566,7 +580,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -584,7 +598,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -602,7 +616,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for specified variable. Size is Nvars*Nx*Ny*Nz </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -620,7 +634,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for the hybrd rootfinder </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>
@@ -638,7 +652,7 @@ Public Attributes</h2></td></tr>
 
 <p>&lt; Work array for the hybrd rootfinder </p>
 
-<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00027">27</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="SSP3_8h_source.html#l00044">44</a> of file <a class="el" href="SSP3_8h_source.html">SSP3.h</a>.</p>
 
 </div>
 </div>

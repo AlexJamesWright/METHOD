@@ -28,6 +28,8 @@ var files =
     ] ],
     [ "initFunc.h", "initFunc_8h.html", [
       [ "InitialFunc", "classInitialFunc.html", "classInitialFunc" ],
+      [ "CPAlfvenWaveTwoFluid", "classCPAlfvenWaveTwoFluid.html", "classCPAlfvenWaveTwoFluid" ],
+      [ "CPAlfvenWaveSingleFluid", "classCPAlfvenWaveSingleFluid.html", "classCPAlfvenWaveSingleFluid" ],
       [ "CurrentSheetTwoFluid", "classCurrentSheetTwoFluid.html", "classCurrentSheetTwoFluid" ],
       [ "OTVortexSingleFluid", "classOTVortexSingleFluid.html", "classOTVortexSingleFluid" ],
       [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", "classBrioWuTwoFluid" ]

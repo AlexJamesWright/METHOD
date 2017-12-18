@@ -5,6 +5,8 @@ var annotated_dup =
     [ "BackwardsRK2", "classBackwardsRK2.html", "classBackwardsRK2" ],
     [ "Bcs", "classBcs.html", "classBcs" ],
     [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", "classBrioWuTwoFluid" ],
+    [ "CPAlfvenWaveSingleFluid", "classCPAlfvenWaveSingleFluid.html", "classCPAlfvenWaveSingleFluid" ],
+    [ "CPAlfvenWaveTwoFluid", "classCPAlfvenWaveTwoFluid.html", "classCPAlfvenWaveTwoFluid" ],
     [ "CurrentSheetTwoFluid", "classCurrentSheetTwoFluid.html", "classCurrentSheetTwoFluid" ],
     [ "Data", "classData.html", "classData" ],
     [ "Failed", "structFailed.html", "structFailed" ],

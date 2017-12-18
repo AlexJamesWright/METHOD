@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,7 +78,7 @@ Inheritance diagram for FVS:</div>
 <div class="dyncontent">
 <div class="center"><img src="classFVS__inherit__graph.png" border="0" usemap="#FVS_inherit__map" alt="Inheritance graph"/></div>
 <map name="FVS_inherit__map" id="FVS_inherit__map">
-<area shape="rect" id="node2" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node2" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,5,96,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -80,9 +86,9 @@ Collaboration diagram for FVS:</div>
 <div class="dyncontent">
 <div class="center"><img src="classFVS__coll__graph.png" border="0" usemap="#FVS_coll__map" alt="Collaboration graph"/></div>
 <map name="FVS_coll__map" id="FVS_coll__map">
-<area shape="rect" id="node2" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="5,184,96,211"/>
-<area shape="rect" id="node3" href="classModel.html" title="Physical model that we want to use. " alt="" coords="74,95,131,121"/>
-<area shape="rect" id="node4" href="classData.html" title="Data" alt="" coords="25,5,76,32"/>
+<area shape="rect" id="node2" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,184,96,211"/>
+<area shape="rect" id="node3" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="74,95,131,121"/>
+<area shape="rect" id="node4" href="classData.html" title=" Data object &#160;" alt="" coords="25,5,76,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -107,10 +113,33 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a31f71afc31b5fd591339f84b9062b853 inherit pub_attribs_classFluxMethod"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Flux vector splitting method. </p>
-<p>The flux vector splitting method, initial proposed in Shu 1997, <code>Essentially Non-Oscillatory and Weighted Essentially...</code> using a second order WENO reconstruction. </p>
+<div class="textblock"><p><b> Flux vector splitting method </b> </p>
+<dl class="section user"><dt></dt><dd>The flux vector splitting method, initial proposed in Shu 1997. Here, we use a second order WENO spatial reconstruction. <br />
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>Here we outline the method briefly, but for a detailed explanation see the above citation. Ignoring any contributions to the conserved vector due to source terms we can define the system of conservation equations in the following form, <p class="formulaDsp">
+\begin{align} \partial_t U + \partial_x f(U) = 0. \end{align}
+</p>
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>In essence we desire some numerical flux function \(\mathcal{F}\) such that we can update the conserved vector in the following way, <p class="formulaDsp">
+\begin{align} \partial_t U = \mathcal{F}(U) \end{align}
+</p>
+ such that <p class="formulaDsp">
+\begin{align} U^{n+1} =&amp; U^n + \mathcal{F}(U) \\ =&amp; U^n + \frac{f_{i+1/2} - f_{i-1/2}}{\Delta x} \end{align}
+</p>
+ where we define \(f_{i+1/2}\) as the value of the flux vector at the righthand edge of the \(i^{th}\) cell, and each cell has width \(\Delta x\). To determine the value of the numerical flux function then, we need estimates of the values of the flux vector at the cell faces. </dd></dl>
+<dl class="section user"><dt></dt><dd>To get these, we consider the flux in cell \(i\) to be composed of entirely left moving and entirely right moving contributions, that is, <p class="formulaDsp">
+\begin{align} f_i = f_i^- + f_i^+. \end{align}
+</p>
+ Using the Lax-Friedrichs approximation of the flux, we can ensure that these contributions are entirely poitive/negative by using the following, <p class="formulaDsp">
+\begin{align} f_i^{\pm} = \frac{1}{2}(f_i \pm \alpha U_i) \end{align}
+</p>
+ where we have defined \(\alpha = max_p|\lambda_p|\) is the maximum wavespeed with \(\lambda_p\) as the \(p^th\) eigenvalue of the Jacobian of the system. </dd></dl>
+<dl class="section user"><dt></dt><dd>For simplicity, we note that in a system with electromagnetic perturbations, waves travel at the speed of light, and thus we set \(alpha=1\) throughout. To determine the flux vector at the cell faces, we reconstruct both upwind and downwind fluxes and compute the difference of the two at the face. We do this with a second order WENO reconstruction, thus, <p class="formulaDsp">
+\begin{align} f^+_{i, right} &amp;= WENO(f_{i-2}, f_{i-1}, f_i) \\ f^-_{i, left} &amp;= WENO(f_{i+1}, f_i, f_{i-1}) \end{align}
+</p>
+ so that the reconstruction if \(f_{i+1/2} = f^+_{i, right} + f^-_{i, left}\). Note that this final equation is essentially a difference equation as the fluxes are moving in opposing directions. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="fluxVectorSplitting_8h_source.html#l00013">13</a> of file <a class="el" href="fluxVectorSplitting_8h_source.html">fluxVectorSplitting.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="fluxVectorSplitting_8h_source.html#l00062">62</a> of file <a class="el" href="fluxVectorSplitting_8h_source.html">fluxVectorSplitting.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a81acca1eca284a13ff9ad7aea962050e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a81acca1eca284a13ff9ad7aea962050e">&#9670;&nbsp;</a></span>FVS()</h2>
@@ -147,8 +176,16 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
+<p>Calls the base class constructor to store pointers to <a class="el" href="classData.html" title=" Data object  ">Data</a> and <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> classes.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*model</td><td>pointer to <a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="fluxVectorSplitting_8h_source.html#l00018">18</a> of file <a class="el" href="fluxVectorSplitting_8h_source.html">fluxVectorSplitting.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="fluxVectorSplitting_8h_source.html#l00074">74</a> of file <a class="el" href="fluxVectorSplitting_8h_source.html">fluxVectorSplitting.h</a>.</p>
 
 </div>
 </div>
@@ -206,7 +243,18 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Numerical flux function. </p>
-<p>For a given state described by cons prims and aux arrays, determines an approximation of the net flux of the conserved quantities through all cells by taking difference of the reconstructed values at the cell faces. </p>
+<p>For a given state described by cons prims and aux arrays, determines an approximation of the net flux of the conserved quantities through all cells by taking difference of the reconstructed values at the cell faces.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*f</td><td>pointer to a flux work array to store the initial flux vector </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*fnet</td><td>pointer to the array containing the net flux through every cell </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classFVS.html#a6baf18bec1b99a6eaa135be285dcaa31" title="Flux reconstruction. ">fluxReconstruction</a> </dd></dl>
 
 <p>Implements <a class="el" href="classFluxMethod.html#a5c55691e82aca8516782912d3aa5d474">FluxMethod</a>.</p>
 
@@ -262,8 +310,21 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Reconstructs the fluxes in the specified direction. </p>
-<p>Reconstructs the fluxes at the center of the cells to the faces upwind and downwind and computes the difference, giving an approximation of the net flux (in the specified direction) at the cell faces. Method uses a WENO reconstruction. </p>
+<p>Flux reconstruction. </p>
+<p>Reconstructs the fluxes at the center of the cells to the faces upwind and downwind and computes the difference, giving an approximation of the net flux (in the specified direction) at the cell faces. Method uses a second order WENO reconstruction.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*cons</td><td>pointer to conserved vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*prims</td><td>pointer to primitive vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*aux</td><td>pointer to auxilliary vector </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*f</td><td>pointer to a flux work array to store the initial flux vector </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*frecon</td><td>pointer to the array containing the reconstructed values of the fluxes at the cell faces </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">dir</td><td>the direction in which to determine flux reconstruction with (0, 1, 2) = (x, y, z) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>This is an approximation of the net flux at the cell faces, not the cell centers, and so the final approximation of the flux through a cell required differencing the values obtained here at either end of the cell. This is performed in F </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classFVS.html#a60eeb88f17332b165df48cf6dee5c02b" title="Numerical flux function. ">F</a> </dd></dl>
 
 </div>
 </div>

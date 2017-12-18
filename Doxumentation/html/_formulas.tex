@@ -1,0 +1,182 @@
+\documentclass{article}
+\usepackage{epsfig}
+\pagestyle{empty}
+\begin{document}
+\begin{align} U^* = RK2(U^n) \end{align}
+\pagebreak
+
+\begin{align} U^{n+1} = U^* + \Psi(U^{n+1}) \end{align}
+\pagebreak
+
+$\Psi(U)$
+\pagebreak
+
+$U$
+\pagebreak
+
+$t=t0 + dt$
+\pagebreak
+
+$N_{cons} \times N_x \times N_y \times N_z$
+\pagebreak
+
+$N_{prims} \times N_x \times N_y \times N_z$
+\pagebreak
+
+$N_{aux} \times N_x \times N_y \times N_z$
+\pagebreak
+
+\begin{align} \partial_t U + \partial_x f(U) = 0. \end{align}
+\pagebreak
+
+$\mathcal{F}$
+\pagebreak
+
+\begin{align} \partial_t U = \mathcal{F}(U) \end{align}
+\pagebreak
+
+\begin{align} U^{n+1} =& U^n + \mathcal{F}(U) \\ =& U^n + \frac{f_{i+1/2} - f_{i-1/2}}{\Delta x} \end{align}
+\pagebreak
+
+$f_{i+1/2}$
+\pagebreak
+
+$i^{th}$
+\pagebreak
+
+$\Delta x$
+\pagebreak
+
+$i$
+\pagebreak
+
+\begin{align} f_i = f_i^- + f_i^+. \end{align}
+\pagebreak
+
+\begin{align} f_i^{\pm} = \frac{1}{2}(f_i \pm \alpha U_i) \end{align}
+\pagebreak
+
+$\alpha = max_p|\lambda_p|$
+\pagebreak
+
+$\lambda_p$
+\pagebreak
+
+$p^th$
+\pagebreak
+
+$alpha=1$
+\pagebreak
+
+\begin{align} f^+_{i, right} &= WENO(f_{i-2}, f_{i-1}, f_i) \\ f^-_{i, left} &= WENO(f_{i+1}, f_i, f_{i-1}) \end{align}
+\pagebreak
+
+$f_{i+1/2} = f^+_{i, right} + f^-_{i, left}$
+\pagebreak
+
+$N_{cons}$
+\pagebreak
+
+$N_{prims}$
+\pagebreak
+
+$N_{aux}$
+\pagebreak
+
+$t=t_0 + dt$
+\pagebreak
+
+$(i, j, k)$
+\pagebreak
+
+$ (x, y, z)$
+\pagebreak
+
+$ 0 \le (i,j,k) < (nx,ny,nz)+2 Ng $
+\pagebreak
+
+$0 \le (i,j,k) < (Nx,Ny,Nz) $
+\pagebreak
+
+$\ \ \ D$
+\pagebreak
+
+$S_x$
+\pagebreak
+
+$S_y$
+\pagebreak
+
+$S_z$
+\pagebreak
+
+$\tau$
+\pagebreak
+
+$B_x$
+\pagebreak
+
+$B_y$
+\pagebreak
+
+$B_z$
+\pagebreak
+
+$\phi$
+\pagebreak
+
+$\ \ \ \rho$
+\pagebreak
+
+$v_x$
+\pagebreak
+
+$v_y$
+\pagebreak
+
+$v_z$
+\pagebreak
+
+$p$
+\pagebreak
+
+$\ \ \ h$
+\pagebreak
+
+$W$
+\pagebreak
+
+$e$
+\pagebreak
+
+$c$
+\pagebreak
+
+$b_0$
+\pagebreak
+
+$b_x$
+\pagebreak
+
+$b_y$
+\pagebreak
+
+$b_z$
+\pagebreak
+
+$b^2$
+\pagebreak
+
+$v^2$
+\pagebreak
+
+$B \cdot S$
+\pagebreak
+
+$B^2$
+\pagebreak
+
+$S^2$
+\pagebreak
+
+\end{document}

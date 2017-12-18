@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,19 +78,19 @@ $(document).ready(function(){initNavTree('hierarchy.html','');});
 </td></tr>
 <tr><td><img src="inherit_graph_1.png" border="0" alt="" usemap="#BackRKArguments"/>
 <map name="BackRKArguments" id="BackRKArguments">
-<area shape="rect" id="node1" href="classBackRKArguments.html" title="BackwardsRK Arguments class. " alt="" coords="5,5,140,32"/>
+<area shape="rect" id="node1" href="classBackRKArguments.html" title=" BackwardsRK Arguments class &#160;" alt="" coords="5,5,140,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_2.png" border="0" alt="" usemap="#Bcs"/>
 <map name="Bcs" id="Bcs">
-<area shape="rect" id="node1" href="classBcs.html" title="Boundary Conditions. " alt="" coords="5,31,51,57"/>
+<area shape="rect" id="node1" href="classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="5,31,51,57"/>
 <area shape="rect" id="node2" href="classOutflow.html" title="Outflow boundary conditions. " alt="" coords="100,5,167,32"/>
 <area shape="rect" id="node3" href="classPeriodic.html" title="Periodic boundary conditions. " alt="" coords="99,56,168,83"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_3.png" border="0" alt="" usemap="#Data"/>
 <map name="Data" id="Data">
-<area shape="rect" id="node1" href="classData.html" title="Data" alt="" coords="5,5,56,32"/>
+<area shape="rect" id="node1" href="classData.html" title=" Data object &#160;" alt="" coords="5,5,56,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_4.png" border="0" alt="" usemap="#Failed"/>
@@ -94,49 +100,51 @@ $(document).ready(function(){initNavTree('hierarchy.html','');});
 </td></tr>
 <tr><td><img src="inherit_graph_5.png" border="0" alt="" usemap="#FluxMethod"/>
 <map name="FluxMethod" id="FluxMethod">
-<area shape="rect" id="node1" href="classFluxMethod.html" title="Abstract base class for the flux Method. " alt="" coords="5,5,96,32"/>
-<area shape="rect" id="node2" href="classFVS.html" title="Flux vector splitting method. " alt="" coords="144,5,192,32"/>
+<area shape="rect" id="node1" href="classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node2" href="classFVS.html" title=" Flux vector splitting method &#160;" alt="" coords="144,5,192,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_6.png" border="0" alt="" usemap="#IMEX2Arguments"/>
 <map name="IMEX2Arguments" id="IMEX2Arguments">
-<area shape="rect" id="node1" href="classIMEX2Arguments.html" title="IMEX&#45;SSP2 Arguments class. " alt="" coords="5,5,131,32"/>
-<area shape="rect" id="node2" href="classIMEX3Arguments.html" title="IMEX&#45;SSP3(332) Arguments class. " alt="" coords="179,5,304,32"/>
+<area shape="rect" id="node1" href="classIMEX2Arguments.html" title=" IMEX&#45;SSP2 Arguments class &#160;" alt="" coords="5,5,131,32"/>
+<area shape="rect" id="node2" href="classIMEX3Arguments.html" title=" IMEX&#45;SSP3(332) Arguments class &#160;" alt="" coords="179,5,304,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_7.png" border="0" alt="" usemap="#InitialFunc"/>
 <map name="InitialFunc" id="InitialFunc">
-<area shape="rect" id="node1" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="5,56,88,83"/>
-<area shape="rect" id="node2" href="classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="153,5,271,32"/>
-<area shape="rect" id="node3" href="classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="136,56,288,83"/>
-<area shape="rect" id="node4" href="classOTVortexSingleFluid.html" title="Orszag&#45;Tang voretx initial data (2D) for single fluid. " alt="" coords="141,107,283,133"/>
+<area shape="rect" id="node1" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="5,107,88,133"/>
+<area shape="rect" id="node2" href="classBrioWuTwoFluid.html" title="Brio&#45;Wu shock tube initial data (1D) " alt="" coords="165,5,283,32"/>
+<area shape="rect" id="node3" href="classCPAlfvenWaveSingleFluid.html" title="Single fluid circularly polarized Alfven wave. " alt="" coords="136,56,312,83"/>
+<area shape="rect" id="node4" href="classCPAlfvenWaveTwoFluid.html" title="Two&#45;fluid circularly polarized Alfven wave. " alt="" coords="141,107,307,133"/>
+<area shape="rect" id="node5" href="classCurrentSheetTwoFluid.html" title="Two fluid self similar current sheet. " alt="" coords="148,157,300,184"/>
+<area shape="rect" id="node6" href="classOTVortexSingleFluid.html" title="Single fluid Orszag&#45;Tang voretx. " alt="" coords="153,208,295,235"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_8.png" border="0" alt="" usemap="#Model"/>
 <map name="Model" id="Model">
-<area shape="rect" id="node1" href="classModel.html" title="Physical model that we want to use. " alt="" coords="5,31,63,57"/>
-<area shape="rect" id="node2" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics. " alt="" coords="132,5,204,32"/>
-<area shape="rect" id="node3" href="classTwoFluidEMHD.html" title="Two&#45;Fluid ElectroMagnetoHydroDynamics. " alt="" coords="111,56,225,83"/>
+<area shape="rect" id="node1" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="5,31,63,57"/>
+<area shape="rect" id="node2" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics &#160;" alt="" coords="132,5,204,32"/>
+<area shape="rect" id="node3" href="classTwoFluidEMHD.html" title=" Two&#45;Fluid ElectroMagnetoHydroDynamics &#160;" alt="" coords="111,56,225,83"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_9.png" border="0" alt="" usemap="#SaveData"/>
 <map name="SaveData" id="SaveData">
-<area shape="rect" id="node1" href="classSaveData.html" title="Class used to save simulation data. " alt="" coords="5,5,85,32"/>
+<area shape="rect" id="node1" href="classSaveData.html" title=" Class used to save simulation data &#160;" alt="" coords="5,5,85,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_10.png" border="0" alt="" usemap="#Simulation"/>
 <map name="Simulation" id="Simulation">
-<area shape="rect" id="node1" href="classSimulation.html" title="The Simulation interface for the programme. " alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node1" href="classSimulation.html" title=" The Simulation interface for the programme &#160;" alt="" coords="5,5,88,32"/>
 </map>
 </td></tr>
 <tr><td><img src="inherit_graph_11.png" border="0" alt="" usemap="#TimeIntegrator"/>
 <map name="TimeIntegrator" id="TimeIntegrator">
-<area shape="rect" id="node1" href="classTimeIntegrator.html" title="General form of the time integrator. " alt="" coords="5,31,112,57"/>
-<area shape="rect" id="node2" href="classRK2.html" title="Fully explicit Runge&#45;Kutta second order time integrator, does not handle source terms. " alt="" coords="164,5,212,32"/>
-<area shape="rect" id="node5" href="classSSP2.html" title="Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator. " alt="" coords="160,56,216,83"/>
-<area shape="rect" id="node3" href="classRKSplit.html" title="Fully explicit Runge&#45;Kutta second order time integrator that handles source terms. " alt="" coords="264,5,331,32"/>
-<area shape="rect" id="node4" href="classBackwardsRK2.html" title="Semi&#45;implicit second order Runge&#45;Kutta time integrator. " alt="" coords="379,5,492,32"/>
-<area shape="rect" id="node6" href="classSSP3.html" title="Implicit&#45;Explicit Runge&#45;Kutta third order SSP3(332) time integrator. " alt="" coords="269,56,325,83"/>
+<area shape="rect" id="node1" href="classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="5,31,112,57"/>
+<area shape="rect" id="node2" href="classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="164,5,212,32"/>
+<area shape="rect" id="node5" href="classSSP2.html" title=" Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator &#160;" alt="" coords="160,56,216,83"/>
+<area shape="rect" id="node3" href="classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="264,5,331,32"/>
+<area shape="rect" id="node4" href="classBackwardsRK2.html" title=" Semi&#45;implicit second order Runge&#45;Kutta time integrator &#160;" alt="" coords="379,5,492,32"/>
+<area shape="rect" id="node6" href="classSSP3.html" title=" Implicit&#45;Explicit Runge&#45;Kutta third order SSP3(332) time integrator &#160;" alt="" coords="269,56,325,83"/>
 </map>
 </td></tr>
 </table>

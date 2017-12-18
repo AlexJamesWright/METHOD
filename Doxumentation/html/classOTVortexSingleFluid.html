@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,7 +78,7 @@ Inheritance diagram for OTVortexSingleFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classOTVortexSingleFluid__inherit__graph.png" border="0" usemap="#OTVortexSingleFluid_inherit__map" alt="Inheritance graph"/></div>
 <map name="OTVortexSingleFluid_inherit__map" id="OTVortexSingleFluid_inherit__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="35,5,118,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="35,5,118,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -80,8 +86,8 @@ Collaboration diagram for OTVortexSingleFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classOTVortexSingleFluid__coll__graph.png" border="0" usemap="#OTVortexSingleFluid_coll__map" alt="Collaboration graph"/></div>
 <map name="OTVortexSingleFluid_coll__map" id="OTVortexSingleFluid_coll__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="35,95,118,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="51,5,102,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="35,95,118,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="51,5,102,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -94,10 +100,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ade59c6464842d2700f551c13f96eef20 inherit pub_methods_classInitialFunc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Orszag-Tang voretx initial data (2D) for single fluid. </p>
+<div class="textblock"><p>Single fluid Orszag-Tang voretx. </p>
 <p>See Orszag and Tang 1979, 'Small scale structure of two dimensional...' or visit <a href="http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html">http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html</a> for explanation and see <code>Advanced Numerical Methods for Neutron Star Interfaces</code>, John Muddle, for initial data, Table 5.8. Orignally from Section 4.4 of <code>A second order Godunov Method for multidimentional relativistic magnetohydrodynamcis</code>, Kirs Beckwith. </p>
 
-<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00060">60</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00105">105</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="add407a3f69c20798d61d4c1615dac3b4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#add407a3f69c20798d61d4c1615dac3b4">&#9670;&nbsp;</a></span>OTVortexSingleFluid()</h2>
@@ -116,10 +122,10 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Orzsang-Tang vortex initial data for single fluid. </p>
-<p>Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<p>Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
   </table>
   </dd>
 </dl>

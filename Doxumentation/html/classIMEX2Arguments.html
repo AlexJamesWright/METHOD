@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,7 +79,7 @@ Inheritance diagram for IMEX2Arguments:</div>
 <div class="dyncontent">
 <div class="center"><img src="classIMEX2Arguments__inherit__graph.png" border="0" usemap="#IMEX2Arguments_inherit__map" alt="Inheritance graph"/></div>
 <map name="IMEX2Arguments_inherit__map" id="IMEX2Arguments_inherit__map">
-<area shape="rect" id="node2" href="classIMEX3Arguments.html" title="IMEX&#45;SSP3(332) Arguments class. " alt="" coords="5,80,131,107"/>
+<area shape="rect" id="node2" href="classIMEX3Arguments.html" title=" IMEX&#45;SSP3(332) Arguments class &#160;" alt="" coords="5,80,131,107"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -81,7 +87,7 @@ Collaboration diagram for IMEX2Arguments:</div>
 <div class="dyncontent">
 <div class="center"><img src="classIMEX2Arguments__coll__graph.png" border="0" usemap="#IMEX2Arguments_coll__map" alt="Collaboration graph"/></div>
 <map name="IMEX2Arguments_coll__map" id="IMEX2Arguments_coll__map">
-<area shape="rect" id="node2" href="classData.html" title="Data" alt="" coords="43,5,93,32"/>
+<area shape="rect" id="node2" href="classData.html" title=" Data object &#160;" alt="" coords="43,5,93,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -131,10 +137,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a34ad76ef87d1c480b9fc097d073b6254"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>IMEX-SSP2 Arguments class. </p>
-<p>Implicit-Explicit rootfinder requires additional work arrays for the residual functions. </p>
+<div class="textblock"><p><b> IMEX-SSP2 Arguments class </b> </p>
+<dl class="section user"><dt></dt><dd>Implicit-Explicit rootfinder requires additional work arrays for the residual functions. These work arrays are located within this classes member data along with necessary constants for each stage. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00011">11</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00013">13</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a1daa27317f85e2570d245de84de662b6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1daa27317f85e2570d245de84de662b6">&#9670;&nbsp;</a></span>IMEX2Arguments() <span class="overload">[1/3]</span></h2>
@@ -160,8 +166,9 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Default constructor. </p>
+<p>Sets the allocd flag to false and defines the integration constants. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00030">30</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00035">35</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -182,6 +189,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Parameterized constructor. </p>
+<p>Allocates arrays for the interstage work arrays and stores pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class for this simulation. Once memory has been allocated to work arrays the member allocd is set to true (1).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -202,6 +216,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Deep copy constructor. </p>
+<p>Performs a deep copy of all data in the pointed to <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> class to this instance. If this instance has allocd set as false, the arrays will be allocated and allocd set to true. Copy constructor is required for the overload assignment operator.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>pointer to <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> class that needs to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -221,6 +242,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
+<p>Frees allocated memory. </p>
 
 </div>
 </div>
@@ -241,7 +263,14 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Overload assignment operator, performs deep copy of information. </p>
+<p>Overload assignment operator. </p>
+<p>Performs deep copy of the pointed to <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> class on assignment.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">&amp;args</td><td>address of <a class="el" href="classIMEX2Arguments.html" title=" IMEX-SSP2 Arguments class  ">IMEX2Arguments</a> class that is to be copied </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -260,7 +289,7 @@ Public Attributes</h2></td></tr>
 
 <p>Signifies is the prim aux and source arrays have been allocated memory. 1 if allocated, 0 otherwise. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00026">26</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00028">28</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -278,7 +307,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -296,7 +325,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -312,9 +341,9 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data. </p>
+<p>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00015">15</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00017">17</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -332,7 +361,7 @@ Public Attributes</h2></td></tr>
 
 <p>Size of the timestep. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -350,7 +379,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -368,7 +397,7 @@ Public Attributes</h2></td></tr>
 
 <p>IMEX2/3 constant, gamma=0.2928932188134525) </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -384,7 +413,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00026">26</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00028">28</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -400,7 +429,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00026">26</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00028">28</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -418,7 +447,7 @@ Public Attributes</h2></td></tr>
 
 <p>Which cell is currently being solved. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00026">26</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00028">28</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -436,7 +465,7 @@ Public Attributes</h2></td></tr>
 
 <p>IMEX2/3 constant, (o)ne (m)inus 2 (gam)ma = 1-2*gamma. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -454,7 +483,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -472,7 +501,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>
@@ -490,7 +519,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00019">19</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="IMEX2Args_8h_source.html#l00021">21</a> of file <a class="el" href="IMEX2Args_8h_source.html">IMEX2Args.h</a>.</p>
 
 </div>
 </div>

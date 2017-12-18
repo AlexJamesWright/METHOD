@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -180,8 +186,20 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a47436263e4233cc55241424e810e889b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00007">7</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<div class="textblock"><p><b> <a class="el" href="classData.html" title=" Data object  ">Data</a> object </b> </p>
+<dl class="section user"><dt></dt><dd>Class contains all the data of the simulation relevant to any of the other modules. Containing it in this way prevents issues of cyclic includes, also results in <a class="el" href="classSimulation.html" title=" The Simulation interface for the programme  ">Simulation</a> as more of an interface than a class that needs to be known to lower objects&mdash;good practice. <br />
+</dd></dl>
+<h1>Usage <br />
+ </h1>
+<dl class="section user"><dt></dt><dd>Call the constructor with at least: the number of cells and domain limits in the x, y, and z direction, and the simulation end time. As ghost cells are automatically added to the domain, there would be a minimum number of total cells in any direction of nine&mdash;as a result, running 2D simulations would be 9x slower than necessary. To combat this, you can request zero cells in the z-direction which is equivalent to a 2D domain where Nz=1. Keep this behaviour in mind when constructing new models. </dd></dl>
+<dl class="section user"><dt></dt><dd>Other variables, such as the courant factor, can also be set in the constructor but by default have sensible values that should work for most set ups, these can largely be ignored unless the simulation is failing to converge. <br />
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>Selecting a model will automatically set the number of cons prims and aux vars, both inside the model class and in the data class (although it is the data class values that are accessed by the various functions). <br />
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>The elementID function data.id(var, i, j, k) is a useful shortcut for accessing data belonging to a specific cell, where var is the id of the variable in the array we wish to access, and \((i, j, k)\) corresond to the \( (x, y, z)\) coordinates of the cell we wish to access. Note: this includes ghost cells, so in practice these values can range from \( 0 \le (i,j,k) &lt; (nx,ny,nz)+2 Ng \) or \(0 \le (i,j,k) &lt; (Nx,Ny,Nz) \) assuming we are working in 3D. <br />
+ For 2D simulations, k=0 at all times, and similarly j=0 for 1D simulations. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00042">42</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab943d2d9e693a86fe22ec02f01caca87"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab943d2d9e693a86fe22ec02f01caca87">&#9670;&nbsp;</a></span>Data()</h2>
@@ -300,7 +318,8 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>Allocates the memory required for the state arrays and sets the simulation constants to the given values. Does not set initial state, thats done by the initialFunc object. </p><dl class="params"><dt>Parameters</dt><dd>
+<dl class="section user"><dt></dt><dd>Allocates the memory required for the state arrays and sets the simulation constants to the given values. Does not set initial state, thats done by the initialFunc object. </dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nx</td><td>number of physical cells in x-direction </td></tr>
     <tr><td class="paramname">ny</td><td>number of physical cells in y-direction </td></tr>
@@ -373,7 +392,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Element ID function. </p>
-<p>To access the 2nd conserved variable at (x, y) = (12, 4) for example, we call elem=data.id(2, 12, 4) and use this in d.cons[elem].</p>
+<dl class="section user"><dt></dt><dd>To access the 2nd conserved variable at (x, y) = (12, 4) for example, we call elem=data.id(2, 12, 4) and use this in d.cons[elem].</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">var</td><td>the variable number, eg cons[0] is energy, cons[1] is x-momentum etc. </td></tr>
@@ -384,7 +403,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00103">103</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00110">110</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -403,7 +422,7 @@ Public Attributes</h2></td></tr>
 
 <p>Max wave speed in specified direction. As we are evolving EM fields, this is always the speed of light. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -421,7 +440,7 @@ Public Attributes</h2></td></tr>
 
 <p>Max wave speed in specified direction. As we are evolving EM fields, this is always the speed of light. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -439,7 +458,7 @@ Public Attributes</h2></td></tr>
 
 <p>Max wave speed in specified direction. As we are evolving EM fields, this is always the speed of light. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -457,7 +476,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -475,7 +494,7 @@ Public Attributes</h2></td></tr>
 
 <p>Vector of labels for the specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00095">95</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -493,7 +512,7 @@ Public Attributes</h2></td></tr>
 
 <p>Courant factor. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -511,7 +530,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -529,7 +548,7 @@ Public Attributes</h2></td></tr>
 
 <p>Vector of labels for the specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00095">95</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -547,7 +566,7 @@ Public Attributes</h2></td></tr>
 
 <p>Constant divergence cleaning term. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -565,7 +584,7 @@ Public Attributes</h2></td></tr>
 
 <p>Width of current timestep. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -583,7 +602,7 @@ Public Attributes</h2></td></tr>
 
 <p>Witdth of specified spatial step. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -601,7 +620,7 @@ Public Attributes</h2></td></tr>
 
 <p>Witdth of specified spatial step. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -619,7 +638,7 @@ Public Attributes</h2></td></tr>
 
 <p>Witdth of specified spatial step. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -637,7 +656,7 @@ Public Attributes</h2></td></tr>
 
 <p>End time of simulation. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -655,7 +674,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -673,7 +692,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -691,7 +710,7 @@ Public Attributes</h2></td></tr>
 
 <p>Adiabatic index. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00053">53</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00059">59</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -709,7 +728,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of interations that have been completed. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00083">83</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -727,7 +746,7 @@ Public Attributes</h2></td></tr>
 
 <p>Indicator that memory has been allocated for state vectors. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00056">56</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00062">62</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -745,7 +764,7 @@ Public Attributes</h2></td></tr>
 
 <p>Charge mass ratio of specified fluid species, q/m (for two fluid model) </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -763,7 +782,7 @@ Public Attributes</h2></td></tr>
 
 <p>Charge mass ratio of specified fluid species, q/m (for two fluid model) </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -781,7 +800,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00056">56</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00062">62</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -799,7 +818,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00056">56</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00062">62</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -817,7 +836,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of ghost cells. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00057">57</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -835,7 +854,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00056">56</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00062">62</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -853,7 +872,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of physical cells in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00041">41</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00047">47</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -871,7 +890,7 @@ Public Attributes</h2></td></tr>
 
 <p>Total number of compute cells in domain in the specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00083">83</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -889,7 +908,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of physical cells in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00041">41</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00047">47</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -907,7 +926,7 @@ Public Attributes</h2></td></tr>
 
 <p>Total number of compute cells in domain in the specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00083">83</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -925,7 +944,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of physical cells in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00041">41</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00047">47</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -943,7 +962,7 @@ Public Attributes</h2></td></tr>
 
 <p>Total number of compute cells in domain in the specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00083">83</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -961,7 +980,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -979,7 +998,7 @@ Public Attributes</h2></td></tr>
 
 <p>Vector of labels for the specified variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00089">89</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00095">95</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -997,7 +1016,7 @@ Public Attributes</h2></td></tr>
 
 <p>Resistivity. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00053">53</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00059">59</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1015,7 +1034,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to specified work array. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1033,7 +1052,7 @@ Public Attributes</h2></td></tr>
 
 <p>Current time. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00075">75</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00081">81</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1051,7 +1070,7 @@ Public Attributes</h2></td></tr>
 
 <p>Specified coordinate location of the center of the compute cells (incl ghost cells) </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1088,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1087,7 +1106,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1105,7 +1124,7 @@ Public Attributes</h2></td></tr>
 
 <p>Specified coordinate location of the center of the compute cells (incl ghost cells) </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1123,7 +1142,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1141,7 +1160,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1159,7 +1178,7 @@ Public Attributes</h2></td></tr>
 
 <p>Specified coordinate location of the center of the compute cells (incl ghost cells) </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00061">61</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00067">67</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1177,7 +1196,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>
@@ -1195,7 +1214,7 @@ Public Attributes</h2></td></tr>
 
 <p>Positional limits of domain in specified direction. </p>
 
-<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00045">45</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simData_8h_source.html#l00051">51</a> of file <a class="el" href="simData_8h_source.html">simData.h</a>.</p>
 
 </div>
 </div>

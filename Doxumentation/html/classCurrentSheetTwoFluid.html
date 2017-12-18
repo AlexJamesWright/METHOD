@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -72,7 +78,7 @@ Inheritance diagram for CurrentSheetTwoFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classCurrentSheetTwoFluid__inherit__graph.png" border="0" usemap="#CurrentSheetTwoFluid_inherit__map" alt="Inheritance graph"/></div>
 <map name="CurrentSheetTwoFluid_inherit__map" id="CurrentSheetTwoFluid_inherit__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="40,5,123,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="40,5,123,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -80,8 +86,8 @@ Collaboration diagram for CurrentSheetTwoFluid:</div>
 <div class="dyncontent">
 <div class="center"><img src="classCurrentSheetTwoFluid__coll__graph.png" border="0" usemap="#CurrentSheetTwoFluid_coll__map" alt="Collaboration graph"/></div>
 <map name="CurrentSheetTwoFluid_coll__map" id="CurrentSheetTwoFluid_coll__map">
-<area shape="rect" id="node2" href="classInitialFunc.html" title="Base Class implements the initial data. " alt="" coords="40,95,123,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="56,5,107,32"/>
+<area shape="rect" id="node2" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="40,95,123,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="56,5,107,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -95,9 +101,9 @@ Public Member Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Two fluid self similar current sheet. </p>
-<p>See Palenzuela et al 2009, <code>Beyond ideal MHD: Towards a more...</code> for explanation. Set up is one dimensional (x-direction, although may be run in multiple Ds), in equilibrium, with initial By field given by the error function. Behaviour should be diffusive for moderate resistivities. </p>
+<p>See Palenzuela et al 2009, <code>Beyond ideal MHD: Towards a more...</code> for explanation. Set up is one dimensional (x-direction, although may be run in multiple Ds), in equilibrium, with initial By field given by the error function. Behaviour should be diffusive for moderate resistivities. See Amano 2016 for two fluid details. </p>
 
-<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00036">36</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="initFunc_8h_source.html#l00080">80</a> of file <a class="el" href="initFunc_8h_source.html">initFunc.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="abc4e4049a9dd068a8ae76629fbf1d1f8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abc4e4049a9dd068a8ae76629fbf1d1f8">&#9670;&nbsp;</a></span>CurrentSheetTwoFluid()</h2>
@@ -116,13 +122,14 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Current sheet initial data for two fluids. </p>
-<p>Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<p>Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">*data</td><td>pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classInitialFunc.html" title=" Abstract base class for any future initial data classes  ">InitialFunc</a> </dd></dl>
 
 </div>
 </div>

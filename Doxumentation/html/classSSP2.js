@@ -1,6 +1,6 @@
 var classSSP2 =
 [
-    [ "SSP2", "classSSP2.html#ab01b25b456a7a04415850b653914f9ea", null ],
+    [ "SSP2", "classSSP2.html#a59e321d13267a09275029166e6bdf069", null ],
     [ "~SSP2", "classSSP2.html#a607e7d2d39fbdbc6a86fad6fa1531150", null ],
     [ "step", "classSSP2.html#a58f4a0d31449841c6430f25edaee4719", null ],
     [ "args", "classSSP2.html#ad85b5ebd012d46581f344dec83b9df24", null ],

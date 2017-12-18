@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "METHOD", "index.html", [
+    [ "Todo List", "todo.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -25,7 +26,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "IMEX2Args_8h.html",
-"classes.html"
+"classTwoFluidEMHD.html#aa28474e16593077059c3a2a6a07591c9"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -16,6 +16,12 @@
 <script type="text/javascript">
   $(document).ready(initResizable);
 </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+});
+</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -73,7 +79,7 @@ Inheritance diagram for SRMHD:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSRMHD__inherit__graph.png" border="0" usemap="#SRMHD_inherit__map" alt="Inheritance graph"/></div>
 <map name="SRMHD_inherit__map" id="SRMHD_inherit__map">
-<area shape="rect" id="node2" href="classModel.html" title="Physical model that we want to use. " alt="" coords="13,5,70,32"/>
+<area shape="rect" id="node2" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="13,5,70,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -81,8 +87,8 @@ Collaboration diagram for SRMHD:</div>
 <div class="dyncontent">
 <div class="center"><img src="classSRMHD__coll__graph.png" border="0" usemap="#SRMHD_coll__map" alt="Collaboration graph"/></div>
 <map name="SRMHD_coll__map" id="SRMHD_coll__map">
-<area shape="rect" id="node2" href="classModel.html" title="Physical model that we want to use. " alt="" coords="13,95,70,121"/>
-<area shape="rect" id="node3" href="classData.html" title="Data" alt="" coords="16,5,67,32"/>
+<area shape="rect" id="node2" href="classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="13,95,70,121"/>
+<area shape="rect" id="node3" href="classData.html" title=" Data object &#160;" alt="" coords="16,5,67,32"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -131,20 +137,39 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a8a83cf2414466090b5dbd4b17ff07dc6 inherit pub_attribs_classModel"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Special Relativistic MagnetHydroDynamics. </p>
-<p>The single fluid, special relativistic, ideal limit of the MHD equations. Ideal fluid, so resistivity does not play a part, hence no electric field evolution. <a class="el" href="classModel.html" title="Physical model that we want to use. ">Model</a> has nine conserved variables: D, Sx, Sy, Sz, tau, Bx, By, Bz, phi Eight primitive variables: rho, vx, vy, vz, p, Bx, By, Bz Thirteen auxilliary variables: h, W, e, c, b0, bx, by, bz, bsq, vsq, BS, Bsq, Ssq</p>
-<p>For general details on the functionality of the derived member functions See <code><a class="el" href="model_8h.html">model.h</a></code>. </p>
+<div class="textblock"><p><b>Special Relativistic MagnetHydroDynamics </b> </p>
+<dl class="section user"><dt></dt><dd>The single fluid, special relativistic, ideal limit of the MHD equations. Ideal fluid, so resistivity does not play a part, hence no electric field evolution. <br />
+</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> has nine conserved variables: <br />
+ \(\ \ \ D\), \(S_x\), \(S_y\), \(S_z\), \(\tau\), \(B_x\), \(B_y\), \(B_z\), \(\phi\) <br />
+ Eight primitive variables: <br />
+ \(\ \ \ \rho\), \(v_x\), \(v_y\), \(v_z\), \(p\), \(B_x\), \(B_y\), \(B_z\) <br />
+ Thirteen auxilliary variables:<br />
+ \(\ \ \ h\), \(W\), \(e\), \(c\), \(b_0\), \(b_x\), \(b_y\), \(b_z\), \(b^2\), \(v^2\), \(B \cdot S\), \(B^2\), \(S^2\) <br />
+</dd></dl>
+<dl class="section user"><dt></dt><dd>The <a class="el" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics  ">SRMHD</a> fluid equations are derived from the consideration of the conservation of the rest-mass and stress-energy tensor, and the conservation of the Maxwell dual tensor for a perfect magneto-fluid. That is, starting from <p class="formulaDsp">
+\begin{align} \partial_\mu N^\mu &amp;= 0 \\ \partial_mu T^{\mu \nu}&amp;= 0 \\ \partial_mu {^*}F^{\mu \nu} &amp;= 0 \end{align}
+</p>
+ with \(N^\mu = \rho u^mu\) the rest-mass density, \(T^{\mu \nu} = \rho h^* u^\mu u^\nu + \eta^{\mu \nu} p^* - b^mu b^nu\) as the stress-energy tensor for a perfect magneto-fluid, and the Maxwell tensor given by \( {^*}F^{\mu \nu} = u^\mu b^\nu - u^\nu b^\mu\). </dd></dl>
+<dl class="section user"><dt></dt><dd>In addition, \( u^\mu, h^*=1+e+p/\rho+b^2/\rho, \rho, \eta, b^\mu \text{ and } p*=p+b^2/2\) are the fluid four-velocity, specific enthalpy including the magnetic contribution, mass-energy density, mostly positive flat space-time metric, four-vector magnetic field in the fluid rest-frame and the total pressure including the magnetic pressure. </dd></dl>
+<dl class="section user"><dt></dt><dd>Following this through, we arrive at the conservative form of the special relativistic, ideal limit, single fluid equations of motion: <p class="formulaDsp">
+\begin{align} \partial_t \begin{pmatrix} D \\ S^j \\ \tau \\ B^k \\ \phi \end{pmatrix} + \partial_i \begin{pmatrix} Dv^i \\ S^j v^i + p^* \delta^{ij} - b^j B^i / W \\ \tau v^i + p^* v^i - b^0 B^i/ W \\ v^i B^k - v^k B^i + \delta^{ij}\phi \\ B^i \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \\ 0 \\ 0 \\ -\phi / c_p^2 \end{pmatrix}. \end{align}
+</p>
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>Here, we sum over the \(i\) coordinate directions, and note the following relations: <p class="formulaDsp">
+\begin{align} D &amp;= \rho W \\ S^j &amp;= \rho h^* W^2 v^j - b^0 b^j \\ \tau &amp;= \rho h^* W^2 - p^* - (b^0)^2 - D \\ u^\mu &amp;= W(c, v^i) \\ W &amp;= 1 / \sqrt(1 - v_i v^i) \\ b^0 &amp;= W B_i v^i \\ b^i &amp;= B^i / W + b^0 v^i \\ b^2 &amp;= B_i B^i / W^2 + (B_i v^i)^2 \\ c_p &amp;= const. \end{align}
+</p>
+ </dd></dl>
+<dl class="section user"><dt></dt><dd>We have also included the additional scalar field \(\phi\) such that any errors in the evolution of the magnetic fields that break the divergence constraint set by Maxwell's equations, namely \(\nabla \cdot B = 0\), are driven to zero, on a timescale set by the constant parameter \(c_p\). See Dedner et al. 2002.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="classModel.html" title=" Physics model that we want to use  ">Model</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00021">21</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00093">93</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a418b6780ed804958d9eea94fb3b907a2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a418b6780ed804958d9eea94fb3b907a2">&#9670;&nbsp;</a></span>SRMHD() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">SRMHD::SRMHD </td>
@@ -153,16 +178,9 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Default constructor. </p>
-
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00031">31</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -171,9 +189,6 @@ Public Attributes</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">SRMHD::SRMHD </td>
@@ -183,23 +198,16 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Parameterized constructor. </p>
-<p>Stores a pointer to the <a class="el" href="classData.html">Data</a> class for reference in its methods</p>
+<dl class="section user"><dt></dt><dd>Stores a pointer to the <a class="el" href="classData.html" title=" Data object  ">Data</a> class for reference in its methods</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html">Data</a> class containing global simulation data </td></tr>
+    <tr><td class="paramname">*data</td><td>Pointer to <a class="el" href="classData.html" title=" Data object  ">Data</a> class containing global simulation data </td></tr>
   </table>
   </dd>
 </dl>
-
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00039">39</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -208,9 +216,6 @@ Public Attributes</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">SRMHD::~SRMHD </td>
@@ -219,16 +224,9 @@ Public Attributes</h2></td></tr>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
-
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00041">41</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -286,15 +284,16 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Flux vector. </p>
-<p>Method determines the value of the conserved vector flux through the cell faces. We are using the flux vector splitting method described in Shu, `Essentially Non-Oscillatory and Weighted Essentially Non-Oscillatory Schemes for Hyperbolic Conservation Laws`. For the form of the fluxes see Relativistic Magneto..., Anton '10 with the inclusion of divergence cleaning from Advanced numerical methods for Neutron star interfaces, John Muddle.</p>
+<dl class="section user"><dt></dt><dd>Method determines the value for the flux vector. </dd></dl>
+<dl class="section user"><dt></dt><dd>For the form of the fluxes see Anton 2010 with the inclusion of divergence cleaning from Dedner et al. 2002. interfaces, John Muddle.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>We are assuming that all primitive and auxilliary variables are up-to-date at the time of this function execution.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*f</td><td>pointer to flux vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">dir</td><td>direction in which to generate flux vector. (x, y, z) = (0, 1, 2) </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*f</td><td>pointer to flux vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">dir</td><td>direction in which to generate flux vector. \((x, y, z) = (0, 1, 2)\) </td></tr>
   </table>
   </dd>
 </dl>
@@ -345,12 +344,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Spectral decomposition. </p>
-<p>Method outlined in Anton 2010, <code>Relativistic Magnetohydrodynamcis: Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver</code>. Requires an N=2 rootfind using cminpack library. Initial inputs will be the current values of the conserved vector and the OLD values for the prims and aux vectors. Output will be the current values of cons, prims and aux.</p>
+<dl class="section user"><dt></dt><dd>Method outlined in Anton 2010, <code>Relativistic Magnetohydrodynamcis: Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver</code>. Requires an N=2 rootfind using cminpack library. </dd></dl>
+<dl class="section user"><dt></dt><dd>Initial inputs will be the current values of the conserved vector and the <b> old </b> values for the prims and aux vectors. Output will be the current values of cons, prims and aux.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}*N_x*N_y*N_z\) </td></tr>
   </table>
   </dd>
 </dl>
@@ -419,12 +419,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Single cell cons2prims conversion. </p>
-<p>For the same reason as outlined in sourceTermSingleCell, some models will require a single celled primitive conversion method. Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</p>
+<dl class="section user"><dt></dt><dd>For the same reason as outlined in sourceTermSingleCell, some models will require a single celled primitive conversion method. </dd></dl>
+<dl class="section user"><dt></dt><dd>Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}\) </td></tr>
     <tr><td class="paramname">i</td><td>cell number in x-direction (optional) </td></tr>
     <tr><td class="paramname">j</td><td>cell number in y-direction (optional) </td></tr>
     <tr><td class="paramname">k</td><td>cell number in z-direction (optional) </td></tr>
@@ -478,12 +479,12 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Primitive-to-all transformation. </p>
-<p>Transforms the initial state given in primitive form in to the conserved vector state. Relations have been taken from Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors and Full Wave Decompostion Riemann Solver`</p>
+<dl class="section user"><dt></dt><dd>Transforms the initial state given in primitive form in to the conserved vector state. Relations have been taken from Anton 2010. Riemann Solver`</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}*N_x*N_y*N_z\) </td></tr>
   </table>
   </dd>
 </dl>
@@ -540,13 +541,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Source term contribution. </p>
-<p>Non-zero flux for cons[8], phi, as a result of implementing divergence cleaning. For details see Muddle.</p>
+<dl class="section user"><dt></dt><dd>Non-zero flux for cons[8], phi, as a result of implementing divergence cleaning. For details see Muddle.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz </td></tr>
-    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is Ncons*Nx*Ny*Nz </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}*N_x*N_y*N_z\) </td></tr>
+    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is \(N_{cons}*N_x*N_y*N_z\) </td></tr>
   </table>
   </dd>
 </dl>
@@ -621,13 +622,14 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Single cell source term contribution. </p>
-<p>Models that can posess a stiff source term and hence (semi-)implicit time integrators will require a source contribution (and cons2prims method) that applies to a single cell. Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</p>
+<dl class="section user"><dt></dt><dd>Models that can posess a stiff source term and hence (semi-)implicit time integrators will require a source contribution (and cons2prims method) that applies to a single cell. </dd></dl>
+<dl class="section user"><dt></dt><dd>Each of the arguments are only for a single cell, ie, cons points to an (Ncons,) array, etc.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is Ncons </td></tr>
-    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is Nprims </td></tr>
-    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is Naux </td></tr>
-    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is Ncons </td></tr>
+    <tr><td class="paramname">*cons</td><td>pointer to conserved vector work array. Size is \(N_{cons}\) </td></tr>
+    <tr><td class="paramname">*prims</td><td>pointer to primitive vector work array. Size is \(N_{prims}\) </td></tr>
+    <tr><td class="paramname">*aux</td><td>pointer to auxilliary vector work array. Size is \(N_{aux}\) </td></tr>
+    <tr><td class="paramname">*source</td><td>pointer to source vector work array. Size is \(N_{cons}\) </td></tr>
     <tr><td class="paramname">i</td><td>cell number in x-direction (optional) </td></tr>
     <tr><td class="paramname">j</td><td>cell number in y-direction (optional) </td></tr>
     <tr><td class="paramname">k</td><td>cell number in z-direction (optional) </td></tr>
@@ -655,7 +657,7 @@ Public Attributes</h2></td></tr>
 
 <p>Number of smart guess required. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00026">26</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00098">98</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -673,7 +675,7 @@ Public Attributes</h2></td></tr>
 
 <p>Pointer to array to hold solution of C2P for every cell. Size is 2*Nx*Ny*Nz. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00028">28</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00100">100</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
