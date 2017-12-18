@@ -50,9 +50,9 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++)  initGuess[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) initGuess[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) tempPrims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux; var++)   tempAux[d->id(var, i, j, k)]   = aux[d->id(var, i, j, k)];
+        for (int var(0); var < d->Naux ; var++)  tempAux[d->id(var, i, j, k)]   = aux[d->id(var, i, j, k)];
       }
     }
   }
