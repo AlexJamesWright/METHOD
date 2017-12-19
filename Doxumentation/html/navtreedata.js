@@ -1,6 +1,10 @@
 var NAVTREE =
 [
   [ "METHOD", "index.html", [
+    [ "Multi-Fluid ElectroMagnetoHydroDynamics", "index.html#intro", null ],
+    [ "Installation", "index.html#install", null ],
+    [ "Example Simulations", "index.html#example", null ],
+    [ "Todo", "md__home_alex_Documents_Research_METHOD_Project_Todo.html", null ],
     [ "Todo List", "todo.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],

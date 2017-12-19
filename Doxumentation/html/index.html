@@ -68,7 +68,19 @@ $(document).ready(function(){initNavTree('index.html','');});
 <div class="title">METHOD Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><h1><a class="anchor" id="intro"></a>
+Multi-Fluid ElectroMagnetoHydroDynamics</h1>
+<dl class="section user"><dt></dt><dd>This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic solver built and maintained by <a href="http://cmg.soton.ac.uk/people/ajw1e16/">Alex Wright</a> under the guidance of <a href="https://www.southampton.ac.uk/maths/about/staff/ih3.page">Dr Ian Hawke</a>. METHOD is being developed as a result of a PhD project to model neutron star systems with multi-fluid models. As a result, ideal and resistive single fluid models exist that are more conventional in astrophysical model, and a relatively new two-fluid model adapted from Amano 2016.</dd></dl>
+<h1><a class="anchor" id="install"></a>
+Installation</h1>
+<dl class="section user"><dt></dt><dd>The easiest way to install METHOD is to clone the github <a href="https://github.com/AlexJamesWright/METHOD">repository</a>. The repository contains all the source files, tests and makefiles that one needs to get going. To start, copy the HTTPS tag on the main page or run <pre class="fragment">git clone https://github.com/AlexJamesWright/METHOD
+</pre> to copy all files to your machine. There are then multiple options, but the safest is to go to the <em>Project</em> directory and build all objects first. Do this by running <pre class="fragment">make build
+</pre> This will compile all the source code and build the rootfinders, and also generate the documetation. To check the build has worked, the best option is to run all the tests. From the <em>Test</em> directory, running <pre class="fragment">make test
+</pre> will compile all unit tests and, using the GoogleTest framework, execute the available tests. If any tests fail unexpectedly, update the files on you machine by pulling the repository and try again.</dd></dl>
+<h1><a class="anchor" id="example"></a>
+Example Simulations</h1>
+<dl class="section user"><dt></dt><dd>There is currently work on going to build a set of test cases and examples from which an understanding of the underlying code and processes that are implemented can be understood. These examples range from standard Brio Wu shock tube tests to set ups in which there are exact solutions in the form of self similar current sheets. These examples should be the first port of call for anyone trying to use the METHOD code for the first time, of if you are using a particular aspect of the code for the first time and wish to understand what is required to perform a succesfull simulation. </dd></dl>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
