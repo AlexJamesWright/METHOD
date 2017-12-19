@@ -32,7 +32,6 @@ class InitialFunc
     Two fluid version of the CP Alfven wave test. See Amano 2016 for description.
   Such a set up is an exact solution and so should be useful for convergence testing.
 
-  @todo WARNING!! This set up seems not to be self-consistent!
   @sa CPAlfvenWaveSingleFluid
 */
 class CPAlfvenWaveTwoFluid : public InitialFunc
