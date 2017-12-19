@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <iostream>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 void RKSplit::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
@@ -21,7 +24,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          cons[d->id(var, i, j, k)] += dt * d->source[d->id(var, i, j, k)];
+          cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
         }
       }
     }

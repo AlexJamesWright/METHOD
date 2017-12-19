@@ -3,6 +3,9 @@
 #include <iostream>
 #include <cstdlib>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 //! Residual function for implicit source
 int backwardsRKresidual(void *p, int n, const double *x, double *fvec, int iflag);
 
@@ -50,26 +53,26 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons ; var++) initGuess[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) tempPrims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux ; var++)  tempAux[d->id(var, i, j, k)]   = aux[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) initGuess[ID(var, i, j, k)] = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) tempPrims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux ; var++)  tempAux[ID(var, i, j, k)]   = aux[ID(var, i, j, k)];
       }
     }
   }
 
   // Use RKSplit as estimate for solution, and use this estimate to start rootfind
   RKSplit::step(initGuess, tempPrims, tempAux, dt);
-  // this->model->sourceTerm(initGuess, tempPrims, tempAux, tempSource);
-  // for (int var(0); var < d->Ncons; var++) {
-  //   for (int i(0); i < d->Nx; i++) {
-  //     for (int j(0); j < d->Ny; j++) {
-  //       for (int k(0); k < d->Nz; k++) {
-  //         initGuess[d->id(var, i, j, k)] += dt * tempSource[d->id(var, i, j, k)];
-  //         initGuess[d->id(var, i, j, k)] *= 0.5;
-  //       }
-  //     }
-  //   }
-  // }
+  this->model->sourceTerm(initGuess, tempPrims, tempAux, tempSource);
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          initGuess[ID(var, i, j, k)] += dt * tempSource[ID(var, i, j, k)];
+          // initGuess[ID(var, i, j, k)] *= 0.5;
+        }
+      }
+    }
+  }
 
 
   // Also step given variables so we now have the explicit contribution due to fluxes
@@ -80,17 +83,17 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // First store current cells state in arguments object
-        for (int var(0); var < d->Ncons ; var++) x[var]             = initGuess[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.constar[var]  = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.primstar[var] = prims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.auxstar[var]  = aux[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) x[var]             = initGuess[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.constar[var]  = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.primstar[var] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) args.auxstar[var]  = aux[ID(var, i, j, k)];
         args.i = i;
         args.j = j;
         args.k = k;
         // Call hybrd1
         if ((info = __cminpack_func__(hybrd1)(backwardsRKresidual, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
           // Rootfind successful
-          for (int var(0); var < d->Ncons; var++) cons[d->id(var, i, j, k)]  = x[var];
+          for (int var(0); var < d->Ncons; var++) cons[ID(var, i, j, k)]  = x[var];
         }
         else {
           std::cout << "BackwardsRK2 failed in cell (" << i << ", " << j << ", " << k << ") with info=" << info << std::endl;

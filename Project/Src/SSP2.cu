@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <cstdio>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 //! Residual function for stage one of IMEX SSP2
 int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2a(void *p, int n, const double *x, double *fvec, int iflag);
@@ -115,10 +118,10 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons ; var++) x[var]          = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]   = aux[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) x[var]          = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) args.aux[var]   = aux[ID(var, i, j, k)];
         args.i = i;
         args.j = j;
         args.k = k;
@@ -126,9 +129,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         try {
           if ((info = __cminpack_func__(hybrd1)(IMEX2Residual1, this, d->Ncons, x, fvec, tol, wa, lwa)) == 1) {
             // Rootfind successful
-            for (int var(0); var < d->Ncons; var++)  U1[d->id(var, i, j, k)]        = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] = args.prims[var];
-            for (int var(0); var < d->Naux; var++)   tempaux[d->id(var, i, j, k)]   = args.aux[var];
+            for (int var(0); var < d->Ncons; var++)  U1[ID(var, i, j, k)]        = x[var];
+            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] = args.prims[var];
+            for (int var(0); var < d->Naux; var++)   tempaux[ID(var, i, j, k)]   = args.aux[var];
           }
           else {
             char s[200];
@@ -157,11 +160,11 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Ncons; var++)
-            U2F[d->id(var, i, j, k)] = U1[d->id(var, i, j, k)] - dt * flux1[d->id(var, i, j, k)];
+            U2F[ID(var, i, j, k)] = U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++)
-            tempprims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
+            tempprims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux; var++)
-            tempaux[d->id(var, i, j, k)] = aux[d->id(var, i, j, k)];
+            tempaux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
       }
     }
   }
@@ -171,11 +174,11 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
-        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) x[var]            = U1[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) x[var]            = U1[ID(var, i, j, k)];
         args.i = i;
         args.j = j;
         args.k = k;
@@ -183,9 +186,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         try {
           if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
             // Rootfind successful
-            for (int var(0); var < d->Ncons ; var++) U2S[d->id(var, i, j, k)]       = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] += args.prims[var];
-            for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   += args.aux[var];
+            for (int var(0); var < d->Ncons ; var++) U2S[ID(var, i, j, k)]       = x[var];
+            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] += args.prims[var];
+            for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   += args.aux[var];
           }
           else {
             char s[200];
@@ -206,10 +209,10 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
         for (int var(0); var < d->Ncons ; var++)
-          U2guess[d->id(var, i, j, k)] = 0.5 * (U2S[d->id(var, i, j, k)] + U2F[d->id(var, i, j, k)]);
+          U2guess[ID(var, i, j, k)] = 0.5 * (U2S[ID(var, i, j, k)] + U2F[ID(var, i, j, k)]);
 
-        for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] *= 0.5;
-        for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   *= 0.5;
+        for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] *= 0.5;
+        for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   *= 0.5;
       }
     }
   }
@@ -223,12 +226,12 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
-        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[d->id(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[d->id(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[d->id(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) x[var]            = U2guess[d->id(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) x[var]            = U2guess[ID(var, i, j, k)];
         args.i = i;
         args.j = j;
         args.k = k;
@@ -236,9 +239,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         try {
           if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
             // Rootfind successful
-            for (int var(0); var < d->Ncons ; var++) U2[d->id(var, i, j, k)]        = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[d->id(var, i, j, k)] = args.prims[var];
-            for (int var(0); var < d->Naux  ; var++) tempaux[d->id(var, i, j, k)]   = args.aux[var];
+            for (int var(0); var < d->Ncons ; var++) U2[ID(var, i, j, k)]        = x[var];
+            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] = args.prims[var];
+            for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   = args.aux[var];
 
           }
           else {
@@ -266,9 +269,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int i(is); i < ie; i++) {
       for (int j(js); j < je; j++) {
         for (int k(ks); k < ke; k++) {
-          cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - 0.5 * dt *
-                    (flux1[d->id(var, i, j, k)] + flux2[d->id(var, i, j, k)] -
-                    source1[d->id(var, i, j, k)] - source2[d->id(var, i, j, k)]);
+          cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - 0.5 * dt *
+                    (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
+                    source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
         }
       }
     }

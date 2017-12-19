@@ -11,6 +11,8 @@ int counter(0);
 #include <cstdio>
 #include <iostream>
 
+// Macro for getting array index 
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
 
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);
@@ -94,65 +96,65 @@ void TwoFluidEMHD::fluxVector(double *cons, double *prims, double *aux, double *
         for (int k(0); k < d->Nz; k++) {
           // D
 
-          f[d->id(0, i, j, k)] = prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] + prims[d->id(5, i, j, k)] *
-                                 aux[d->id(11, i, j, k)] * prims[d->id(6, i, j, k)];
+          f[ID(0, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                 prims[ID(1, i, j, k)] + prims[ID(5, i, j, k)] *
+                                 aux[ID(11, i, j, k)] * prims[ID(6, i, j, k)];
           // Sx, Sy, Sx
-          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] +
-                                 prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(13, i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(10, i, j, k)]) +
-                                 (aux[d->id(27, i, j, k)] + aux[d->id(28, i, j, k)]) * 0.5;
-          f[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(11, i, j, k)]);
-          f[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(15, i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(12, i, j, k)]);
+          f[ID(1, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(1, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] +
+                                 prims[ID(4, i, j, k)] + prims[ID(9, i, j, k)] -
+                                 (cons[ID(13, i, j, k)] * cons[ID(13, i, j, k)] +
+                                 cons[ID(10, i, j, k)] * cons[ID(10, i, j, k)]) +
+                                 (aux[ID(27, i, j, k)] + aux[ID(28, i, j, k)]) * 0.5;
+          f[ID(2, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)] -
+                                 (cons[ID(13, i, j, k)] * cons[ID(14, i, j, k)] +
+                                 cons[ID(10, i, j, k)] * cons[ID(11, i, j, k)]);
+          f[ID(3, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(8, i, j, k)] -
+                                 (cons[ID(13, i, j, k)] * cons[ID(15, i, j, k)] +
+                                 cons[ID(10, i, j, k)] * cons[ID(12, i, j, k)]);
           // Tau
-          f[d->id(4, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] -
-                                 prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] - prims[d->id(5, i, j, k)] *
-                                 aux[d->id(11, i, j, k)] * prims[d->id(6, i, j, k)] +
-                                 (cons[d->id(14, i, j, k)] * cons[d->id(12, i, j, k)] -
-                                 cons[d->id(11, i, j, k)] * cons[d->id(15, i, j, k)]);
+          f[ID(4, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)] -
+                                 prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                 prims[ID(1, i, j, k)] - prims[ID(5, i, j, k)] *
+                                 aux[ID(11, i, j, k)] * prims[ID(6, i, j, k)] +
+                                 (cons[ID(14, i, j, k)] * cons[ID(12, i, j, k)] -
+                                 cons[ID(11, i, j, k)] * cons[ID(15, i, j, k)]);
           // Dbar
-          f[d->id(5, i, j, k)] = d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)];
+          f[ID(5, i, j, k)] = d->mu1 * aux[ID(5, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(6, i, j, k)];
           // Sbarx, Sbary, Sbarz
-          f[d->id(6, i, j, k)] = d->mu1 * (aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] + prims[d->id(4, i, j, k)]) +
-                                 d->mu2 * (aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] + prims[d->id(9, i, j, k)]);
-          f[d->id(7, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)];
-          f[d->id(8, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)];
+          f[ID(6, i, j, k)] = d->mu1 * (aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(1, i, j, k)] + prims[ID(4, i, j, k)]) +
+                                 d->mu2 * (aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)] *
+                                 prims[ID(6, i, j, k)] + prims[ID(9, i, j, k)]);
+          f[ID(7, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)];
+          f[ID(8, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(8, i, j, k)];
           // tauBar
-          f[d->id(9, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] -
-                                 (d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(6, i, j, k)]);
+          f[ID(9, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 d->mu2 * aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)] -
+                                 (d->mu1 * aux[ID(5, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(6, i, j, k)]);
           // Bx, By, Bz
-          f[d->id(10, i, j, k)] = cons[d->id(17, i, j, k)];
-          f[d->id(11, i, j, k)] = - cons[d->id(15, i, j, k)];
-          f[d->id(12, i, j, k)] = cons[d->id(14, i, j, k)];
+          f[ID(10, i, j, k)] = cons[ID(17, i, j, k)];
+          f[ID(11, i, j, k)] = - cons[ID(15, i, j, k)];
+          f[ID(12, i, j, k)] = cons[ID(14, i, j, k)];
           // Ex, Ey, Ez
-          f[d->id(13, i, j, k)] = cons[d->id(16, i, j, k)];
-          f[d->id(14, i, j, k)] = cons[d->id(12, i, j, k)];
-          f[d->id(15, i, j, k)] = - cons[d->id(11, i, j, k)];
+          f[ID(13, i, j, k)] = cons[ID(16, i, j, k)];
+          f[ID(14, i, j, k)] = cons[ID(12, i, j, k)];
+          f[ID(15, i, j, k)] = - cons[ID(11, i, j, k)];
           // Psi, Phi
-          f[d->id(16, i, j, k)] = cons[d->id(13, i, j, k)];
-          f[d->id(17, i, j, k)] = cons[d->id(10, i, j, k)];
+          f[ID(16, i, j, k)] = cons[ID(13, i, j, k)];
+          f[ID(17, i, j, k)] = cons[ID(10, i, j, k)];
         }
       }
     }
@@ -163,60 +165,60 @@ void TwoFluidEMHD::fluxVector(double *cons, double *prims, double *aux, double *
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
-          f[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 aux[d->id(15, i, j, k)] * prims[d->id(7, i, j, k)];
+          f[ID(0, i, j, k)] = aux[ID(5, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 aux[ID(15, i, j, k)] * prims[ID(7, i, j, k)];
           // Sx, Sy, Sx
-          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(14 ,i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(11, i, j, k)]);
-          f[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] +
-                                 prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
-                                 (cons[d->id(14, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                 cons[d->id(11, i, j, k)] * cons[d->id(11, i, j, k)]) +
-                                 (aux[d->id(27, i, j, k)] + aux[d->id(28, i, j, k)]) * 0.5;
-          f[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(8, i, j, k)] * prims[d->id(7, i, j, k)] -
-                                 (cons[d->id(15, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                 cons[d->id(12, i, j, k)] * cons[d->id(11, i, j, k)]);
+          f[ID(1, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)] -
+                                 (cons[ID(13, i, j, k)] * cons[ID(14 ,i, j, k)] +
+                                 cons[ID(10, i, j, k)] * cons[ID(11, i, j, k)]);
+          f[ID(2, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] +
+                                 prims[ID(4, i, j, k)] + prims[ID(9, i, j, k)] -
+                                 (cons[ID(14, i, j, k)] * cons[ID(14, i, j, k)] +
+                                 cons[ID(11, i, j, k)] * cons[ID(11, i, j, k)]) +
+                                 (aux[ID(27, i, j, k)] + aux[ID(28, i, j, k)]) * 0.5;
+          f[ID(3, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(8, i, j, k)] * prims[ID(7, i, j, k)] -
+                                 (cons[ID(15, i, j, k)] * cons[ID(14, i, j, k)] +
+                                 cons[ID(12, i, j, k)] * cons[ID(11, i, j, k)]);
           // Tau
-          f[d->id(4, i, j, k)] = cons[d->id(2, i, j, k)] - (aux[d->id(5, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + aux[d->id(15, i, j, k)] *
-                                 prims[d->id(7, i, j, k)]);
+          f[ID(4, i, j, k)] = cons[ID(2, i, j, k)] - (aux[ID(5, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + aux[ID(15, i, j, k)] *
+                                 prims[ID(7, i, j, k)]);
           // Dbar
-          f[d->id(5, i, j, k)] = d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(7, i, j, k)];
+          f[ID(5, i, j, k)] = d->mu1 * aux[ID(5, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(7, i, j, k)];
           // Sbarx, Sbary, Sbarz
-          f[d->id(6, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(7, i, j, k)] * prims[d->id(6, i, j, k)] ;
-          f[d->id(7, i, j, k)] = d->mu1 * (aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + prims[d->id(4, i, j, k)]) +
-                                 d->mu2 * (aux[d->id(14, i, j, k)] * prims[d->id(7, i, j, k)] *
-                                 prims[d->id(7, i, j, k)] + prims[d->id(9, i, j, k)]);
-          f[d->id(8, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(7, i, j, k)] * prims[d->id(8, i, j, k)];
+          f[ID(6, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] *
+                                 prims[ID(1, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(7, i, j, k)] * prims[ID(6, i, j, k)] ;
+          f[ID(7, i, j, k)] = d->mu1 * (aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + prims[ID(4, i, j, k)]) +
+                                 d->mu2 * (aux[ID(14, i, j, k)] * prims[ID(7, i, j, k)] *
+                                 prims[ID(7, i, j, k)] + prims[ID(9, i, j, k)]);
+          f[ID(8, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(7, i, j, k)] * prims[ID(8, i, j, k)];
           // tauBar
-          f[d->id(9, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(7, i, j, k)] -
-                                 (d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(7, i, j, k)]);
+          f[ID(9, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 d->mu2 * aux[ID(14, i, j, k)] * prims[ID(7, i, j, k)] -
+                                 (d->mu1 * aux[ID(5, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(7, i, j, k)]);
           // Bx, By, Bz
-          f[d->id(10, i, j, k)] = cons[d->id(15, i, j, k)];
-          f[d->id(11, i, j, k)] = cons[d->id(17, i, j, k)];
-          f[d->id(12, i, j, k)] = - cons[d->id(13, i, j, k)];
+          f[ID(10, i, j, k)] = cons[ID(15, i, j, k)];
+          f[ID(11, i, j, k)] = cons[ID(17, i, j, k)];
+          f[ID(12, i, j, k)] = - cons[ID(13, i, j, k)];
           // Ex, Ey, Ez
-          f[d->id(13, i, j, k)] = - cons[d->id(12, i, j, k)];
-          f[d->id(14, i, j, k)] = cons[d->id(16, i, j, k)];
-          f[d->id(15, i, j, k)] = cons[d->id(10, i, j, k)];
+          f[ID(13, i, j, k)] = - cons[ID(12, i, j, k)];
+          f[ID(14, i, j, k)] = cons[ID(16, i, j, k)];
+          f[ID(15, i, j, k)] = cons[ID(10, i, j, k)];
           // Psi, Phi
-          f[d->id(16, i, j, k)] = cons[d->id(14, i, j, k)];
-          f[d->id(17, i, j, k)] = cons[d->id(11, i, j, k)];
+          f[ID(16, i, j, k)] = cons[ID(14, i, j, k)];
+          f[ID(17, i, j, k)] = cons[ID(11, i, j, k)];
         }
       }
     }
@@ -227,60 +229,60 @@ void TwoFluidEMHD::fluxVector(double *cons, double *prims, double *aux, double *
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
-          f[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] * prims[d->id(3, i, j, k)] +
-                                 aux[d->id(15, i, j, k)] * prims[d->id(8, i, j, k)];
+          f[ID(0, i, j, k)] = aux[ID(5, i, j, k)] * prims[ID(3, i, j, k)] +
+                                 aux[ID(15, i, j, k)] * prims[ID(8, i, j, k)];
           // Sx, Sy, Sx
-          f[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(6, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (cons[d->id(13, i, j, k)] * cons[d->id(15 ,i, j, k)] +
-                                 cons[d->id(10, i, j, k)] * cons[d->id(12, i, j, k)]);
-          f[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(7, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (cons[d->id(14, i, j, k)] * cons[d->id(15, i, j, k)] +
-                                 cons[d->id(11, i, j, k)] * cons[d->id(12, i, j, k)]);
-          f[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + aux[d->id(14, i, j, k)] *
-                                 prims[d->id(8, i, j, k)] * prims[d->id(8, i, j, k)] +
-                                 prims[d->id(4, i, j, k)] + prims[d->id(9, i, j, k)] -
-                                 (cons[d->id(15, i, j, k)] * cons[d->id(15, i, j, k)] +
-                                 cons[d->id(12, i, j, k)] * cons[d->id(12, i, j, k)]) +
-                                 (aux[d->id(27, i, j, k)] + aux[d->id(28, i, j, k)]) * 0.5;
+          f[ID(1, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(6, i, j, k)] * prims[ID(8, i, j, k)] -
+                                 (cons[ID(13, i, j, k)] * cons[ID(15 ,i, j, k)] +
+                                 cons[ID(10, i, j, k)] * cons[ID(12, i, j, k)]);
+          f[ID(2, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(7, i, j, k)] * prims[ID(8, i, j, k)] -
+                                 (cons[ID(14, i, j, k)] * cons[ID(15, i, j, k)] +
+                                 cons[ID(11, i, j, k)] * cons[ID(12, i, j, k)]);
+          f[ID(3, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + aux[ID(14, i, j, k)] *
+                                 prims[ID(8, i, j, k)] * prims[ID(8, i, j, k)] +
+                                 prims[ID(4, i, j, k)] + prims[ID(9, i, j, k)] -
+                                 (cons[ID(15, i, j, k)] * cons[ID(15, i, j, k)] +
+                                 cons[ID(12, i, j, k)] * cons[ID(12, i, j, k)]) +
+                                 (aux[ID(27, i, j, k)] + aux[ID(28, i, j, k)]) * 0.5;
           // Tau
-          f[d->id(4, i, j, k)] = cons[d->id(3, i, j, k)] - (aux[d->id(5, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + aux[d->id(15, i, j, k)] *
-                                 prims[d->id(8, i, j, k)]);
+          f[ID(4, i, j, k)] = cons[ID(3, i, j, k)] - (aux[ID(5, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + aux[ID(15, i, j, k)] *
+                                 prims[ID(8, i, j, k)]);
           // Dbar
-          f[d->id(5, i, j, k)] = d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(7, i, j, k)];
+          f[ID(5, i, j, k)] = d->mu1 * aux[ID(5, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(7, i, j, k)];
           // Sbarx, Sbary, Sbarz
-          f[d->id(6, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
-                                 prims[d->id(1, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(8, i, j, k)] * prims[d->id(6, i, j, k)] ;
-          f[d->id(7, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
-                                 prims[d->id(2, i, j, k)] + d->mu2 * aux[d->id(14, i, j, k)] *
-                                 prims[d->id(8, i, j, k)] * prims[d->id(7, i, j, k)];
-          f[d->id(8, i, j, k)] = d->mu1 * (aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] *
-                                 prims[d->id(3, i, j, k)] + prims[d->id(4, i, j, k)]) +
-                                 d->mu2 * (aux[d->id(14, i, j, k)] * prims[d->id(8, i, j, k)] *
-                                 prims[d->id(8, i, j, k)] + prims[d->id(9, i, j, k)]);
+          f[ID(6, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] *
+                                 prims[ID(1, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(8, i, j, k)] * prims[ID(6, i, j, k)] ;
+          f[ID(7, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] *
+                                 prims[ID(2, i, j, k)] + d->mu2 * aux[ID(14, i, j, k)] *
+                                 prims[ID(8, i, j, k)] * prims[ID(7, i, j, k)];
+          f[ID(8, i, j, k)] = d->mu1 * (aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] *
+                                 prims[ID(3, i, j, k)] + prims[ID(4, i, j, k)]) +
+                                 d->mu2 * (aux[ID(14, i, j, k)] * prims[ID(8, i, j, k)] *
+                                 prims[ID(8, i, j, k)] + prims[ID(9, i, j, k)]);
           // tauBar
-          f[d->id(9, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] +
-                                 d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(8, i, j, k)] -
-                                 (d->mu1 * aux[d->id(5, i, j, k)] * prims[d->id(3, i, j, k)] +
-                                 d->mu2 * aux[d->id(15, i, j, k)] * prims[d->id(8, i, j, k)]);
+          f[ID(9, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] +
+                                 d->mu2 * aux[ID(14, i, j, k)] * prims[ID(8, i, j, k)] -
+                                 (d->mu1 * aux[ID(5, i, j, k)] * prims[ID(3, i, j, k)] +
+                                 d->mu2 * aux[ID(15, i, j, k)] * prims[ID(8, i, j, k)]);
           // Bx, By, Bz
-          f[d->id(10, i, j, k)] = - cons[d->id(14, i, j, k)];
-          f[d->id(11, i, j, k)] = cons[d->id(13, i, j, k)];
-          f[d->id(12, i, j, k)] = cons[d->id(17, i, j, k)];
+          f[ID(10, i, j, k)] = - cons[ID(14, i, j, k)];
+          f[ID(11, i, j, k)] = cons[ID(13, i, j, k)];
+          f[ID(12, i, j, k)] = cons[ID(17, i, j, k)];
           // Ex, Ey, Ez
-          f[d->id(13, i, j, k)] = cons[d->id(11, i, j, k)];
-          f[d->id(14, i, j, k)] = - cons[d->id(10, i, j, k)];
-          f[d->id(15, i, j, k)] = cons[d->id(16, i, j, k)];
+          f[ID(13, i, j, k)] = cons[ID(11, i, j, k)];
+          f[ID(14, i, j, k)] = - cons[ID(10, i, j, k)];
+          f[ID(15, i, j, k)] = cons[ID(16, i, j, k)];
           // Psi, Phi
-          f[d->id(16, i, j, k)] = cons[d->id(15, i, j, k)];
-          f[d->id(17, i, j, k)] = cons[d->id(12, i, j, k)];
+          f[ID(16, i, j, k)] = cons[ID(15, i, j, k)];
+          f[ID(17, i, j, k)] = cons[ID(12, i, j, k)];
         }
       } // End k loop
     } // End j loop
@@ -345,20 +347,20 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
       for (int k(0); k < d->Nz; k++) {
         // Copy data to work arrays
         for (int var(0); var < d->Ncons; var++) {
-          singleCons[var] = cons[d->id(var, i, j, k)];
+          singleCons[var] = cons[ID(var, i, j, k)];
         }
         for (int var(0); var < d->Nprims; var++) {
-          singlePrims[var] = prims[d->id(var, i, j, k)];
+          singlePrims[var] = prims[ID(var, i, j, k)];
         }
         for (int var(0); var < d->Naux; var++) {
-          singleAux[var] = aux[d->id(var, i, j, k)];
+          singleAux[var] = aux[ID(var, i, j, k)];
         }
 
         // Get source for this cell
         this->sourceTermSingleCell(singleCons, singlePrims, singleAux, singleSource, i, j, k);
         // Copy result back
         for (int var(0); var < d->Ncons; var++) {
-          source[d->id(var, i, j, k)] = singleSource[var];
+          source[ID(var, i, j, k)] = singleSource[var];
         }
       }
     }
@@ -395,10 +397,10 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
         // Store this cell's cons data and Z1 and Z2 from last timestep
         for (int var(0); var < d->Ncons; var++) {
-          singleCons[var] = cons[d->id(var, i, j, k)];
+          singleCons[var] = cons[ID(var, i, j, k)];
         }
-        singleAux[4] = aux[d->id(4, i, j, k)];
-        singleAux[14] = aux[d->id(14, i, j, k)];
+        singleAux[4] = aux[ID(4, i, j, k)];
+        singleAux[14] = aux[ID(14, i, j, k)];
 
         // Get primitive and auxilliary vars
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
@@ -406,10 +408,10 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < d->Nprims; var++) {
-          prims[d->id(var, i, j, k)] = singlePrims[var];
+          prims[ID(var, i, j, k)] = singlePrims[var];
         }
         for (int var(0); var < d->Naux; var++) {
-          aux[d->id(var, i, j, k)] = singleAux[var];
+          aux[ID(var, i, j, k)] = singleAux[var];
         }
       }
     }
@@ -604,145 +606,145 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // psi, phi
-        cons[d->id(16, i, j, k)] = 0.0;
-        cons[d->id(17, i, j, k)] = 0.0;
+        cons[ID(16, i, j, k)] = 0.0;
+        cons[ID(17, i, j, k)] = 0.0;
 
         // Bx, By, Bz
-        cons[d->id(10, i, j, k)] = prims[d->id(10, i, j, k)];
-        cons[d->id(11, i, j, k)] = prims[d->id(11, i, j, k)];
-        cons[d->id(12, i, j, k)] = prims[d->id(12, i, j, k)];
+        cons[ID(10, i, j, k)] = prims[ID(10, i, j, k)];
+        cons[ID(11, i, j, k)] = prims[ID(11, i, j, k)];
+        cons[ID(12, i, j, k)] = prims[ID(12, i, j, k)];
         // Ex, Ey, Ez
-        cons[d->id(13, i, j, k)] = prims[d->id(13, i, j, k)];
-        cons[d->id(14, i, j, k)] = prims[d->id(14, i, j, k)];
-        cons[d->id(15, i, j, k)] = prims[d->id(15, i, j, k)];
+        cons[ID(13, i, j, k)] = prims[ID(13, i, j, k)];
+        cons[ID(14, i, j, k)] = prims[ID(14, i, j, k)];
+        cons[ID(15, i, j, k)] = prims[ID(15, i, j, k)];
         // Bsq, Esq
-        aux[d->id(27, i, j, k)] = cons[d->id(10, i, j, k)] * cons[d->id(10, i, j, k)] +
-                                  cons[d->id(11, i, j, k)] * cons[d->id(11, i, j, k)] +
-                                  cons[d->id(12, i, j, k)] * cons[d->id(12, i, j, k)];
-        aux[d->id(28, i, j, k)] = cons[d->id(13, i, j, k)] * cons[d->id(13, i, j, k)] +
-                                  cons[d->id(14, i, j, k)] * cons[d->id(14, i, j, k)] +
-                                  cons[d->id(15, i, j, k)] * cons[d->id(15, i, j, k)];
+        aux[ID(27, i, j, k)] = cons[ID(10, i, j, k)] * cons[ID(10, i, j, k)] +
+                                  cons[ID(11, i, j, k)] * cons[ID(11, i, j, k)] +
+                                  cons[ID(12, i, j, k)] * cons[ID(12, i, j, k)];
+        aux[ID(28, i, j, k)] = cons[ID(13, i, j, k)] * cons[ID(13, i, j, k)] +
+                                  cons[ID(14, i, j, k)] * cons[ID(14, i, j, k)] +
+                                  cons[ID(15, i, j, k)] * cons[ID(15, i, j, k)];
         // vsq1, vsq2
-        aux[d->id(3, i, j, k)] = prims[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 prims[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 prims[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)];
-        aux[d->id(13, i, j, k)] = prims[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] +
-                                  prims[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] +
-                                  prims[d->id(8, i, j, k)] * prims[d->id(8, i, j, k)];
+        aux[ID(3, i, j, k)] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
+        aux[ID(13, i, j, k)] = prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] +
+                                  prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] +
+                                  prims[ID(8, i, j, k)] * prims[ID(8, i, j, k)];
         // W1, W2
-        aux[d->id(1, i, j, k)] = 1.0 / sqrt(1 - aux[d->id(3, i, j, k)]);
-        aux[d->id(11, i, j, k)] = 1.0 / sqrt(1 - aux[d->id(13, i, j, k)]);
+        aux[ID(1, i, j, k)] = 1.0 / sqrt(1 - aux[ID(3, i, j, k)]);
+        aux[ID(11, i, j, k)] = 1.0 / sqrt(1 - aux[ID(13, i, j, k)]);
         // rhoCh
-        aux[d->id(30, i, j, k)] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
-                                  d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)];
+        aux[ID(30, i, j, k)] = d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] +
+                                  d->mu2 * prims[ID(5, i, j, k)] * aux[ID(11, i, j, k)];
         // W
-        aux[d->id(34, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] +
-                                   d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)]) /
-                                  (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 *
-                                  prims[d->id(5, i, j, k)]);
+        aux[ID(34, i, j, k)] = (d->mu1 * d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] +
+                                   d->mu2 * d->mu2 * prims[ID(5, i, j, k)] * aux[ID(11, i, j, k)]) /
+                                  (d->mu1 * d->mu1 * prims[ID(0, i, j, k)] + d->mu2 * d->mu2 *
+                                  prims[ID(5, i, j, k)]);
         // ux, uy, uz
-        aux[d->id(31, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(1, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(6, i, j, k)]) / (d->mu1 * d->mu1 *
-                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
-        aux[d->id(32, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(2, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(7, i, j, k)]) / (d->mu1 * d->mu1 *
-                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
-        aux[d->id(33, i, j, k)] = (d->mu1 * d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(3, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(8, i, j, k)]) / (d->mu1 * d->mu1 *
-                                  prims[d->id(0, i, j, k)] + d->mu2 * d->mu2 * prims[d->id(5, i, j, k)]);
+        aux[ID(31, i, j, k)] = (d->mu1 * d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(1, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(6, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[ID(0, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)]);
+        aux[ID(32, i, j, k)] = (d->mu1 * d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(2, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(7, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[ID(0, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)]);
+        aux[ID(33, i, j, k)] = (d->mu1 * d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(3, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(8, i, j, k)]) / (d->mu1 * d->mu1 *
+                                  prims[ID(0, i, j, k)] + d->mu2 * d->mu2 * prims[ID(5, i, j, k)]);
         // rhoCh0
-        aux[d->id(29, i, j, k)] = aux[d->id(34, i, j, k)] * aux[d->id(30, i, j, k)] -
-                                  (aux[d->id(20, i, j, k)] * aux[d->id(31, i, j, k)] +
-                                   aux[d->id(21, i, j, k)] * aux[d->id(32, i, j, k)] +
-                                   aux[d->id(22, i, j, k)] * aux[d->id(33, i, j, k)]);
+        aux[ID(29, i, j, k)] = aux[ID(34, i, j, k)] * aux[ID(30, i, j, k)] -
+                                  (aux[ID(20, i, j, k)] * aux[ID(31, i, j, k)] +
+                                   aux[ID(21, i, j, k)] * aux[ID(32, i, j, k)] +
+                                   aux[ID(22, i, j, k)] * aux[ID(33, i, j, k)]);
         // EcrossBx, EcrossBy, EcrossBz
-        double ExBx = cons[d->id(14, i, j, k)] * cons[d->id(12, i, j, k)] -
-                      cons[d->id(15, i, j, k)] * cons[d->id(11, i, j, k)];
-        double ExBy = cons[d->id(15, i, j, k)] * cons[d->id(10, i, j, k)] -
-                      cons[d->id(13, i, j, k)] * cons[d->id(12, i, j, k)];
-        double ExBz = cons[d->id(13, i, j, k)] * cons[d->id(11, i, j, k)] -
-                      cons[d->id(14, i, j, k)] * cons[d->id(10, i, j, k)];
+        double ExBx = cons[ID(14, i, j, k)] * cons[ID(12, i, j, k)] -
+                      cons[ID(15, i, j, k)] * cons[ID(11, i, j, k)];
+        double ExBy = cons[ID(15, i, j, k)] * cons[ID(10, i, j, k)] -
+                      cons[ID(13, i, j, k)] * cons[ID(12, i, j, k)];
+        double ExBz = cons[ID(13, i, j, k)] * cons[ID(11, i, j, k)] -
+                      cons[ID(14, i, j, k)] * cons[ID(10, i, j, k)];
         // e1, e2
-        aux[d->id(2, i, j, k)] = prims[d->id(4, i, j, k)] / (prims[d->id(0, i, j, k)] *
+        aux[ID(2, i, j, k)] = prims[ID(4, i, j, k)] / (prims[ID(0, i, j, k)] *
                                  (d->gamma - 1));
-        aux[d->id(12, i, j, k)] = prims[d->id(9, i, j, k)] / (prims[d->id(5, i, j, k)] *
+        aux[ID(12, i, j, k)] = prims[ID(9, i, j, k)] / (prims[ID(5, i, j, k)] *
                                   (d->gamma - 1));
         // h1, h2
-        aux[d->id(0, i, j, k)] = 1 + aux[d->id(2, i, j, k)] * d->gamma;
-        aux[d->id(10, i, j, k)] = 1 + aux[d->id(12, i, j, k)] * d->gamma;
+        aux[ID(0, i, j, k)] = 1 + aux[ID(2, i, j, k)] * d->gamma;
+        aux[ID(10, i, j, k)] = 1 + aux[ID(12, i, j, k)] * d->gamma;
         // Z1, Z2
-        aux[d->id(4, i, j, k)] = prims[d->id(0, i, j, k)] * aux[d->id(0, i, j, k)] *
-                                 aux[d->id(1, i, j, k)] * aux[d->id(1, i, j, k)];
-        aux[d->id(14, i, j, k)] = prims[d->id(5, i, j, k)] * aux[d->id(10, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * aux[d->id(11, i, j, k)];
+        aux[ID(4, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] *
+                                 aux[ID(1, i, j, k)] * aux[ID(1, i, j, k)];
+        aux[ID(14, i, j, k)] = prims[ID(5, i, j, k)] * aux[ID(10, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * aux[ID(11, i, j, k)];
         // Jx, Jy, Jz
-        aux[d->id(20, i, j, k)] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(1, i, j, k)] + d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(6, i, j, k)];
-        aux[d->id(21, i, j, k)] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(2, i, j, k)] + d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(7, i, j, k)];
-        aux[d->id(22, i, j, k)] = d->mu1 * prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                  prims[d->id(3, i, j, k)] + d->mu2 * prims[d->id(5, i, j, k)] *
-                                  aux[d->id(11, i, j, k)] * prims[d->id(8, i, j, k)];
+        aux[ID(20, i, j, k)] = d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(1, i, j, k)] + d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(6, i, j, k)];
+        aux[ID(21, i, j, k)] = d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(2, i, j, k)] + d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(7, i, j, k)];
+        aux[ID(22, i, j, k)] = d->mu1 * prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                  prims[ID(3, i, j, k)] + d->mu2 * prims[ID(5, i, j, k)] *
+                                  aux[ID(11, i, j, k)] * prims[ID(8, i, j, k)];
 
 
         // D1, D2, D
-        aux[d->id(5, i, j, k)] = prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)];
-        aux[d->id(15, i, j, k)] = prims[d->id(5, i, j, k)] * aux[d->id(11, i, j, k)];
-        cons[d->id(0, i, j, k)] = aux[d->id(5, i, j, k)] + aux[d->id(15, i, j, k)];
+        aux[ID(5, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)];
+        aux[ID(15, i, j, k)] = prims[ID(5, i, j, k)] * aux[ID(11, i, j, k)];
+        cons[ID(0, i, j, k)] = aux[ID(5, i, j, k)] + aux[ID(15, i, j, k)];
         // Sx, Sy, Sz
-        cons[d->id(1, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                  aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)] +
+        cons[ID(1, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] +
+                                  aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)] +
                                   ExBx;
-        cons[d->id(2, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                  aux[d->id(14, i, j, k)] * prims[d->id(7, i, j, k)] +
+        cons[ID(2, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] +
+                                  aux[ID(14, i, j, k)] * prims[ID(7, i, j, k)] +
                                   ExBy;
-        cons[d->id(3, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] +
-                                  aux[d->id(14, i, j, k)] * prims[d->id(8, i, j, k)] +
+        cons[ID(3, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] +
+                                  aux[ID(14, i, j, k)] * prims[ID(8, i, j, k)] +
                                   ExBz;
         // tau
-        cons[d->id(4, i, j, k)] = aux[d->id(4, i, j, k)] - prims[d->id(4, i, j, k)] +
-                                  aux[d->id(14, i, j, k)] - prims[d->id(9, i, j, k)] +
-                                  (aux[d->id(27, i, j, k)] + aux[d->id(28, i, j, k)]) * 0.5 -
-                                  cons[d->id(0, i, j, k)];
+        cons[ID(4, i, j, k)] = aux[ID(4, i, j, k)] - prims[ID(4, i, j, k)] +
+                                  aux[ID(14, i, j, k)] - prims[ID(9, i, j, k)] +
+                                  (aux[ID(27, i, j, k)] + aux[ID(28, i, j, k)]) * 0.5 -
+                                  cons[ID(0, i, j, k)];
         // Dbar
-        cons[d->id(5, i, j, k)] = d->mu1 * aux[d->id(5, i, j, k)] +
-                                  d->mu2 * aux[d->id(15, i, j, k)];
+        cons[ID(5, i, j, k)] = d->mu1 * aux[ID(5, i, j, k)] +
+                                  d->mu2 * aux[ID(15, i, j, k)];
         // Sbarx, Sbary, Sbarz
-        cons[d->id(6, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                  d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)];
-        cons[d->id(7, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                  d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(7, i, j, k)];
-        cons[d->id(8, i, j, k)] = d->mu1 * aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)] +
-                                  d->mu2 * aux[d->id(14, i, j, k)] * prims[d->id(8, i, j, k)];
+        cons[ID(6, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)] +
+                                  d->mu2 * aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)];
+        cons[ID(7, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)] +
+                                  d->mu2 * aux[ID(14, i, j, k)] * prims[ID(7, i, j, k)];
+        cons[ID(8, i, j, k)] = d->mu1 * aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)] +
+                                  d->mu2 * aux[ID(14, i, j, k)] * prims[ID(8, i, j, k)];
         // tauBar
-        cons[d->id(9, i, j, k)] = d->mu1 * (aux[d->id(4, i, j, k)] - prims[d->id(4, i, j, k)] -
-                                  aux[d->id(5, i, j, k)]) + d->mu2 * (aux[d->id(14, i, j, k)] -
-                                  prims[d->id(9, i, j, k)] -  aux[d->id(15, i, j, k)]);
+        cons[ID(9, i, j, k)] = d->mu1 * (aux[ID(4, i, j, k)] - prims[ID(4, i, j, k)] -
+                                  aux[ID(5, i, j, k)]) + d->mu2 * (aux[ID(14, i, j, k)] -
+                                  prims[ID(9, i, j, k)] -  aux[ID(15, i, j, k)]);
         // Stildex1, Stildey1, Stildez1
-        aux[d->id(6, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)];
-        aux[d->id(7, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)];
-        aux[d->id(8, i, j, k)] = aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)];
+        aux[ID(6, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)];
+        aux[ID(7, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)];
+        aux[ID(8, i, j, k)] = aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)];
         // Stildex2, Stildey2, Stildez2
-        aux[d->id(16, i, j, k)] = aux[d->id(14, i, j, k)] * prims[d->id(6, i, j, k)];
-        aux[d->id(17, i, j, k)] = aux[d->id(14, i, j, k)] * prims[d->id(7, i, j, k)];
-        aux[d->id(18, i, j, k)] = aux[d->id(14, i, j, k)] * prims[d->id(8, i, j, k)];
+        aux[ID(16, i, j, k)] = aux[ID(14, i, j, k)] * prims[ID(6, i, j, k)];
+        aux[ID(17, i, j, k)] = aux[ID(14, i, j, k)] * prims[ID(7, i, j, k)];
+        aux[ID(18, i, j, k)] = aux[ID(14, i, j, k)] * prims[ID(8, i, j, k)];
         // Stildex, Stildey, Stildez
-        aux[d->id(23, i, j, k)] = aux[d->id(6, i, j, k)] + aux[d->id(16, i, j, k)];
-        aux[d->id(24, i, j, k)] = aux[d->id(7, i, j, k)] + aux[d->id(17, i, j, k)];
-        aux[d->id(25, i, j, k)] = aux[d->id(8, i, j, k)] + aux[d->id(18, i, j, k)];
+        aux[ID(23, i, j, k)] = aux[ID(6, i, j, k)] + aux[ID(16, i, j, k)];
+        aux[ID(24, i, j, k)] = aux[ID(7, i, j, k)] + aux[ID(17, i, j, k)];
+        aux[ID(25, i, j, k)] = aux[ID(8, i, j, k)] + aux[ID(18, i, j, k)];
         // tauTilde1, tauTilde2
-        aux[d->id(9, i, j, k)] = aux[d->id(4, i, j, k)] - prims[d->id(4, i, j, k)] -
-                                 aux[d->id(5, i, j, k)];
-        aux[d->id(19, i, j, k)] = aux[d->id(14, i, j, k)] - prims[d->id(9, i, j, k)] -
-                                aux[d->id(15, i, j, k)];
+        aux[ID(9, i, j, k)] = aux[ID(4, i, j, k)] - prims[ID(4, i, j, k)] -
+                                 aux[ID(5, i, j, k)];
+        aux[ID(19, i, j, k)] = aux[ID(14, i, j, k)] - prims[ID(9, i, j, k)] -
+                                aux[ID(15, i, j, k)];
         // tauTilde
-        aux[d->id(26, i, j, k)] = cons[d->id(4, i, j, k)] - 0.5 * (aux[d->id(27, i, j, k)] +
-                                  aux[d->id(28, i, j, k)]);
+        aux[ID(26, i, j, k)] = cons[ID(4, i, j, k)] - 0.5 * (aux[ID(27, i, j, k)] +
+                                  aux[ID(28, i, j, k)]);
 
       }
     }

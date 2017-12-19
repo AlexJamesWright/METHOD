@@ -14,6 +14,8 @@
 #include <cstdio>
 #include <iostream>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
 
 SRMHD::SRMHD() : Model()
 {
@@ -82,37 +84,37 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
-          f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(1, i, j, k)];
+          f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(1, i, j, k)];
 
           // Sx
-          f[d->id(1, i, j, k)] = cons[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 (prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5) -
-                                 aux[d->id(5, i, j, k)] * prims[d->id(5, i, j, k)] /
-                                 aux[d->id(1, i, j, k)];
+          f[ID(1, i, j, k)] = cons[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 (prims[ID(4, i, j, k)] + aux[ID(8, i, j, k)] * 0.5) -
+                                 aux[ID(5, i, j, k)] * prims[ID(5, i, j, k)] /
+                                 aux[ID(1, i, j, k)];
           // Sy
-          f[d->id(2, i, j, k)] = cons[d->id(2, i, j, k)] * prims[d->id(1, i, j, k)] -
-                                 aux[d->id(6, i, j, k)] * prims[d->id(5, i, j, k)] /
-                                 aux[d->id(1, i, j, k)];
+          f[ID(2, i, j, k)] = cons[ID(2, i, j, k)] * prims[ID(1, i, j, k)] -
+                                 aux[ID(6, i, j, k)] * prims[ID(5, i, j, k)] /
+                                 aux[ID(1, i, j, k)];
           // Sz
-          f[d->id(3, i, j, k)] = cons[d->id(3, i, j, k)] * prims[d->id(1, i, j, k)] -
-                                 aux[d->id(7, i, j, k)] * prims[d->id(5, i, j, k)] /
-                                 aux[d->id(1, i, j, k)];
+          f[ID(3, i, j, k)] = cons[ID(3, i, j, k)] * prims[ID(1, i, j, k)] -
+                                 aux[ID(7, i, j, k)] * prims[ID(5, i, j, k)] /
+                                 aux[ID(1, i, j, k)];
           // tau
-          f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                                 aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(1, i, j, k)] -
-                                 aux[d->id(4, i, j, k)] * prims[d->id(5, i, j, k)] /
-                                 aux[d->id(1, i, j, k)];
+          f[ID(4, i, j, k)] = (cons[ID(4, i, j, k)] + prims[ID(4, i, j, k)] +
+                                 aux[ID(8, i, j, k)] * 0.5) * prims[ID(1, i, j, k)] -
+                                 aux[ID(4, i, j, k)] * prims[ID(5, i, j, k)] /
+                                 aux[ID(1, i, j, k)];
           // Bx
-          f[d->id(5, i, j, k)] = cons[d->id(8, i, j, k)];
+          f[ID(5, i, j, k)] = cons[ID(8, i, j, k)];
 
           // By
-          f[d->id(6, i, j, k)] = prims[d->id(6, i, j, k)] * prims[d->id(1, i, j, k)] -
-                                 prims[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)];
+          f[ID(6, i, j, k)] = prims[ID(6, i, j, k)] * prims[ID(1, i, j, k)] -
+                                 prims[ID(5, i, j, k)] * prims[ID(2, i, j, k)];
           // Bz
-          f[d->id(7, i, j, k)] = prims[d->id(7, i, j, k)] * prims[d->id(1, i, j, k)] -
-                                 prims[d->id(5, i, j, k)] * prims[d->id(3, i, j, k)];
+          f[ID(7, i, j, k)] = prims[ID(7, i, j, k)] * prims[ID(1, i, j, k)] -
+                                 prims[ID(5, i, j, k)] * prims[ID(3, i, j, k)];
           // Phi
-          f[d->id(8, i, j, k)] = prims[d->id(5, i, j, k)];
+          f[ID(8, i, j, k)] = prims[ID(5, i, j, k)];
 
         }
       } // End k loop
@@ -125,37 +127,37 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
-          f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(2, i, j, k)];
+          f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(2, i, j, k)];
 
           // Sx
-          f[d->id(1, i, j, k)] = cons[d->id(1, i, j, k)] * prims[d->id(2, i, j, k)] -
-                              aux[d->id(5, i, j, k)] * prims[d->id(6, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(1, i, j, k)] = cons[ID(1, i, j, k)] * prims[ID(2, i, j, k)] -
+                              aux[ID(5, i, j, k)] * prims[ID(6, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Sy
-          f[d->id(2, i, j, k)] = cons[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
-                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5 -
-                              aux[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(2, i, j, k)] = cons[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                              prims[ID(4, i, j, k)] + aux[ID(8, i, j, k)] * 0.5 -
+                              aux[ID(6, i, j, k)] * prims[ID(6, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Sz
-          f[d->id(3, i, j, k)] = cons[d->id(3, i, j, k)] * prims[d->id(2, i, j, k)] -
-                              aux[d->id(7, i, j, k)] * prims[d->id(6, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(3, i, j, k)] = cons[ID(3, i, j, k)] * prims[ID(2, i, j, k)] -
+                              aux[ID(7, i, j, k)] * prims[ID(6, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // tau
-          f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                              aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(2, i, j, k)] -
-                              aux[d->id(4, i, j, k)] * prims[d->id(6, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(4, i, j, k)] = (cons[ID(4, i, j, k)] + prims[ID(4, i, j, k)] +
+                              aux[ID(8, i, j, k)] * 0.5) * prims[ID(2, i, j, k)] -
+                              aux[ID(4, i, j, k)] * prims[ID(6, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Bx
-          f[d->id(5, i, j, k)] = prims[d->id(5, i, j, k)] * prims[d->id(2, i, j, k)] -
-                              prims[d->id(6, i, j, k)] * prims[d->id(1, i, j, k)];
+          f[ID(5, i, j, k)] = prims[ID(5, i, j, k)] * prims[ID(2, i, j, k)] -
+                              prims[ID(6, i, j, k)] * prims[ID(1, i, j, k)];
           // By
-          f[d->id(6, i, j, k)] = cons[d->id(8, i, j, k)];
+          f[ID(6, i, j, k)] = cons[ID(8, i, j, k)];
 
           // Bz
-          f[d->id(7, i, j, k)] = prims[d->id(7, i, j, k)] * prims[d->id(2, i, j, k)] -
-                              prims[d->id(6, i, j, k)] * prims[d->id(3, i, j, k)];
+          f[ID(7, i, j, k)] = prims[ID(7, i, j, k)] * prims[ID(2, i, j, k)] -
+                              prims[ID(6, i, j, k)] * prims[ID(3, i, j, k)];
           // Phi
-          f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
+          f[ID(8, i, j, k)] = prims[ID(6, i, j, k)];
 
         }
       } // End k loop
@@ -168,37 +170,37 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           // D
-          f[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] * prims[d->id(3, i, j, k)];
+          f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(3, i, j, k)];
 
           // Sx
-          f[d->id(1, i, j, k)] = cons[d->id(1, i, j, k)] * prims[d->id(3, i, j, k)] -
-                              aux[d->id(5, i, j, k)] * prims[d->id(7, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(1, i, j, k)] = cons[ID(1, i, j, k)] * prims[ID(3, i, j, k)] -
+                              aux[ID(5, i, j, k)] * prims[ID(7, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Sy
-          f[d->id(2, i, j, k)] = cons[d->id(2, i, j, k)] * prims[d->id(3, i, j, k)] -
-                              aux[d->id(6, i, j, k)] * prims[d->id(7, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(2, i, j, k)] = cons[ID(2, i, j, k)] * prims[ID(3, i, j, k)] -
+                              aux[ID(6, i, j, k)] * prims[ID(7, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Sz
-          f[d->id(3, i, j, k)] = cons[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)] +
-                              prims[d->id(4, i, j, k)] + aux[d->id(8, i, j, k)] * 0.5 -
-                              aux[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(3, i, j, k)] = cons[ID(3, i, j, k)] * prims[ID(3, i, j, k)] +
+                              prims[ID(4, i, j, k)] + aux[ID(8, i, j, k)] * 0.5 -
+                              aux[ID(7, i, j, k)] * prims[ID(7, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // tau
-          f[d->id(4, i, j, k)] = (cons[d->id(4, i, j, k)] + prims[d->id(4, i, j, k)] +
-                              aux[d->id(8, i, j, k)] * 0.5) * prims[d->id(3, i, j, k)] -
-                              aux[d->id(4, i, j, k)] * prims[d->id(7, i, j, k)] /
-                              aux[d->id(1, i, j, k)];
+          f[ID(4, i, j, k)] = (cons[ID(4, i, j, k)] + prims[ID(4, i, j, k)] +
+                              aux[ID(8, i, j, k)] * 0.5) * prims[ID(3, i, j, k)] -
+                              aux[ID(4, i, j, k)] * prims[ID(7, i, j, k)] /
+                              aux[ID(1, i, j, k)];
           // Bx
-          f[d->id(5, i, j, k)] = prims[d->id(5, i, j, k)] * prims[d->id(3, i, j, k)] -
-                              prims[d->id(7, i, j, k)] * prims[d->id(1, i, j, k)];
+          f[ID(5, i, j, k)] = prims[ID(5, i, j, k)] * prims[ID(3, i, j, k)] -
+                              prims[ID(7, i, j, k)] * prims[ID(1, i, j, k)];
           // By
-          f[d->id(6, i, j, k)] = prims[d->id(6, i, j, k)] * prims[d->id(3, i, j, k)] -
-                              prims[d->id(7, i, j, k)] * prims[d->id(2, i, j, k)];
+          f[ID(6, i, j, k)] = prims[ID(6, i, j, k)] * prims[ID(3, i, j, k)] -
+                              prims[ID(7, i, j, k)] * prims[ID(2, i, j, k)];
 
           // Bz
-          f[d->id(7, i, j, k)] = cons[d->id(8, i, j, k)];
+          f[ID(7, i, j, k)] = cons[ID(8, i, j, k)];
           // Phi
-          f[d->id(8, i, j, k)] = prims[d->id(6, i, j, k)];
+          f[ID(8, i, j, k)] = prims[ID(6, i, j, k)];
 
         }
       } // End k loop
@@ -414,36 +416,36 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       for (int k(0); k < d->Nz; k++) {
         // Update possible values
         // Bx, By, Bz
-        prims[d->id(5, i, j, k)] = cons[d->id(5, i, j, k)];
-        prims[d->id(6, i, j, k)] = cons[d->id(6, i, j, k)];
-        prims[d->id(7, i, j, k)] = cons[d->id(7, i, j, k)];
+        prims[ID(5, i, j, k)] = cons[ID(5, i, j, k)];
+        prims[ID(6, i, j, k)] = cons[ID(6, i, j, k)];
+        prims[ID(7, i, j, k)] = cons[ID(7, i, j, k)];
 
         // BS
-        aux[d->id(10, i, j, k)] = cons[d->id(5, i, j, k)] * cons[d->id(1, i, j, k)] +
-                                  cons[d->id(6, i, j, k)] * cons[d->id(2, i, j, k)] +
-                                  cons[d->id(7, i, j, k)] * cons[d->id(3, i, j, k)];
+        aux[ID(10, i, j, k)] = cons[ID(5, i, j, k)] * cons[ID(1, i, j, k)] +
+                                  cons[ID(6, i, j, k)] * cons[ID(2, i, j, k)] +
+                                  cons[ID(7, i, j, k)] * cons[ID(3, i, j, k)];
         // Bsq
-        aux[d->id(11, i, j, k)] = cons[d->id(5, i ,j, k)] * cons[d->id(5, i, j, k)] +
-                                  cons[d->id(6, i, j, k)] * cons[d->id(6, i, j, k)] +
-                                  cons[d->id(7, i, j, k)] * cons[d->id(7, i, j, k)];
+        aux[ID(11, i, j, k)] = cons[ID(5, i ,j, k)] * cons[ID(5, i, j, k)] +
+                                  cons[ID(6, i, j, k)] * cons[ID(6, i, j, k)] +
+                                  cons[ID(7, i, j, k)] * cons[ID(7, i, j, k)];
         // Ssq
-        aux[d->id(12, i, j, k)] = cons[d->id(1, i ,j, k)] * cons[d->id(1, i, j, k)] +
-                                  cons[d->id(2, i, j, k)] * cons[d->id(2, i, j, k)] +
-                                  cons[d->id(3, i, j, k)] * cons[d->id(3, i, j, k)];
+        aux[ID(12, i, j, k)] = cons[ID(1, i ,j, k)] * cons[ID(1, i, j, k)] +
+                                  cons[ID(2, i, j, k)] * cons[ID(2, i, j, k)] +
+                                  cons[ID(3, i, j, k)] * cons[ID(3, i, j, k)];
 
 
         // Set additional args for rootfind
-        args.D = cons[d->id(0, i, j, k)];
+        args.D = cons[ID(0, i, j, k)];
         args.g = d->gamma;
-        args.BS = aux[d->id(10, i, j, k)];
-        args.Bsq = aux[d->id(11, i, j, k)];
-        args.Ssq = aux[d->id(12, i, j, k)];
-        args.tau = cons[d->id(4, i, j, k)];
+        args.BS = aux[ID(10, i, j, k)];
+        args.Bsq = aux[ID(11, i, j, k)];
+        args.Ssq = aux[ID(12, i, j, k)];
+        args.tau = cons[ID(4, i, j, k)];
 
-        sol[0] = prims[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                 prims[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
-                 prims[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)];
-        sol[1] = prims[d->id(0, i, j, k)] * aux[d->id(0, i, j, k)] /
+        sol[0] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                 prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                 prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
+        sol[1] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] /
                  (1 - sol[0]);
 
         // Solve residual = 0
@@ -456,8 +458,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         }
         else {
           // Now have the correct values for vsq and rho*h*Wsq
-          solution[d->id(0, i, j, k)] = sol[0];
-          solution[d->id(1, i, j, k)] = sol[1];
+          solution[ID(0, i, j, k)] = sol[0];
+          solution[ID(1, i, j, k)] = sol[1];
         }
 
       } // End k-loop
@@ -490,8 +492,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       sol[0] = 0;
       sol[1] = 0;
       for (Failed neighbour : neighbours) {
-        sol[0] += solution[d->id(0, neighbour.x, neighbour.y, neighbour.z)];
-        sol[1] += solution[d->id(1, neighbour.x, neighbour.y, neighbour.z)];
+        sol[0] += solution[ID(0, neighbour.x, neighbour.y, neighbour.z)];
+        sol[1] += solution[ID(1, neighbour.x, neighbour.y, neighbour.z)];
       }
       sol[0] /= neighbours.size();
       sol[1] /= neighbours.size();
@@ -506,8 +508,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       else {
         smartGuesses++;
         // printf("Smart guessing worked!\n");
-        solution[d->id(0, x, y, z)] = sol[0];
-        solution[d->id(1, x, y, z)] = sol[1];
+        solution[ID(0, x, y, z)] = sol[0];
+        solution[ID(1, x, y, z)] = sol[1];
       }
     }
   }
@@ -517,51 +519,51 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // W
-        aux[d->id(1, i, j, k)] = 1 / sqrt(1 - solution[d->id(0, i, j, k)]);
+        aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
         // rho
-        prims[d->id(0, i, j, k)] = cons[d->id(0, i, j, k)] / aux[d->id(1, i, j, k)];
+        prims[ID(0, i, j, k)] = cons[ID(0, i, j, k)] / aux[ID(1, i, j, k)];
         // h
-        aux[d->id(0, i, j, k)] = solution[d->id(1, i, j, k)] / (prims[d->id(0, i, j, k)] * aux[d->id(1, i, j, k)] *
-                                 aux[d->id(1, i, j, k)]);
+        aux[ID(0, i, j, k)] = solution[ID(1, i, j, k)] / (prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                 aux[ID(1, i, j, k)]);
         // p
-        prims[d->id(4, i, j, k)] = (aux[d->id(0, i, j, k)] - 1) * prims[d->id(0, i, j, k)] *
+        prims[ID(4, i, j, k)] = (aux[ID(0, i, j, k)] - 1) * prims[ID(0, i, j, k)] *
                                    (d->gamma - 1) / d->gamma;
         // e
-        aux[d->id(2, i, j, k)] = prims[d->id(4, i, j, k)] / (prims[d->id(0, i, j, k)] *
+        aux[ID(2, i, j, k)] = prims[ID(4, i, j, k)] / (prims[ID(0, i, j, k)] *
                                  (d->gamma - 1));
         // vx, vy, vz
-        prims[d->id(1, i, j, k)] = (cons[d->id(5, i, j, k)] * aux[d->id(10, i, j, k)] +
-                                   cons[d->id(1, i, j, k)] * solution[d->id(1, i, j, k)]) / (solution[d->id(1, i, j, k)] *
-                                   (aux[d->id(11, i, j, k)] + solution[d->id(1, i, j, k)]));
-        prims[d->id(2, i, j, k)] = (cons[d->id(6, i, j, k)] * aux[d->id(10, i, j, k)] +
-                                   cons[d->id(2, i, j, k)] * solution[d->id(1, i, j, k)]) / (solution[d->id(1, i, j, k)] *
-                                   (aux[d->id(11, i, j, k)] + solution[d->id(1, i, j, k)]));
-        prims[d->id(3, i, j, k)] = (cons[d->id(7, i, j, k)] * aux[d->id(10, i, j, k)] +
-                                   cons[d->id(3, i, j, k)] * solution[d->id(1, i, j, k)]) / (solution[d->id(1, i, j, k)] *
-                                   (aux[d->id(11, i, j, k)] + solution[d->id(1, i, j, k)]));
-        aux[d->id(9, i, j, k)] = prims[d->id(1, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                 prims[d->id(2, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                 prims[d->id(3, i, j, k)] * prims[d->id(3, i, j, k)];
+        prims[ID(1, i, j, k)] = (cons[ID(5, i, j, k)] * aux[ID(10, i, j, k)] +
+                                   cons[ID(1, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+        prims[ID(2, i, j, k)] = (cons[ID(6, i, j, k)] * aux[ID(10, i, j, k)] +
+                                   cons[ID(2, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+        prims[ID(3, i, j, k)] = (cons[ID(7, i, j, k)] * aux[ID(10, i, j, k)] +
+                                   cons[ID(3, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+        aux[ID(9, i, j, k)] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                                 prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                                 prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
         // c
-        aux[d->id(3, i, j, k)] = sqrt(aux[d->id(2, i, j, k)] * d->gamma * (d->gamma -1) /
-                              aux[d->id(0, i, j, k)]);
+        aux[ID(3, i, j, k)] = sqrt(aux[ID(2, i, j, k)] * d->gamma * (d->gamma -1) /
+                              aux[ID(0, i, j, k)]);
         // b0
-        aux[d->id(4, i, j, k)] = aux[d->id(1, i, j, k)] * (cons[d->id(5, i, j, k)] * prims[d->id(1, i, j, k)] +
-                                                           cons[d->id(6, i, j, k)] * prims[d->id(2, i, j, k)] +
-                                                           cons[d->id(7, i, j, k)] * prims[d->id(3, i, j, k)]);
+        aux[ID(4, i, j, k)] = aux[ID(1, i, j, k)] * (cons[ID(5, i, j, k)] * prims[ID(1, i, j, k)] +
+                                                           cons[ID(6, i, j, k)] * prims[ID(2, i, j, k)] +
+                                                           cons[ID(7, i, j, k)] * prims[ID(3, i, j, k)]);
         // bx, by, bz
-        aux[d->id(5, i, j, k)] = cons[d->id(5, i, j, k)] / aux[d->id(1, i, j, k)] +
-                                 aux[d->id(4, i, j, k)] * prims[d->id(1, i, j, k)];
-        aux[d->id(6, i, j, k)] = cons[d->id(6, i, j, k)] / aux[d->id(1, i, j, k)] +
-                                 aux[d->id(4, i, j, k)] * prims[d->id(2, i, j, k)];
-        aux[d->id(7, i, j, k)] = cons[d->id(7, i, j, k)] / aux[d->id(1, i, j, k)] +
-                                 aux[d->id(4, i, j, k)] * prims[d->id(3, i, j, k)];
+        aux[ID(5, i, j, k)] = cons[ID(5, i, j, k)] / aux[ID(1, i, j, k)] +
+                                 aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)];
+        aux[ID(6, i, j, k)] = cons[ID(6, i, j, k)] / aux[ID(1, i, j, k)] +
+                                 aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)];
+        aux[ID(7, i, j, k)] = cons[ID(7, i, j, k)] / aux[ID(1, i, j, k)] +
+                                 aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)];
         // bsq
-        aux[d->id(8, i, j, k)] = (prims[d->id(5, i, j, k)] * prims[d->id(5, i, j, k)] +
-                                 prims[d->id(6, i, j, k)] * prims[d->id(6, i, j, k)] +
-                                 prims[d->id(7, i, j, k)] * prims[d->id(7, i, j, k)] +
-                                 aux[d->id(4, i, j, k)] * aux[d->id(4, i, j, k)]) /
-                                 (aux[d->id(1, i, j, k)] * aux[d->id(1, i, j, k)]);
+        aux[ID(8, i, j, k)] = (prims[ID(5, i, j, k)] * prims[ID(5, i, j, k)] +
+                                 prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] +
+                                 prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] +
+                                 aux[ID(4, i, j, k)] * aux[ID(4, i, j, k)]) /
+                                 (aux[ID(1, i, j, k)] * aux[ID(1, i, j, k)]);
       } // End k-loop
     } // End j-loop
   } // End i-loop
@@ -590,89 +592,89 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // Bx, By, Bz
-        d->cons[d->id(5, i, j, k)] = d->prims[d->id(5, i, j, k)];
-        d->cons[d->id(6, i, j, k)] = d->prims[d->id(6, i, j, k)];
-        d->cons[d->id(7, i, j, k)] = d->prims[d->id(7, i, j, k)];
+        d->cons[ID(5, i, j, k)] = d->prims[ID(5, i, j, k)];
+        d->cons[ID(6, i, j, k)] = d->prims[ID(6, i, j, k)];
+        d->cons[ID(7, i, j, k)] = d->prims[ID(7, i, j, k)];
 
         // Bsq
-        d->aux[d->id(11, i, j, k)] = d->prims[d->id(5, i, j, k)] * d->prims[d->id(5, i, j, k)] +
-                                     d->prims[d->id(6, i, j, k)] * d->prims[d->id(6, i, j, k)] +
-                                     d->prims[d->id(7, i, j, k)] * d->prims[d->id(7, i, j, k)];
+        d->aux[ID(11, i, j, k)] = d->prims[ID(5, i, j, k)] * d->prims[ID(5, i, j, k)] +
+                                     d->prims[ID(6, i, j, k)] * d->prims[ID(6, i, j, k)] +
+                                     d->prims[ID(7, i, j, k)] * d->prims[ID(7, i, j, k)];
 
         // phi
-        d->cons[d->id(8, i, j, k)] = 0;
+        d->cons[ID(8, i, j, k)] = 0;
 
         // vsq
-        d->aux[d->id(9, i, j, k)] = d->prims[d->id(1, i, j, k)] * d->prims[d->id(1, i, j, k)] +
-                                    d->prims[d->id(2, i, j, k)] * d->prims[d->id(2, i, j, k)] +
-                                    d->prims[d->id(3, i, j, k)] * d->prims[d->id(3, i, j, k)];
+        d->aux[ID(9, i, j, k)] = d->prims[ID(1, i, j, k)] * d->prims[ID(1, i, j, k)] +
+                                    d->prims[ID(2, i, j, k)] * d->prims[ID(2, i, j, k)] +
+                                    d->prims[ID(3, i, j, k)] * d->prims[ID(3, i, j, k)];
         // W
-        d->aux[d->id(1, i, j, k)] = 1.0 / sqrt(1 - d->aux[d->id(9, i, j, k)]);
+        d->aux[ID(1, i, j, k)] = 1.0 / sqrt(1 - d->aux[ID(9, i, j, k)]);
 
         // b0
-        d->aux[d->id(4, i, j, k)] = d->aux[d->id(1, i, j, k)] * (
-                                    d->prims[d->id(1, i, j, k)] * d->prims[d->id(5, i, j, k)] +
-                                    d->prims[d->id(2, i, j, k)] * d->prims[d->id(6, i, j, k)] +
-                                    d->prims[d->id(3, i, j, k)] * d->prims[d->id(7, i, j, k)]);
+        d->aux[ID(4, i, j, k)] = d->aux[ID(1, i, j, k)] * (
+                                    d->prims[ID(1, i, j, k)] * d->prims[ID(5, i, j, k)] +
+                                    d->prims[ID(2, i, j, k)] * d->prims[ID(6, i, j, k)] +
+                                    d->prims[ID(3, i, j, k)] * d->prims[ID(7, i, j, k)]);
 
         // bx, by, bz
-        d->aux[d->id(5, i, j, k)] = d->prims[d->id(5, i, j, k)] / d->aux[d->id(1, i, j, k)] +
-                                    d->aux[d->id(4, i, j, k)] * d->prims[d->id(1, i, j, k)];
-        d->aux[d->id(6, i, j, k)] = d->prims[d->id(6, i, j, k)] / d->aux[d->id(1, i, j, k)] +
-                                    d->aux[d->id(4, i, j, k)] * d->prims[d->id(2, i, j, k)];
-        d->aux[d->id(7, i, j, k)] = d->prims[d->id(7, i, j, k)] / d->aux[d->id(1, i, j, k)] +
-                                    d->aux[d->id(4, i, j, k)] * d->prims[d->id(3, i, j, k)];
+        d->aux[ID(5, i, j, k)] = d->prims[ID(5, i, j, k)] / d->aux[ID(1, i, j, k)] +
+                                    d->aux[ID(4, i, j, k)] * d->prims[ID(1, i, j, k)];
+        d->aux[ID(6, i, j, k)] = d->prims[ID(6, i, j, k)] / d->aux[ID(1, i, j, k)] +
+                                    d->aux[ID(4, i, j, k)] * d->prims[ID(2, i, j, k)];
+        d->aux[ID(7, i, j, k)] = d->prims[ID(7, i, j, k)] / d->aux[ID(1, i, j, k)] +
+                                    d->aux[ID(4, i, j, k)] * d->prims[ID(3, i, j, k)];
 
         // bsq
-        d->aux[d->id(8, i, j, k)] = (d->prims[d->id(5, i, j, k)] * d->prims[d->id(5, i, j, k)] +
-                                    d->prims[d->id(6, i, j, k)] * d->prims[d->id(6, i, j, k)] +
-                                    d->prims[d->id(7, i, j, k)] * d->prims[d->id(7, i, j, k)] +
-                                    d->aux[d->id(4, i, j, k)] * d->aux[d->id(4, i, j, k)]) /
-                                    (d->aux[d->id(1, i, j, k)] * d->aux[d->id(1, i, j, k)]);
+        d->aux[ID(8, i, j, k)] = (d->prims[ID(5, i, j, k)] * d->prims[ID(5, i, j, k)] +
+                                    d->prims[ID(6, i, j, k)] * d->prims[ID(6, i, j, k)] +
+                                    d->prims[ID(7, i, j, k)] * d->prims[ID(7, i, j, k)] +
+                                    d->aux[ID(4, i, j, k)] * d->aux[ID(4, i, j, k)]) /
+                                    (d->aux[ID(1, i, j, k)] * d->aux[ID(1, i, j, k)]);
 
         // h
-        d->aux[d->id(0, i, j, k)] = 1 + d->prims[d->id(4, i, j, k)] / d->prims[d->id(0, i, j, k)] *
+        d->aux[ID(0, i, j, k)] = 1 + d->prims[ID(4, i, j, k)] / d->prims[ID(0, i, j, k)] *
                                  (d->gamma / (d->gamma - 1));
 
         // e
-        d->aux[d->id(2, i, j, k)] = d->prims[d->id(4, i, j, k)] / (d->prims[d->id(0, i, j, k)] * (d->gamma - 1));
+        d->aux[ID(2, i, j, k)] = d->prims[ID(4, i, j, k)] / (d->prims[ID(0, i, j, k)] * (d->gamma - 1));
 
         // c
-        d->aux[d->id(3, i, j, k)] = sqrt(d->aux[d->id(2, i, j, k)] * d->gamma * (d->gamma - 1) / d->aux[d->id(0, i, j, k)]);
+        d->aux[ID(3, i, j, k)] = sqrt(d->aux[ID(2, i, j, k)] * d->gamma * (d->gamma - 1) / d->aux[ID(0, i, j, k)]);
 
         // D
-        d->cons[d->id(0, i, j, k)] = d->prims[d->id(0, i, j, k)] * d->aux[d->id(1, i, j, k)];
+        d->cons[ID(0, i, j, k)] = d->prims[ID(0, i, j, k)] * d->aux[ID(1, i, j, k)];
 
         // Sx, Sy, Sz
-        d->cons[d->id(1, i, j, k)] = (d->prims[d->id(0, i, j, k)] * d->aux[d->id(0, i, j, k)] +
-                                     d->aux[d->id(8, i, j, k)]) * d->aux[d->id(1, i, j, k)] *
-                                     d->aux[d->id(1, i, j, k)] * d->prims[d->id(1, i, j, k)] -
-                                     d->aux[d->id(4, i, j, k)] * d->aux[d->id(5, i, j, k)];
-        d->cons[d->id(2, i, j, k)] = (d->prims[d->id(0, i, j, k)] * d->aux[d->id(0, i, j, k)] +
-                                     d->aux[d->id(8, i, j, k)]) * d->aux[d->id(1, i, j, k)] *
-                                     d->aux[d->id(1, i, j, k)] * d->prims[d->id(2, i, j, k)] -
-                                     d->aux[d->id(4, i, j, k)] * d->aux[d->id(6, i, j, k)];
-        d->cons[d->id(3, i, j, k)] = (d->prims[d->id(0, i, j, k)] * d->aux[d->id(0, i, j, k)] +
-                                     d->aux[d->id(8, i, j, k)]) * d->aux[d->id(1, i, j, k)] *
-                                     d->aux[d->id(1, i, j, k)] * d->prims[d->id(3, i, j, k)] -
-                                     d->aux[d->id(4, i, j, k)] * d->aux[d->id(7, i, j, k)];
+        d->cons[ID(1, i, j, k)] = (d->prims[ID(0, i, j, k)] * d->aux[ID(0, i, j, k)] +
+                                     d->aux[ID(8, i, j, k)]) * d->aux[ID(1, i, j, k)] *
+                                     d->aux[ID(1, i, j, k)] * d->prims[ID(1, i, j, k)] -
+                                     d->aux[ID(4, i, j, k)] * d->aux[ID(5, i, j, k)];
+        d->cons[ID(2, i, j, k)] = (d->prims[ID(0, i, j, k)] * d->aux[ID(0, i, j, k)] +
+                                     d->aux[ID(8, i, j, k)]) * d->aux[ID(1, i, j, k)] *
+                                     d->aux[ID(1, i, j, k)] * d->prims[ID(2, i, j, k)] -
+                                     d->aux[ID(4, i, j, k)] * d->aux[ID(6, i, j, k)];
+        d->cons[ID(3, i, j, k)] = (d->prims[ID(0, i, j, k)] * d->aux[ID(0, i, j, k)] +
+                                     d->aux[ID(8, i, j, k)]) * d->aux[ID(1, i, j, k)] *
+                                     d->aux[ID(1, i, j, k)] * d->prims[ID(3, i, j, k)] -
+                                     d->aux[ID(4, i, j, k)] * d->aux[ID(7, i, j, k)];
 
         // Ssq
-        d->aux[d->id(12, i, j, k)] = d->cons[d->id(1, i, j, k)] * d->cons[d->id(1, i, j, k)] +
-                                     d->cons[d->id(2, i, j, k)] * d->cons[d->id(2, i, j, k)] +
-                                     d->cons[d->id(3, i, j, k)] * d->cons[d->id(3, i, j, k)];
+        d->aux[ID(12, i, j, k)] = d->cons[ID(1, i, j, k)] * d->cons[ID(1, i, j, k)] +
+                                     d->cons[ID(2, i, j, k)] * d->cons[ID(2, i, j, k)] +
+                                     d->cons[ID(3, i, j, k)] * d->cons[ID(3, i, j, k)];
 
         // BS
-        d->aux[d->id(10, i, j, k)] = d->prims[d->id(5, i, j, k)] * d->cons[d->id(1, i, j, k)] +
-                                     d->prims[d->id(6, i, j, k)] * d->cons[d->id(2, i, j, k)] +
-                                     d->prims[d->id(7, i, j, k)] * d->cons[d->id(3, i, j, k)];
+        d->aux[ID(10, i, j, k)] = d->prims[ID(5, i, j, k)] * d->cons[ID(1, i, j, k)] +
+                                     d->prims[ID(6, i, j, k)] * d->cons[ID(2, i, j, k)] +
+                                     d->prims[ID(7, i, j, k)] * d->cons[ID(3, i, j, k)];
 
         // tau
-        d->cons[d->id(4, i, j, k)] = (d->prims[d->id(0, i, j, k)] * d->aux[d->id(0, i, j, k)] +
-                                     d->aux[d->id(8, i, j, k)]) * d->aux[d->id(1, i, j, k)] *
-                                     d->aux[d->id(1, i, j, k)] - (d->prims[d->id(4, i, j, k)] +
-                                     d->aux[d->id(8, i, j, k)] / 2.0) - d->aux[d->id(4, i, j, k)] *
-                                     d->aux[d->id(4, i, j, k)] - d->cons[d->id(0, i, j, k)];
+        d->cons[ID(4, i, j, k)] = (d->prims[ID(0, i, j, k)] * d->aux[ID(0, i, j, k)] +
+                                     d->aux[ID(8, i, j, k)]) * d->aux[ID(1, i, j, k)] *
+                                     d->aux[ID(1, i, j, k)] - (d->prims[ID(4, i, j, k)] +
+                                     d->aux[ID(8, i, j, k)] / 2.0) - d->aux[ID(4, i, j, k)] *
+                                     d->aux[ID(4, i, j, k)] - d->cons[ID(0, i, j, k)];
         // Alpha (lazy)
         d->alphaX = d->alphaY = d->alphaZ = 1.0;
 

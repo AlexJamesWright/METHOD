@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <string>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 void SaveData::saveAll()
 {
   this->saveCons();
@@ -30,7 +33,7 @@ void SaveData::saveCons()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->cons[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->cons[ID(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }
@@ -61,7 +64,7 @@ void SaveData::savePrims()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->prims[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->prims[ID(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }
@@ -91,7 +94,7 @@ void SaveData::saveAux()
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->aux[d->id(var, i, j, k)]);
+          fprintf(f, "%.16f ", d->aux[ID(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }

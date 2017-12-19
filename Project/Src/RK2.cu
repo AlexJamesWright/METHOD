@@ -1,6 +1,9 @@
 #include "RK2.h"
 #include <iostream>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 void RK2::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
@@ -31,10 +34,10 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Naux; var++) {
-          p1aux[d->id(var, i, j, k)] = aux[d->id(var, i, j, k)];
+          p1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
         for (int var(0); var < d->Nprims; var++) {
-          p1prims[d->id(var, i, j, k)] = prims[d->id(var, i, j, k)];
+          p1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
         }
       }
     }
@@ -48,7 +51,7 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
-           p1cons[d->id(var, i, j, k)] = cons[d->id(var, i, j, k)] - dt * args1[d->id(var, i, j, k)];
+           p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * args1[ID(var, i, j, k)];
          }
        }
      }
@@ -67,8 +70,8 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
      for (int i(0); i < d->Nx; i++) {
        for (int j(0); j < d->Ny; j++) {
          for (int k(0); k < d->Nz; k++) {
-           cons[d->id(var, i, j, k)] = 0.5 * (cons[d->id(var, i, j, k)] + p1cons[d->id(var, i, j, k)] -
-                                       dt * args2[d->id(var, i, j, k)]);
+           cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] -
+                                       dt * args2[ID(var, i, j, k)]);
          }
        }
      }

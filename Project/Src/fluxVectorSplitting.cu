@@ -1,5 +1,8 @@
 #include "fluxVectorSplitting.h"
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+
 void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double * f, double * frecon, int dir)
 {
   // Syntax
@@ -13,7 +16,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   if (dir == 0) alpha = d->alphaX;
   else if (dir == 1) alpha = d->alphaY;
   else alpha = d->alphaZ;
-  
+
   // Up and downwind fluxes
   double *fplus, *fminus;
   cudaHostAlloc((void **)&fplus, sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz,
@@ -29,8 +32,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          fplus[d->id(var, i, j, k)] = 0.5 * (f[d->id(var, i, j, k)] + alpha * cons[d->id(var, i, j, k)]);
-          fminus[d->id(var, i, j, k)] = 0.5 * (f[d->id(var, i, j, k)] - alpha * cons[d->id(var, i, j, k)]);
+          fplus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] + alpha * cons[ID(var, i, j, k)]);
+          fminus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] - alpha * cons[ID(var, i, j, k)]);
         }
       }
     }
@@ -43,15 +46,15 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
             if (i >= order && i < d->Nx-order) {
-              frecon[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i-order, j, k)],
-                                                         fplus[d->id(var, i-order+1, j, k)],
-                                                         fplus[d->id(var, i-order+2, j, k)]) +
-                                            weno3_upwind(fminus[d->id(var, i+order-1, j, k)],
-                                                         fminus[d->id(var, i+order-2, j, k)],
-                                                         fminus[d->id(var, i+order-3, j, k)]);
+              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i-order, j, k)],
+                                                         fplus[ID(var, i-order+1, j, k)],
+                                                         fplus[ID(var, i-order+2, j, k)]) +
+                                            weno3_upwind(fminus[ID(var, i+order-1, j, k)],
+                                                         fminus[ID(var, i+order-2, j, k)],
+                                                         fminus[ID(var, i+order-3, j, k)]);
             }
             else {
-              frecon[d->id(var, i, j, k)] = 0.0;
+              frecon[ID(var, i, j, k)] = 0.0;
             }
           }
         }
@@ -64,15 +67,15 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
             if (j >= order && j < d->Ny-order) {
-              frecon[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j-order, k)],
-                                                         fplus[d->id(var, i, j-order+1, k)],
-                                                         fplus[d->id(var, i, j-order+2, k)]) +
-                                            weno3_upwind(fminus[d->id(var, i, j+order-1, k)],
-                                                         fminus[d->id(var, i, j+order-2, k)],
-                                                         fminus[d->id(var, i, j+order-3, k)]);
+              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j-order, k)],
+                                                         fplus[ID(var, i, j-order+1, k)],
+                                                         fplus[ID(var, i, j-order+2, k)]) +
+                                            weno3_upwind(fminus[ID(var, i, j+order-1, k)],
+                                                         fminus[ID(var, i, j+order-2, k)],
+                                                         fminus[ID(var, i, j+order-3, k)]);
             }
             else {
-              frecon[d->id(var, i, j, k)] = 0.0;
+              frecon[ID(var, i, j, k)] = 0.0;
             }
           }
         }
@@ -85,15 +88,15 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
             if (k >= order && k < d->Nz-order) {
-              frecon[d->id(var, i, j, k)] = weno3_upwind(fplus[d->id(var, i, j, k-order)],
-                                                         fplus[d->id(var, i, j, k-order+1)],
-                                                         fplus[d->id(var, i, j, k-order+2)]) +
-                                            weno3_upwind(fminus[d->id(var, i, j, k+order-1)],
-                                                         fminus[d->id(var, i, j, k+order-2)],
-                                                         fminus[d->id(var, i, j, k+order-3)]);
+              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j, k-order)],
+                                                         fplus[ID(var, i, j, k-order+1)],
+                                                         fplus[ID(var, i, j, k-order+2)]) +
+                                            weno3_upwind(fminus[ID(var, i, j, k+order-1)],
+                                                         fminus[ID(var, i, j, k+order-2)],
+                                                         fminus[ID(var, i, j, k+order-3)]);
             }
             else {
-              frecon[d->id(var, i, j, k)] = 0.0;
+              frecon[ID(var, i, j, k)] = 0.0;
             }
           }
         }
@@ -129,9 +132,9 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
           for (int k(0); k < d->Nz-1; k++) {
-            fnet[d->id(var, i, j, k)] = (fx[d->id(var, i+1, j, k)] / d->dx - fx[d->id(var, i, j, k)] / d->dx) +
-                                        (fy[d->id(var, i, j+1, k)] / d->dy - fy[d->id(var, i, j, k)] / d->dy) +
-                                        (fz[d->id(var, i, j, k+1)] / d->dz - fz[d->id(var, i, j, k)] / d->dz);
+            fnet[ID(var, i, j, k)] = (fx[ID(var, i+1, j, k)] / d->dx - fx[ID(var, i, j, k)] / d->dx) +
+                                        (fy[ID(var, i, j+1, k)] / d->dy - fy[ID(var, i, j, k)] / d->dy) +
+                                        (fz[ID(var, i, j, k+1)] / d->dz - fz[ID(var, i, j, k)] / d->dz);
           }
         }
       }
@@ -153,8 +156,8 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
-          fnet[d->id(var, i, j, 0)] = (fx[d->id(var, i+1, j, 0)] / d->dx - fx[d->id(var, i, j, 0)] / d->dx) +
-                                      (fy[d->id(var, i, j+1, 0)] / d->dy - fy[d->id(var, i, j, 0)] / d->dy);
+          fnet[ID(var, i, j, 0)] = (fx[ID(var, i+1, j, 0)] / d->dx - fx[ID(var, i, j, 0)] / d->dx) +
+                                      (fy[ID(var, i, j+1, 0)] / d->dy - fy[ID(var, i, j, 0)] / d->dy);
 
         }
       }
@@ -172,7 +175,7 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
-          fnet[d->id(var, i, 0, 0)] = (fx[d->id(var, i+1, 0, 0)] / d->dx - fx[d->id(var, i, 0, 0)] / d->dx);
+          fnet[ID(var, i, 0, 0)] = (fx[ID(var, i+1, 0, 0)] / d->dx - fx[ID(var, i, 0, 0)] / d->dx);
       }
     }
     cudaFreeHost(fx);
