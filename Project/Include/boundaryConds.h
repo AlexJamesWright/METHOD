@@ -42,7 +42,7 @@ class Bcs
 };
 
 
-//! Outflow boundary conditions
+//! <b> Outflow boundary conditions </b>
 /*!
     Imposes flows that exit the domain freely at all boundaries, analogous to a
   domain that extends to infinity in each direction.
@@ -87,7 +87,7 @@ class Outflow : public Bcs
 };
 
 
-//! Periodic boundary conditions
+//! <b> Periodic boundary conditions </b>
 /*!
     Flows that exit across one domain boundary re-enter at the opposing
   end. I.e. the N ghost cells at one edge of the domain are set to the values

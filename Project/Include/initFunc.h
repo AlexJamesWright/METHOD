@@ -27,7 +27,7 @@ class InitialFunc
     InitialFunc(Data * data);
 };
 
-//! Two-fluid circularly polarized Alfven wave
+//! <b> Two-fluid circularly polarized Alfven wave </b>
 /*!
     Two fluid version of the CP Alfven wave test. See Amano 2016 for description.
   Such a set up is an exact solution and so should be useful for convergence testing.
@@ -47,7 +47,7 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
     CPAlfvenWaveTwoFluid(Data * data);
 };
 
-//! Single fluid circularly polarized Alfven wave
+//! <b> Single fluid circularly polarized Alfven wave </b>
 /*!
     See Del Zanna et al. 2007 for the details. Such a set up is an exact solution
   and as such can be used as a method for plotting convergence.
@@ -68,7 +68,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
     CPAlfvenWaveSingleFluid(Data * data);
 };
 
-//! Two fluid self similar current sheet
+//! <b> Two fluid self similar current sheet </b>
 /*!
     See Palenzuela et al 2009, `Beyond ideal MHD: Towards a more...` for explanation.
   Set up is one dimensional (x-direction, although may be run in multiple Ds),
@@ -91,7 +91,7 @@ class CurrentSheetTwoFluid : public InitialFunc
 };
 
 
-//! Single fluid Orszag-Tang voretx
+//! <b> Single fluid Orszag-Tang voretx </b>
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
@@ -116,7 +116,7 @@ class OTVortexSingleFluid : public InitialFunc
 
 
 
-//! Brio-Wu shock tube initial data (1D)
+//! <b> Brio-Wu shock tube initial data (1D) </b>
 /*!
     Standard shock tube test taken from Amano 2016.
 
@@ -126,7 +126,7 @@ class BrioWuTwoFluid : public InitialFunc
 {
   public:
 
-    //! Brio-Wu shock tube initial data for two-fluid model
+    //! <b> Brio-Wu shock tube initial data for two-fluid model </b>
     /*!
         Few options for the set up. All set ups will place a discontinuity along
       some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric

@@ -10,7 +10,7 @@
   and source vectors due to the guess in the residual function. These arrays
   lie within this class.
 
-  @sa BackwardsRK
+  @sa BackwardsRK2
 */
 class BackRKArguments
 {

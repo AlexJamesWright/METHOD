@@ -247,12 +247,16 @@ int residual(void *p, int n, const double *x, double *fvec, int iflag);
 
 
 
-//! Additional arguments for the SRMHD residual function
+//! <b> Additional arguments for the SRMHD residual function </b>
 /*!
   @par
-    N=2 rootfind required for conservative-to-primitive transform for SRMHD, so Requires
-  Cminpack hybrd1 function to solve. Additional arguments are passed in through
-  this structure.
+    The conservative to primitive transformation for the SRMHD class requires an
+  N=2 dimensional nonlinear rootfind and thus requires the multi-dimensional Newton-
+  Secant solver of the Cminpack library, i.e. the function @e hybrd1. This function
+  can take additional arguments in the form of a void pointer to some data object,
+  and thus for the data required in the cons2prims solver, the additional data is
+  located in this Args data structure.
+
 */
 typedef struct
 {
@@ -266,13 +270,15 @@ typedef struct
 } Args;
 
 
-//! Stores data of the failed cons2prims rootfinder
+//! <b> Stores data of the failed cons2prims rootfinder </b>
 /*!
   @par
     When the cons2prims rootfinder fails, we can take note of the cell, continue
   throughout the domain and come back to that failed cell, using the average of
   the successfully completed surrounding cells as an initial estimate for the
-  solution of the failed cell. This struct holds the failed cells data.
+  solution of the failed cell. This struct holds the failed cells data, and thus
+  we can use a vector type to hold instances of this structure when an unknown
+  number of cells inevitably fail.
 */
 typedef struct
 {
