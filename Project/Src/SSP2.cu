@@ -4,7 +4,7 @@
 #include <cstdio>
 
 // Macro for getting array index
-#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 //! Residual function for stage one of IMEX SSP2
 int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);

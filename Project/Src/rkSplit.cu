@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Macro for getting array index
-#define ID(variable, idx, jdx, kdx) (variable*d->Nx*d->Ny*d->Nz + idx*d->Ny*d->Nz + jdx*d->Nz + kdx)
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 void RKSplit::step(double * cons, double * prims, double * aux, double dt)
 {
