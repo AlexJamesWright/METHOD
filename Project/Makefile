@@ -49,7 +49,8 @@ SRCS = main.cu \
 			 IMEX3Args.cu \
 			 boundaryConds.cu \
 			 saveData.cu \
-			 fluxVectorSplitting.cu
+			 fluxVectorSplitting.cu \
+			 srrmhd.cu
 
 
 # Headers
@@ -120,6 +121,9 @@ twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
+srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
@@ -165,13 +169,13 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVect
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^	-o $@ $(CXXFLAGS) $(NVFLAGS)
+	@$(CC)	$^	-o $@ $(CXXFLAGS) $(NVFLAGS)
 
 buildRootfinder:
-	cd $(RTFIND_DIR) && $(MAKE)	objects
+	@cd $(RTFIND_DIR) && $(MAKE)	objects
 
 doxumentation:
-	cd $(DOC_DIR) && doxygen Doxyfile
+	@cd $(DOC_DIR) && doxygen Doxyfile
 
 # Tidy up and re-do
 rebuild : clean all
