@@ -39,8 +39,8 @@ Data::Data(int nx, int ny, int nz,
     zmax = ymax = 1e20;
   }
   // Ensure there is some Resistivity
-  if (this->sigma <= 0.0) {
-    throw std::invalid_argument("Conductivity must be positive, sigma > 0.\n");
+  if (this->sigma < 0.0) {
+    throw std::invalid_argument("Conductivity must be non-negative, sigma >= 0.\n");
   }
   // Ensure charges are correct way round
   if (this->mu1 > 0.0 or this->mu2 < 0.0) {
