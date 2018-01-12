@@ -2,6 +2,7 @@
 *.o
 main
 test_srmhd
+test_srrmhd
 test_simulation
 test_initFunc
 test_cminpack
