@@ -190,9 +190,8 @@ class TwoFluidEMHD : public Model
     //! Flux vector
     /*!
         Method determines the value of the conserved vector in the specified direction.
-        For the form of the fluxes see `Relativistic Magneto...`, Anton '10
-      with the inclusion of divergence cleaning from Advanced numerical methods for Neutron star
-      interfaces, John Muddle.
+      For the form of the fluxes see Anton 2010, with the inclusion of
+      divergence cleaning from Muddle 2016.
 
       @note We are assuming that all primitive and auxilliary variables are up-to-date
       at the time of this function execution.
