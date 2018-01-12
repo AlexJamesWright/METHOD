@@ -51,7 +51,8 @@ TESTS = test_simulation \
 				test_initFunc \
 				test_cminpack \
 				test_boundaryConds \
-				test_twoFluidEMHD
+				test_twoFluidEMHD \
+				test_srrmhd
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -170,6 +171,18 @@ test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_srmhd : srmhd.o test_srmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+# SRRMHD Model
+
+srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srrmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cu \
+                     $(INC_DIR)/srrmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srrmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_srrmhd : srrmhd.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 # TwoFluidEMHD Model
