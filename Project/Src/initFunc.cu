@@ -305,3 +305,61 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
     }
   }
 }
+
+BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+  
+  int endX(d->Nx - 1);
+  int endY(d->Ny - 1);
+  int endZ(d->Nz - 1);
+  int facX(1);
+  int facY(1);
+  int facZ(1);
+  double lBx(0);
+  double lBy(0);
+  double lBz(0);
+  double rBx(0);
+  double rBy(0);
+  double rBz(0);
+  // Generalized 3D set up
+  if (dir == 0) {
+    // x-direction
+    facX = 2;
+    lBy = 0.5;
+    rBy = -0.5;
+  }
+  else if (dir == 1) {
+    // y-direction
+    facY = 2;
+    lBz = 0.5;
+    rBz = -0.5;
+  }
+  else {
+    // z-direction
+    facZ = 2;
+    lBx = 0.5;
+    rBx = -0.5;
+  }
+
+  for (int i(0); i < d->Nx/facX; i++) {
+    for (int j(0); j < d->Ny/facY; j++) {
+      for (int k(0); k < d->Nz/facZ; k++) {
+        // Left side
+        d->prims[ID(0, i, j, k)] = 1;
+        d->prims[ID(4, i, j, k)] = 1;
+        d->prims[ID(5, i, j, k)] = lBx;
+        d->prims[ID(6, i, j, k)] = lBy;
+        d->prims[ID(7, i, j, k)] = lBz;
+
+        // Right side
+        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.125;
+        d->prims[ID(4, endX - i, endY - j, endZ - k)] = 0.1;
+        d->prims[ID(5, endX - i, endY - j, endZ - k)] = rBx;
+        d->prims[ID(6, endX - i, endY - j, endZ - k)] = rBy;
+        d->prims[ID(7, endX - i, endY - j, endZ - k)] = rBz;
+      }
+    }
+  }
+}

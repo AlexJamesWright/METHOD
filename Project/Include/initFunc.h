@@ -142,4 +142,11 @@ class BrioWuTwoFluid : public InitialFunc
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
 };
 
+class BrioWuSingleFluid : public InitialFunc
+{
+  public:
+
+    BrioWuSingleFluid(Data * data, int dir=0);
+};
+
 #endif
