@@ -15,6 +15,7 @@ var hierarchy =
       [ "IMEX3Arguments", "classIMEX3Arguments.html", null ]
     ] ],
     [ "InitialFunc", "classInitialFunc.html", [
+      [ "BrioWuSingleFluid", "classBrioWuSingleFluid.html", null ],
       [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", null ],
       [ "CPAlfvenWaveSingleFluid", "classCPAlfvenWaveSingleFluid.html", null ],
       [ "CPAlfvenWaveTwoFluid", "classCPAlfvenWaveTwoFluid.html", null ],
@@ -23,6 +24,7 @@ var hierarchy =
     ] ],
     [ "Model", "classModel.html", [
       [ "SRMHD", "classSRMHD.html", null ],
+      [ "SRRMHD", "classSRRMHD.html", null ],
       [ "TwoFluidEMHD", "classTwoFluidEMHD.html", null ]
     ] ],
     [ "SaveData", "classSaveData.html", null ],

@@ -32,7 +32,8 @@ var files =
       [ "CPAlfvenWaveSingleFluid", "classCPAlfvenWaveSingleFluid.html", "classCPAlfvenWaveSingleFluid" ],
       [ "CurrentSheetTwoFluid", "classCurrentSheetTwoFluid.html", "classCurrentSheetTwoFluid" ],
       [ "OTVortexSingleFluid", "classOTVortexSingleFluid.html", "classOTVortexSingleFluid" ],
-      [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", "classBrioWuTwoFluid" ]
+      [ "BrioWuTwoFluid", "classBrioWuTwoFluid.html", "classBrioWuTwoFluid" ],
+      [ "BrioWuSingleFluid", "classBrioWuSingleFluid.html", "classBrioWuSingleFluid" ]
     ] ],
     [ "minpack.h", "minpack_8h.html", "minpack_8h" ],
     [ "minpackP.h", "minpackP_8h.html", "minpackP_8h" ],
@@ -55,6 +56,9 @@ var files =
       [ "Simulation", "classSimulation.html", "classSimulation" ]
     ] ],
     [ "srmhd.h", "srmhd_8h.html", "srmhd_8h" ],
+    [ "srrmhd.h", "srrmhd_8h.html", [
+      [ "SRRMHD", "classSRRMHD.html", "classSRRMHD" ]
+    ] ],
     [ "SSP2.h", "SSP2_8h.html", [
       [ "SSP2", "classSSP2.html", "classSSP2" ]
     ] ],

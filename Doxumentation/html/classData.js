@@ -1,6 +1,6 @@
 var classData =
 [
-    [ "Data", "classData.html#ab943d2d9e693a86fe22ec02f01caca87", null ],
+    [ "Data", "classData.html#a8feabcdb71d1e5b4fc5e15b5bfebbcfa", null ],
     [ "id", "classData.html#a387f1e504fada73187ce0a21c6578c02", null ],
     [ "alphaX", "classData.html#a0aae9e73479d8f1b3ca4c99df4c85c39", null ],
     [ "alphaY", "classData.html#a2ee3e7fb46018f2470f5aeac8647eb0f", null ],

@@ -90,10 +90,10 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a00485df680da6d4e384c245d722296af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Additional arguments for the <a class="el" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics  ">SRMHD</a> residual function. </p>
-<dl class="section user"><dt></dt><dd>N=2 rootfind required for conservative-to-primitive transform for <a class="el" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics  ">SRMHD</a>, so Requires Cminpack hybrd1 function to solve. Additional arguments are passed in through this structure. </dd></dl>
+<div class="textblock"><p><b> Additional arguments for the <a class="el" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics  ">SRMHD</a> residual function </b> </p>
+<dl class="section user"><dt></dt><dd>The conservative to primitive transformation for the <a class="el" href="classSRMHD.html" title="Special Relativistic MagnetHydroDynamics  ">SRMHD</a> class requires an N=2 dimensional nonlinear rootfind and thus requires the multi-dimensional Newton- Secant solver of the Cminpack library, i.e. the function <em>hybrd1</em>. This function can take additional arguments in the form of a void pointer to some data object, and thus for the data required in the cons2prims solver, the additional data is located in this <a class="el" href="structArgs.html" title=" Additional arguments for the SRMHD residual function  ">Args</a> data structure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00257">257</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00261">261</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="ab670f3f1fcc55b19519d73db73743942"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab670f3f1fcc55b19519d73db73743942">&#9670;&nbsp;</a></span>BS</h2>
@@ -109,7 +109,7 @@ Public Attributes</h2></td></tr>
 
 <p>Scalar product of magnetic field and momentum vector for a single cell. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -127,7 +127,7 @@ Public Attributes</h2></td></tr>
 
 <p>Squared magnitude of magnetic field for a single cell. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -145,7 +145,7 @@ Public Attributes</h2></td></tr>
 
 <p>Relativistic energy for a single cell. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -163,7 +163,7 @@ Public Attributes</h2></td></tr>
 
 <p>Adiabatic index, gamma. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -181,7 +181,7 @@ Public Attributes</h2></td></tr>
 
 <p>Square magnitude of momentum for a single cell. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>
@@ -199,7 +199,7 @@ Public Attributes</h2></td></tr>
 
 <p>Kinetic energy for a single cell. </p>
 
-<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00260">260</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="srmhd_8h_source.html#l00264">264</a> of file <a class="el" href="srmhd_8h_source.html">srmhd.h</a>.</p>
 
 </div>
 </div>

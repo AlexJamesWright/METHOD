@@ -30,7 +30,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "IMEX2Args_8h.html",
-"classTwoFluidEMHD.html#aa28474e16593077059c3a2a6a07591c9"
+"classTimeIntegrator.html#a65ee62c4d7c7152b13e9cb7f9c3a9ae9"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
