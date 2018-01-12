@@ -326,7 +326,7 @@ class InteractivePlot(object):
             dataLabels = self.cleanConsLabels
         elif data=='aux' or data=='auxilliary':
             data = self.aux
-            data = self.cleanAuxLabels
+            dataLabels = self.cleanAuxLabels
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
