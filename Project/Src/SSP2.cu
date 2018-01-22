@@ -265,6 +265,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         printf("Manually calling residual 2b\n");
         info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa);
 
+        for (int var(0); var < d->Ncons; var++) {
+          printf("%19.16f\n", x[var]);
+        }
 
       }
       else {
@@ -469,13 +472,13 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   SSP2 * timeInt = (SSP2 *)p;
   IMEX2Arguments * a(&timeInt->args);
 
-  if (a->i == 127 && timeInt->data->iters==4) {
-    for (int i(0); i<timeInt->data->Ncons; i++) {
-      printf("%19.16f\n",a->flux1[i]);
-    }
-
-    exit(1);
-  }
+  // if (a->i == 127 && timeInt->data->iters==4) {
+  //   for (int i(0); i<timeInt->data->Ncons; i++) {
+  //     printf("%19.16f\n",a->flux1[i]);
+  //   }
+  //
+  //   exit(1);
+  // }
 
   try {
     // First determine the prim and aux vars due to guess x
