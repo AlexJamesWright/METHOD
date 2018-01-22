@@ -40,6 +40,11 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
             cudaHostAllocPortable);
   cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
+
+  cudaHostAlloc((void **)&tempprims, sizeof(double) * d->Nprims * Ntot,
+            cudaHostAllocPortable);
+  cudaHostAlloc((void **)&tempaux, sizeof(double) * d->Naux * Ntot,
+            cudaHostAllocPortable);
 }
 
 SSP2::~SSP2()
@@ -55,6 +60,9 @@ SSP2::~SSP2()
   cudaFreeHost(flux1);
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
+
+  cudaFreeHost(tempprims);
+  cudaFreeHost(tempaux);
 }
 
 //! Single step functions
@@ -96,12 +104,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     ke = 1;
   }
 
-  // if (d->iters == 1) {
-  //   for (int i(0); i<d->Nprims; i++) {
-  //     printf("%19.16f\n", prims[ID(i, 127, 0, 0)]);
-  //   }
-  //   exit(1);
-  // }
 
   //########################### STAGE ONE #############################//
   this->model->sourceTerm(cons, prims, aux, d->source);
@@ -114,6 +116,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]   = aux[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+
         args.i = i;
         args.j = j;
         args.k = k;
@@ -144,6 +149,132 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   this->bcs->apply(flux1);
 
 
+
+    // if (d->iters == 4) {
+    //
+    //   cons[ID(0, 127, 0, 0)] = 0.9667674310918988;
+    //   cons[ID(1, 127, 0, 0)] = 0.0355313080344164;
+    //   cons[ID(2, 127, 0, 0)] = 0.0000000000000000;
+    //   cons[ID(3, 127, 0, 0)] = -0.0000000000000000;
+    //   cons[ID(4, 127, 0, 0)] = 1.5734956519340324;
+    //   cons[ID(5, 127, 0, 0)] = -0.0000000000000000;
+    //   cons[ID(6, 127, 0, 0)] = 0.4608360295784925;
+    //   cons[ID(7, 127, 0, 0)] = 0.0000000000000000;
+    //   cons[ID(8, 127, 0, 0)] = 0.0000000000000000;
+    //   cons[ID(9, 127, 0, 0)] = -0.0000000000000000;
+    //   cons[ID(10, 127, 0, 0)] = -0.0385926127169150;
+    //   cons[ID(11, 127, 0, 0)] = 0.0000000000000000;
+    //   cons[ID(12, 127, 0, 0)] = 0.0000000000000000;
+    //   cons[ID(13, 127, 0, 0)] = -0.0000000000000000;
+    //
+    //   prims[ID(0, 127, 0, 0)] = 0.9667543466171205;
+    //   prims[ID(1, 127, 0, 0)] = 0.0052027225906986;
+    //   prims[ID(2, 127, 0, 0)] = 0.0000000000000000;
+    //   prims[ID(3, 127, 0, 0)] = -0.0000000000000000;
+    //   prims[ID(4, 127, 0, 0)] = 0.9776578590927343;
+    //   prims[ID(5, 127, 0, 0)] = -0.0000000000000000;
+    //   prims[ID(6, 127, 0, 0)] = 0.4608360295784925;
+    //   prims[ID(7, 127, 0, 0)] = 0.0000000000000000;
+    //   prims[ID(8, 127, 0, 0)] = 0.0000000000000000;
+    //   prims[ID(9, 127, 0, 0)] = -0.0000000000000000;
+    //   prims[ID(10, 127, 0, 0)] = -0.0385926127169150;
+    //
+    //   aux[ID(0, 127, 0, 0)] = 3.5281961816716096;
+    //   aux[ID(1, 127, 0, 0)] = 1.0000135344359444;
+    //   aux[ID(2, 127, 0, 0)] = 1.5169177090029657;
+    //   aux[ID(3, 127, 0, 0)] = 0.6911676346304005;
+    //   aux[ID(4, 127, 0, 0)] = 0.0000000000000000;
+    //   aux[ID(5, 127, 0, 0)] = -0.0000000000000000;
+    //   aux[ID(6, 127, 0, 0)] = -3.6195500574272872;
+    //   aux[ID(7, 127, 0, 0)] = 0.2123698461576692;
+    //   aux[ID(8, 127, 0, 0)] = 0.0014893897563178;
+    //   aux[ID(9, 127, 0, 0)] = 0.0000270683223558;
+    //   aux[ID(10, 127, 0, 0)] = 3.4109913241616718;
+    //   aux[ID(11, 127, 0, 0)] = 0.0000000000000000;
+    //   aux[ID(12, 127, 0, 0)] = 0.0177464416188928;
+    //   aux[ID(13, 127, 0, 0)] = 0.0000000000000000;
+    //   aux[ID(14, 127, 0, 0)] = -0.0000000000000000;
+    //   aux[ID(15, 127, 0, 0)] = 0.0003149361901328;
+    //   aux[ID(16, 127, 0, 0)] = 1.4665660339770390;
+    //
+    //   source1[ID(0, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(1, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(2, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(3, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(4, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(5, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(6, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(7, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(8, 127, 0, 0)] = -0.0000000000000000;
+    //   source1[ID(9, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(10, 127, 0, 0)] = 3.6104914227920215;
+    //   source1[ID(11, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(12, 127, 0, 0)] = 0.0000000000000000;
+    //   source1[ID(13, 127, 0, 0)] = 0.0000000000000000;
+    //
+    //   flux1[ID(0, 127, 0, 0)] = -97.7240446232470390;
+    //   flux1[ID(1, 127, 0, 0)] = 108.5130930979043171;
+    //   flux1[ID(2, 127, 0, 0)] = -0.0000000000000000;
+    //   flux1[ID(3, 127, 0, 0)] = 0.0000000000000000;
+    //   flux1[ID(4, 127, 0, 0)] = -152.3435534597012690;
+    //   flux1[ID(5, 127, 0, 0)] =  0.0000000000000000;
+    //   flux1[ID(6, 127, 0, 0)] = -118.6676362320633871;
+    //   flux1[ID(7, 127, 0, 0)] =  0.0000000000000000;
+    //   flux1[ID(8, 127, 0, 0)] =  0.0000000000000000;
+    //   flux1[ID(9, 127, 0, 0)] = -0.0000000000000000;
+    //   flux1[ID(10, 127, 0, 0)] = -118.9070017198206415;
+    //   flux1[ID(11, 127, 0, 0)] = -0.0000000000000000;
+    //   flux1[ID(12, 127, 0, 0)] = -0.0000000000000000;
+    //   flux1[ID(13, 127, 0, 0)] = -0.0000000000000000;
+    //
+    //   U1[ID(0, 127, 0, 0)] = 0.9667674310918988;
+    //   U1[ID(1, 127, 0, 0)] = 0.0355313080344164;
+    //   U1[ID(2, 127, 0, 0)] = 0.0000000000000000;
+    //   U1[ID(3, 127, 0, 0)] = -0.0000000000000000;
+    //   U1[ID(4, 127, 0, 0)] = 1.5734956519340324;
+    //   U1[ID(5, 127, 0, 0)] = -0.0000000000000000;
+    //   U1[ID(6, 127, 0, 0)] = 0.4608360295784925;
+    //   U1[ID(7, 127, 0, 0)] = 0.0000000000000000;
+    //   U1[ID(8, 127, 0, 0)] = 0.0000000000000000;
+    //   U1[ID(9, 127, 0, 0)] = -0.0000000000000000;
+    //   U1[ID(10, 127, 0, 0)] = -0.0385073313899537;
+    //   U1[ID(11, 127, 0, 0)] = 0.0000000000000000;
+    //   U1[ID(12, 127, 0, 0)] = 0.0000000000000000;
+    //   U1[ID(13, 127, 0, 0)] = 0.0000000000000000;
+    //
+    //
+    //   int i(127);
+    //   int j(0);
+    //   int k(0);
+    //   for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
+    //   for (int var(0); var < d->Nprims; var++) args.prims[var]   = prims[ID(var, i, j, k)];
+    //   for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
+    //   for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[ID(var,i, j, k)];
+    //   for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
+    //   for (int var(0); var < d->Ncons ; var++) x[var]            = U1[ID(var, i, j, k)];
+    //   args.i = i;
+    //   args.j = j;
+    //   args.k = k;
+    //
+    //   if((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+    //
+    //     for (int var(0); var < d->Ncons; var++) {
+    //       x[var] = 0.5 * (x[var] + U1[ID(var, i, j, k)] + dt * flux1[ID(var, i, j, k)]);
+    //     }
+    //
+    //     printf("Manually calling residual 2b\n");
+    //     info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa);
+    //
+    //
+    //   }
+    //   else {
+    //     printf("couldnt do stage1\n");
+    //   }
+    //   exit(1);
+    //
+    // }
+
+    //########################### STAGE TWO #############################//
   // Determine solutuion of stage 2
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
@@ -151,6 +282,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
+        for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[ID(var,i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) x[var]            = U1[ID(var, i, j, k)];
         args.i = i;
@@ -206,9 +338,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int i(is); i < ie; i++) {
       for (int j(js); j < je; j++) {
         for (int k(ks); k < ke; k++) {
-          cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - 0.5 * dt *
-                    (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
-                    source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
+          cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] + 0.5 * dt *
+                    (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] +
+                    source1[ID(var, i, j, k)] + source2[ID(var, i, j, k)]);
         }
       }
     }
@@ -337,6 +469,14 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   SSP2 * timeInt = (SSP2 *)p;
   IMEX2Arguments * a(&timeInt->args);
 
+  // if (a->i == 127 && timeInt->data->iters==4) {
+  //   for (int i(0); i<timeInt->data->Ncons; i++) {
+  //     printf("%19.16f\n",a->flux1[i]);
+  //   }
+  //
+  //   exit(1);
+  // }
+
   try {
     // First determine the prim and aux vars due to guess x
     timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
@@ -344,7 +484,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
     // Set residual
     for (int i(0); i < n; i++) {
-      fvec[i] = x[i] - a->cons[i] + a->dt * (a->flux1[i] - a->om2gam * a->source1[i] - a->gam * a->source[i]);
+      fvec[i] = x[i] - a->cons[i] - a->dt * (a->flux1[i] + a->om2gam * a->source1[i] + a->gam * a->source[i]);
     }
   }
   catch (const std::exception& e) {
