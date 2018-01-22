@@ -32,12 +32,6 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&U2, sizeof(double) * d->Ncons * Ntot,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2F, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2S, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2guess, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
   cudaHostAlloc((void **)&source1, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
   cudaHostAlloc((void **)&flux1, sizeof(double) * d->Ncons * Ntot,
@@ -46,10 +40,6 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
             cudaHostAllocPortable);
   cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempprims, sizeof(double) * d->Nprims * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempaux, sizeof(double) * d->Naux * Ntot,
-                cudaHostAllocPortable);
 }
 
 SSP2::~SSP2()
@@ -61,15 +51,10 @@ SSP2::~SSP2()
   cudaFreeHost(wa);
   cudaFreeHost(U1);
   cudaFreeHost(U2);
-  cudaFreeHost(U2F);
-  cudaFreeHost(U2S);
-  cudaFreeHost(U2guess);
   cudaFreeHost(source1);
   cudaFreeHost(flux1);
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
-  cudaFreeHost(tempprims);
-  cudaFreeHost(tempaux);
 }
 
 //! Single step functions
@@ -111,6 +96,13 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     ke = 1;
   }
 
+  // if (d->iters == 1) {
+  //   for (int i(0); i<d->Nprims; i++) {
+  //     printf("%19.16f\n", prims[ID(i, 127, 0, 0)]);
+  //   }
+  //   exit(1);
+  // }
+
   //########################### STAGE ONE #############################//
   this->model->sourceTerm(cons, prims, aux, d->source);
 
@@ -130,8 +122,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
           if ((info = __cminpack_func__(hybrd1)(IMEX2Residual1, this, d->Ncons, x, fvec, tol, wa, lwa)) == 1) {
             // Rootfind successful
             for (int var(0); var < d->Ncons; var++)  U1[ID(var, i, j, k)]        = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] = args.prims[var];
-            for (int var(0); var < d->Naux; var++)   tempaux[ID(var, i, j, k)]   = args.aux[var];
           }
           else {
             char s[200];
@@ -147,48 +137,48 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  this->model->getPrimitiveVars(U1, tempprims, tempaux);
-  this->model->sourceTerm(U1, tempprims, tempaux, source1);
-  this->fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
+  this->model->getPrimitiveVars(U1, prims, aux);
+  this->model->sourceTerm(U1, prims, aux, source1);
+  this->fluxMethod->F(U1, prims, aux, d->f, flux1);
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
 
-  //########################### STAGE TWOa #############################//
 
-  // Determine just the Flux contribution to U2
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++)
-            U2F[ID(var, i, j, k)] = U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++)
-            tempprims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux; var++)
-            tempaux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
-      }
-    }
-  }
-  this->model->getPrimitiveVars(U2F, tempprims, tempaux);
-
-  // Determine just the source contribution to U2
+  // Determine solutuion of stage 2
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
       for (int k(ks); k < ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.prims[var]   = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) x[var]            = U1[ID(var, i, j, k)];
         args.i = i;
         args.j = j;
         args.k = k;
-        // Call hybrd1
+
         try {
+          // Solve for source terms only
           if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
-            // Rootfind successful
-            for (int var(0); var < d->Ncons ; var++) U2S[ID(var, i, j, k)]       = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] += args.prims[var];
-            for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   += args.aux[var];
+            // Source rootfind successful, euler step flux for stage 2 estimate
+            for (int var(0); var < d->Ncons; var++) {
+              x[var] = 0.5 * (x[var] + U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)]);
+            }
+            try {
+              // Solve stage 2
+              if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+                for (int var(0); var < d->Ncons; var++) U2[ID(var, i, j, k)] = x[var];
+              }
+              else {
+                char s[200];
+                sprintf(s, "SSP2 stage 2b failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
+                throw std::runtime_error(s);
+              }
+            }
+            catch (const std::exception& e) {
+              printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
+              throw e;
+            }
           }
           else {
             char s[200];
@@ -204,63 +194,10 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  // Construct guess for second stage
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
-        for (int var(0); var < d->Ncons ; var++)
-          U2guess[ID(var, i, j, k)] = 0.5 * (U2S[ID(var, i, j, k)] + U2F[ID(var, i, j, k)]);
-
-        for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] *= 0.5;
-        for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   *= 0.5;
-      }
-    }
-  }
-  this->bcs->apply(U2guess, tempprims, tempaux);
-  this->model->getPrimitiveVars(U2guess, tempprims, tempaux);
-
-
-  //########################### STAGE TWOb #############################//
-
-  // Determine solution to stage 2
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
-        for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[ID(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) x[var]            = U2guess[ID(var, i, j, k)];
-        args.i = i;
-        args.j = j;
-        args.k = k;
-        // Call hybrd1
-        try {
-          if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
-            // Rootfind successful
-            for (int var(0); var < d->Ncons ; var++) U2[ID(var, i, j, k)]        = x[var];
-            for (int var(0); var < d->Nprims; var++) tempprims[ID(var, i, j, k)] = args.prims[var];
-            for (int var(0); var < d->Naux  ; var++) tempaux[ID(var, i, j, k)]   = args.aux[var];
-
-          }
-          else {
-            char s[200];
-            sprintf(s, "SSP2 stage 2b failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2b.\n", i, j, k, info);
-            throw std::runtime_error(s);
-          }
-        }
-        catch (const std::exception& e) {
-          printf("Stage 2b, U2, raises exception with following message:\n%s\n", e.what());
-          throw e;
-        }
-      }
-    }
-  }
-  this->bcs->apply(U2, tempprims, tempaux);
-  this->model->getPrimitiveVars(U2, tempprims, tempaux);
-  this->model->sourceTerm(U2, tempprims, tempaux, source2);
-  this->fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
+  this->bcs->apply(U2, prims, aux);
+  this->model->getPrimitiveVars(U2, prims, aux);
+  this->model->sourceTerm(U2, prims, aux, source2);
+  this->fluxMethod->F(U2, prims, aux, d->f, flux2);
   this->bcs->apply(flux2);
 
 
@@ -279,8 +216,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
   this->model->getPrimitiveVars(cons, prims, aux);
   this->bcs->apply(cons, prims, aux);
-
-  }
+}
 
   //! Residual function to minimize for stage one of IMEX SSP2
   /*!
