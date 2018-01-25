@@ -139,7 +139,7 @@ class BrioWuTwoFluid : public InitialFunc
     @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case
     @sa InitialFunc
     */
-    BrioWuTwoFluid(Data * data, int dir=0, int setUp=0);
+    BrioWuTwoFluid(Data * data, int dir=0, int setUp=1);
 };
 
 class BrioWuSingleFluid : public InitialFunc
