@@ -47,7 +47,7 @@ namespace
       TwoFluidEMHD modelx(&dx);
       FVS fluxMethodx(&dx, &modelx);
       Simulation simx(&dx);
-      BrioWuTwoFluid initx(&dx, 0);
+      BrioWuTwoFluid initx(&dx, 0, 0);
       Periodic bcsx(&dx);
       RKSplit timeIntx(&dx, &modelx, &bcsx, &fluxMethodx);
       simx.set(&initx, &modelx, &timeIntx, &bcsx, &fluxMethodx);
@@ -60,7 +60,7 @@ namespace
       TwoFluidEMHD modely(&dy);
       FVS fluxMethody(&dy, &modely);
       Simulation simy(&dy);
-      BrioWuTwoFluid inity(&dy, 1);
+      BrioWuTwoFluid inity(&dy, 1, 0);
       Periodic bcsy(&dy);
       RKSplit timeInty(&dy, &modely, &bcsy, &fluxMethody);
       simy.set(&inity, &modely, &timeInty, &bcsy, &fluxMethody);
@@ -72,7 +72,7 @@ namespace
       TwoFluidEMHD modelz(&dz);
       FVS fluxMethodz(&dz, &modelz);
       Simulation simz(&dz);
-      BrioWuTwoFluid initz(&dz, 2);
+      BrioWuTwoFluid initz(&dz, 2, 0);
       Periodic bcsz(&dz);
       RKSplit timeIntz(&dz, &modelz, &bcsz, &fluxMethodz);
       simz.set(&initz, &modelz, &timeIntz, &bcsz, &fluxMethodz);
@@ -157,12 +157,12 @@ namespace
       Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD model(&d);
       Simulation sim(&d);
-      BrioWuTwoFluid init(&d);
+      BrioWuTwoFluid init(&d, 0, 0);
 
       Data d2(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
       TwoFluidEMHD model2(&d2);
       Simulation sim2(&d2);
-      BrioWuTwoFluid init2(&d2);
+      BrioWuTwoFluid init2(&d2, 0, 0);
 
       model2.primsToAll(d2.cons, d2.prims, d2.aux);
       model.primsToAll(d.cons, d.prims, d.aux);
