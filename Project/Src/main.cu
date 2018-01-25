@@ -22,7 +22,7 @@ int main(void) {
   const double PI(3.14159265358979323);
   const double MU(1000);
   // Set up domain
-  int nx(256);
+  int nx(248);
   int ny(0);
   int nz(0);
   double xmin(-0.5);
@@ -32,10 +32,10 @@ int main(void) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.3);
+  double cfl(0.4);
   int Ng(4);
   double gamma(5.0/3.0);
-  double sigma(0);
+  double sigma(100000);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
