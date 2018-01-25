@@ -44,9 +44,7 @@ class SSP2 : public TimeIntegrator
     //@}
     //@{
     //!< Work array for specified variable. Size if Nx*Ny*Nz
-    *U1, *U2, *U2F, *U2S, *U2guess,
-    *source1, *flux1, *source2, *flux2,
-    *tempprims, *tempaux;
+    *U1, *U2, *source1, *flux1, *source2, *flux2;
     //@}
 
     //! Constructor
