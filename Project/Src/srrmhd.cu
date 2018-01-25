@@ -7,6 +7,7 @@
   and model.h.
 */
 
+#include <stdexcept>
 #include "srrmhd.h"
 #include "cminpack.h"
 
@@ -520,7 +521,7 @@ static double residual(const double Z, const double StildeSq, const double D, co
   p = (gamma - 1) * (h - rho) / gamma;
 
   // Second sanity check
-  if (rho < 0 || p < 0 || W < 1 || h < 1) return 1.0e6;
+  if (rho < 0 || p < 0 || W < 1 || h < 0) return 1.0e6;
 
   // Values are physical, compute residual
   resid = (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) /
@@ -537,7 +538,7 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   double x0(*Z);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.0e-8);
+  double tol(1.0e-12);
   double x2;
   double bestF;
   double f0(residual(x0, StildeSq, D, tauTilde, gamma));
@@ -568,8 +569,8 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   if (!found) {
     // Store result of Z=rho*h*W**2
     *Z = bestX;
-    printf("Original C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
-    // throw std::runtime_error("C2P could not converge.\n");
+    // printf("Original C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
+    throw std::runtime_error("C2P could not converge.\n");
     return 0;
   }
   return 1;
