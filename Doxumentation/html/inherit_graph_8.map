@@ -1,6 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="5,56,63,83"/>
-<area shape="rect" id="node2" href="$classSRMHD.html" title="Special Relativistic MagnetHydroDynamics &#160;" alt="" coords="132,5,204,32"/>
-<area shape="rect" id="node3" href="$classSRRMHD.html" title=" Special Relativistic Resistive MagnetHydroDynamics &#160;" alt="" coords="127,56,209,83"/>
-<area shape="rect" id="node4" href="$classTwoFluidEMHD.html" title=" Two&#45;Fluid ElectroMagnetoHydroDynamics &#160;" alt="" coords="111,107,225,133"/>
-</map>

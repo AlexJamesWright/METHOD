@@ -1,8 +1,0 @@
-<map id="InitialFunc" name="InitialFunc">
-<area shape="rect" id="node2" href="$classBrioWuSingleFluid.html" title="BrioWuSingleFluid" alt="" coords="159,5,289,32"/>
-<area shape="rect" id="node3" href="$classBrioWuTwoFluid.html" title=" Brio&#45;Wu shock tube initial data (1D) &#160;" alt="" coords="165,56,283,83"/>
-<area shape="rect" id="node4" href="$classCPAlfvenWaveSingleFluid.html" title=" Single fluid circularly polarized Alfven wave &#160;" alt="" coords="136,107,312,133"/>
-<area shape="rect" id="node5" href="$classCPAlfvenWaveTwoFluid.html" title=" Two&#45;fluid circularly polarized Alfven wave &#160;" alt="" coords="141,157,307,184"/>
-<area shape="rect" id="node6" href="$classCurrentSheetTwoFluid.html" title=" Two fluid self similar current sheet &#160;" alt="" coords="148,208,300,235"/>
-<area shape="rect" id="node7" href="$classOTVortexSingleFluid.html" title=" Single fluid Orszag&#45;Tang voretx &#160;" alt="" coords="153,259,295,285"/>
-</map>

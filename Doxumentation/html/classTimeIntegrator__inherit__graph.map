@@ -1,7 +1,0 @@
-<map id="TimeIntegrator" name="TimeIntegrator">
-<area shape="rect" id="node2" href="$classRK2.html" title=" TVD Runge&#45;Kutta 2nd order time integrator &#160;" alt="" coords="41,80,89,107"/>
-<area shape="rect" id="node5" href="$classSSP2.html" title=" Implicit&#45;Explicit Runge&#45;Kutta second order SSP2 time integrator &#160;" alt="" coords="117,80,173,107"/>
-<area shape="rect" id="node3" href="$classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="29,155,95,181"/>
-<area shape="rect" id="node4" href="$classBackwardsRK2.html" title=" Semi&#45;implicit second order Runge&#45;Kutta time integrator &#160;" alt="" coords="5,229,119,256"/>
-<area shape="rect" id="node6" href="$classSSP3.html" title=" Implicit&#45;Explicit Runge&#45;Kutta third order SSP3(332) time integrator &#160;" alt="" coords="119,155,175,181"/>
-</map>

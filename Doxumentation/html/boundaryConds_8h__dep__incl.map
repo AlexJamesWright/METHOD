@@ -1,9 +1,0 @@
-<map id="boundaryConds.h" name="boundaryConds.h">
-<area shape="rect" id="node2" href="$timeInt_8h.html" title="timeInt.h" alt="" coords="123,80,197,107"/>
-<area shape="rect" id="node6" href="$simulation_8h.html" title="simulation.h" alt="" coords="211,155,303,181"/>
-<area shape="rect" id="node3" href="$RK2_8h.html" title="RK2.h" alt="" coords="35,155,93,181"/>
-<area shape="rect" id="node7" href="$SSP2_8h.html" title="SSP2.h" alt="" coords="120,155,187,181"/>
-<area shape="rect" id="node4" href="$rkSplit_8h.html" title="rkSplit.h" alt="" coords="27,229,98,256"/>
-<area shape="rect" id="node5" href="$backwardsRK_8h.html" title="backwardsRK.h" alt="" coords="5,304,120,331"/>
-<area shape="rect" id="node8" href="$SSP3_8h.html" title="SSP3.h" alt="" coords="123,229,189,256"/>
-</map>

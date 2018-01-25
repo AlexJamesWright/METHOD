@@ -1,8 +1,0 @@
-<map id="Simulation" name="Simulation">
-<area shape="rect" id="node2" href="$classFluxMethod.html" title=" Abstract base class for any future flux methods &#160;" alt="" coords="5,196,96,223"/>
-<area shape="rect" id="node7" href="$classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="113,285,220,312"/>
-<area shape="rect" id="node3" href="$classModel.html" title=" Physics model that we want to use &#160;" alt="" coords="214,95,271,121"/>
-<area shape="rect" id="node4" href="$classData.html" title=" Data object &#160;" alt="" coords="265,5,316,32"/>
-<area shape="rect" id="node5" href="$classInitialFunc.html" title=" Abstract base class for any future initial data classes &#160;" alt="" coords="429,145,512,172"/>
-<area shape="rect" id="node6" href="$classBcs.html" title=" Boundary Conditions &#160;" alt="" coords="309,196,355,223"/>
-</map>

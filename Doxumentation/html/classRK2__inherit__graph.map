@@ -1,5 +1,0 @@
-<map id="RK2" name="RK2">
-<area shape="rect" id="node3" href="$classRKSplit.html" title=" Operator splitting RK2 integrator &#160;" alt="" coords="29,155,95,181"/>
-<area shape="rect" id="node2" href="$classTimeIntegrator.html" title=" General form of the time integrator &#160;" alt="" coords="9,5,115,32"/>
-<area shape="rect" id="node4" href="$classBackwardsRK2.html" title=" Semi&#45;implicit second order Runge&#45;Kutta time integrator &#160;" alt="" coords="5,229,119,256"/>
-</map>

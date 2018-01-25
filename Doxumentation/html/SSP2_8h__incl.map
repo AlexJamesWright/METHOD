@@ -1,9 +1,0 @@
-<map id="SSP2.h" name="SSP2.h">
-<area shape="rect" id="node2" href="$timeInt_8h.html" title="timeInt.h" alt="" coords="175,80,248,107"/>
-<area shape="rect" id="node9" href="$IMEX2Args_8h.html" title="IMEX2Args.h" alt="" coords="349,155,449,181"/>
-<area shape="rect" id="node10" href="$cminpack_8h.html" title="cminpack.h" alt="" coords="380,80,469,107"/>
-<area shape="rect" id="node3" href="$simData_8h.html" title="simData.h" alt="" coords="170,304,253,331"/>
-<area shape="rect" id="node6" href="$model_8h.html" title="model.h" alt="" coords="5,229,73,256"/>
-<area shape="rect" id="node7" href="$boundaryConds_8h.html" title="boundaryConds.h" alt="" coords="149,229,273,256"/>
-<area shape="rect" id="node8" href="$flux_8h.html" title="flux.h" alt="" coords="84,155,139,181"/>
-</map>
