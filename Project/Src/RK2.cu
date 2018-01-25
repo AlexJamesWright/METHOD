@@ -58,7 +58,13 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    }
 
    // Apply boundary conditions and get primitive and aux vars for p1
-   this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
+   try {
+     this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
+   }
+   catch (const std::exception& e) {
+     printf("RK2 (stage 1) raises exception with following message:\n%s\n", e.what());
+     throw e;
+   }
 
    this->bcs->apply(p1cons, p1prims, p1aux);
 
@@ -78,8 +84,13 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    }
 
    // Determine new prim and aux variables
-   this->model->getPrimitiveVars(cons, prims, aux);
-
+   try {
+     this->model->getPrimitiveVars(cons, prims, aux);
+   }
+   catch (const std::exception& e) {
+     printf("RK2 (corrector) raises exception with following message:\n%s\n", e.what());
+     throw e;
+   }
    // Apply boundary conditions
    this->bcs->apply(cons, prims, aux);
 
