@@ -25,18 +25,21 @@ Data::Data(int nx, int ny, int nz,
   this->Nx = nx + 2 * Ng;
   this->Ny = ny + 2 * Ng;
   this->Nz = nz + 2 * Ng;
+  dims = 3;
 
   // Catch 2D case
   if (nz == 0) {
     this->Nz = 1;
     zmin = -1e20;
     zmax = 1e20;
+    dims = 2;
   }
   // Catch 1D case
   if (ny == 0) {
     this->Nz = this->Ny = 1;
     zmin = ymin = -1e20;
     zmax = ymax = 1e20;
+    dims = 1;
   }
   // Ensure there is some Resistivity
   if (this->sigma < 0.0) {

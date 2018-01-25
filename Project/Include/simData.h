@@ -96,6 +96,8 @@ class Data
     primsLabels,           //!< Vector of labels for the specified variables
     auxLabels;
     //@}
+    int dims;                  //!< Number of dimensions of simulation
+
     //! Element ID function
     /*!
     @par
