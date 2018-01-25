@@ -30,8 +30,13 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
     }
   }
   // Determine new prim and aux variables
-  this->model->getPrimitiveVars(cons, prims, aux);
-
+  try {
+    this->model->getPrimitiveVars(cons, prims, aux);
+  }
+  catch (const std::exception& e) {
+    printf("RKSplit raises exception with following message:\n%s\n", e.what());
+    throw e;
+  }
   // Apply boundary conditions
   this->bcs->apply(cons, prims, aux);
 
