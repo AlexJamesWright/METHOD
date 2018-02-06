@@ -21,7 +21,7 @@ int main(void) {
 
   const double MU(1000);
   // Set up domain
-  int nx(120);
+  int nx(248);
   int ny(0);
   int nz(0);
   double xmin(00);

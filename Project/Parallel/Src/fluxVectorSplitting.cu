@@ -2,109 +2,98 @@
 #include "cudaErrorCheck.h"
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+#define ID0(variable, idx, jdx, kdx) ((variable)*(Nx)*(Ny)*(Nz) + (idx)*(Ny)*(Nz) + (jdx)*(Nz) + (kdx))
+#define ID1(variable, idx, jdx, kdx) ((variable)*(Nx)*(Ny)*(Nz) + (idx)*(Ny)*(Nz) + (jdx)*(Nz) + (kdx))
+#define ID2(variable, idx, jdx, kdx) ((variable)*(Nx)*(Ny)*(Nz) + (idx)*(Ny)*(Nz) + (jdx)*(Nz) + (kdx))
 
 __global__
-static void fluxRecon(double * cons, double * f, double * frecon, int dir, Data * d)
+static void fluxRecon(double * cons, double * f, int dir, int stream, int Ncons, int Nx, int Ny, int Nz, int width, size_t sharedMem)
 {
 
   // Order of weno scheme
   int order(2);
-
+  int cellsInSharedMem(sharedMem / (2 * sizeof(double)));
+  printf("cellsInSharedMem = %d\n", cellsInSharedMem);
   // Up and downwind fluxes
-  __shared__ double fplus[13];
-  __shared__ double fminus[13];
+  extern __shared__  double ftmp [];
+  double * fplus = ftmp;
+  double * fminus = ftmp + cellsInSharedMem;
+
+  int batches(width/cellsInSharedMem + 1);
+  printf("Number of batches = %d\n", batches);
+
+  int lID, gID, v, nx, ny, nz;
+  if (dir==0) {
+    v = gID % Nx*Ny*Nz;
+    nx = (gID - Nx*Ny*Nz*v)%Ny*Nz;
+    ny =  (gID - Nx*Ny*Nz*v - Ny*Nz*nx)%Nz;
+    nz =  gID - Nx*Ny*Nz*v - Ny*Nz*nx - Nz*ny;
+  }
+
+  v = gID % Ny*Nz*Nx;
+  nx = (gID - Ny*Nz*Nx*v)%Nz*Nx;
+  ny =  (gID - Ny*Nz*Nx*v - Nz*Nx*nx)%Nx;
+  nz =  gID - Ny*Nz*Nx*v - Nz*Nx*nx - Nx*ny;
+
+  lID = threadIdx.x + blockIdx.x * blockDim.x;
+  gID =  stream*(width - 2 * order) + lID;
 
 
-  // Lax-Friedrichs approximation of flux
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          fplus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] +  cons[ID(var, i, j, k)]);
-          fminus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] -  cons[ID(var, i, j, k)]);
-        }
+  for (int batch(0); batch < batches; batch++) {
+    printf("Batch %d:\n", batch);
+    // Load data into shared memory and apply Lax-Friedrichs approximation of flux
+    for (int i(0); i < cellsInSharedMem; i++) {
+      fplus[i] = 0.5 * (f[batch * (cellsInSharedMem - 2*order) + i] + cons[batch * (cellsInSharedMem - 2*order) + i]);
+      fminus[i] = 0.5 * (f[batch * (cellsInSharedMem - 2*order) + i] - cons[batch * (cellsInSharedMem - 2*order) + i]);
+    }
+      __syncthreads();
+
+    for (int i(0); i < cellsInSharedMem; i++) {
+      if (i >= order && i < cellsInSharedMem-order) {
+        f[i] = weno3_upwind(fplus[i-order],
+                            fplus[i-order+1],
+                            fplus[i-order+2]) +
+               weno3_upwind(fminus[i+order-1],
+                            fminus[i+order-2],
+                            fminus[i+order-3]);
+      }
+      else {
+        f[i] = 0.0;
       }
     }
+
+
   }
 
-  // Reconstruct to determine the flux at the cell face and compute difference
-  if (dir == 0) { // x-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
-            if (i >= order && i < d->Nx-order) {
-              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i-order, j, k)],
-                                                      fplus[ID(var, i-order+1, j, k)],
-                                                      fplus[ID(var, i-order+2, j, k)]) +
-                                         weno3_upwind(fminus[ID(var, i+order-1, j, k)],
-                                                      fminus[ID(var, i+order-2, j, k)],
-                                                      fminus[ID(var, i+order-3, j, k)]);
-            }
-            else {
-              frecon[ID(var, i, j, k)] = 0.0;
-            }
-          }
-        }
-      }
-    }
-  }
-  else if (dir == 1) { // y-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
-            if (j >= order && j < d->Ny-order) {
-              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j-order, k)],
-                                                      fplus[ID(var, i, j-order+1, k)],
-                                                      fplus[ID(var, i, j-order+2, k)]) +
-                                         weno3_upwind(fminus[ID(var, i, j+order-1, k)],
-                                                      fminus[ID(var, i, j+order-2, k)],
-                                                      fminus[ID(var, i, j+order-3, k)]);
-            }
-            else {
-              frecon[ID(var, i, j, k)] = 0.0;
-            }
-          }
-        }
-      }
-    }
-  }
-  else { // z-direction
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
-            if (k >= order && k < d->Nz-order) {
-              frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j, k-order)],
-                                                      fplus[ID(var, i, j, k-order+1)],
-                                                      fplus[ID(var, i, j, k-order+2)]) +
-                                         weno3_upwind(fminus[ID(var, i, j, k+order-1)],
-                                                      fminus[ID(var, i, j, k+order-2)],
-                                                      fminus[ID(var, i, j, k+order-3)]);
-            }
-            else {
-              frecon[ID(var, i, j, k)] = 0.0;
-            }
-          }
-        }
-      }
-    }
-  }
+  //! Now we are using the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
+
+
 }
 
 FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
 {
   // Syntax
   Data * d(this->data);
-
+  width = 7300000;
+  size_t maxMem(width * 4 * 8);
+  printf("\n\nUser Defined MaxMem = %lu B\n", maxMem);
   // Order of weno scheme
   int order(2);
-  int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
+  long unsigned int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
+  BpG = 1;
+  TpB = 1; // For Now
   // Need to determine the number of streams for the reconstruction in each direction
   // Factor 4 from flux, cons, fplus and fminus
-  Nstreams = Ntot * 4 * sizeof(double) / d->prop.totalGlobalMem + 1;
-
+  Nstreams = (Ntot * 4 * sizeof(double)) / maxMem + 1;
+  printf("Nstreams = %d, num = %lu, den = %lu\n", Nstreams ,Ntot * 4 * sizeof(double), maxMem);
+  printf("Ntot = %lu\n", Ntot);
+  // For now, hard code chunk size and consider only x-direction
+  TPB = 128; // FOR NOW ONLY, do dynamically
+  //width =  d->prop.totalGlobalMem / (4 * sizeof(double)); // Maximum number of cells we can send at once to the device
+  Cwidth = width - 2*order;
+  inMemsize = sizeof(double) * (Cwidth + 2*order);
+  outMemsize = sizeof(double) * Cwidth;
+  printf("orig InMem = %lu, OutMem = %lu\n", inMemsize, outMemsize);
   // Allocate device arrays for each stream
   flux_d = new double*[Nstreams];
   cons_d = new double*[Nstreams];
@@ -118,17 +107,10 @@ FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
 
   // Create streams
   stream = new cudaStream_t[Nstreams];
+  printf("Created %d streams\n", Nstreams);
   for (int i(0); i<Nstreams; i++) {
     cudaStreamCreate(&stream[i]);
   }
-
-  // For now, hard code chunk size and consider only x-direction
-  TPB = 128; // FOR NOW ONLY, do dynamically
-  Cwidth =  d->prop.totalGlobalMem / (4 * Ntot * sizeof(double)); // Maximum number of compute cells we can send at once to the device
-
-  inMemsize = sizeof(double) * (Cwidth + 2*order);
-  outMemsize = sizeof(double) * Cwidth;
-
 }
 
 FVS::~FVS()
@@ -159,12 +141,10 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Get flux vector
   this->model->fluxVector(cons, prims, aux, f, dir);
 
-  // Data must be loaded in to device contiguously, so will have to rearrange
-  if (dir==0) {
-    // Reconstructing in x direction -> cons_h goes as...
-    // var,i,j,k      0000, 0100, 0200, ..., 0Nx00,
-    //                0010, 0110, 0210, ...,
 
+
+  // Data must be loaded into device contiguously, so will have to rearrange
+  if (dir==0) {
     for (int var(0); var<d->Ncons; var++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
@@ -200,24 +180,39 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       }
     }
   }
-
+  // Data is now contiguous, send to GPU
+  int lb, rb; // Left and right boundary of data sent to device
   // Call parallel reconstruction
   for (int i(0); i<Nstreams; i++) {
+    printf("\nRunning stream %d\n", i);
     // First we must copy the data to the device
-    int ic(i * Cwidth);
-
+    lb = i*(width - 2 * order);
+    rb = lb + width;
     if (i == Nstreams-1) {
+      rb = Ntot;
       // Final stream so only do remaining cells
-      int remainingCells = Ntot - ic;
-      inMemsize = sizeof(double) * remainingCells;
-      outMemsize = inMemsize - sizeof(double) * 2 * order;
+      width = rb - lb;
+      Cwidth = width - 2*order;
+      inMemsize = sizeof(double) * width;
+      outMemsize = sizeof(double) * Cwidth;
     }
+    printf("Cwidth = %d\n", Cwidth);
+    printf("width = %d\n", width);
+    printf("lb = %d\nrb = %d\n", lb, rb);
 
     // // Copy streams data to device
-    gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + ic, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
-    gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + ic, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
-    exit(1);
-    fluxRecon<<<1, 1>>>(cons, f, frecon, dir, this->data);
+    gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
+
+    fluxRecon<<<1, 1, d->prop.sharedMemPerBlock, stream[i]>>>(cons_d[i], flux_d[i], dir, i, d->Ncons, d->Nx, d->Ny, d->Nz, width, d->prop.sharedMemPerBlock);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaStreamSynchronize(stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(flux_h+lb+order, flux_d[i]+order, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
+
+    if (i == Nstreams-1) {
+      printf("\n\nManually exiting\n");
+      exit(1);
+    }
   }
 }
 
