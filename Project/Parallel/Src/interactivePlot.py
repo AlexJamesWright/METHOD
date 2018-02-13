@@ -86,9 +86,9 @@ class InteractivePlot(object):
                     c['dy'] = float(line[24])
                     c['dz'] = float(line[25])
     
-        print("{} conserved variables".format(c['Ncons']))
-        print("{} primitive variables".format(c['Nprims']))
-        print("{} auxilliary variables".format(c['Naux']))
+        print("{} conserved vectors".format(c['Ncons']))
+        print("{} primitive vectors".format(c['Nprims']))
+        print("{} auxilliary vectors".format(c['Naux']))
     
         # Now get primitive variables and store the data in array...
         self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
