@@ -577,7 +577,6 @@ static int newton(double *Z, const double StildeSq, const double D, const double
     sprintf(s, "C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
 
     throw std::runtime_error(s);
-    return 0;
   }
   return 1;
 }
