@@ -3,6 +3,7 @@
 
 #include "simData.h"
 #include "model.h"
+#include "boundaryConds.h"
 
 //! <b> Abstract base class for any future flux methods </b>
 /*!
@@ -18,9 +19,9 @@ class FluxMethod
 {
   public:
 
-    Data * data;    //!< Pointer to data class containing global simulation data
-    Model * model;  //!< Pointer to model class containing method for computing flux vector
-
+    Data * data;    //!< Pointer to Data class containing global simulation data
+    Model * model;  //!< Pointer to Model class containing method for computing flux vector
+    Bcs * bcs;      //!< Pointer to Bcs class
     //! Base constructor
     /*!
         Constructor stores pointers to the Data and Model classes.
@@ -28,7 +29,7 @@ class FluxMethod
       @param[in] *data pointer to Data class
       @param[in] *model pointer to Model class
     */
-    FluxMethod(Data * data, Model * model) : data(data), model(model) { }
+    FluxMethod(Data * data, Model * model, Bcs * bcs) : data(data), model(model), bcs(bcs) { }
 
     //! Numerical flux function
     /*!

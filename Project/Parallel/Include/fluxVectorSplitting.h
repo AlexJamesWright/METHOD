@@ -97,7 +97,7 @@ class FVS : public FluxMethod
       @param[in] *data pointer to Data class
       @param[in] *model pointer to Model class
     */
-    FVS(Data * data, Model * model);
+    FVS(Data * data, Model * model, Bcs * bcs);
 
     //! Destructor
     /*!
