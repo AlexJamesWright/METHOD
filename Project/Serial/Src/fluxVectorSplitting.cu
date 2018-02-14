@@ -158,13 +158,11 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
         for (int j(0); j < d->Ny-1; j++) {
           fnet[ID(var, i, j, 0)] = (fx[ID(var, i+1, j, 0)] / d->dx - fx[ID(var, i, j, 0)] / d->dx) +
                                       (fy[ID(var, i, j+1, 0)] / d->dy - fy[ID(var, i, j, 0)] / d->dy);
-
         }
       }
     }
     cudaFreeHost(fx);
     cudaFreeHost(fy);
-
   }
 
 
