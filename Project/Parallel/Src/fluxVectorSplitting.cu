@@ -56,7 +56,7 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
   double * fplus = ftmp;
   double * fminus = ftmp + cellsInSharedMem;
   double * frec = ftmp + 2 * cellsInSharedMem;
-  const int lID(threadIdx.x + blockIdx.x * (blockDim.x - 2*order)); // In this block
+  const int lID(threadIdx.x + blockIdx.x * (blockDim.x - 2*order)); // In this stream
 
 
   // Load data into shared memory whilst applying Lax-Friedrichs approximation of flux
@@ -67,21 +67,19 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
 
   __syncthreads();
 
-  if (threadIdx.x >= order && threadIdx.x < blockDim.x-order && lID < width) {
+  if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order+1 && lID < width) {
     frec[threadIdx.x] = weno3_upwind(fplus[threadIdx.x-order],
-                                    fplus[threadIdx.x-order+1],
-                                    fplus[threadIdx.x-order+2]) +
-                       weno3_upwind(fminus[threadIdx.x+order-1],
-                                    fminus[threadIdx.x+order-2],
-                                    fminus[threadIdx.x+order-3]);
+                                     fplus[threadIdx.x-order+1],
+                                     fplus[threadIdx.x-order+2]) +
+                        weno3_upwind(fminus[threadIdx.x+order-1],
+                                     fminus[threadIdx.x+order-2],
+                                     fminus[threadIdx.x+order-3]);
   }
   //! Now we are using the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
   __syncthreads();
-  if (threadIdx.x < blockDim.x-1 && lID < width) {
+  if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order && lID < width) {
     f[lID] = frec[threadIdx.x+1] * invd - frec[threadIdx.x] * invd;
   }
-
-  if (lID == 8) printf("%f, %f\n", frec[threadIdx.x+1], frec[threadIdx.x]);
 }
 
 
@@ -155,13 +153,6 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Get flux vector
   this->model->fluxVector(cons, prims, aux, f, dir);
 
-  // for (int i(0); i < d->Nprims; i++) {
-  //   printf("%18.15f\n", prims[ID(i, 504, 0, 0)]);
-  // }
-  // for (int i(503); i < 506; i++) {
-  //   printf("f %d: %18.15f, %18.15f, %18.15f, %18.15f, %18.15f, %18.15f, %18.15f, %18.15f, %18.15f, %18.15f\n", i, f[ID(0, i, 0, 0)], f[ID(1, i, 0, 0)], f[ID(3, i, 0, 0)], f[ID(4, i, 0, 0)], f[ID(6, i, 0, 0)], f[ID(7, i, 0, 0)], f[ID(4, i, 0, 0)], f[ID(8, i, 0, 0)], f[ID(9, i, 0, 0)], f[ID(10, i, 0, 0)]);
-  // }printf("\n");
-
   // Data must be loaded into device contiguously, so will have to rearrange
   if (dir==0) {
     invd = 1 / d->dx;
@@ -204,6 +195,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   // Data is now contiguous, send to GPU
   int lb, rb; // Left and right boundary of data sent to device
+
   // Call parallel reconstruction
   for (int i(0); i<Nstreams; i++) {
     // printf("Running stream %d\n", i);
@@ -224,14 +216,13 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
 
     fluxRecon<<<BpG, TpB, d->prop.sharedMemPerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, width, d->prop.sharedMemPerBlock, invd);
+
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaStreamSynchronize(stream[i]) );
     gpuErrchk( cudaMemcpyAsync(flux_h+lb+order, flux_d[i]+order, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
     gpuErrchk( cudaStreamSynchronize(stream[i]) );
   }
 
-
-  // printf("Returning concat array to original order\n");
   // Data must be loaded back into original order on the host
   if (dir==0) {
     for (int var(0); var<d->Ncons; var++) {
@@ -338,10 +329,4 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
     }
     cudaFreeHost(fx);
   }
-
-  printf("ID of trouble maker is %d\n", ID(0, 8, 0, 0));
-  for (int i(7); i<10; i++) {
-    printf("%33.30f\n", fnet[ID(0, i, 0, 0)]);
-  }printf("\n");
-
 }
