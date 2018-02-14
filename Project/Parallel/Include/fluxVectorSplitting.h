@@ -6,7 +6,7 @@
 
 //! Parallel version of fluxReconstruction method
 __global__
-static void fluxRecon(double *cons_d, double *flux_d, int stream, int width, size_t sharedMem);
+static void fluxRecon(double *cons_d, double *flux_d, int stream, int width, size_t sharedMem, double delta);
 
 
 //! <b> Flux vector splitting method </b>
@@ -78,7 +78,6 @@ class FVS : public FluxMethod
     * cons_h;
     //@}
     int
-    TPB,
     Nstreams;
     size_t
     inMemsize,
