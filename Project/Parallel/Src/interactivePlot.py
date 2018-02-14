@@ -22,6 +22,7 @@ class InteractivePlot(object):
     
     def __init__(self):
         self.gatherData()
+        print("Ready!")
 
     def gatherData(self):
         """
