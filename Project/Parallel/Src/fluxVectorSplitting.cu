@@ -74,8 +74,10 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
                                      fminus[threadIdx.x+order-2],
                                      fminus[threadIdx.x+order-3]);
   }
-  //! Now we are using the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
+
+  //! Now we are going to use the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
   __syncthreads();
+
   if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order-1 && lID < width) {
     f[lID] = frec[threadIdx.x+1] / delta - frec[threadIdx.x] / delta;
   }
@@ -225,9 +227,9 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Data must be loaded back into original order on the host
   if (dir==0) {
     for (int var(0); var<d->Ncons; var++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          for (int i(0); i < d->Nx; i++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
             frecon[ID(var, i, j, k)] = flux_h[IDX(var, i, j, k)];
           }
         }
@@ -236,9 +238,9 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   else if (dir==1) {
     for (int var(0); var<d->Ncons; var++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int i(0); i < d->Nx; i++) {
-          for (int j(0); j < d->Ny; j++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
             frecon[ID(var, i, j, k)] = flux_h[IDY(var, i, j, k)];
           }
         }
@@ -292,7 +294,6 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
     cudaFreeHost(fy);
     cudaFreeHost(fz);
   }
-
 
   // 2D domain, loop over x- and y-directions determining the net flux
   else if (d->Ny > 1) {
