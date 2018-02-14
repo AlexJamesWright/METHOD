@@ -45,7 +45,7 @@
 
 
 __global__
-static void fluxRecon(double * cons, double * f, int stream, int width, size_t sharedMem, double invd)
+static void fluxRecon(double * cons, double * f, int stream, int width, size_t sharedMem, double delta)
 {
   // Order of weno scheme
   const int order(2);
@@ -57,7 +57,6 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
   double * fminus = ftmp + cellsInSharedMem;
   double * frec = ftmp + 2 * cellsInSharedMem;
   const int lID(threadIdx.x + blockIdx.x * (blockDim.x - 2*order)); // In this stream
-
 
   // Load data into shared memory whilst applying Lax-Friedrichs approximation of flux
   if (lID < width) {
@@ -77,8 +76,8 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
   }
   //! Now we are using the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
   __syncthreads();
-  if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order && lID < width) {
-    f[lID] = frec[threadIdx.x+1] * invd - frec[threadIdx.x] * invd;
+  if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order-1 && lID < width) {
+    f[lID] = frec[threadIdx.x+1] / delta - frec[threadIdx.x] / delta;
   }
 }
 
@@ -146,7 +145,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Order of weno scheme
   int order(2);
-  double invd;
+  double delta;
   // Total number of data points for each vector
   int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
 
@@ -155,7 +154,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Data must be loaded into device contiguously, so will have to rearrange
   if (dir==0) {
-    invd = 1 / d->dx;
+    delta = d->dx;
     for (int var(0); var<d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
@@ -168,7 +167,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else if (dir==1) {
-    invd = 1 / d->dy;
+    delta = d->dy;
     for (int var(0); var<d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
@@ -181,7 +180,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else {
-    invd = 1 / d->dz;
+    delta = d->dz;
     for (int var(0); var<d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
@@ -215,7 +214,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
     gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
 
-    fluxRecon<<<BpG, TpB, d->prop.sharedMemPerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, width, d->prop.sharedMemPerBlock, invd);
+    fluxRecon<<<BpG, TpB, d->prop.sharedMemPerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, width, d->prop.sharedMemPerBlock, delta);
 
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaStreamSynchronize(stream[i]) );
@@ -229,7 +228,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           for (int i(0); i < d->Nx; i++) {
-            frecon[ID(var, j, k, i)] = flux_h[IDX(var, i, j, k)];
+            frecon[ID(var, i, j, k)] = flux_h[IDX(var, i, j, k)];
           }
         }
       }
@@ -240,7 +239,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int k(0); k < d->Nz; k++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
-            frecon[ID(var, k, i, j)] = flux_h[IDY(var, i, j, k)];
+            frecon[ID(var, i, j, k)] = flux_h[IDY(var, i, j, k)];
           }
         }
       }
@@ -307,15 +306,12 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
           fnet[ID(var, i, j, 0)] = fx[ID(var, i, j, 0)] + fy[ID(var, i, j, 0)];
-
         }
       }
     }
     cudaFreeHost(fx);
     cudaFreeHost(fy);
-
   }
-
 
   // Otherwise, domain is 1D only loop over x direction
   else {
