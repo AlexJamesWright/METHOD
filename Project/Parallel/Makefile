@@ -29,7 +29,7 @@ DOC_DIR = ../Doxumentation
 CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false
 
 # Sources
 SRCS = main.cu \
