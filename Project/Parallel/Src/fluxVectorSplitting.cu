@@ -1,6 +1,7 @@
 #include "fluxVectorSplitting.h"
 #include "cudaErrorCheck.h"
 #include <iostream>
+#include <cassert>
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 #define IDZ(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -45,23 +46,25 @@
 
 
 __global__
-static void fluxRecon(double * cons, double * f, int stream, int width, size_t sharedMem, double delta)
+static void fluxRecon(double * cons, double * f, int stream, int width, double delta, int dir, long unsigned int Ntot)
 {
   // Order of weno scheme
   const int order(2);
-  const int cellsInSharedMem(sharedMem / (3 * sizeof(double)));
 
   // Up and downwind fluxes
   extern __shared__  double ftmp [];
   double * fplus = ftmp;
-  double * fminus = ftmp + cellsInSharedMem;
-  double * frec = ftmp + 2 * cellsInSharedMem;
+  double * fminus = ftmp + blockDim.x;
+  double * frec = ftmp + 2 * blockDim.x;
   const int lID(threadIdx.x + blockIdx.x * (blockDim.x - 2*order)); // In this stream
+  const int gID(lID + stream * (width - 2*order));                  // GlobalID
 
   // Load data into shared memory whilst applying Lax-Friedrichs approximation of flux
   if (lID < width) {
-    fplus[threadIdx.x] = 0.5 * (f[lID] + cons[lID]);
-    fminus[threadIdx.x] = 0.5 * (f[lID] - cons[lID]);
+    double tempf = f[lID];
+    double tempc = cons[lID];             //    USE THIS IN FUTURE TO SAVE MEMORY ACCESS
+    fplus[threadIdx.x] = 0.5 * (tempf + tempc);
+    fminus[threadIdx.x] = 0.5 * (tempf - tempc);
   }
 
   __syncthreads();
@@ -75,10 +78,10 @@ static void fluxRecon(double * cons, double * f, int stream, int width, size_t s
                                      fminus[threadIdx.x+order-3]);
   }
 
-  //! Now we are going to use the device array 'f' as the reconstructed flux vector, i.e. frecon in serial code
+  //! Now we are going to use the device array 'f' as the differenced, reconstructed flux vector, i.e. fnet in serial code
   __syncthreads();
 
-  if (threadIdx.x >= order && threadIdx.x <= blockDim.x-order-1 && lID < width) {
+  if (threadIdx.x > order && threadIdx.x <= blockDim.x-order && lID < width && gID < Ntot) {
     f[lID] = frec[threadIdx.x+1] / delta - frec[threadIdx.x] / delta;
   }
 }
@@ -89,45 +92,78 @@ FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
 {
   // Syntax
   Data * d(this->data);
-  width = 7300000;
-  size_t maxMem(width * 4 * 8);
-  printf("\nUser Defined MaxMem = %lu B\n", maxMem);
+
   // Order of weno scheme
   int order(2);
+
+  // Total number of cells to send
   long unsigned int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
-  TpB = 512; // For Now
-  BpG = width/TpB;
-  // Need to determine the number of streams for the reconstruction in each direction
-  // Factor 4 from flux, cons, fplus and fminus
-  Nstreams = (Ntot * 4 * sizeof(double)) / maxMem + 1;
-  printf("Nstreams = %d, num = %lu, den = %lu\n", Nstreams ,Ntot * 4 * sizeof(double), maxMem);
-  printf("Ntot = %lu\n", Ntot);
-  // For now, hard code chunk size and consider only x-direction
-  Cwidth = width - 2*order;
-  inMemsize = sizeof(double) * (Cwidth + 2*order);
+
+  // Define thread set up
+  TpB = 512;
+  BpG = 40;
+  // Resulting size of stream...
+  Cwidth = BpG * (TpB - 2*order);
+  originalWidth = width = Cwidth + 2*order;
+
+  // ...means we need this many streams
+  Nstreams = (Ntot / Cwidth) + 1;
+
+  // Corresponding size of memcpys
+  inMemsize = sizeof(double) * width;
   outMemsize = sizeof(double) * Cwidth;
-  printf("orig InMem = %lu, OutMem = %lu\n", inMemsize, outMemsize);
+
+  // Size of dynamically allocd __shared__ memory in device
+  sharedMemUsagePerBlock = TpB * 3 * sizeof(double);
+
+  assert(sharedMemUsagePerBlock <= d->prop.sharedMemPerBlock);
+
+  printf("BPG = %d, TPB = %d\n", BpG, TpB);
+  printf("Width = %d, Cwidth = %d, Ntot = %lu\n", width, Cwidth, Ntot);
+  printf("Shared mem usage = %lu\n", sharedMemUsagePerBlock);
+
   // Allocate device arrays for each stream
-  flux_d = new double*[Nstreams];
   cons_d = new double*[Nstreams];
+  flux_d = new double*[Nstreams];
 
   for (int i(0); i < Nstreams; i++) {
-    gpuErrchk( cudaMalloc((void **)&flux_d[i], inMemsize) );
     gpuErrchk( cudaMalloc((void **)&cons_d[i], inMemsize) );
+    gpuErrchk( cudaMalloc((void **)&flux_d[i], inMemsize) );
   }
-  gpuErrchk( cudaHostAlloc((void **)&flux_h, Ntot * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&cons_h, Ntot * sizeof(double), cudaHostAllocPortable) );
+  gpuErrchk( cudaHostAlloc((void **)&flux_h, Ntot * sizeof(double), cudaHostAllocPortable) );
 
   // Create streams
   stream = new cudaStream_t[Nstreams];
   printf("Created %d streams\n\n\n", Nstreams);
   for (int i(0); i<Nstreams; i++) {
-    cudaStreamCreate(&stream[i]);
+    gpuErrchk( cudaStreamCreate(&stream[i]) );
+  }
+
+  if (d->Nz > 1) {
+    gpuErrchk( cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
+    gpuErrchk( cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
+    gpuErrchk( cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
+  }
+  else if (d->Ny > 1) {
+    gpuErrchk( cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
+    gpuErrchk( cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
+  }
+  else {
+    gpuErrchk( cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
+                  cudaHostAllocPortable) );
   }
 }
 
 FVS::~FVS()
 {
+  // Syntax
+  Data * d(this->data);
   for (int i(0); i < Nstreams; i++) {
     gpuErrchk( cudaFree(flux_d[i]) );
     gpuErrchk( cudaFree(cons_d[i]) );
@@ -137,6 +173,19 @@ FVS::~FVS()
   delete [] flux_d;
   delete [] cons_d;
   delete [] stream;
+
+  if (d->Nz > 1) {
+    gpuErrchk( cudaFreeHost(fx) );
+    gpuErrchk( cudaFreeHost(fy) );
+    gpuErrchk( cudaFreeHost(fz) );
+  }
+  else if (d->Ny > 1) {
+    gpuErrchk( cudaFreeHost(fx) );
+    gpuErrchk( cudaFreeHost(fy) );
+  }
+  else {
+    gpuErrchk( cudaFreeHost(fx) );
+  }
 }
 
 
@@ -145,14 +194,24 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Syntax
   Data * d(this->data);
 
+
+
   // Order of weno scheme
   int order(2);
   double delta;
   // Total number of data points for each vector
   int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
-
   // Get flux vector
   this->model->fluxVector(cons, prims, aux, f, dir);
+
+  // int count(0);
+  // for (int var(0); var<d->Ncons; var++) {
+  //   for (int i(0); i<d->Nx; i++) {
+  //     for (int j(0); j<d->Ny; j++) {
+  //         cons[ID(var, i, j, 0)] = f[ID(var, i, j, 0)] = count++;
+  //     }
+  //   }
+  // }
 
   // Data must be loaded into device contiguously, so will have to rearrange
   if (dir==0) {
@@ -161,8 +220,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
+            flux_h[IDX(var, i, j, k)] = f   [ID(var, i, j, k)];
             cons_h[IDX(var, i, j, k)] = cons[ID(var, i, j, k)];
-            flux_h[IDX(var, i, j, k)] = f[ID(var, i, j, k)];
           }
         }
       }
@@ -174,8 +233,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
+            flux_h[IDY(var, i, j, k)] = f   [ID(var, i, j, k)];
             cons_h[IDY(var, i, j, k)] = cons[ID(var, i, j, k)];
-            flux_h[IDY(var, i, j, k)] = f[ID(var, i, j, k)];
           }
         }
       }
@@ -187,8 +246,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
+            flux_h[IDZ(var, i, j, k)] = f   [ID(var, i, j, k)];
             cons_h[IDZ(var, i, j, k)] = cons[ID(var, i, j, k)];
-            flux_h[IDZ(var, i, j, k)] = f[ID(var, i, j, k)];
           }
         }
       }
@@ -196,11 +255,18 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   // Data is now contiguous, send to GPU
   int lb, rb; // Left and right boundary of data sent to device
+  // Set/Reset width and memsize...
+  Cwidth = BpG * (TpB - 2*order);
+  width = Cwidth + 2*order;
+
+  // Corresponding size of memcpys
+  inMemsize = sizeof(double) * width;
+  outMemsize = sizeof(double) * Cwidth;
 
   // Call parallel reconstruction
   for (int i(0); i<Nstreams; i++) {
     // printf("Running stream %d\n", i);
-    // First determine where in the contiguous array the left boundary corresponds to
+    // First determine where in the contiguous array the left boundary of this stream corresponds to
     lb = i*(width - 2 * order);
     rb = lb + width;
     if (i == Nstreams-1) {
@@ -211,12 +277,11 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       inMemsize = sizeof(double) * width;
       outMemsize = sizeof(double) * Cwidth;
     }
-
-    // // Copy streams data to device
-    gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
+    // Copy stream's data to device
     gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
 
-    fluxRecon<<<BpG, TpB, d->prop.sharedMemPerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, width, d->prop.sharedMemPerBlock, delta);
+    fluxRecon<<<BpG, TpB, sharedMemUsagePerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, originalWidth, delta, dir, Ntot);
 
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaStreamSynchronize(stream[i]) );
@@ -266,17 +331,10 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
   // Syntax
   Data * d(this->data);
 
-  // Reconstructed fluxes in x, y, z direction
-  double *fx, *fy, *fz;
 
   // 3D domain, loop over all cells determining the net flux
   if (d->Ny > 1 && d->Nz > 1) {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
+
     // Determine flux vectors
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
@@ -290,19 +348,15 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
         }
       }
     }
-    cudaFreeHost(fx);
-    cudaFreeHost(fy);
-    cudaFreeHost(fz);
   }
 
   // 2D domain, loop over x- and y-directions determining the net flux
   else if (d->Ny > 1) {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
+    // printf("\nCalling x-direction reconstruction\n");
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
+    // printf("\nCalling y-direction reconstruction\n");
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
+    // printf("Y-direction exited\n");
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
         for (int j(0); j < d->Ny-1; j++) {
@@ -310,20 +364,19 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
         }
       }
     }
-    cudaFreeHost(fx);
-    cudaFreeHost(fy);
+    // printf("\nfnet = %19.16f: xdir = %19.16f, ydir = %19.16f\n", fnet[ID(6, 38, 5, 0)], fx[ID(6, 38, 5, 0)], fy[ID(6, 38, 5, 0)]);
   }
 
   // Otherwise, domain is 1D only loop over x direction
   else {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
           fnet[ID(var, i, 0, 0)] = fx[ID(var, i, 0, 0)];
       }
     }
-    cudaFreeHost(fx);
   }
+  // printf("\nfnet = %19.16f\n", fnet[ID(6, 38, 5, 0)]);
+  // printf("culprit: x = %d, y = %d\n", IDX(6, 38, 5, 0), IDY(6, 38, 5, 0));
+  // exit(1);
 }
