@@ -6,7 +6,7 @@
 
 //! Parallel version of fluxReconstruction method
 __global__
-static void fluxRecon(double *cons_d, double *flux_d, int stream, int width, size_t sharedMem, double delta);
+static void fluxRecon(double *cons_d, double *flux_d, int stream, int width, double delta, int dir, long unsigned int Ntot);
 
 
 //! <b> Flux vector splitting method </b>
@@ -75,15 +75,21 @@ class FVS : public FluxMethod
     //@}
     //@{
     * flux_h, //!< Host arrays for contiguous data ready for reconstruction
-    * cons_h;
+    * cons_h,
+    //@}
+    //@{
+    * fx,
+    * fy,     //!< Contains differenced, reconstructed flux vector in specified direction
+    * fz;
     //@}
     int
     Nstreams;
     size_t
     inMemsize,
-    outMemsize;
-    cudaStream_t *stream; //!< Pointer to streams
-    int Cwidth, width;
+    outMemsize,
+    sharedMemUsagePerBlock;
+    cudaStream_t * stream; //!< Pointer to CUDA streams
+    int Cwidth, width, originalWidth;
     int BpG, TpB; // Blocks per grid, threads per block
 
   public:
