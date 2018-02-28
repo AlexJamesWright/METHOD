@@ -205,11 +205,12 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Data must be loaded into device contiguously, so will have to rearrange
   if (dir==0) {
     delta = d->dx;
+    #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            flux_h[IDX(var, i, j, k)] = f   [ID(var, i, j, k)];
+            flux_h[IDX(var, i, j, k)] = f[ID(var, i, j, k)];
             cons_h[IDX(var, i, j, k)] = cons[ID(var, i, j, k)];
           }
         }
@@ -218,11 +219,12 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   else if (dir==1) {
     delta = d->dy;
+    #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            flux_h[IDY(var, i, j, k)] = f   [ID(var, i, j, k)];
+            flux_h[IDY(var, i, j, k)] = f[ID(var, i, j, k)];
             cons_h[IDY(var, i, j, k)] = cons[ID(var, i, j, k)];
           }
         }
@@ -231,11 +233,12 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   else {
     delta = d->dz;
+    #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            flux_h[IDZ(var, i, j, k)] = f   [ID(var, i, j, k)];
+            flux_h[IDZ(var, i, j, k)] = f[ID(var, i, j, k)];
             cons_h[IDZ(var, i, j, k)] = cons[ID(var, i, j, k)];
           }
         }
@@ -281,6 +284,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
     // Data must be loaded back into original order on the host
     if (dir==0) {
+    #pragma omp parallel for
       for (int var = 0; var<d->Ncons; var++) {
         for (int i = 0; i < d->Nx; i++) {
           for (int j = 0; j < d->Ny; j++) {
@@ -292,6 +296,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       }
     }
     else if (dir==1) {
+    #pragma omp parallel for
       for (int var = 0; var<d->Ncons; var++) {
         for (int i = 0; i < d->Nx; i++) {
           for (int j = 0; j < d->Ny; j++) {
@@ -303,6 +308,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       }
     }
     else {
+    #pragma omp parallel for
       for (int var = 0; var<d->Ncons; var++) {
         for (int i = 0; i < d->Nx; i++) {
           for (int j = 0; j < d->Ny; j++) {

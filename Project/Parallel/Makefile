@@ -164,7 +164,7 @@ saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
 
 # Executable
