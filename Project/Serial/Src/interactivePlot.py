@@ -29,8 +29,10 @@ class InteractivePlot(object):
         Collects and stores all the data required for plotting the final state of
         the system.
     
-        Returns
-        -------
+        Notes
+        -----
+        Stores the following public variables:
+            
             cons : array of float
                 (Ncons, Nx, Ny, Nz) Array containing the conserved vector
             consLabels : array of string
@@ -103,7 +105,7 @@ class InteractivePlot(object):
                 else:
                     temp = line.split()
                     for k in range(c['Nz']):
-                        self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                        self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
     
         # Clean up labels (remove the commas)
         self.cleanPrimLabels = []
@@ -125,7 +127,7 @@ class InteractivePlot(object):
                 else:
                     temp = line.split()
                     for k in range(c['Nz']):
-                        self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                        self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
     
         # Clean up labels (remove the commas)
         self.cleanConsLabels = []
@@ -147,7 +149,7 @@ class InteractivePlot(object):
                 else:
                     temp = line.split()
                     for k in range(c['Nz']):
-                        self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])] = float(temp[k])
+                        self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
     
         # Clean up labels (remove the commas)
         self.cleanAuxLabels = []
