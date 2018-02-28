@@ -1,5 +1,7 @@
 #include "boundaryConds.h"
 #include <stdio.h>
+#include <omp.h>
+
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -11,7 +13,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
   Data * d(this->data);
 
   // Cons
-  for (int var(0); var < d->Ncons; var++) {
+  #pragma omp parallel for
+  for (int var = 0; var < d->Ncons; var++) {
     for (int i(0); i < d->Ng; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
@@ -25,7 +28,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
   }
   // Prims
   if (prims) {
-    for (int var(0); var < d->Nprims; var++) {
+  #pragma omp parallel for
+    for (int var = 0; var < d->Nprims; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -40,7 +44,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
   }
   if (aux) {
     // Aux
-    for (int var(0); var < d->Naux; var++) {
+    #pragma omp parallel for
+    for (int var = 0; var < d->Naux; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -55,7 +60,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
   }
   if (d->Ny > 1) {
     // Cons
-    for (int var(0); var < d->Ncons; var++) {
+    #pragma omp parallel for
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ng; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -69,7 +75,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
     }
     // Prims
     if (prims) {
-      for (int var(0); var < d->Nprims; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -84,7 +91,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
     }
     // Aux
     if (aux) {
-      for (int var(0); var < d->Naux; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -101,7 +109,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
 
   if (d->Nz > 1) {
     // Cons
-    for (int var(0); var < d->Ncons; var++) {
+    #pragma omp parallel for
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Ng; k++) {
@@ -115,7 +124,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
     }
     // Prims
     if (prims) {
-      for (int var(0); var < d->Nprims; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {
@@ -130,7 +140,8 @@ void Outflow::apply(double * cons, double * prims, double * aux)
     }
     // Aux
     if (aux) {
-      for (int var(0); var < d->Naux; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {
@@ -152,7 +163,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
   Data * d(this->data);
 
   // Cons
-  for (int var(0); var < d->Ncons; var++) {
+  #pragma omp parallel for
+  for (int var = 0; var < d->Ncons; var++) {
     for (int i(0); i < d->Ng; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
@@ -166,7 +178,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
   }
   // Prims
   if (prims) {
-    for (int var(0); var < d->Nprims; var++) {
+  #pragma omp parallel for
+    for (int var = 0; var < d->Nprims; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -181,7 +194,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
   }
   // Aux
   if (aux) {
-    for (int var(0); var < d->Naux; var++) {
+  #pragma omp parallel for
+    for (int var = 0; var < d->Naux; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -197,7 +211,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
 
   if (d->Ny > 1) {
     // Cons
-    for (int var(0); var < d->Ncons; var++) {
+    #pragma omp parallel for
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ng; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -211,7 +226,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
     // Prims
     if (prims) {
-      for (int var(0); var < d->Nprims; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -226,7 +242,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
     // Aux
     if (aux) {
-      for (int var(0); var < d->Naux; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -243,7 +260,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
 
   if (d->Nz > 1) {
     // Cons
-    for (int var(0); var < d->Ncons; var++) {
+    #pragma omp parallel for
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Ng; k++) {
@@ -257,7 +275,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
     // Prims
     if (prims) {
-      for (int var(0); var < d->Nprims; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {
@@ -272,7 +291,8 @@ void Periodic::apply(double * cons, double * prims, double * aux)
     }
     // Aux
     if (aux) {
-      for (int var(0); var < d->Naux; var++) {
+    #pragma omp parallel for
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {

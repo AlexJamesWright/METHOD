@@ -1,4 +1,5 @@
 #include "RK2.h"
+#include <omp.h>
 #include <iostream>
 
 // Macro for getting array index
@@ -30,13 +31,18 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Naux; var++) {
+  #pragma omp parallel for
+  for (int i=0; i < d->Nx; i++) {
+    #pragma omp parallel for
+    for (int j=0; j < d->Ny; j++) {
+      #pragma omp parallel for
+      for (int k=0; k < d->Nz; k++) {
+        #pragma omp parallel for
+        for (int var=0; var < d->Naux; var++) {
           p1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
-        for (int var(0); var < d->Nprims; var++) {
+        #pragma omp parallel for
+        for (int var=0; var < d->Nprims; var++) {
           p1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
         }
       }
@@ -47,10 +53,14 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
   this->fluxMethod->F(cons, prims, aux, d->f, args1);
 
   // First stage approximation
-   for (int var(0); var < d->Ncons; var++) {
-     for (int i(0); i < d->Nx; i++) {
-       for (int j(0); j < d->Ny; j++) {
-         for (int k(0); k < d->Nz; k++) {
+  #pragma omp parallel for
+   for (int var=0; var < d->Ncons; var++) {
+     #pragma omp parallel for
+     for (int i=0; i < d->Nx; i++) {
+       #pragma omp parallel for
+       for (int j=0; j < d->Ny; j++) {
+         #pragma omp parallel for
+         for (int k=0; k < d->Nz; k++) {
            p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * args1[ID(var, i, j, k)];
          }
        }
@@ -72,10 +82,14 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
 
    // Construct solution
-   for (int var(0); var < d->Ncons; var++) {
-     for (int i(0); i < d->Nx; i++) {
-       for (int j(0); j < d->Ny; j++) {
-         for (int k(0); k < d->Nz; k++) {
+   #pragma omp parallel for
+   for (int var=0; var < d->Ncons; var++) {
+     #pragma omp parallel for
+     for (int i=0; i < d->Nx; i++) {
+       #pragma omp parallel for
+       for (int j=0; j < d->Ny; j++) {
+         #pragma omp parallel for
+         for (int k=0; k < d->Nz; k++) {
            cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] -
                                        dt * args2[ID(var, i, j, k)]);
          }

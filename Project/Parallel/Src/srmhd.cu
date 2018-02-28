@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include <omp.h>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -80,9 +81,12 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
   // Generate flux vector
   // Fx: flux in x-direction
   if (dir == 0) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    #pragma omp parallel for
+    for (int i=0; i < d->Nx; i++) {
+      #pragma omp parallel for
+      for (int j=0; j < d->Ny; j++) {
+        #pragma omp parallel for
+        for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(1, i, j, k)];
 
@@ -123,9 +127,12 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 
   // Fy: flux in y-direction
   else if (dir==1) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    #pragma omp parallel for
+    for (int i=0; i < d->Nx; i++) {
+      #pragma omp parallel for
+      for (int j=0; j < d->Ny; j++) {
+        #pragma omp parallel for
+        for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(2, i, j, k)];
 
@@ -166,9 +173,12 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 
   // Fz: flux in z-direction
   else {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    #pragma omp parallel for
+    for (int i=0; i < d->Nx; i++) {
+      #pragma omp parallel for
+      for (int j=0; j < d->Ny; j++) {
+        #pragma omp parallel for
+        for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(3, i, j, k)];
 
@@ -217,7 +227,9 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 */
 void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
-  for (int var(0); var < this->data->Ncons; var++) {
+
+  #pragma omp parallel for
+  for (int var=0; var < this->data->Ncons; var++) {
     if (var == 8) {
       // phi
       source[var] = -cons[8] / (this->data->cp*this->data->cp);
@@ -235,10 +247,15 @@ void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, doubl
 */
 void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
 {
-  for (int i(0); i < this->data->Nx; i++) {
-    for (int j(0); j < this->data->Ny; j++) {
-      for (int k(0); k < this->data->Nz; k++) {
-        for (int var(0); var < this->data->Ncons; var++) {
+
+  #pragma omp parallel for
+  for (int i=0; i < this->data->Nx; i++) {
+    #pragma omp parallel for
+    for (int j=0; j < this->data->Ny; j++) {
+      #pragma omp parallel for
+      for (int k=0; k < this->data->Nz; k++) {
+        #pragma omp parallel for
+        for (int var=0; var < this->data->Ncons; var++) {
           if (var == 8) {
             // phi
             source[this->data->id(var, i, j, k)] = -cons[this->data->id(8, i, j, k)] / (this->data->cp*this->data->cp);
@@ -515,9 +532,12 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  #pragma omp parallel for
+  for (int i=0; i < d->Nx; i++) {
+    #pragma omp parallel for
+    for (int j=0; j < d->Ny; j++) {
+      #pragma omp parallel for
+      for (int k=0; k < d->Nz; k++) {
         // W
         aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
         // rho
