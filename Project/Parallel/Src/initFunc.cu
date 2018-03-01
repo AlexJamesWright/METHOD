@@ -6,7 +6,7 @@
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
+#define PI 3.14159265358979323
 InitialFunc::InitialFunc(Data * data) : data(data)
 {
   // Syntax
@@ -44,11 +44,9 @@ CPAlfvenWaveTwoFluid::CPAlfvenWaveTwoFluid(Data * data) : InitialFunc(data)
   // Syntax
   Data * d(data);
 
-  const double PI(3.14159265358979323);
-
   // Check Boundaries
   if (d->xmin != 0.0) throw std::invalid_argument("Domain has incorrect values. Expected xmin = 0.0.\n");
-  if (d->xmax + 1e-10 < 8*PI || d->xmax - 1e-10 > 8*PI) throw std::invalid_argument("Domain has incorrect values. Expected xmax = 8pi.\n");
+  if (d->xmax + 1e-10 < 8*PI || d->xmax - 1e-10 > 8*PI) throw std::invalid_argument("Domain has incorrect values. Expected xmax = 8PI.\n");
   // Ensure correct model
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
   if (d->ny != 0) throw std::invalid_argument("System must be one dimensional.\n");
@@ -117,8 +115,6 @@ CPAlfvenWaveSingleFluid::CPAlfvenWaveSingleFluid(Data * data) : InitialFunc(data
 
   double va(0.5);
   double B0(1.1547);
-  const double PI(3.14159265358979323);
-
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -149,7 +145,6 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
-  const double PI(3.14159265358979323);
   const double rho(1.0);
   const double p(50.0);
   double tmp1, tmp2;
@@ -178,7 +173,6 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
   // Syntax
   Data * d(data);
 
-  const double pi(3.141592653589793238);
 
   // Check domain
   if (d->xmin != 0.0 || d->xmax != 1.0 || d->ymin != 0.0 || d->ymax != 1.0) {
@@ -192,16 +186,16 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         // Density and pressure
-        d->prims[ID(0, i, j, k)] = 25.0 / 36.0 / pi;
-        d->prims[ID(4, i, j, k)] = 5.0 / 12.0 / pi;
+        d->prims[ID(0, i, j, k)] = 25.0 / 36.0 / PI;
+        d->prims[ID(4, i, j, k)] = 5.0 / 12.0 / PI;
 
         // x-velocity and x-Bfield
-        d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * pi * d->y[j]);
-        d->prims[ID(5, i, j, k)] = - sin(2.0 * pi * d->y[j]) / sqrt(4.0 * pi);
+        d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
+        d->prims[ID(5, i, j, k)] = - sin(2.0 * PI * d->y[j]) / sqrt(4.0 * PI);
 
         // y-velocity and y-Bfield
-        d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * pi * d->x[i]);
-        d->prims[ID(6, i, j, k)] = sin(4.0 * pi * d->x[i]) / sqrt(4.0 * pi);
+        d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);
+        d->prims[ID(6, i, j, k)] = sin(4.0 * PI * d->x[i]) / sqrt(4.0 * PI);
       }
     }
   }
@@ -362,4 +356,32 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
       }
     }
   }
+}
+
+KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  double w(0.1);
+  double sig(0.05 / sqrt(2));
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        d->prims[ID(4, i, j, k)] = 2.5;
+        d->prims[ID(2, i, j, k)] = w * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j]-0.25), 2)/(2*sig*sig))+exp(-pow((d->y[j]-0.75), 2)/(2*sig*sig)));
+        if (d->y[j] > 0.25 && d->y[j] < 0.75) {
+          d->prims[ID(0, i, j, k)] = 2.0;
+          d->prims[ID(1, i, j, k)] = 0.5;
+        }
+        else {
+          d->prims[ID(0, i, j, k)] = 1.0;
+          d->prims[ID(1, i, j, k)] = -0.5;
+        }
+      }
+    }
+  }
+
+
 }
