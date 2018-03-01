@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore', "No labelled objects found. ")
 # Change this to the relative path to the data you want to plot
 # File names must start with e.g. `primitive`, anything between this
 # and `.dat` should be stored in appendix
-DataDirectory = '../Data/'
+DataDirectory = '../Data/Final/'
 appendix = ''
 
 class InteractivePlot(object):
