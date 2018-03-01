@@ -134,4 +134,18 @@ class Periodic : public Bcs
 
 };
 
+/*!
+  Boundary conditions for the Kelvin Helmholtz instability
+  x-direction is periodic and others are outflow
+*/
+class Flow : public Bcs
+{
+
+  public:
+    Flow(Data * data) : Bcs(data) { }
+
+    void apply(double * cons, double * prims = NULL, double * aux = NULL);
+
+};
+
 #endif
