@@ -1,13 +1,31 @@
 #include "saveData.h"
 #include <cstdlib>
 #include <cstdio>
-#include <string>
+#include <iostream>
+
+using namespace std;
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void SaveData::saveAll()
+void SaveData::saveAll(string dir, string append)
 {
+  // Determine the directory to write files to
+  if (dir.compare("0") == 0) {
+    this->directory = "Data/Final";
+  }
+  else {
+    cout << "IN else" << endl;
+    this->directory = dir;
+  }
+  if (append.compare("0") == 0) {
+    this->appendix = "";
+  }
+  else {
+    this->appendix = append;
+  }
+  cout << "Writing into '" << this->directory.c_str() << "'" << endl;
+
   this->saveCons();
   this->savePrims();
   this->saveAux();
@@ -17,11 +35,12 @@ void SaveData::saveAll()
 void SaveData::saveCons()
 {
   FILE * f;
-  f = fopen("Data/conserved.dat", "w");
+  this->filename = this->directory + "/Conserved/cons" + this->appendix + ".dat";
+  f = fopen(this->filename.c_str(), "w");
 
   // Ensure file is open
   if (f == NULL) {
-    printf("Error: could not open 'conserved.dat' for writing.\n");
+    printf("Error: could not open 'cons.dat' for writing.\n");
     exit(1);
   }
 
@@ -48,11 +67,12 @@ void SaveData::saveCons()
 void SaveData::savePrims()
 {
   FILE * f;
-  f = fopen("Data/primitive.dat", "w");
+  this->filename = this->directory + "/Primitive/prims" + this->appendix + ".dat";
+  f = fopen(this->filename.c_str(), "w");
 
   // Ensure file is open
   if (f == NULL) {
-    printf("Error: could not open 'primitive.dat' for writing.\n");
+    printf("Error: could not open 'prims.dat' for writing.\n");
     exit(1);
   }
 
@@ -78,11 +98,12 @@ void SaveData::savePrims()
 void SaveData::saveAux()
 {
   FILE * f;
-  f = fopen("Data/auxilliary.dat", "w");
+  this->filename = this->directory + "/Auxilliary/aux" + this->appendix + ".dat";
+  f = fopen(this->filename.c_str(), "w");
 
   // Ensure file is open
   if (f == NULL) {
-    printf("Error: could not open 'auxilliary.dat' for writing.\n");
+    printf("Error: could not open 'aux.dat' for writing.\n");
     exit(1);
   }
 
@@ -109,7 +130,8 @@ void SaveData::saveAux()
 void SaveData::saveConsts()
 {
   FILE * f;
-  f = fopen("Data/constants.dat", "w");
+  this->filename = this->directory + "/Constants/constants" + this->appendix + ".dat";
+  f = fopen(this->filename.c_str(), "w");
 
   // Ensure file is open
   if (f == NULL) {
