@@ -1,6 +1,7 @@
 #ifndef SAVEDATA_H
 #define SAVEDATA_H
 
+#include <string>
 #include "simData.h"
 
 //! <b> Class used to save simulation data </b>
@@ -14,6 +15,10 @@
 class SaveData
 {
   private:
+    std::string
+    directory, //!< String path to the directory in which to write files
+    appendix,  //!< String appendix to add to end of file names
+    filename;  //!< String filename
 
     //! Saves the conserved vector state
     void saveCons();
@@ -41,10 +46,7 @@ class SaveData
 
       @param *data pointer to the Data class
     */
-    SaveData(Data * data) : d(data)
-    {
-      this->saveAll();
-    }
+    SaveData(Data * data) : d(data) { }
 
     //! Saves all cons, prims, aux and constant data
     /*!
@@ -52,7 +54,7 @@ class SaveData
         This calls the other member functions to save their respective
       simulation data. Automatically called by the constructor.
     */
-    void saveAll();
+    void saveAll(std::string dir="0", std::string append="0");
 
 };
 
