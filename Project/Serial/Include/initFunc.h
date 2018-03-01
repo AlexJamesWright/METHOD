@@ -149,4 +149,15 @@ class BrioWuSingleFluid : public InitialFunc
     BrioWuSingleFluid(Data * data, int dir=0);
 };
 
+//! <b> Kelvin Helmholtz instability initial data </b>
+/*!
+    Data taken from Schaal 2015 'Astrophysical hydrodynamics...'
+*/
+class KHInstabilitySingleFluid : public InitialFunc
+{
+  public:
+
+    KHInstabilitySingleFluid(Data * data);
+};
+
 #endif
