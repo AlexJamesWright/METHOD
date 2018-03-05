@@ -2,7 +2,11 @@
 #define SAVEDATA_H
 
 #include <string>
+#include <iostream>
+#include <cstdio>
 #include "simData.h"
+
+using namespace std;
 
 //! <b> Class used to save simulation data </b>
 /*!
@@ -15,10 +19,11 @@
 class SaveData
 {
   private:
-    std::string
-    directory, //!< String path to the directory in which to write files
-    appendix,  //!< String appendix to add to end of file names
-    filename;  //!< String filename
+    char
+    dir[30]; //!< String path to the directory in which to write files
+    char
+    app[10];       //!< String appendix to add to end of file names
+    int Nouts;
 
     //! Saves the conserved vector state
     void saveCons();
@@ -29,12 +34,12 @@ class SaveData
     //! Saves the auxilliary vector state
     void saveAux();
 
-    // Saves the constant data
+    //! Saves the constant data
     void saveConsts();
 
 
   public:
-
+    int temppy[1000];
     Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
@@ -46,15 +51,22 @@ class SaveData
 
       @param *data pointer to the Data class
     */
-    SaveData(Data * data) : d(data) { }
+    SaveData(Data * data) : d(data), Nouts(0)
+    {
+      dir[0] = '\0';
+      app[0] = '\0';
+    }
+
 
     //! Saves all cons, prims, aux and constant data
     /*!
       @par
         This calls the other member functions to save their respective
-      simulation data. Automatically called by the constructor.
+      simulation data.
+
+      @param[in] timeSeries flags whether the saved data is final or transient
     */
-    void saveAll(std::string dir="0", std::string append="0");
+    void saveAll(bool timeSeries=false);
 
 };
 

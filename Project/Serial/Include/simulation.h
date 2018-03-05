@@ -7,6 +7,7 @@
 #include "timeInt.h"
 #include "boundaryConds.h"
 #include "flux.h"
+#include "saveData.h"
 
 
 //! <b> The Simulation interface for the programme </b>
@@ -32,6 +33,8 @@ class Simulation
     Bcs * bcs;                  //!< Pointer to boundary conditions, Bcs, object
 
     FluxMethod * fluxMethod;    //!< Pointer to FluxMethod object
+
+    SaveData * save;            //!< Pointer to SaveData object
 
   public:
 
@@ -74,7 +77,8 @@ class Simulation
     */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,
-             FluxMethod * fluxMethod);
+             FluxMethod * fluxMethod,
+             SaveData * save);
 
 
 
@@ -98,8 +102,10 @@ class Simulation
       that have been selected.
         Once the simulation is set, evolve() calls updateTime() until the simulation
       has reached its end point (providing no errors occur)
+
+      @param[in] boolean flag output files for animation
     */
-    void evolve();
+    void evolve(bool output=0);
 
 
 };

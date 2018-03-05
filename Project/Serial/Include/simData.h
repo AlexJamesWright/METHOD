@@ -66,8 +66,11 @@ class Data
     double
     cp,                    //!< Constant divergence cleaning term
     //@{
-    mu1, mu2,              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
+    mu1, mu2;              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
     //@}
+    int
+    frameSkip;             //!< Number of timesteps per file output
+    double
     //@{
     *cons, *prims, *aux,
     *f, *fnet,             //!< Pointer to specified work array
@@ -96,7 +99,8 @@ class Data
     primsLabels,           //!< Vector of labels for the specified variables
     auxLabels;
     //@}
-    int dims;                  //!< Number of dimensions of simulation
+    int
+    dims;                  //!< Number of dimensions of simulation
 
     //! Element ID function
     /*!
@@ -144,7 +148,8 @@ class Data
          double endTime, double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
-         double mu1=-1.0e4, double mu2=1.0e4);
+         double mu1=-1.0e4, double mu2=1.0e4,
+         int frameskip=10);
 
 };
 

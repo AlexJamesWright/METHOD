@@ -8,7 +8,7 @@ Data::Data(int nx, int ny, int nz,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
            double cp,
-           double mu1, double mu2)
+           double mu1, double mu2, int frameSkip)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -19,7 +19,7 @@ Data::Data(int nx, int ny, int nz,
            memSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
-           mu1(mu1), mu2(mu2)
+           mu1(mu1), mu2(mu2), frameSkip(frameSkip)
 {
 
   this->Nx = nx + 2 * Ng;

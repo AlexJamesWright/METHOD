@@ -18,17 +18,17 @@ warnings.filterwarnings('ignore', "No labelled objects found. ")
 # By default, this script will gather data for the final condition of the 
 # simulation at t=t_end. To gather different data, add arguments to the
 # constructor to include the path to the directory and any appendages.
-DataDirectory = '../Data/Final/'
+FinalDirectory = '../Data/Final/'
 appendix = ''
 
 class InteractivePlot(object):
     
     def __init__(self, DatDirectory=None, append=None):
-        if not DatDirectory:
-            self.DatDir = DataDirectory
+        if DatDirectory is None:
+            self.DatDir = FinalDirectory
         else:
             self.DatDir = DatDirectory
-        if not appendix:
+        if append is None:
             self.appendix = appendix
         else:
             self.appendix = append
@@ -69,7 +69,7 @@ class InteractivePlot(object):
         c = self.c
         # Get constants first
         print("Fetching constants...")
-        with open(self.DatDir + 'constants' + self.appendix + '.dat', 'r') as f:
+        with open(self.DatDir + 'Constants/constants' + self.appendix + '.dat', 'r') as f:
             for i, line in enumerate(f):
                 if not i==0:
                     line=line.split()
@@ -107,7 +107,7 @@ class InteractivePlot(object):
         # Now get primitive variables and store the data in array...
         self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
         print("Fetching primitive variables...")
-        with open(self.DatDir + 'primitive' + self.appendix + '.dat', 'r') as f:
+        with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
             for i, line in enumerate(f):
                 # Get primitive var labels
                 if i==0:
@@ -129,7 +129,7 @@ class InteractivePlot(object):
         # Now gather conserved data
         self.cons = np.zeros([c['Ncons'], c['Nx'], c['Ny'], c['Nz']])
         print("Fetching conserved variables...")
-        with open(self.DatDir + 'conserved' + self.appendix + '.dat', 'r') as f:
+        with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
             for i, line in enumerate(f):
                 # Get cons var labels
                 if i==0:
@@ -151,7 +151,7 @@ class InteractivePlot(object):
         # And finally the aux vars
         self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
         print("Fetching auxilliary variables...")
-        with open(self.DatDir + 'auxilliary' + self.appendix +'.dat', 'r') as f:
+        with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
             for i, line in enumerate(f):
                 # Get cons var labels
                 if i==0:
@@ -347,7 +347,7 @@ class InteractivePlot(object):
             
         Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
     
-        for i in range(len(data)):
+        for i in range(len(data)):    
             plt.figure()
             if (axis == 0):
                 plotVars = data[i, Ng:-Ng, Ny//2, Nz//2]

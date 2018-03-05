@@ -1,5 +1,5 @@
 #include "RK2.h"
-#include <iostream>
+#include <cstdio>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))

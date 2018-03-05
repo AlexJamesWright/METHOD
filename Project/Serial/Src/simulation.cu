@@ -90,7 +90,8 @@ Simulation::~Simulation()
 //! Stores the model type and general simulation form and sets the prim and aux vars
 void Simulation::set(InitialFunc * init, Model * model,
                      TimeIntegrator * timeInt, Bcs * bcs,
-                     FluxMethod * fluxMethod)
+                     FluxMethod * fluxMethod,
+                     SaveData * save)
 {
   // Syntax
   Data * d(this->data);
@@ -99,6 +100,7 @@ void Simulation::set(InitialFunc * init, Model * model,
   this->timeInt = timeInt;
   this->bcs = bcs;
   this->fluxMethod = fluxMethod;
+  this->save = save;
   // Set primitive and auxilliary variables
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
@@ -134,13 +136,33 @@ void Simulation::updateTime()
 
 }
 
-void Simulation::evolve()
+void Simulation::evolve(bool output)
 {
   // Syntax
   Data * d(this->data);
-  while (d->t < d->endTime) {
-    this->updateTime();
+
+  // Save initial data
+  if (output) {
+    this->save->saveAll(true);
   }
+
+  while (d->t < d->endTime) {
+
+    this->updateTime();
+
+    // Save data
+    if (output && d->iters%d->frameSkip==0) {
+      // Save initial data
+      this->save->saveAll(true);
+    }
+  }
+
+  // Save final state
+  if (output) {
+    // Save initial data
+    this->save->saveAll(true);
+  }
+
   printf("\n");
 
 }
