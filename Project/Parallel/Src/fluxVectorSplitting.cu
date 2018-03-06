@@ -110,7 +110,7 @@ FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
 
   // ...means we need this many streams
   Nstreams = (Ntot / Cwidth) + 1;
-
+  printf("Running on %d streams\n", Nstreams);
   // Corresponding size of memcpys
   inMemsize = sizeof(double) * width;
   outMemsize = sizeof(double) * Cwidth;
@@ -137,7 +137,6 @@ FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
 
   // Create streams
   stream = new cudaStream_t[Nstreams];
-  printf("Created %d streams\n\n\n", Nstreams);
   for (int i(0); i<Nstreams; i++) {
     gpuErrchk( cudaStreamCreate(&stream[i]) );
   }

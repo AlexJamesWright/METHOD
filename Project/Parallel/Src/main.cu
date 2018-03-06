@@ -11,72 +11,75 @@
 #include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
+#include "saveData.h"
 #include <cstdio>
 #include <cstdlib>
 #include <omp.h>
 #include <iostream>
 
+using namespace std;
 
 int main(void) {
 
-  const double MU(1000);
+  const double MU(1400);
   // Set up domain
-  int nx(248);
-  int ny(0);
+  int nx(100);
+  int ny(100);
   int nz(0);
-  double xmin(00);
+  double xmin(0.0);
   double xmax(1.0);
   double ymin(0.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.1);
+  double endTime(1.0);
   double cfl(0.4);
   int Ng(4);
-  double gamma(5.0/3.0);
-  double sigma(0);
+  double gamma(7.0/5.0);
+  double sigma(10);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
+  int frameSkip(3);
+  bool output(true);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
-  FVS fluxMethod(&data, &model);
+  Flow bcs(&data);
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  OTVortexSingleFluid init(&data);
 
-  Periodic bcs(&data);
+  SaveData save(&data);
+
+  FVS fluxMethod(&data, &model, &bcs);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
+
   // Now objects have been created, set up the simulation
-  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   // Time execution of programme
   double startTime(omp_get_wtime());
 
   // // Run until end time and save results
 
-  // SaveData save(&data);
   // while (data.t < data.endTime) {
-  //   sim.updateTime();
+  // sim.updateTime();
+  // sim.updateTime();
   //   save.saveAll();
   // }
-  // sim.evolve();
-  sim.updateTime();
-  sim.updateTime();
-  SaveData save(&data);
-
-  // SaveData save(&data);
-  // sim.updateTime();
-  // sim.updateTime();
+  sim.evolve(output);
 
   double timeTaken(omp_get_wtime() - startTime);
+
+  save.saveAll();
+
 
 
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);

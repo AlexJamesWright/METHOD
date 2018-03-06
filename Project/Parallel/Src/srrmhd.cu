@@ -8,6 +8,7 @@
 */
 
 #include <stdexcept>
+#include <cstdio>
 #include "srrmhd.h"
 #include "cminpack.h"
 

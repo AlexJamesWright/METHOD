@@ -39,7 +39,6 @@ class SaveData
 
 
   public:
-    int temppy[1000];
     Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor

@@ -1,5 +1,6 @@
 #include "simData.h"
 #include <stdexcept>
+#include <cstdio>
 
 Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
@@ -8,7 +9,7 @@ Data::Data(int nx, int ny, int nz,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
            double cp,
-           double mu1, double mu2)
+           double mu1, double mu2, int frameSkip)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -19,7 +20,7 @@ Data::Data(int nx, int ny, int nz,
            memSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
-           mu1(mu1), mu2(mu2)
+           mu1(mu1), mu2(mu2), frameSkip(frameSkip)
 {
 
   this->Nx = nx + 2 * Ng;
@@ -65,5 +66,6 @@ Data::Data(int nx, int ny, int nz,
   printf("L2 cache size = %i\n", prop.l2CacheSize);
   printf("Total global memory = %ld\n", prop.totalGlobalMem);
   printf("Execute kernels concurrently? (1/0) = %d\n", prop.concurrentKernels);
+  printf("Compute Capability (major) %d\n", prop.major);
 
 }

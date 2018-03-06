@@ -32,7 +32,7 @@ int main(void) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(5);
+  double endTime(1.5);
   double cfl(0.4);
   int Ng(4);
   double gamma(7.0/5.0);
@@ -40,7 +40,7 @@ int main(void) {
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(10);
+  int frameSkip(3);
   bool output(true);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
@@ -53,7 +53,7 @@ int main(void) {
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data);
+  OTVortexSingleFluid init(&data);
 
   Flow bcs(&data);
 

@@ -1,30 +1,24 @@
 #include "saveData.h"
 #include <cstdlib>
 #include <cstdio>
-#include <iostream>
 
 using namespace std;
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void SaveData::saveAll(string dir, string append)
+void SaveData::saveAll(bool timeSeries)
 {
   // Determine the directory to write files to
-  if (dir.compare("0") == 0) {
-    this->directory = "Data/Final";
+  if (!timeSeries) {
+    strcpy(dir, "Data/Final");
+    app[0]=0;
   }
   else {
-    cout << "IN else" << endl;
-    this->directory = dir;
+    strcpy(dir, "Data/TimeSeries");
+    sprintf(app, "%d", Nouts++);
   }
-  if (append.compare("0") == 0) {
-    this->appendix = "";
-  }
-  else {
-    this->appendix = append;
-  }
-  cout << "Writing into '" << this->directory.c_str() << "'" << endl;
+
 
   this->saveCons();
   this->savePrims();
@@ -35,9 +29,14 @@ void SaveData::saveAll(string dir, string append)
 void SaveData::saveCons()
 {
   FILE * f;
-  this->filename = this->directory + "/Conserved/cons" + this->appendix + ".dat";
-  f = fopen(this->filename.c_str(), "w");
 
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Conserved/cons");
+  strcat(fname, app);
+  strcat(fname, ".dat");
+
+  f = fopen(fname, "w");
   // Ensure file is open
   if (f == NULL) {
     printf("Error: could not open 'cons.dat' for writing.\n");
@@ -46,8 +45,12 @@ void SaveData::saveCons()
 
   // File is open, write data
   fprintf(f, "cons = ");
-  for (int i(0); i < d->Ncons-1; i++) fprintf(f, "%s, ", d->consLabels[i].c_str());
+  for (int i(0); i < d->Ncons-1; i++) {
+    fprintf(f, "%s, ", d->consLabels[i].c_str());
+  }
   fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
+
+
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
@@ -58,7 +61,6 @@ void SaveData::saveCons()
       }
     }
   }
-
   fclose(f);
 
 }
@@ -67,8 +69,11 @@ void SaveData::saveCons()
 void SaveData::savePrims()
 {
   FILE * f;
-  this->filename = this->directory + "/Primitive/prims" + this->appendix + ".dat";
-  f = fopen(this->filename.c_str(), "w");
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Primitive/prims");
+  strcat(fname, app);
+  strcat(fname, ".dat");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -98,8 +103,11 @@ void SaveData::savePrims()
 void SaveData::saveAux()
 {
   FILE * f;
-  this->filename = this->directory + "/Auxilliary/aux" + this->appendix + ".dat";
-  f = fopen(this->filename.c_str(), "w");
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Auxilliary/aux");
+  strcat(fname, app);
+  strcat(fname, ".dat");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -130,8 +138,11 @@ void SaveData::saveAux()
 void SaveData::saveConsts()
 {
   FILE * f;
-  this->filename = this->directory + "/Constants/constants" + this->appendix + ".dat";
-  f = fopen(this->filename.c_str(), "w");
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Constants/constants");
+  strcat(fname, app);
+  strcat(fname, ".dat");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {

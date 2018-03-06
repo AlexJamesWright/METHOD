@@ -315,7 +315,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
   Data * d(this->data);
   // Cons
   #pragma omp parallel for
-  for (int var(0); var < d->Ncons; var++) {
+  for (int var = 0; var < d->Ncons; var++) {
     for (int i(0); i < d->Ng; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
@@ -330,7 +330,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
   // Prims
   if (prims) {
     #pragma omp parallel for
-    for (int var(0); var < d->Nprims; var++) {
+    for (int var = 0; var < d->Nprims; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -346,7 +346,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
   // Aux
   if (aux) {
     #pragma omp parallel for
-    for (int var(0); var < d->Naux; var++) {
+    for (int var = 0; var < d->Naux; var++) {
       for (int i(0); i < d->Ng; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -363,7 +363,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
   if (d->Ny > 1) {
     // Cons
     #pragma omp parallel for
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ng; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -378,7 +378,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
     // Prims
     if (prims) {
       #pragma omp parallel for
-      for (int var(0); var < d->Nprims; var++) {
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -394,7 +394,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
     // Aux
     if (aux) {
       #pragma omp parallel for
-      for (int var(0); var < d->Naux; var++) {
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ng; j++) {
             for (int k(0); k < d->Nz; k++) {
@@ -412,7 +412,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
   if (d->Nz > 1) {
     // Cons
     #pragma omp parallel for
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var = 0; var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Ng; k++) {
@@ -427,7 +427,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
     // Prims
     if (prims) {
       #pragma omp parallel for
-      for (int var(0); var < d->Nprims; var++) {
+      for (int var = 0; var < d->Nprims; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {
@@ -443,7 +443,7 @@ void Flow::apply(double * cons, double * prims, double * aux)
     // Aux
     if (aux) {
       #pragma omp parallel for
-      for (int var(0); var < d->Naux; var++) {
+      for (int var = 0; var < d->Naux; var++) {
         for (int i(0); i < d->Nx; i++) {
           for (int j(0); j < d->Ny; j++) {
             for (int k(0); k < d->Ng; k++) {

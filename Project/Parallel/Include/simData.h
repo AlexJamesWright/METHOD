@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <cuda_runtime.h>
 
 //! <b> Data object </b>
 /*!
@@ -67,8 +66,11 @@ class Data
     double
     cp,                    //!< Constant divergence cleaning term
     //@{
-    mu1, mu2,              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
+    mu1, mu2;              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
     //@}
+    int
+    frameSkip;             //!< Number of timesteps per file output
+    double
     //@{
     *cons, *prims, *aux,
     *f, *fnet,             //!< Pointer to specified work array
@@ -97,10 +99,11 @@ class Data
     primsLabels,           //!< Vector of labels for the specified variables
     auxLabels;
     //@}
-    int dims;              //!< Number of dimensions of simulation
-    int GPUcount;          //!< Number of devices detected
-    cudaDeviceProp prop;   //!< Properties of each cuda device
-
+    int
+    dims,                  //!< Number of dimensions of simulation
+    GPUcount;              //!< Number of NVIDIA devices detected
+    cudaDeviceProp
+    prop;                  //!< Properties of NVIDIA device (assuming all are same)
     //! Element ID function
     /*!
     @par
@@ -147,7 +150,8 @@ class Data
          double endTime, double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
-         double mu1=-1.0e4, double mu2=1.0e4);
+         double mu1=-1.0e4, double mu2=1.0e4,
+         int frameskip=10);
 
 };
 
