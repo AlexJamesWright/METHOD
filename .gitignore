@@ -14,3 +14,7 @@ gtest_main.a
 Doxumentation/html/*
 
 Project/Serial/Data/*.dat
+
+__pycache__
+
+Figures
