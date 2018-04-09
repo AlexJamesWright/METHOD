@@ -56,7 +56,8 @@ TESTS = test_simulation \
 				test_boundaryConds \
 				test_twoFluidEMHD \
 				test_srrmhd \
-				test_fvs
+				test_fvs \
+				test_rk2
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
