@@ -14,13 +14,11 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) (dt=d->dt);
 
-
   // Perform standard RK2 step
   RK2::step(cons, prims, aux);
 
   // Add source contribution
   this->model->sourceTerm(cons, prims, aux, d->source);
-
 
   #pragma omp parallel for
   for (int var=0; var < d->Ncons; var++) {

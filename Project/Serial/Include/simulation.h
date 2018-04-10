@@ -78,7 +78,7 @@ class Simulation
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,
              FluxMethod * fluxMethod,
-             SaveData * save);
+             SaveData * save = NULL);
 
 
 
@@ -103,9 +103,10 @@ class Simulation
         Once the simulation is set, evolve() calls updateTime() until the simulation
       has reached its end point (providing no errors occur)
 
-      @param[in] boolean flag output files for animation
+      @param[in] output boolean flag output files for animation
+      @param[in] safety number of frames after which to save all data. Defaults to -1 when option is switched off
     */
-    void evolve(bool output=0);
+    void evolve(bool output=false, int safety=-1);
 
 
 };

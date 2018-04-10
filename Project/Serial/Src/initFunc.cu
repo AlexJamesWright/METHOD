@@ -358,7 +358,7 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
   }
 }
 
-KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data) : InitialFunc(data)
+KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
@@ -371,6 +371,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data) : InitialFunc(da
       for (int k(0); k < d->Nz; k++) {
         d->prims[ID(4, i, j, k)] = 2.5;
         d->prims[ID(2, i, j, k)] = w * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j]-0.25), 2)/(2*sig*sig))+exp(-pow((d->y[j]-0.75), 2)/(2*sig*sig)));
+        if (mag) d->prims[ID(7, i, j, k)] = 0.1;
         if (d->y[j] > 0.25 && d->y[j] < 0.75) {
           d->prims[ID(0, i, j, k)] = 2.0;
           d->prims[ID(1, i, j, k)] = 0.5;

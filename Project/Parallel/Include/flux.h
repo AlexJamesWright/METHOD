@@ -29,7 +29,7 @@ class FluxMethod
       @param[in] *data pointer to Data class
       @param[in] *model pointer to Model class
     */
-    FluxMethod(Data * data, Model * model, Bcs * bcs) : data(data), model(model), bcs(bcs) { }
+    FluxMethod(Data * data, Model * model) : data(data), model(model)  { }
 
     //! Numerical flux function
     /*!

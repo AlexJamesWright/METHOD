@@ -6,3 +6,4 @@ rm Data/Final/Primitive/*
 rm Data/Final/Conserved/*
 rm Data/Final/Auxilliary/*
 rm Data/Final/Constants/*
+rm Data/TimeSeries/UserDef/*

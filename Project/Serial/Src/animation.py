@@ -6,12 +6,13 @@
 
 from interactivePlot import InteractivePlot as Plot
 import numpy as np
-import os, sys
+import sys
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib import cm
 import warnings
 from copy import deepcopy
+from glob import glob
 
 warnings.filterwarnings('ignore', "No labelled objects found. ")
 
@@ -26,24 +27,47 @@ class HidePrints:
 
 
 # Change this to the relative path to the data you want to plot
-# File names must start with e.g. `primitive`, anything between this
-# and `.dat` should be stored in appendix
-DataDirectory = '../Data/TimeSeries/'
+# File names must start with e.g. `primitive`
+UsualDirectory = '../Data/TimeSeries/UserDef/'
 
 class Anim(object): 
-    def __init__(self):
+    
+    variables = []
+    
+    def __init__(self, DataDir=None):
+        if DataDir==None:
+            self.DataDirectory = UsualDirectory
+        else:
+            self.DataDirectory = DataDir
+        with open(self.DataDirectory + 'info') as f:
+            for var in f.readlines():
+                self.variables.append(var)
+        self.final = Plot(self.DataDirectory + '../../Final/')
         self._gatherData()
 
     def _gatherData(self):
         # Number of frames
-        self.Nframes = len(os.listdir(DataDirectory + 'Conserved'))
-        
+        self.vars = np.zeros([len(self.variables), self.final.c['Nx'], self.final.c['Ny'], self.final.c['Nz']])
+        self.Nframes = len(glob(self.DataDirectory + self.variables[0][:-1] + '*'))
+    
         self.frame = []
+        self.t = []
         # Conserved vector first
         print("Gathering data...\nThis may take some time! Found {} frames...".format(self.Nframes))
-        with HidePrints():
-            for i, file in enumerate(os.listdir(DataDirectory + 'Conserved')):
-                self.frame.append(deepcopy(Plot(DataDirectory, str(i))))
+        for f in range(self.Nframes):
+            print("Fetching frame {}/{}".format(f+1, self.Nframes))
+            for v, var in enumerate(self.variables):
+                with open(self.DataDirectory + self.variables[v][:-1] + str(f) + '.dat') as file:
+                    for i, line in enumerate(file):
+                        if i==0:
+                            if v==0:
+                                self.t.append(float(line[line.index("t = ") + 4:]))
+                        # Get var data
+                        else:
+                            temp = line.split()
+                            for k in range(self.final.c['Nz']):
+                                self.vars[v][self.final._getXIndexFromLine(i, self.final.c['Nx'], self.final.c['Ny'])][self.final._getYIndexFromLine(i, self.final.c['Nx'], self.final.c['Ny'])][k] = float(temp[k])
+            self.frame.append(deepcopy(self.vars))
         print("Ready!")
     
 
@@ -51,12 +75,12 @@ class Anim(object):
 
 if __name__ == '__main__':
     
-    # Get data
+#     Get data
     animClass = Anim()
     
     # Animate density
-    var = 0         
-    
+    var = 0
+    N = 4
     ##### For some reason this doesnt work when inside a function. ########
     ##### Not a disaster atm so will leave it like this            ########
     
@@ -67,14 +91,18 @@ if __name__ == '__main__':
     # each frame
     ims = []
     for i in range(animClass.Nframes):
-        im = plt.imshow(animClass.frame[i].prims[var, 4:-4, 4:-4, 0], interpolation='bicubic', animated=True)
+        im = plt.imshow(animClass.frame[i][var][N:-N, N:-N, 0], 
+                        interpolation='bicubic', 
+                        animated=True,
+                        cmap=cm.afmhot)
         ims.append([im])
     
-    ani = animation.ArtistAnimation(fig, ims, interval=30, blit=True,
-                                    repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
+                                    repeat_delay=10)
     
     plt.colorbar()
     plt.show()
+#    ani.save('Output.gif', writer='imagemagick', fps=20)
     
     
     

@@ -152,12 +152,15 @@ class BrioWuSingleFluid : public InitialFunc
 //! <b> Kelvin Helmholtz instability initial data </b>
 /*!
     Data taken from Schaal 2015 'Astrophysical hydrodynamics...'
+
+    @param[in] *data Pointer to Data class containing global simulation data
+    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
 */
 class KHInstabilitySingleFluid : public InitialFunc
 {
   public:
 
-    KHInstabilitySingleFluid(Data * data);
+    KHInstabilitySingleFluid(Data * data, int mag=0);
 };
 
 #endif

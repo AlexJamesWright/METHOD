@@ -67,7 +67,6 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
        }
      }
    }
-
    // Apply boundary conditions and get primitive and aux vars for p1
    try {
      this->model->getPrimitiveVars(p1cons, p1prims, p1aux);

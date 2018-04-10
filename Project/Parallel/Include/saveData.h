@@ -23,7 +23,9 @@ class SaveData
     dir[30]; //!< String path to the directory in which to write files
     char
     app[10];       //!< String appendix to add to end of file names
-    int Nouts;
+    int
+    Nouts,         //!< Number of output files
+    Ncount;        //!< Which user defined variable is this?
 
     //! Saves the conserved vector state
     void saveCons();
@@ -50,7 +52,7 @@ class SaveData
 
       @param *data pointer to the Data class
     */
-    SaveData(Data * data) : d(data), Nouts(0)
+    SaveData(Data * data) : d(data), Nouts(0), Ncount(0)
     {
       dir[0] = '\0';
       app[0] = '\0';
@@ -66,6 +68,16 @@ class SaveData
       @param[in] timeSeries flags whether the saved data is final or transient
     */
     void saveAll(bool timeSeries=false);
+
+    //! Saves user specified variable
+    /*!
+      @par
+        Function saves the data for the variable specified by the string `var`
+
+      @param[in] var Defines the variable the user wants to save. Should match a variable label
+      @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
+    */
+    void saveVar(string variable, int num=1);
 
 };
 

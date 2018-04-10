@@ -3,4 +3,5 @@
 @todo Implement a version of Amanos C2P
 @todo Document SRRMHD
 @todo Document single fluid brio wu initial data class
-@todo Get SSP2/3 working with SRRMHD model
+@todo Project has hidden folders that may be removed when we confidently dont need them
+@todo FVS OpenMP for rearranging data

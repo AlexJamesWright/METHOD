@@ -1,6 +1,7 @@
 #include "saveData.h"
 #include <cstdlib>
 #include <cstdio>
+#include <fstream>
 
 using namespace std;
 
@@ -157,5 +158,112 @@ void SaveData::saveConsts()
           d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
 
   fclose(f);
+
+}
+
+
+void SaveData::saveVar(string variable, int num)
+{
+  int cpa(0); // cons=1,prims=2,aux=3
+  int Nvar(0); // Variable number
+  FILE * f;
+  char fname[60];
+
+  // Determine which variable the user wants saved
+  for (int var(0); var < d->Ncons; var++) {
+    if (strcmp(d->consLabels[var].c_str(), variable.c_str()) == 0) {
+        cpa=1; Nvar=var;
+        break;
+    }
+  }
+
+  if (!cpa) {
+    for (int var(0); var < d->Nprims; var++) {
+      if (strcmp(d->primsLabels[var].c_str(), variable.c_str()) == 0) {
+          cpa=2; Nvar=var;
+          break;
+      }
+    }
+  }
+
+  if (!cpa) {
+    for (int var(0); var < d->Naux; var++) {
+      if (strcmp(d->auxLabels[var].c_str(), variable.c_str()) == 0) {
+          cpa=3; Nvar=var;
+          break;
+      }
+    }
+  }
+
+  if (!cpa) {
+    printf("Error: Could not find user specified variable '%s'\n", variable.c_str());
+    exit(1);
+  }
+
+  // Directory
+  strcpy(dir, "Data/TimeSeries/UserDef/");
+  sprintf(app, "%d", Nouts);
+
+
+  // Location of output file
+  strcpy(fname, dir);
+  strcat(fname, variable.c_str());
+  strcat(fname, app);
+  strcat(fname, ".dat");
+  f = fopen(fname, "w");
+
+  // Ensure file is open
+  if (f == NULL) {
+    printf("Error: could not open user-defined file for writing.\n");
+    exit(1);
+  }
+
+  // File is open, write data
+  fprintf(f, "var = ");
+  fprintf(f, "%s\n", variable.c_str());
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        if (cpa==1) fprintf(f, "%.16f ", d->cons[ID(Nvar, i, j, k)]);
+        else if (cpa==2) fprintf(f, "%.16f ", d->prims[ID(Nvar, i, j, k)]);
+        else if (cpa==3) fprintf(f, "%.16f ", d->aux[ID(Nvar, i, j, k)]);
+        else {
+          printf("Error: cpa not set correctly\n");
+          exit(1);
+        }
+      }
+      fprintf(f, "\n");
+    }
+  }
+
+  fclose(f);
+
+
+  // For first output add the variables we are saving
+  if (Nouts==0) {
+    if (Ncount==0) {
+      ofstream info;
+      strcpy(fname, dir);
+      strcat(fname, "info");
+      info.open(fname);
+      info << variable << endl;
+      info.close();
+    }
+    else {
+      ofstream info;
+      strcpy(fname, dir);
+      strcat(fname, "info");
+      info.open(fname, ios::app);
+      info << variable << endl;
+      info.close();
+    }
+  }
+  Ncount++;
+  // Increment if this is the last variable to save in this timestep
+  if (Ncount == num) {
+    Ncount = 0;
+    Nouts++;
+  }
+
 
 }

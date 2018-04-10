@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <cstdio>
 
+#define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+
+
 Simulation::Simulation(Data * data) : data(data)
 {
   // Simplify syntax
@@ -136,32 +139,50 @@ void Simulation::updateTime()
 
 }
 
-void Simulation::evolve(bool output)
+void Simulation::evolve(bool output, int safety)
 {
   // Syntax
   Data * d(this->data);
 
   // Save initial data
-  if (output) {
-    this->save->saveAll(true);
+  if (output && save) {
+    this->save->saveVar("rho", 5);
+    this->save->saveVar("vx", 5);
+    this->save->saveVar("Bx", 5);
+    this->save->saveVar("By", 5);
+    this->save->saveVar("Bz", 5);
   }
 
   while (d->t < d->endTime) {
 
     this->updateTime();
 
-    // Save data
-    if (output && d->iters%d->frameSkip==0) {
+    // Save data for animation
+    if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveAll(true);
+      this->save->saveVar("rho", 5);
+      this->save->saveVar("vx", 5);
+      this->save->saveVar("Bx", 5);
+      this->save->saveVar("By", 5);
+      this->save->saveVar("Bz", 5);
     }
+
+    if (safety>0 && d->iters%safety==0) {
+      this->save->saveAll();
+      printf("Data saved...\n");
+    }
+
   }
 
   // Save final state
-  if (output) {
+  if (output && save) {
     // Save initial data
-    this->save->saveAll(true);
-  }
+    this->save->saveVar("rho", 5);
+    this->save->saveVar("vx", 5);
+    this->save->saveVar("Bx", 5);
+    this->save->saveVar("By", 5);
+    this->save->saveVar("Bz", 5);
+    }
 
   printf("\n");
 
