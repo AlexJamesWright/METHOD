@@ -56,17 +56,7 @@ namespace
       SaveData save(&dx);
       simx.set(&initx, &modelx, &timeIntx, &bcsx, &fluxMethodx, &save);
       printf("Stepping x-discontinuity...\n");
-      // for (int var(0); var<dx.Ncons; var++) {
-      //   printf("%19.16f\n", dx.cons[ID(var, 19, 0, 19)]);
-      // }
-      // for (int var(0); var<dx.Nprims; var++) {
-      //   printf("%19.16f\n", dx.prims[ID(var, 19, 0, 19)]);
-      // }
-      // for (int var(0); var<dx.Naux; var++) {
-      //   printf("%19.16f\n", dx.aux[ID(var, 19, 0, 19)]);
-      // }
       simx.updateTime();
-      // exit(-1);
 
       // Discontinuity in y direction
       Data dy(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);

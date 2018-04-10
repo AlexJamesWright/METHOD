@@ -129,9 +129,11 @@ gtest.a : gtest-all.o
 
 gtest_main.a : gtest-all.o gtest_main.o
 	@$(AR) $(ARFLAGS) $@ $^
-	####################################################
-	# Buliding tests for each element of the programme #
-	####################################################
+
+
+####################################################
+# Buliding tests for each element of the programme #
+####################################################
 
 # simData
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h

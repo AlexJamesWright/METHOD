@@ -15,22 +15,24 @@ namespace
   TEST(RK2, RK2OutputConsistentWithSerial)
     {
 
-      Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);
-      TwoFluidEMHD model(&d);
-      FVS fluxMethod(&d, &model);
-      Simulation sim(&d);
-      BrioWuTwoFluid init(&d, 0, 0);
-      Outflow bcs(&d);
-      RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-      SaveData save(&d);
-      sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+      /*
+        The following was used to gather data to compare the parallel
+         version with. No tests are run in the serial version of this test
+      */
 
-      sim.updateTime();
+      // Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8);
+      // TwoFluidEMHD model(&d);
+      // FVS fluxMethod(&d, &model);
+      // Simulation sim(&d);
+      // BrioWuTwoFluid init(&d, 0, 0);
+      // Outflow bcs(&d);
+      // RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+      // SaveData save(&d);
+      // sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+      //
+      // sim.updateTime();
 
-      printf("Results:\n");
-      for (int var(0); var < d.Ncons; var++) {
-        printf("%19.16f\n", d.cons[d.id(var, 19, 0, 19)]);
-      }
+
 
     }
 }
