@@ -65,7 +65,7 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
   const int gID(lID + stream * (width - 2*ORDER));                  // GlobalID
 
   // Load data into shared memory and apply Lax-Friedrichs approximation of flux
-  if (lID < width) {
+  if (lID < width && gID < Ntot) {
     const double tempf = f[lID];
     const double tempc = cons[lID];
     fplus[tID] = 0.5 * (tempf + tempc);
@@ -73,7 +73,7 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
   }
   __syncthreads();
 
-  if (tID >= ORDER && tID <= blockDim.x-ORDER+1 && lID < width) {
+  if (tID >= ORDER && tID <= blockDim.x-ORDER+1 && lID < width && gID < Ntot) {
     frec[tID] = weno3_upwind(fplus[tID-ORDER],
                              fplus[tID-ORDER+1],
                              fplus[tID-ORDER+2]) +
@@ -82,18 +82,17 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
                              fminus[tID+ORDER-3]);
   }
 
-  //! Now we are going to use the device array 'f' as the differenced, reconstructed flux vector, i.e. fnet in serial code
+  //! Now we are going to use the device array 'c' as the differenced, reconstructed flux vector, i.e. fnet in serial code
   __syncthreads();
-
   if (tID >= ORDER && tID < blockDim.x-ORDER && lID < width && gID < Ntot) {
-    f[lID] = frec[tID+1] / delta - frec[tID] / delta;
+    cons[lID] = frec[tID+1] / delta - frec[tID] / delta;
   }
   __syncthreads();
 }
 
 
 
-FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
+FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
 {
   // Syntax
   Data * d(this->data);
@@ -107,10 +106,9 @@ FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
   // Resulting size of stream...
   Cwidth = BpG * (TpB - 2*ORDER);
   originalWidth = width = Cwidth + 2*ORDER;
-
   // ...means we need this many streams
   Nstreams = (Ntot / Cwidth) + 1;
-  printf("Running on %d streams\n", Nstreams);
+
   // Corresponding size of memcpys
   inMemsize = sizeof(double) * width;
   outMemsize = sizeof(double) * Cwidth;
@@ -119,10 +117,6 @@ FVS::FVS(Data * data, Model * model, Bcs * bcs) : FluxMethod(data, model, bcs)
   sharedMemUsagePerBlock = TpB * 3 * sizeof(double);
 
   assert(sharedMemUsagePerBlock <= d->prop.sharedMemPerBlock);
-
-  printf("BPG = %d, TPB = %d\n", BpG, TpB);
-  printf("Width = %d, Cwidth = %d, Ntot = %lu\n", width, Cwidth, Ntot);
-  printf("Shared mem usage = %lu\n", sharedMemUsagePerBlock);
 
   // Allocate device arrays for each stream
   cons_d = new double*[Nstreams];
@@ -204,13 +198,14 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Data must be loaded into device contiguously, so will have to rearrange
   if (dir==0) {
     delta = d->dx;
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
             flux_h[IDX(var, i, j, k)] = f[ID(var, i, j, k)];
             cons_h[IDX(var, i, j, k)] = cons[ID(var, i, j, k)];
+
           }
         }
       }
@@ -218,7 +213,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   else if (dir==1) {
     delta = d->dy;
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
@@ -232,7 +227,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
   else {
     delta = d->dz;
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int var = 0; var<d->Ncons; var++) {
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
@@ -276,48 +271,48 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
     fluxRecon<<<BpG, TpB, sharedMemUsagePerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, originalWidth, delta, dir, Ntot);
 
-    gpuErrchk( cudaMemcpyAsync(flux_h+lb+ORDER, flux_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(flux_h+lb+ORDER, cons_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
     gpuErrchk( cudaPeekAtLastError() );
   }
   gpuErrchk( cudaDeviceSynchronize() );
 
-    // Data must be loaded back into original order on the host
-    if (dir==0) {
-    #pragma omp parallel for
-      for (int var = 0; var<d->Ncons; var++) {
-        for (int i = 0; i < d->Nx; i++) {
-          for (int j = 0; j < d->Ny; j++) {
-            for (int k = 0; k < d->Nz; k++) {
-              frecon[ID(var, i, j, k)] = flux_h[IDX(var, i, j, k)];
-            }
+  // Data must be loaded back into original order on the host
+  if (dir==0) {
+  // #pragma omp parallel for
+    for (int var = 0; var<d->Ncons; var++) {
+      for (int i = 0; i < d->Nx; i++) {
+        for (int j = 0; j < d->Ny; j++) {
+          for (int k = 0; k < d->Nz; k++) {
+            frecon[ID(var, i, j, k)] = flux_h[IDX(var, i, j, k)];
           }
         }
       }
     }
-    else if (dir==1) {
-    #pragma omp parallel for
-      for (int var = 0; var<d->Ncons; var++) {
-        for (int i = 0; i < d->Nx; i++) {
-          for (int j = 0; j < d->Ny; j++) {
-            for (int k = 0; k < d->Nz; k++) {
-              frecon[ID(var, i, j, k)] = flux_h[IDY(var, i, j, k)];
-            }
+  }
+  else if (dir==1) {
+  // #pragma omp parallel for
+    for (int var = 0; var<d->Ncons; var++) {
+      for (int i = 0; i < d->Nx; i++) {
+        for (int j = 0; j < d->Ny; j++) {
+          for (int k = 0; k < d->Nz; k++) {
+            frecon[ID(var, i, j, k)] = flux_h[IDY(var, i, j, k)];
           }
         }
       }
     }
-    else {
-    #pragma omp parallel for
-      for (int var = 0; var<d->Ncons; var++) {
-        for (int i = 0; i < d->Nx; i++) {
-          for (int j = 0; j < d->Ny; j++) {
-            for (int k = 0; k < d->Nz; k++) {
-              frecon[ID(var, i, j, k)] = flux_h[IDZ(var, i, j, k)];
-            }
+  }
+  else {
+  // #pragma omp parallel for
+    for (int var = 0; var<d->Ncons; var++) {
+      for (int i = 0; i < d->Nx; i++) {
+        for (int j = 0; j < d->Ny; j++) {
+          for (int k = 0; k < d->Nz; k++) {
+            frecon[ID(var, i, j, k)] = flux_h[IDZ(var, i, j, k)];
           }
         }
       }
     }
+  }
 }
 
 void FVS::F(double * cons, double * prims, double * aux, double * f, double * fnet)
