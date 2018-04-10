@@ -8,6 +8,9 @@ test_initFunc
 test_cminpack
 test_boundaryConds
 test_twoFluidEMHD
+test_fvs
+test_id
+test_rk2
 gtest_main.a
 
 
