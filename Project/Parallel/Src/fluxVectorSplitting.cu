@@ -128,6 +128,7 @@ FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
   }
   gpuErrchk( cudaHostAlloc((void **)&cons_h, Ntot * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&flux_h, Ntot * sizeof(double), cudaHostAllocPortable) );
+  gpuErrchk( cudaHostAlloc((void **)&result_h, Ntot * sizeof(double), cudaHostAllocPortable) );
 
   // Create streams
   stream = new cudaStream_t[Nstreams];
@@ -165,6 +166,7 @@ FVS::~FVS()
   }
   gpuErrchk( cudaFreeHost(flux_h) );
   gpuErrchk( cudaFreeHost(cons_h) );
+  gpuErrchk( cudaFreeHost(result_h) );
   delete [] flux_d;
   delete [] cons_d;
   delete [] stream;
@@ -205,7 +207,6 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
           for (int k = 0; k < d->Nz; k++) {
             flux_h[IDX(var, i, j, k)] = f[ID(var, i, j, k)];
             cons_h[IDX(var, i, j, k)] = cons[ID(var, i, j, k)];
-
           }
         }
       }
@@ -271,7 +272,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
     fluxRecon<<<BpG, TpB, sharedMemUsagePerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, originalWidth, delta, dir, Ntot);
 
-    gpuErrchk( cudaMemcpyAsync(flux_h+lb+ORDER, cons_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
+    // Still need the flux_h array for loading in next stream, cannot change data so use the cons_h array
+    gpuErrchk( cudaMemcpyAsync(result_h+lb+ORDER, cons_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
     gpuErrchk( cudaPeekAtLastError() );
   }
   gpuErrchk( cudaDeviceSynchronize() );
@@ -283,7 +285,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            frecon[ID(var, i, j, k)] = flux_h[IDX(var, i, j, k)];
+            frecon[ID(var, i, j, k)] = result_h[IDX(var, i, j, k)];
           }
         }
       }
@@ -295,7 +297,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            frecon[ID(var, i, j, k)] = flux_h[IDY(var, i, j, k)];
+            frecon[ID(var, i, j, k)] = result_h[IDY(var, i, j, k)];
           }
         }
       }
@@ -307,7 +309,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
       for (int i = 0; i < d->Nx; i++) {
         for (int j = 0; j < d->Ny; j++) {
           for (int k = 0; k < d->Nz; k++) {
-            frecon[ID(var, i, j, k)] = flux_h[IDZ(var, i, j, k)];
+            frecon[ID(var, i, j, k)] = result_h[IDZ(var, i, j, k)];
           }
         }
       }

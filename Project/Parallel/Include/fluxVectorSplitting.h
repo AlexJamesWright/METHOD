@@ -74,8 +74,9 @@ class FVS : public FluxMethod
     ** cons_d,
     //@}
     //@{
-    * flux_h, //!< Host arrays for contiguous data ready for reconstruction
+    * flux_h, //!< Host arrays for contiguous data ready for reconstruction and result
     * cons_h,
+    * result_h,
     //@}
     //@{
     * fx,
@@ -102,7 +103,7 @@ class FVS : public FluxMethod
       @param[in] *data pointer to Data class
       @param[in] *model pointer to Model class
     */
-    FVS(Data * data, Model * model, Bcs * bcs);
+    FVS(Data * data, Model * model);
 
     //! Destructor
     /*!
