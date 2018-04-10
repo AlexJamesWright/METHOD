@@ -19,12 +19,12 @@
 
 using namespace std;
 
-int main(void) {
+int main(int argc, char *argv[]) {
 
   const double MU(1400);
   // Set up domain
-  int nx(128);
-  int ny(128);
+  int nx(600);
+  int ny(600);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -33,16 +33,50 @@ int main(void) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(3);
-  double cfl(0.2);
+  double cfl(0.5);
   int Ng(4);
   double gamma(7.0/5.0);
   double sigma(10);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(50);
+  int frameSkip(45);
   bool output(true);
   int safety(25);
+
+  char * ptr(0);
+  double tmp(0);
+  //! Overwrite any variables that have been passed in as main() arguments
+  for (int i(0); i < argc; i++) {
+    if (strcmp(argv[i], "nx") == 0) {
+      nx = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "ny") == 0) {
+      ny = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "nz") == 0) {
+      nz = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "safety") == 0) {
+      safety = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "output") == 0) {
+      output = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "frameSkip") == 0) {
+      frameSkip = (int)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "gammanum") == 0) {
+      tmp = (double)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "gammaden") == 0 && tmp!=0) {
+      gamma = tmp/(double)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
+      endTime = (double)strtol(argv[i+1], &ptr, 10);
+    }
+  }
+
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -69,7 +103,6 @@ int main(void) {
 
   // // Run until end time and save results
   sim.evolve(output, safety);
-
   double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();

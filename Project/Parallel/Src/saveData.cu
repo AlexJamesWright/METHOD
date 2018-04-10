@@ -219,8 +219,7 @@ void SaveData::saveVar(string variable, int num)
   }
 
   // File is open, write data
-  fprintf(f, "var = ");
-  fprintf(f, "%s\n", variable.c_str());
+  fprintf(f, "var = %s, t = %18.16f\n", variable.c_str(), d->t);
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
