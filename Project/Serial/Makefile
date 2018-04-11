@@ -20,10 +20,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # Test directory location
-TEST_DIR = ../Tests
-
-# Doxygen documentation directory
-DOC_DIR = ../Doxumentation
+TEST_DIR = ../../Tests/Serial
 
 # C++ compiler flags
 CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
@@ -80,14 +77,12 @@ EXEC = main
 # Rootfinder executables
 RTFIND = buildRootfinder
 
-# Doxygen documentation
-DOXY = doxumentation
 
 # Build everything
-build : $(DOXY) $(RTFIND) $(EXEC)
+build : $(RTFIND) $(EXEC)
 
 # Make and run all tests on simulation scripts and run main
-all : $(RTFIND) $(EXEC) $(DOXY)
+all : $(RTFIND) $(EXEC)
 	cd $(TEST_DIR) && $(MAKE) test
 	@$(MAKE) run
 
