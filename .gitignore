@@ -11,6 +11,7 @@ test_twoFluidEMHD
 test_fvs
 test_id
 test_rk2
+test_imex
 gtest_main.a
 
 

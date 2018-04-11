@@ -57,7 +57,8 @@ TESTS = test_simulation \
 				test_twoFluidEMHD \
 				test_srrmhd \
 				test_fvs \
-				test_rk2
+				test_rk2 \
+				test_imex
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -77,6 +78,10 @@ test : $(RTFIND) $(TESTS)
 
 buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects
+
+compare : test_rk2 test_imex
+	./test_rk2
+	./test_imex
 
 clean :
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
@@ -148,7 +153,7 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cu $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_rk2 : test_rk2.o twoFluidEMHD.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
+test_rk2 : test_rk2.o srmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
 
 # Explicit RK split integrator
@@ -248,4 +253,17 @@ test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cu $(INC_DIR)/boundaryCond
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_boundaryConds.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_boundaryConds : test_boundaryConds.o boundaryConds.o simData.o srmhd.o simulation.o initFunc.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+
+# Imex Schemes
+SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
+	@$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
+	@$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+test_imex.o : $(TEST_DIR)/test_imex.cu
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_imex.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_imex : IMEX2Args.o SSP2.o simData.o srrmhd.o initFunc.o boundaryConds.o saveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
