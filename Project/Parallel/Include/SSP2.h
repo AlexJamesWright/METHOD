@@ -44,7 +44,20 @@ class SSP2 : public TimeIntegrator
     //@}
     //@{
     //!< Work array for specified variable. Size if Nx*Ny*Nz
-    *U1, *U2, *source1, *flux1, *source2, *flux2;
+    *U1, *U2, *source1, *flux1, *source2, *flux2,
+    //@}
+    tol; //!< Tolerance of the N-dim newton rootfinder
+    int
+    Ntot, //!< Total number of cells in entire domain
+    info, //!< Status of rootfinder
+    lwa,  //!< Length of working array for rootfinder
+    //@{
+    //!< Leftmost ID for physical cells in x, y, z direction
+    is, js, ks,
+    //@}
+    //@{
+    //!< Rightmost ID for physical cells in x, y, z direction
+    ie, je, ke;
     //@}
 
     //! Constructor

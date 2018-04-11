@@ -18,8 +18,8 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 {
   Data * d(this->data);
   this->args = IMEX2Arguments(data);
-  int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
-  int Ntot = data->Nx * data->Ny * data->Nz;
+  lwa = d->Ncons * (3 * d->Ncons + 13) / 2;
+  Ntot = data->Nx * data->Ny * data->Nz;
   // Need work arrays
   cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
                 cudaHostAllocPortable);
@@ -71,17 +71,14 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   args.dt = dt;
 
   // Hybrd1 variables
-  int info;
-  int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
-  double tol(0.0000000149011612);
+  tol = 0.0000000149011612;
 
 
   // We only need to implement the integrator on the physical cells provided
   // we apply the boundary conditions to each stage.
   // Determine start and end points
-  int is(d->Ng);          // i start and end points
-  int ie(d->Nx - d->Ng);
-  int js, je, ks, ke;     // k & k start and end points
+  is = d->Ng;          // i start and end points
+  ie = d->Nx - d->Ng;
   if (d->Ny > 1) {
     js = d->Ng;
     je = d->Ny - d->Ng;
