@@ -40,7 +40,6 @@ void SaveData::saveCons()
   f = fopen(fname, "w");
   // Ensure file is open
   if (f == NULL) {
-    cout << fname << endl;
     printf("Error: could not open 'cons.dat' for writing.\n");
     exit(1);
   }

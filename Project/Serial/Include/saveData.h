@@ -19,13 +19,11 @@ using namespace std;
 class SaveData
 {
   private:
-    char
-    dir[30]; //!< String path to the directory in which to write files
-    char
-    app[10];       //!< String appendix to add to end of file names
     int
     Nouts,         //!< Number of output files
     Ncount;        //!< Which user defined variable is this?
+
+  public:
 
     //! Saves the conserved vector state
     void saveCons();
@@ -39,8 +37,10 @@ class SaveData
     //! Saves the constant data
     void saveConsts();
 
+    char
+    dir[30],   //!< String path to the directory in which to write files
+    app[10];   //!< String appendix to add to end of file names
 
-  public:
     Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
