@@ -104,26 +104,6 @@ class InteractivePlot(object):
         print("{} primitive vectors".format(c['Nprims']))
         print("{} auxilliary vectors".format(c['Naux']))
 
-        # Now get primitive variables and store the data in array...
-        self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
-        print("Fetching primitive variables...")
-        with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get primitive var labels
-                if i==0:
-                    primLabels = line.split()[2:]
-                # Get primitive var data
-                else:
-                    temp = line.split()
-                    for k in range(c['Nz']):
-                        self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
-
-        # Clean up labels (remove the commas)
-        self.cleanPrimLabels = []
-        for i in range(len(primLabels)-1):
-            self.cleanPrimLabels.append(primLabels[i][:-1])
-        self.cleanPrimLabels.append(primLabels[-1])
-
 
 
         # Now gather conserved data
@@ -134,40 +114,65 @@ class InteractivePlot(object):
                 # Get cons var labels
                 if i==0:
                     consLabels = line.split()[2:]
-                # Get cons var data
+                    # Get cons var data
                 else:
                     temp = line.split()
                     for k in range(c['Nz']):
                         self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
 
-        # Clean up labels (remove the commas)
-        self.cleanConsLabels = []
-        for i in range(len(consLabels)-1):
-            self.cleanConsLabels.append(consLabels[i][:-1])
-        self.cleanConsLabels.append(consLabels[-1])
+                        # Clean up labels (remove the commas)
+                        self.cleanConsLabels = []
+                        for i in range(len(consLabels)-1):
+                            self.cleanConsLabels.append(consLabels[i][:-1])
+                            self.cleanConsLabels.append(consLabels[-1])
 
 
 
-        # And finally the aux vars
-        self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
-        print("Fetching auxilliary variables...")
-        with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get cons var labels
-                if i==0:
-                    auxLabels = line.split()[2:]
-                # Get cons var data
-                else:
-                    temp = line.split()
-                    for k in range(c['Nz']):
-                        self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
+        try:
+            # Now get primitive variables if  and store the data in array...
+            self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
+            print("Fetching primitive variables...")
+            with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
+                for i, line in enumerate(f):
+                    # Get primitive var labels
+                    if i==0:
+                        primLabels = line.split()[2:]
+                    # Get primitive var data
+                    else:
+                        temp = line.split()
+                        for k in range(c['Nz']):
+                            self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
 
-        # Clean up labels (remove the commas)
-        self.cleanAuxLabels = []
-        for i in range(len(auxLabels)-1):
-            self.cleanAuxLabels.append(auxLabels[i][:-1])
-        self.cleanAuxLabels.append(auxLabels[-1])
+            # Clean up labels (remove the commas)
+            self.cleanPrimLabels = []
+            for i in range(len(primLabels)-1):
+                self.cleanPrimLabels.append(primLabels[i][:-1])
+            self.cleanPrimLabels.append(primLabels[-1])
+        except FileNotFoundError:
+            pass
 
+        try:
+            # And finally the aux vars if available
+            self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
+            print("Fetching auxilliary variables...")
+            with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
+                for i, line in enumerate(f):
+                    # Get cons var labels
+                    if i==0:
+                        auxLabels = line.split()[2:]
+                    # Get cons var data
+                    else:
+                        temp = line.split()
+                        for k in range(c['Nz']):
+                            self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
+
+            # Clean up labels (remove the commas)
+            self.cleanAuxLabels = []
+            for i in range(len(auxLabels)-1):
+                self.cleanAuxLabels.append(auxLabels[i][:-1])
+            self.cleanAuxLabels.append(auxLabels[-1])
+        except FileNotFoundError:
+            pass
 
 
 

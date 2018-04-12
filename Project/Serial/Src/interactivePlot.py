@@ -15,14 +15,14 @@ warnings.filterwarnings('ignore', "No labelled objects found. ")
 # Change this to the relative path to the data you want to plot
 # File names must start with e.g. `primitive`, anything between this
 # and `.dat` should be stored in appendix
-# By default, this script will gather data for the final condition of the 
+# By default, this script will gather data for the final condition of the
 # simulation at t=t_end. To gather different data, add arguments to the
 # constructor to include the path to the directory and any appendages.
 FinalDirectory = '../Data/Final/'
 appendix = ''
 
 class InteractivePlot(object):
-    
+
     def __init__(self, DatDirectory=None, append=None):
         if DatDirectory is None:
             self.DatDir = FinalDirectory
@@ -39,11 +39,11 @@ class InteractivePlot(object):
         """
         Collects and stores all the data required for plotting the final state of
         the system.
-    
+
         Notes
         -----
         Stores the following public variables:
-            
+
             cons : array of float
                 (Ncons, Nx, Ny, Nz) Array containing the conserved vector
             consLabels : array of string
@@ -61,9 +61,9 @@ class InteractivePlot(object):
                 elements by typing as an argument the constant you want as a string.
                 E.g. to get zmax, enter  -->    c['zmax']
                 All links are the same as the constant name in the SimData class.
-    
+
         """
-    
+
         # Dictionary to hold constants
         self.c = {}
         c = self.c
@@ -99,33 +99,13 @@ class InteractivePlot(object):
                     c['dx'] = float(line[23])
                     c['dy'] = float(line[24])
                     c['dz'] = float(line[25])
-    
+
         print("{} conserved vectors".format(c['Ncons']))
         print("{} primitive vectors".format(c['Nprims']))
         print("{} auxilliary vectors".format(c['Naux']))
-    
-        # Now get primitive variables and store the data in array...
-        self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
-        print("Fetching primitive variables...")
-        with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get primitive var labels
-                if i==0:
-                    primLabels = line.split()[2:]
-                # Get primitive var data
-                else:
-                    temp = line.split()
-                    for k in range(c['Nz']):
-                        self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
-    
-        # Clean up labels (remove the commas)
-        self.cleanPrimLabels = []
-        for i in range(len(primLabels)-1):
-            self.cleanPrimLabels.append(primLabels[i][:-1])
-        self.cleanPrimLabels.append(primLabels[-1])
-    
-    
-    
+
+
+
         # Now gather conserved data
         self.cons = np.zeros([c['Ncons'], c['Nx'], c['Ny'], c['Nz']])
         print("Fetching conserved variables...")
@@ -134,48 +114,73 @@ class InteractivePlot(object):
                 # Get cons var labels
                 if i==0:
                     consLabels = line.split()[2:]
-                # Get cons var data
+                    # Get cons var data
                 else:
                     temp = line.split()
                     for k in range(c['Nz']):
                         self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
-    
-        # Clean up labels (remove the commas)
-        self.cleanConsLabels = []
-        for i in range(len(consLabels)-1):
-            self.cleanConsLabels.append(consLabels[i][:-1])
-        self.cleanConsLabels.append(consLabels[-1])
-    
-    
-    
-        # And finally the aux vars
-        self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
-        print("Fetching auxilliary variables...")
-        with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get cons var labels
-                if i==0:
-                    auxLabels = line.split()[2:]
-                # Get cons var data
-                else:
-                    temp = line.split()
-                    for k in range(c['Nz']):
-                        self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
-    
-        # Clean up labels (remove the commas)
-        self.cleanAuxLabels = []
-        for i in range(len(auxLabels)-1):
-            self.cleanAuxLabels.append(auxLabels[i][:-1])
-        self.cleanAuxLabels.append(auxLabels[-1])
-    
-    
-    
-    
+
+                        # Clean up labels (remove the commas)
+                        self.cleanConsLabels = []
+                        for i in range(len(consLabels)-1):
+                            self.cleanConsLabels.append(consLabels[i][:-1])
+                            self.cleanConsLabels.append(consLabels[-1])
+
+
+
+        try:
+            # Now get primitive variables if  and store the data in array...
+            self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
+            print("Fetching primitive variables...")
+            with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
+                for i, line in enumerate(f):
+                    # Get primitive var labels
+                    if i==0:
+                        primLabels = line.split()[2:]
+                    # Get primitive var data
+                    else:
+                        temp = line.split()
+                        for k in range(c['Nz']):
+                            self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
+
+            # Clean up labels (remove the commas)
+            self.cleanPrimLabels = []
+            for i in range(len(primLabels)-1):
+                self.cleanPrimLabels.append(primLabels[i][:-1])
+            self.cleanPrimLabels.append(primLabels[-1])
+        except FileNotFoundError:
+            pass
+
+        try:
+            # And finally the aux vars if available
+            self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
+            print("Fetching auxilliary variables...")
+            with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
+                for i, line in enumerate(f):
+                    # Get cons var labels
+                    if i==0:
+                        auxLabels = line.split()[2:]
+                    # Get cons var data
+                    else:
+                        temp = line.split()
+                        for k in range(c['Nz']):
+                            self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
+
+            # Clean up labels (remove the commas)
+            self.cleanAuxLabels = []
+            for i in range(len(auxLabels)-1):
+                self.cleanAuxLabels.append(auxLabels[i][:-1])
+            self.cleanAuxLabels.append(auxLabels[-1])
+        except FileNotFoundError:
+            pass
+
+
+
     def _getVarFromLine(self, line, Nx, Ny):
         """
         Given the line number that the iterator is on, and the size of the x-domain,
         returns the index of the primitive variable this data belongs to.
-    
+
         Parameters
         ----------
             line: int
@@ -185,12 +190,12 @@ class InteractivePlot(object):
                 The total number (incl ghost cells) of domain cells in the x-direction.
             Ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
-    
+
         Returns
         -------
             var:
                 The primitive variable index of this line's data.
-    
+
         Other
         -----
             Function will throw a ValueError if trying to get the primitive index
@@ -200,13 +205,13 @@ class InteractivePlot(object):
             raise ValueError('Line zero does not contain any data')
         else:
             return ((line-1)//Ny)//Nx
-    
-    
+
+
     def _getXIndexFromLine(self, line, Nx, Ny):
         """
         Given the line number that the iterator is on, and the size of the x-domain,
         returns the x-index of this line's data.
-    
+
         Parameters
         ----------
             line: int
@@ -216,19 +221,19 @@ class InteractivePlot(object):
                 The total number (incl ghost cells) of domain cells in the x-direction.
             Ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
-    
+
         Returns
         -------
             index:
                 The x-index of the current line's data.
         """
         return ((line-1)//Ny)%Nx
-    
+
     def _getYIndexFromLine(self, line, Nx, Ny):
         """
         Given the line number that the iterator is on, and the size of the y-domain,
         returns the y-index of this line's data.
-    
+
         Parameters
         ----------
             line: int
@@ -238,30 +243,30 @@ class InteractivePlot(object):
                 The total number (incl ghost cells) of domain cells in the x-direction.
             Ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
-    
+
         Returns
         -------
             index:
                 The y-index of the current line's data.
         """
         return (line-1)%Ny
-    
-    
-    
-    
+
+
+
+
     ###############################################################################
     #                             Plotting  Functions                             #
     ###############################################################################
-    
-    
-    
-    
+
+
+
+
     def plotHeatMaps(self, data='prims', color=None, axis=2):
         """
         Plots the 2D heatmap of the given data. The axes to be plotted can be
         selected via the axis parameter---this corresponds to the axis you want
         to ignore.
-    
+
         Parameters
         ----------
             data: string
@@ -287,7 +292,7 @@ class InteractivePlot(object):
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
-            
+
         for i in range(data.shape[0]):
             fig = plt.figure()
             if (axis == 0):
@@ -302,7 +307,7 @@ class InteractivePlot(object):
                 plotVars = data[i, c['Ng']:-c['Ng'], c['Ng']:-c['Ng'], c['Nz']//2]
                 axisLabel1 = r'$x$'
                 axisLabel2 = r'$y$'
-    
+
             if color==None:
                 color = cm.afmhot
             surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic')
@@ -312,12 +317,12 @@ class InteractivePlot(object):
             fig.colorbar(surf, shrink=0.5, aspect=5)
             plt.legend()
             plt.show()
-    
-    
+
+
     def plotSlice(self, data, axis=0):
         """
         Plots the variation of data in the `axis` direction.
-    
+
         Parameters
         ----------
             data: string
@@ -344,10 +349,10 @@ class InteractivePlot(object):
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
-            
+
         Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
-    
-        for i in range(len(data)):    
+
+        for i in range(len(data)):
             plt.figure()
             if (axis == 0):
                 plotVars = data[i, Ng:-Ng, Ny//2, Nz//2]
@@ -367,7 +372,7 @@ class InteractivePlot(object):
                 step = c['dz']
                 n = c['nz']
                 left, right = c['zmin'], c['zmax']
-    
+
             ymin = np.min(plotVars)
             ymax = np.max(plotVars)
             rangeY = ymax - ymin
@@ -382,12 +387,12 @@ class InteractivePlot(object):
             plt.ylim((ylower, yupper))
             plt.legend(loc='lower center', fontsize=10)
             plt.show()
-    
-    
+
+
     def plotTwoFluidTotalPrims(self, axis=0):
         """
         Plots the variation of total data in the `axis` direction of the two fluids.
-    
+
         Parameters
         ----------
             data: string
@@ -404,13 +409,13 @@ class InteractivePlot(object):
         """
         data = self.prims
         dataLabels = self.cleanPrimLabels
-       
+
         c = self.c
         Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
         singles=5
-        
-        avgPlotVars = (data[:singles] + data[singles:2*singles]) 
-    
+
+        avgPlotVars = (data[:singles] + data[singles:2*singles])
+
         for i in range(singles):
             plt.figure()
             if (axis == 0):
@@ -431,7 +436,7 @@ class InteractivePlot(object):
                 step = c['dz']
                 n = c['nz']
                 left, right = c['zmin'], c['zmax']
-    
+
             ymin = np.min(plotVars)
             ymax = np.max(plotVars)
             rangeY = ymax - ymin
@@ -446,7 +451,7 @@ class InteractivePlot(object):
             plt.xlim([c['xmin'], c['xmax']])
             plt.legend(loc='lower center', fontsize=10)
             plt.show()
-    
+
     def plotTwoFluidCurrentSheetAgainstExact(self):
         """
         The current sheet has an analytical solution for the y-direction magnetic
@@ -467,36 +472,36 @@ class InteractivePlot(object):
         plt.legend(loc='upper left')
         plt.show()
         #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
-    
+
     def plotTwoFluidCPAlfvenWaveAgainstExact(self):
         """
         The cirularly polarized alfven wave has an exact solution, see Amano 2016
         for details. This method plots all non-trivial prims against their exact
         values for case 3.
         """
-    
+
         rho1, vx1, vy1, vz1, p1, rho2, vx2, vy2, vz2, p2, Bx, By, Bz, Ex, Ey, Ez = self.prims[:]
         c = self.c
         xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
         t = c['t']
         Ng = c['Ng']
-    
+
         h = 1.04
         B0 = h
         omegaBar1 = -np.sqrt(1.04)
         omegaBar2 = -omegaBar1
         kx = 1.0/4.0
-    
+
         omega = 5.63803828148e-1
         Wp = 5.19940020571e-6 + 1
         We = 6.68453076522e-5 + 1
         xsi = 0.01
-    
+
         U1 = -xsi * omega * omegaBar1 / (kx * (omega + omegaBar1 * We))
         U2 = -xsi * omega * omegaBar2 / (kx * (omega + omegaBar2 * Wp))
-    
+
         phi = kx * xs - omega * t
-    
+
         BySol = xsi * B0 * np.cos(phi)
         BzSol = -xsi * B0 * np.sin(phi)
         EySol = -(omega/kx)*xsi*B0*np.sin(phi)
@@ -505,7 +510,7 @@ class InteractivePlot(object):
         vz1sol = -U1 * np.sin(phi)
         vy2sol = U2 * np.cos(phi)
         vz2sol = -U2 * np.sin(phi)
-    
+
         # Bx
         BxSol = np.zeros_like(BySol)
         BxSol[:] = B0
@@ -514,7 +519,7 @@ class InteractivePlot(object):
         plt.plot(xs, BxSol, '--', label='Exact')
         plt.title(r'Exact comparison for $B_x$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
-        plt.legend()    
+        plt.legend()
         # By
         plt.figure()
         plt.plot(xs, By[Ng:-Ng, 0, 0], label='Numerical')
