@@ -9,6 +9,7 @@ import pylab as plt
 import scipy
 from matplotlib import cm
 import warnings
+from contextlib import ignored
 
 warnings.filterwarnings('ignore', "No labelled objects found. ")
 
@@ -128,7 +129,7 @@ class InteractivePlot(object):
 
 
 
-        try:
+        with ignored(FileNotFoundError):
             # Now get primitive variables if  and store the data in array...
             self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
             print("Fetching primitive variables...")
@@ -148,10 +149,8 @@ class InteractivePlot(object):
             for i in range(len(primLabels)-1):
                 self.cleanPrimLabels.append(primLabels[i][:-1])
             self.cleanPrimLabels.append(primLabels[-1])
-        except FileNotFoundError:
-            pass
 
-        try:
+        with ignored(FileNotFoundError):
             # And finally the aux vars if available
             self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
             print("Fetching auxilliary variables...")
@@ -171,8 +170,6 @@ class InteractivePlot(object):
             for i in range(len(auxLabels)-1):
                 self.cleanAuxLabels.append(auxLabels[i][:-1])
             self.cleanAuxLabels.append(auxLabels[-1])
-        except FileNotFoundError:
-            pass
 
 
 
