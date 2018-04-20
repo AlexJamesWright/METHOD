@@ -71,13 +71,13 @@ namespace
 
     for (int var(0); var < d.Ncons; var++)
     {
-      for (int i(0); i < d.Nx; i++)
+      for (int i(0); i < d.Nx-1; i++)
       {
         for (int j(0); j < d.Ny; j++)
         {
           for (int k(0); k < d.Nz; k++)
           {
-            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i, j, k)];
+            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i+1, j, k)]/d.dx - d.fnet[d.id(var, i, j, k)]/d.dx;
           }
         }
       }
@@ -113,7 +113,7 @@ namespace
         {
           for (int k(0); k < d.Nz; k++)
           {
-            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i, j, k)];
+            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i, j+1, k)]/d.dy - d.fnet[d.id(var, i, j, k)]/d.dy;
           }
         }
       }
@@ -149,7 +149,7 @@ namespace
         {
           for (int k(0); k < d.Nz; k++)
           {
-            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i, j, k)];
+            d.cons[d.id(var, i, j, k)] = d.fnet[d.id(var, i, j, k+1)]/d.dz - d.fnet[d.id(var, i, j, k)]/d.dz;
           }
         }
       }
