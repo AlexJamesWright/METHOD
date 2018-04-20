@@ -121,11 +121,11 @@ class InteractivePlot(object):
                     for k in range(c['Nz']):
                         self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'])][k] = float(temp[k])
 
-                        # Clean up labels (remove the commas)
-                        self.cleanConsLabels = []
-                        for i in range(len(consLabels)-1):
-                            self.cleanConsLabels.append(consLabels[i][:-1])
-                            self.cleanConsLabels.append(consLabels[-1])
+        # Clean up labels (remove the commas)
+        self.cleanConsLabels = []
+        for i in range(len(consLabels)-1):
+            self.cleanConsLabels.append(consLabels[i][:-1])
+            self.cleanConsLabels.append(consLabels[-1])
 
 
 
