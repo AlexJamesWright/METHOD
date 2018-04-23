@@ -22,3 +22,13 @@ Project/Serial/Data/*.dat
 __pycache__
 
 Figures
+
+Data/
+
+.ipynb_checkpoints
+
+runMultipleSims.sh
+
+cleanData.sh
+
+TestData
