@@ -17,9 +17,38 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
 {
   Data * d(this->data);
+
   this->args = IMEX2Arguments(data);
+
   lwa = d->Ncons * (3 * d->Ncons + 13) / 2;
   Ntot = data->Nx * data->Ny * data->Nz;
+  // Hybrd1 variables
+  tol = 0.0000000149011612;
+
+
+  // We only need to implement the integrator on the physical cells provided
+  // we apply the boundary conditions to each stage.
+  // Determine start and end points
+  is = d->Ng;          // i start and end points
+  ie = d->Nx - d->Ng;
+  if (d->Ny > 1) {
+    js = d->Ng;
+    je = d->Ny - d->Ng;
+  }
+  else {
+    js = 0;
+    je = 1;
+  }
+  if (d->Nz > 1) {
+    ks = d->Ng;
+    ke = d->Nz - d->Ng;
+  }
+  else {
+    ks = 0;
+    ke = 1;
+  }
+
+  
   // Need work arrays
   cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
                 cudaHostAllocPortable);
@@ -69,32 +98,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) dt = d->dt;
   args.dt = dt;
-
-  // Hybrd1 variables
-  tol = 0.0000000149011612;
-
-
-  // We only need to implement the integrator on the physical cells provided
-  // we apply the boundary conditions to each stage.
-  // Determine start and end points
-  is = d->Ng;          // i start and end points
-  ie = d->Nx - d->Ng;
-  if (d->Ny > 1) {
-    js = d->Ng;
-    je = d->Ny - d->Ng;
-  }
-  else {
-    js = 0;
-    je = 1;
-  }
-  if (d->Nz > 1) {
-    ks = d->Ng;
-    ke = d->Nz - d->Ng;
-  }
-  else {
-    ks = 0;
-    ke = 1;
-  }
 
 
   //########################### STAGE ONE #############################//
