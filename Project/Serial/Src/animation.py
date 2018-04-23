@@ -16,14 +16,6 @@ from glob import glob
 
 warnings.filterwarnings('ignore', "No labelled objects found. ")
 
-class HidePrints:
-    def __enter__(self):
-        self._original_stdout = sys.stdout
-        sys.stdout = None
-    def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
-        sys.stdout = self._original_stdout
-
-
 
 
 # Change this to the relative path to the data you want to plot

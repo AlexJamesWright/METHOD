@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
 
   const double MU(1400);
   // Set up domain
-  int nx(600);
-  int ny(600);
+  int nx(504);
+  int ny(504);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -32,16 +32,16 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(3);
+  double endTime(0.00001);
   double cfl(0.5);
   int Ng(4);
   double gamma(7.0/5.0);
-  double sigma(10);
+  double sigma(0);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(45);
-  bool output(true);
+  bool output(false);
   int safety(25);
 
   char * ptr(0);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRMHD model(&data);
+  SRRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
   Flow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
@@ -103,6 +103,7 @@ int main(int argc, char *argv[]) {
 
   // // Run until end time and save results
   sim.evolve(output, safety);
+
   double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();

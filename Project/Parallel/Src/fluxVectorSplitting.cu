@@ -100,8 +100,8 @@ FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
   long unsigned int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
 
   // Define thread set up
-  TpB = 128;
-  BpG = 16;
+  TpB = 512;
+  BpG = 64;
   // Resulting size of stream...
   Cwidth = BpG * (TpB - 2*ORDER);
   originalWidth = width = Cwidth + 2*ORDER;
