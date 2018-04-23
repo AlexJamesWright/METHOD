@@ -98,10 +98,10 @@ def test_ConsEquivalentForSSP2():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
 
 def test_PrimsEquivalentForSSP2():
     Obj = Compare.Appendicies.index('SSP2')
@@ -111,10 +111,10 @@ def test_PrimsEquivalentForSSP2():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < 1e-15))
 
 def test_AuxEquivalentForSSP2():
     Obj = Compare.Appendicies.index('SSP2')
@@ -124,10 +124,10 @@ def test_AuxEquivalentForSSP2():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < 1e-15))
 
 # RK2
 def test_ConsEquivalentForRK2():
@@ -138,7 +138,6 @@ def test_ConsEquivalentForRK2():
            for j in range(*Compare.ybounds[Obj]):
                for k in range(*Compare.zbounds[Obj]):
                    try:
-                       print(Nv, i, j, k)
                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                    except AssertionError:
                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
@@ -179,10 +178,10 @@ def test_FnetEquivalentForFVS():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
 
 def test_FxEquivalentForFVS():
     Obj = Compare.Appendicies.index('FVSFx')
@@ -192,10 +191,10 @@ def test_FxEquivalentForFVS():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
 
 def test_FyEquivalentForFVS():
     Obj = Compare.Appendicies.index('FVSFy')
@@ -205,10 +204,10 @@ def test_FyEquivalentForFVS():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
 
 def test_FzEquivalentForFVS():
     Obj = Compare.Appendicies.index('FVSFz')
@@ -218,7 +217,7 @@ def test_FzEquivalentForFVS():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-12))
+                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < 1e-15))
