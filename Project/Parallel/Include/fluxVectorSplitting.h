@@ -72,6 +72,7 @@ class FVS : public FluxMethod
     //@{
     ** flux_d, //!< Device arrays for reconstruction, one for each stream for each
     ** cons_d,
+    ** result_d,
     //@}
     //@{
     * flux_h, //!< Host arrays for contiguous data ready for reconstruction and result

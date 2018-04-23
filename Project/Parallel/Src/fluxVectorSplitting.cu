@@ -52,7 +52,7 @@
 
 
 __global__
-static void fluxRecon(double * cons, double * f, int stream, int width, double delta, int dir, long unsigned int Ntot)
+static void fluxRecon(double * cons, double * f, double * res, int stream, int width, double delta, int dir, long unsigned int Ntot)
 {
 
   // Up and downwind fluxes
@@ -65,7 +65,7 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
   const int gID(lID + stream * (width - 2*ORDER));                  // GlobalID
 
   // Load data into shared memory and apply Lax-Friedrichs approximation of flux
-  if (lID < width && gID < Ntot) {
+  if (lID < width) {
     const double tempf = f[lID];
     const double tempc = cons[lID];
     fplus[tID] = 0.5 * (tempf + tempc);
@@ -73,7 +73,7 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
   }
   __syncthreads();
 
-  if (tID >= ORDER && tID <= blockDim.x-ORDER+1 && lID < width && gID < Ntot) {
+  if (tID >= ORDER && tID <= blockDim.x-ORDER+1 && lID < width) {
     frec[tID] = weno3_upwind(fplus[tID-ORDER],
                              fplus[tID-ORDER+1],
                              fplus[tID-ORDER+2]) +
@@ -81,11 +81,10 @@ static void fluxRecon(double * cons, double * f, int stream, int width, double d
                              fminus[tID+ORDER-2],
                              fminus[tID+ORDER-3]);
   }
-
   //! Now we are going to use the device array 'c' as the differenced, reconstructed flux vector, i.e. fnet in serial code
   __syncthreads();
-  if (tID >= ORDER && tID < blockDim.x-ORDER && lID < width && gID < Ntot) {
-    cons[lID] = frec[tID+1] / delta - frec[tID] / delta;
+  if (tID >= ORDER && tID < blockDim.x-ORDER && lID < width) {
+    res[lID] = frec[tID+1] / delta - frec[tID] / delta;
   }
   __syncthreads();
 }
@@ -101,8 +100,8 @@ FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
   long unsigned int Ntot(d->Ncons * d->Nx * d->Ny * d->Nz);
 
   // Define thread set up
-  TpB = 512;
-  BpG = 128;
+  TpB = 128;
+  BpG = 16;
   // Resulting size of stream...
   Cwidth = BpG * (TpB - 2*ORDER);
   originalWidth = width = Cwidth + 2*ORDER;
@@ -121,10 +120,12 @@ FVS::FVS(Data * data, Model * model) : FluxMethod(data, model)
   // Allocate device arrays for each stream
   cons_d = new double*[Nstreams];
   flux_d = new double*[Nstreams];
+  result_d = new double*[Nstreams];
 
   for (int i(0); i < Nstreams; i++) {
     gpuErrchk( cudaMalloc((void **)&cons_d[i], inMemsize) );
     gpuErrchk( cudaMalloc((void **)&flux_d[i], inMemsize) );
+    gpuErrchk( cudaMalloc((void **)&result_d[i], inMemsize) );
   }
   gpuErrchk( cudaHostAlloc((void **)&cons_h, Ntot * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&flux_h, Ntot * sizeof(double), cudaHostAllocPortable) );
@@ -163,6 +164,7 @@ FVS::~FVS()
   for (int i(0); i < Nstreams; i++) {
     gpuErrchk( cudaFree(flux_d[i]) );
     gpuErrchk( cudaFree(cons_d[i]) );
+    gpuErrchk( cudaFree(result_d[i]) );
   }
   gpuErrchk( cudaFreeHost(flux_h) );
   gpuErrchk( cudaFreeHost(cons_h) );
@@ -270,10 +272,10 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     gpuErrchk( cudaMemcpyAsync(cons_d[i], cons_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
     gpuErrchk( cudaMemcpyAsync(flux_d[i], flux_h + lb, inMemsize, cudaMemcpyHostToDevice, stream[i]) );
 
-    fluxRecon<<<BpG, TpB, sharedMemUsagePerBlock, stream[i]>>>(cons_d[i], flux_d[i], i, originalWidth, delta, dir, Ntot);
+    fluxRecon<<<BpG, TpB, sharedMemUsagePerBlock, stream[i]>>>(cons_d[i], flux_d[i], result_d[i], i, originalWidth, delta, dir, Ntot);
 
     // Still need the flux_h array for loading in next stream, cannot change data so use the cons_h array
-    gpuErrchk( cudaMemcpyAsync(result_h+lb+ORDER, cons_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(result_h+lb+ORDER, result_d[i]+ORDER, outMemsize, cudaMemcpyDeviceToHost, stream[i]) );
     gpuErrchk( cudaPeekAtLastError() );
   }
   gpuErrchk( cudaDeviceSynchronize() );
