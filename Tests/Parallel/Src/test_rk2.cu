@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "srmhd.h"
+#include "srrmhd.h"
 #include "simulation.h"
 #include "simData.h"
 #include "initFunc.h"
@@ -18,8 +18,8 @@ namespace
          version with. No tests are run in the serial version of this test
       */
 
-      Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.05);
-      SRMHD model(&d);
+      Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.004);
+      SRRMHD model(&d);
       FVS fluxMethod(&d, &model);
       Simulation sim(&d);
       OTVortexSingleFluid init(&d);
