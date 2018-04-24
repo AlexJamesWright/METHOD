@@ -62,7 +62,7 @@ static void fluxRecon(double * cons, double * f, double * res, int stream, int w
   double * frec = ftmp + 2 * blockDim.x;
   const int tID = threadIdx.x;
   const int lID(tID + blockIdx.x * (blockDim.x - 2*ORDER));         // In this stream
-  const int gID(lID + stream * (width - 2*ORDER));                  // GlobalID
+  // const int gID(lID + stream * (width - 2*ORDER));                  // GlobalID
 
   // Load data into shared memory and apply Lax-Friedrichs approximation of flux
   if (lID < width) {

@@ -2,6 +2,7 @@
 #define SRRMHD_H
 
 #include "model.h"
+#include "C2PArgs.h"
 
 /*
 This is the human readable description of this models variables.
@@ -27,12 +28,19 @@ This is the human readable description of this models variables.
 //! <b> Special Relativistic Resistive MagnetHydroDynamics </b>
 /*!
     @par
-      COMPLETE DESCRIPTION
+      @todo COMPLETE DESCRIPTION
 */
 class SRRMHD : public Model
 {
 
   public:
+
+    // Work arrays
+    double * singleCons;
+    double * singlePrims;
+    double * singleAux;
+    double * singleSource;
+    C2PArgs * c2pArgs;
 
     SRRMHD(); //!< Default constructor
 
@@ -45,7 +53,7 @@ class SRRMHD : public Model
     */
     SRRMHD(Data * data);
 
-    ~SRRMHD() { };  //!< Destructor
+    ~SRRMHD();  //!< Destructor
 
     //! Single cell source term contribution
     /*!

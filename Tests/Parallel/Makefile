@@ -164,6 +164,10 @@ test_rk2 : test_rk2.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o R
 rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/rkSplit.cu -I$(INC_DIR)
 
+# C2PArgs class
+C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_DIR)/C2PArgs.h	$(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
 # Flux vector splitting method
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/fluxVectorSplitting.cu -I$(INC_DIR)
@@ -211,7 +215,7 @@ test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cu \
                      $(INC_DIR)/srrmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_srrmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_srrmhd : srrmhd.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
+test_srrmhd : srrmhd.o C2PArgs.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
 
 # TwoFluidEMHD Model

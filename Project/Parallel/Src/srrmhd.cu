@@ -11,17 +11,52 @@
 #include <cstdio>
 #include "srrmhd.h"
 #include "cminpack.h"
+#include "cudaErrorCheck.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+#define IDCons(var, idx, jdx, kdx) ( (var) + (idx)*(d->Ncons)*(d->Nz)*(d->Ny) + (jdx)*(d->Ncons)*(d->Nz) + (kdx)*(d->Ncons)  )
+#define IDPrims(var, idx, jdx, kdx) ( (var) + (idx)*(d->Nprims)*(d->Nz)*(d->Ny) + (jdx)*(d->Nprims)*(d->Nz) + (kdx)*(d->Nprims)  )
+#define IDAux(var, idx, jdx, kdx) ( (var) + (idx)*(d->Naux)*(d->Nz)*(d->Ny) + (jdx)*(d->Naux)*(d->Nz) + (kdx)*(d->Naux)  )
+
+// C2P residual and rootfinder (Serial)
 static double residual(const double, const double, const double, const double, double);
 static int newton(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int i, int j, int k);
+
+// C2P residual and rootfinder (Parallel)
+__device__
+static double residualParallel(const double Z, const double StildeSq, const double D, const double tauTilde, double gamma);
+__device__
+static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int stream);
+__global__
+static void getPrimitiveVarsSingleCellParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
+
 
 SRRMHD::SRRMHD() : Model()
 {
   this->Ncons = 14;
   this->Nprims = 11;
   this->Naux = 17;
+
+  cudaHostAlloc((void **)&singleCons, sizeof(double) * this->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singlePrims, sizeof(double) * this->Nprims,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleAux, sizeof(double) * this->Naux,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleSource, sizeof(double) * this->Ncons,
+                cudaHostAllocPortable);
+}
+
+SRRMHD::~SRRMHD()
+{
+  // Free up
+  cudaFreeHost(singleCons);
+  cudaFreeHost(singlePrims);
+  cudaFreeHost(singleAux);
+  cudaFreeHost(singleSource);
+
+  delete c2pArgs;
 }
 
 SRRMHD::SRRMHD(Data * data) : Model(data)
@@ -56,6 +91,17 @@ SRRMHD::SRRMHD(Data * data) : Model(data)
   this->data->auxLabels.push_back("Sbarz");   this->data->auxLabels.push_back("Sbarsq");
   this->data->auxLabels.push_back("tauBar");
 
+  // Single cell work arrays
+  cudaHostAlloc((void **)&singleCons, sizeof(double) * this->Ncons,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singlePrims, sizeof(double) * this->Nprims,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleAux, sizeof(double) * this->Naux,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&singleSource, sizeof(double) * this->Ncons,
+                cudaHostAllocPortable);
+
+  c2pArgs = new C2PArgs(this->data);
 }
 
 void SRRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, const int dir)
@@ -206,21 +252,6 @@ void SRRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source
   // Syntax
   Data * d(this->data);
 
-  // Work arrays
-  double * singleCons;
-  double * singlePrims;
-  double * singleAux;
-  double * singleSource;
-
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleSource, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -244,12 +275,6 @@ void SRRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source
       }
     }
   }
-
-  // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
-  cudaFreeHost(singleSource);
 }
 
 void SRRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
@@ -313,47 +338,63 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
-  // Work arrays
-  double * singleCons;
-  double * singlePrims;
-  double * singleAux;
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
-
-
+  // First need to copy data to the device
+  // A single cell requires all cons variables and aux10 to start the guessing
+  // Rearrange data into host arrays ready for copying
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-
-        // Store this cell's cons data and rhohWsq from last step
         for (int var(0); var < d->Ncons; var++) {
-          singleCons[var] = cons[ID(var, i, j, k)];
+          c2pArgs->cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
         }
-        singleAux[10] = aux[ID(10, i, j, k)];
-
-        // Get primitive and auxilliary vars
-        this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
-
-        // Copy cell's prim and aux back to data class
-        // Store this cell's cons data
-        for (int var(0); var < d->Nprims; var++) {
-          prims[ID(var, i, j, k)] = singlePrims[var];
-        }
-        for (int var(0); var < d->Naux; var++) {
-          aux[ID(var, i, j, k)] = singleAux[var];
-        }
+        c2pArgs->guess_h[ID(0, i, j, k)] = aux[ID(10, i, j, k)];
       }
     }
   }
 
-  // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
+  // Data is in correct order, now stream data to the device
+  for (int i(0); i < c2pArgs->Nstreams; i++) {
+    // Which cell is at the left bound?
+    int lcell(i * c2pArgs->streamWidth);
+    // Which cell is at the right bound?
+    int rcell(lcell + c2pArgs->streamWidth);
+    if (rcell > d->Ncells) rcell = d->Ncells;
+    // Memory size to copy in
+    int width(rcell - lcell);
+    int inMemsize(width * sizeof(double));
+
+    // Send streams data
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->cons_d[i], c2pArgs->cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell, inMemsize, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+
+    // Call kernel and operate on data
+    getPrimitiveVarsSingleCellParallel <<< c2pArgs->bpg, c2pArgs->tpb,
+        c2pArgs->tpb * c2pArgs->cellMem, c2pArgs->stream[i] >>> (c2pArgs->cons_d[i],
+        c2pArgs->prims_d[i], c2pArgs->aux_d[i], c2pArgs->guess_d[i], i, d->gamma, d->sigma, d->Ncons,
+        d->Nprims, d->Naux, c2pArgs->streamWidth, width);
+
+
+    // Copy all data back
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->prims_h + lcell*d->Nprims, c2pArgs->prims_d[i], inMemsize*d->Nprims, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->aux_h + lcell*d->Naux, c2pArgs->aux_d[i], inMemsize*d->Naux, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
+    gpuErrchk( cudaPeekAtLastError() );
+  }
+  gpuErrchk( cudaDeviceSynchronize() );
+
+  // Rearrange data back into arrays
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        for (int var(0); var < d->Nprims; var++) {
+          prims[ID(var, i, j, k)] = c2pArgs->prims_h[IDPrims(var, i, j, k)];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          aux[ID(var, i, j, k)] = c2pArgs->aux_h[IDAux(var, i, j, k)];
+        }
+      }
+    }
+  }
 }
 
 void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
@@ -532,6 +573,7 @@ static double residual(const double Z, const double StildeSq, const double D, co
 
 }
 
+
 static int newton(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int i, int j, int k)
 {
   // Rootfind data
@@ -568,16 +610,138 @@ static int newton(double *Z, const double StildeSq, const double D, const double
     }
   }
 
-  // printf("%d:  %f, %f, %f, %f, %f\n", i, *Z, StildeSq, D, tauTilde, gamma);
-
   if (!found) {
     // Store result of Z=rho*h*W**2
     *Z = bestX;
-    // printf("Original C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
     char s[200];
     sprintf(s, "C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
 
     throw std::runtime_error(s);
   }
   return 1;
+}
+
+
+__global__
+static void getPrimitiveVarsSingleCellParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
+{
+  // First need thread indicies
+  const int tID(threadIdx.x);                     //!< thread index (in block)
+  const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
+  const int gID(lID + stream * origWidth);        //!< global index (in domain)
+  // Allocate shared memory
+  extern __shared__ double sharedArray [];
+  double * cons = &sharedArray[tID * (Ncons + Nprims + Naux)];
+  double * prims = &cons[Ncons];
+  double * aux = &prims[Nprims];
+
+  if (lID < streamWidth){
+
+    // Load conserved vector into shared memory, and the initial guess
+    for (int i(0); i < Ncons; i++) cons[i] = streamCons[lID * Ncons + i];
+    aux[10] = guess[lID];
+
+    // Set Bx/y/z and Ex/y/z field in prims
+    prims[5] = cons[5]; prims[6] = cons[6]; prims[7] = cons[7];
+    prims[8] = cons[8]; prims[9] = cons[9]; prims[10] = cons[10];
+
+    // Bsq, Esq
+    aux[7] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+    aux[8] = cons[8] * cons[8] + cons[9] * cons[9] + cons[10] * cons[10];
+
+    // Sbarx, Sbary, Sbarz
+    aux[12] = cons[1] - (cons[9] * cons[7] - cons[10] * cons[6]);
+    aux[13] = cons[2] - (cons[10] * cons[5] - cons[8] * cons[7]);
+    aux[14] = cons[3] - (cons[8] * cons[6] - cons[9] * cons[5]);
+    // Sbarsq, tauBar
+    aux[15] = aux[12] * aux[12] + aux[13] * aux[13] + aux[14] * aux[14];
+    aux[16] = cons[4] - 0.5 * (aux[7] + aux[8]);
+
+    // Solve
+    newtonParallel(&aux[10], aux[15], cons[0], aux[16], gamma, stream);
+
+    // vsq
+    aux[9] = aux[15] / (aux[10] * aux[10]);
+
+    // W
+    aux[1] = 1.0 / sqrt(1 - aux[9]);
+    // rho
+    prims[0] = cons[0] / aux[1];
+    // h
+    aux[0] = aux[10] / (prims[0] * aux[1] * aux[1]);
+    // e
+    aux[2] = (aux[0] - 1) / gamma;
+    // c
+    aux[3] = sqrt((aux[2] * gamma * (gamma - 1)) / aux[0]);
+    // p
+    prims[4] = prims[0] * aux[2] * (gamma - 1);
+    // vx, vy, vz
+    prims[1] = aux[12] / aux[10];
+    prims[2] = aux[13] / aux[10];
+    prims[3] = aux[14] / aux[10];
+    // vE
+    aux[11] = prims[1] * cons[8] + prims[2] * cons[9] + prims[3] * cons[10];
+    // Jx, Jy, Jz
+    aux[4] = cons[13] * prims[1] + aux[1] * sigma * (cons[8] + (prims[2] * cons[7] -
+             prims[3] * cons[6]) - aux[11] * prims[1]);
+    aux[5] = cons[13] * prims[2] + aux[1] * sigma * (cons[9] + (prims[3] * cons[5] -
+             prims[1] * cons[7]) - aux[11] * prims[2]);
+    aux[6] = cons[13] * prims[3] + aux[1] * sigma * (cons[10] + (prims[1] * cons[6] -
+             prims[2] * cons[5]) - aux[11] * prims[3]);
+
+  }
+
+  // Copy data back from shared memory into device arrays
+  for (int i(0); i < Nprims; i++) streamPrims[lID * Nprims + i] = prims[i];
+  for (int i(0); i < Naux; i++) streamAux[lID * Naux + i] = aux[i];
+
+}
+
+#define TOL 1.0e-12
+#define EPS 1.0e-4
+#define MAXITER 50
+__device__
+static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int stream)
+{
+  // Rootfind data
+  double x0(*Z);
+  double x1(x0 + EPS);
+  double x2;
+  double f0(residualParallel(x0, StildeSq, D, tauTilde, gamma));
+  double f1(residualParallel(x1, StildeSq, D, tauTilde, gamma));
+  int iter;
+
+  for (iter=0; iter<MAXITER; iter++) {
+    if (fabs(f0) < TOL) {
+      *Z = x0;
+      return 1;
+    }
+
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
+    x1 = x0;
+    x0 = x2;
+    f1 = f0;
+    f0 = residualParallel(x0, StildeSq, D, tauTilde, gamma);
+  }
+
+  return 0;
+}
+
+__device__
+static double residualParallel(const double Z, const double StildeSq, const double D, const double tauTilde, double gamma)
+{
+  // Declare variables
+  double  W;
+
+  // Sanity check
+  if (Z < 0) return 1.0e6;
+
+  // Continue
+  W = 1 / sqrt(1 - (StildeSq / (Z * Z)));
+
+  // Values are physical, compute residual
+  return (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) /
+          (W * gamma) - 1) * D - tauTilde;
+
+
 }

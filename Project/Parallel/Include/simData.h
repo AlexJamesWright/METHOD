@@ -104,6 +104,8 @@ class Data
     GPUcount;              //!< Number of NVIDIA devices detected
     cudaDeviceProp
     prop;                  //!< Properties of NVIDIA device (assuming all are same)
+    int
+    Ncells;                //!< Total number of computational cells in domain
     //! Element ID function
     /*!
     @par
