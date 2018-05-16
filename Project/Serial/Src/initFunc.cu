@@ -288,8 +288,8 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
         d->prims[ID(12, i, j, k)] = lBz;
 
         // Right side
-        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.075;
-        d->prims[ID(5, endX - i, endY - j, endZ - k)] = 0.075;
+        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.0635;
+        d->prims[ID(5, endX - i, endY - j, endZ - k)] = 0.0635;
         d->prims[ID(4, endX - i, endY - j, endZ - k)] = 0.05;
         d->prims[ID(9, endX - i, endY - j, endZ - k)] = 0.05;
         d->prims[ID(10, endX - i, endY - j, endZ - k)] = rBx;
@@ -343,7 +343,7 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
         // Left side
         d->prims[ID(0, i, j, k)] = 1;
         d->prims[ID(4, i, j, k)] = 1;
-        d->prims[ID(5, i, j, k)] = lBx;
+        d->prims[ID(5, i, j, k)] = zz;
         d->prims[ID(6, i, j, k)] = lBy;
         d->prims[ID(7, i, j, k)] = lBz;
 
