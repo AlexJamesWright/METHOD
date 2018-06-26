@@ -1,6 +1,11 @@
 """
     Script gathers the state vectors stored in the Data directory and offers
     functionality to plot various elements.
+
+    Running this script will gather data from the Method data folder and store
+    it in the Plot object.
+
+    To plot a 2D diagram, run `Plot.plotHeatMaps('prims')` for example.
 """
 
 
