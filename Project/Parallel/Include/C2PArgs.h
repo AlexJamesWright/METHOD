@@ -34,7 +34,7 @@ class C2PArgs
     * aux_h,
     //@}
     ** guess_d,         //!< Device array containing guess to start of C2P rootfind
-    * guess_h;         //!< Host array containing guess to start of C2P rootfind
+    * guess_h;          //!< Host array containing guess to start of C2P rootfind
 
     cudaStream_t * stream; //!< Pointer to CUDA streams
 

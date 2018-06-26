@@ -93,6 +93,9 @@ class SSP2 : public TimeIntegrator
     */
     void step(double * cons, double * prims, double * aux, double dt=0);
 
+    //! Performs stage one of IMEX2(222)
+    void callStageOne(double * cons, double * prims, double * aux, double dt);
+
 };
 
 

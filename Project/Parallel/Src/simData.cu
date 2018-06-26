@@ -1,4 +1,5 @@
 #include "simData.h"
+#include "cudaErrorCheck.h"
 #include <stdexcept>
 #include <cstdio>
 
@@ -9,7 +10,9 @@ Data::Data(int nx, int ny, int nz,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
            double cp,
-           double mu1, double mu2, int frameSkip)
+           double mu1, double mu2,
+           int frameSkip,
+           int tpb, int bpg)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -20,7 +23,9 @@ Data::Data(int nx, int ny, int nz,
            memSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
-           mu1(mu1), mu2(mu2), frameSkip(frameSkip)
+           mu1(mu1), mu2(mu2),
+           frameSkip(frameSkip),
+           tpb(tpb), bpg(bpg)
 {
 
   this->Nx = nx + 2 * Ng;
@@ -58,7 +63,10 @@ Data::Data(int nx, int ny, int nz,
   // Determine the specs of the GPU(s) and thus set details in simData
   cudaGetDeviceCount(&GPUcount);
   cudaGetDeviceProperties(&prop, 0);
-  if (0)
+  // Determine the number of GPU streams
+  Nstreams = Ncells / (tpb * bpg) + 1;
+
+  if (true)
   {
     printf("totGlobMem = %zu\n", prop.totalGlobalMem);
     printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);

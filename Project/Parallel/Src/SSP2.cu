@@ -1,15 +1,36 @@
 #include "SSP2.h"
+#include "cudaErrorCheck.h"
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+#define IDCons(var, idx, jdx, kdx) ( (var) + (idx)*(d->Ncons)*(d->Nz)*(d->Ny) + (jdx)*(d->Ncons)*(d->Nz) + (kdx)*(d->Ncons)  )
+#define IDPrims(var, idx, jdx, kdx) ( (var) + (idx)*(d->Nprims)*(d->Nz)*(d->Ny) + (jdx)*(d->Nprims)*(d->Nz) + (kdx)*(d->Nprims)  )
+#define IDAux(var, idx, jdx, kdx) ( (var) + (idx)*(d->Naux)*(d->Nz)*(d->Ny) + (jdx)*(d->Naux)*(d->Nz) + (kdx)*(d->Naux)  )
 
-//! Residual function for stage one of IMEX SSP2
+// Device function for stage one of IMEX rootfind
+__global__
+void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
+              double * wa, double dt, double gam, int stream,
+              int origWidth, int streamWidth, int Ncons, int lwa,
+              double gamma, double sigma);
+
+//! Residual functions for IMEX SSP2
 int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2a(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2b(void *p, int n, const double *x, double *fvec, int iflag);
+
+//! Device residual functions for stage one of IMEX SSP2
+__device__
+int IMEX2Residual1Parallel(void *p, int n, const double *x, double *fvec, int iflag);
+
+//!< Pointer to singleCellC2P device function
+// __device__
+// extern void (*SCC2P)(double *, double *, double *, double, double);
+
+
 
 //! BackwardsRK parameterized constructor
 SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
@@ -20,7 +41,7 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
   this->args = IMEX2Arguments(data);
 
-  lwa = d->Ncons * (3 * d->Ncons + 13) / 2;
+  lwa = args.lwa;
   Ntot = data->Nx * data->Ny * data->Nz;
   // Hybrd1 variables
   tol = 0.0000000149011612;
@@ -48,7 +69,7 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
     ke = 1;
   }
 
-  
+
   // Need work arrays
   cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
                 cudaHostAllocPortable);
@@ -100,8 +121,12 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   args.dt = dt;
 
 
-  //########################### STAGE ONE #############################//
+  callStageOne(cons, prims, aux, dt);
 
+
+  // @todo REMEMBER to remove all serial arrays from args when working correctly
+
+  //######## SERIAL CODE #########//
   // Copy data and determine first stage
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -212,6 +237,135 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+}
+
+void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
+{
+  Data * d(this->data);
+  //########################### STAGE ONE #############################//
+
+  //######## PARALLEL CODE ########//
+  // First need to copy data to the device
+  // A single cell requires all cons, prims and aux for the step. Rearrange so
+  // we can copy data in contiguous way
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Ncons; var++) {
+          args.cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
+          if (IDCons(var, i, j, k) == IDCons(1, 20, 20, 0)) {
+            printf("Test value is %f at IDCons %d\n", args.cons_h[IDCons(var, i, j, k)], IDCons(var, i, j, k));
+          }
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          args.aux_h[IDAux(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+  // Data is in correct order, now stream data to the device
+  for (int i(0); i < d->Nstreams; i++) {
+
+    // Which cell is at the left bound?
+    int lcell(i * d->tpb * d->bpg);
+    // Which cell is at the right bound?
+    int rcell(lcell + d->tpb * d->bpg);
+    if (rcell > d->Ncells) rcell = d->Ncells; // Dont overshoot
+    // Memory size to copy in
+    int width(rcell - lcell);
+    int inMemsize(width * sizeof(double));
+    printf("Left bound %d, right bound %d, Ncells %d\n", lcell, rcell, d->Ncells);
+
+    // Send stream's data
+    gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
+
+    int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
+    // Call kernel and operate on data
+    stageOne <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
+            (this, args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i],
+            args.source_d[i], args.wa_d[i], dt, args.gam, i, d->tpb * d->bpg,
+            width, d->Ncons, lwa,
+            d->gamma, d->sigma);
+
+    cudaStreamSynchronize(args.stream[i]);
+    gpuErrchk( cudaPeekAtLastError() );
+
+    // Copy all data back
+    gpuErrchk( cudaMemcpyAsync(args.sol_h + lcell*d->Ncons, args.sol_d[i], inMemsize*d->Ncons, cudaMemcpyDeviceToHost, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.prims_h + lcell*d->Nprims, args.prims_d[i], inMemsize*d->Nprims, cudaMemcpyDeviceToHost, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.aux_h + lcell*d->Naux, args.aux_d[i], inMemsize*d->Naux, cudaMemcpyDeviceToHost, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.source_h + lcell*d->Ncons, args.source_d[i], inMemsize*d->Ncons, cudaMemcpyDeviceToHost, args.stream[i]) );
+  }
+  gpuErrchk( cudaDeviceSynchronize() );
+
+  // Rearrange data back into arrays
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Ncons; var++) {
+          U1[ID(var, i, j, k)] = args.sol_h[IDCons(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+/*!
+    This is kinda hacky and not very elegant but FI, if it works it works.
+    I cant pass a pointer to host memory for use inside the device function, even if
+    the arrays I use resolve to device memory, but i need to pass a data structure
+    to the hybrd1 rootfinder, so will use a devArrays struct that will be stored
+    on the device (per thread) that contains pointers to each of the arrays that is
+    passed to the kernel.
+*/
+struct devArrays
+{
+  double
+  * sol,
+  * cons,
+  * prims,
+  * aux,
+  * source,
+  * wa;
+};
+
+__global__
+void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
+              double * wa, double dt, double gam, int stream,
+              int origWidth, int streamWidth, int Ncons, int lwa,
+              double gamma, double sigma)
+{
+  const int tID(threadIdx.x);                     //!< thread index (in block)
+  const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
+  const int gID(lID + stream * origWidth);        //!< global index (in domain)
+  int info;
+  extern __shared__ double sharedArray[];
+  double * fvec  = &sharedArray[tID * 2 * Ncons];
+  double * guess = &fvec[Ncons];
+
+  devArrays arrs = {sol, cons, prims, aux, source, wa};
+
+  if (lID < streamWidth)
+  {
+    // First load initial guess (current value of cons)
+    for (int i(0); i < Ncons; i++) {
+      guess[i] = arrs.cons[i + lwa * Ncons];
+    }
+
+    // printf("Location %p\n", (void *)SCC2P);
+    // SCC2P(NULL, NULL, NULL, 0, 0);
+
+
+  }
+
+
+
+  // After rootfind, copy the final guess array to sol_d
 
 }
 
@@ -234,6 +388,28 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     iflag : int
       Error flag
   */
+  __device__
+  int IMEX2Residual1Parallel(void *p, int n, const double *x, double *fvec, int iflag)
+  {
+  // Cast void pointer
+  SSP2 * timeInt = (SSP2 *)p;
+  IMEX2Arguments * a(&timeInt->args);
+
+  // First determine the prim and aux vars due to guess x
+  // timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+  // Determine the source contribution due to the guess x
+  // timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+
+  // Set residual
+  for (int i(0); i < n; i++) {
+    fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
+  }
+
+
+
+  return 0;
+  }
+
   int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag)
   {
   // Cast void pointer
@@ -259,7 +435,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
   return 0;
   }
-
 
 
   //! Residual function to minimize for source contribution in stage two of IMEX SSP2

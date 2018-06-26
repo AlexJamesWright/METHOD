@@ -11,10 +11,12 @@ C2PArgs::C2PArgs(Data * data) : data(data)
   // Determine the memory required for one cell
   cellMem = (d->Ncons + d->Nprims + d->Naux) * sizeof(double);
 
-  tpb = 128;
-  bpg = 64;
+  tpb = d->tpb;
+  bpg = d->bpg;
   streamWidth = tpb * bpg;
-  Nstreams = d->Ncells / streamWidth + 1;
+  Nstreams = d->Nstreams;
+
+
   // Device arrays for each stream
   cons_d = new double*[Nstreams];
   prims_d = new double*[Nstreams];

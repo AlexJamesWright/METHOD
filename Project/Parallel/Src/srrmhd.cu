@@ -27,10 +27,16 @@ static int newton(double *Z, const double StildeSq, const double D, const double
 __device__
 static double residualParallel(const double Z, const double StildeSq, const double D, const double tauTilde, double gamma);
 __device__
-static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int stream);
+static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma);
 __global__
-static void getPrimitiveVarsSingleCellParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
+static void getPrimitiveVarsParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
 
+__device__
+static void getPrimitiveVarsSingleCellParallel(double * cons, double * prims, double * aux, double gamma, double sigma);
+
+//!< This is the external void function pointer that the model constructor must set such that the IMEX integrator and call C2P
+typedef void(*addy)(double *, double *, double *, double, double);
+// void (*SCC2P)(double *, double *, double *, double, double);
 
 SRRMHD::SRRMHD() : Model()
 {
@@ -102,6 +108,12 @@ SRRMHD::SRRMHD(Data * data) : Model(data)
                 cudaHostAllocPortable);
 
   c2pArgs = new C2PArgs(this->data);
+
+  // Need to set the global function pointer to the getPrimitiveVarsSingleCellParallel function
+  // SCC2P = &getPrimitiveVarsSingleCellParallel;
+  addy myAddy;
+  gpuErrchk( cudaMemcpyFromSymbol(&myAddy, getPrimitiveVarsSingleCellParallel, sizeof(addy)) );
+
 }
 
 void SRRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, const int dir)
@@ -363,12 +375,12 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     int width(rcell - lcell);
     int inMemsize(width * sizeof(double));
 
-    // Send streams data
+    // Send stream's data
     gpuErrchk( cudaMemcpyAsync(c2pArgs->cons_d[i], c2pArgs->cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
     gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell, inMemsize, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
 
     // Call kernel and operate on data
-    getPrimitiveVarsSingleCellParallel <<< c2pArgs->bpg, c2pArgs->tpb,
+    getPrimitiveVarsParallel <<< c2pArgs->bpg, c2pArgs->tpb,
         c2pArgs->tpb * c2pArgs->cellMem, c2pArgs->stream[i] >>> (c2pArgs->cons_d[i],
         c2pArgs->prims_d[i], c2pArgs->aux_d[i], c2pArgs->guess_d[i], i, d->gamma, d->sigma, d->Ncons,
         d->Nprims, d->Naux, c2pArgs->streamWidth, width);
@@ -377,7 +389,6 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     // Copy all data back
     gpuErrchk( cudaMemcpyAsync(c2pArgs->prims_h + lcell*d->Nprims, c2pArgs->prims_d[i], inMemsize*d->Nprims, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
     gpuErrchk( cudaMemcpyAsync(c2pArgs->aux_h + lcell*d->Naux, c2pArgs->aux_d[i], inMemsize*d->Naux, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
-    gpuErrchk( cudaPeekAtLastError() );
   }
   gpuErrchk( cudaDeviceSynchronize() );
 
@@ -621,9 +632,13 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   return 1;
 }
 
-
+/*!
+    This is the device version of the getPrimitiveVars that takes a streams data
+    and computes the rest of the prims and aux vars. This is called when
+    SRRMHD::getPrimitiveVars is required, i.e. all cells need to be found.
+*/
 __global__
-static void getPrimitiveVarsSingleCellParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
+static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
 {
   // First need thread indicies
   const int tID(threadIdx.x);                     //!< thread index (in block)
@@ -635,7 +650,7 @@ static void getPrimitiveVarsSingleCellParallel(double *streamCons, double *strea
   double * prims = &cons[Ncons];
   double * aux = &prims[Nprims];
 
-  if (lID < streamWidth){
+  if (lID < streamWidth) {
 
     // Load conserved vector into shared memory, and the initial guess
     for (int i(0); i < Ncons; i++) cons[i] = streamCons[lID * Ncons + i];
@@ -658,7 +673,7 @@ static void getPrimitiveVarsSingleCellParallel(double *streamCons, double *strea
     aux[16] = cons[4] - 0.5 * (aux[7] + aux[8]);
 
     // Solve
-    newtonParallel(&aux[10], aux[15], cons[0], aux[16], gamma, stream);
+    newtonParallel(&aux[10], aux[15], cons[0], aux[16], gamma);
 
     // vsq
     aux[9] = aux[15] / (aux[10] * aux[10]);
@@ -701,7 +716,7 @@ static void getPrimitiveVarsSingleCellParallel(double *streamCons, double *strea
 #define EPS 1.0e-4
 #define MAXITER 50
 __device__
-static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int stream)
+static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma)
 {
   // Rootfind data
   double x0(*Z);
@@ -743,5 +758,59 @@ static double residualParallel(const double Z, const double StildeSq, const doub
   return (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) /
           (W * gamma) - 1) * D - tauTilde;
 
+}
+
+
+__device__
+static void getPrimitiveVarsSingleCellParallel(double * cons, double * prims, double * aux, double gamma, double sigma)
+{
+
+    // // Set Bx/y/z and Ex/y/z field in prims
+    // prims[5] = cons[5]; prims[6] = cons[6]; prims[7] = cons[7];
+    // prims[8] = cons[8]; prims[9] = cons[9]; prims[10] = cons[10];
+    //
+    // // Bsq, Esq
+    // aux[7] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+    // aux[8] = cons[8] * cons[8] + cons[9] * cons[9] + cons[10] * cons[10];
+    //
+    // // Sbarx, Sbary, Sbarz
+    // aux[12] = cons[1] - (cons[9] * cons[7] - cons[10] * cons[6]);
+    // aux[13] = cons[2] - (cons[10] * cons[5] - cons[8] * cons[7]);
+    // aux[14] = cons[3] - (cons[8] * cons[6] - cons[9] * cons[5]);
+    // // Sbarsq, tauBar
+    // aux[15] = aux[12] * aux[12] + aux[13] * aux[13] + aux[14] * aux[14];
+    // aux[16] = cons[4] - 0.5 * (aux[7] + aux[8]);
+    //
+    // // Solve
+    // newtonParallel(&aux[10], aux[15], cons[0], aux[16], gamma);
+    //
+    // // vsq
+    // aux[9] = aux[15] / (aux[10] * aux[10]);
+    //
+    // // W
+    // aux[1] = 1.0 / sqrt(1 - aux[9]);
+    // // rho
+    // prims[0] = cons[0] / aux[1];
+    // // h
+    // aux[0] = aux[10] / (prims[0] * aux[1] * aux[1]);
+    // // e
+    // aux[2] = (aux[0] - 1) / gamma;
+    // // c
+    // aux[3] = sqrt((aux[2] * gamma * (gamma - 1)) / aux[0]);
+    // // p
+    // prims[4] = prims[0] * aux[2] * (gamma - 1);
+    // // vx, vy, vz
+    // prims[1] = aux[12] / aux[10];
+    // prims[2] = aux[13] / aux[10];
+    // prims[3] = aux[14] / aux[10];
+    // // vE
+    // aux[11] = prims[1] * cons[8] + prims[2] * cons[9] + prims[3] * cons[10];
+    // // Jx, Jy, Jz
+    // aux[4] = cons[13] * prims[1] + aux[1] * sigma * (cons[8] + (prims[2] * cons[7] -
+    //          prims[3] * cons[6]) - aux[11] * prims[1]);
+    // aux[5] = cons[13] * prims[2] + aux[1] * sigma * (cons[9] + (prims[3] * cons[5] -
+    //          prims[1] * cons[7]) - aux[11] * prims[2]);
+    // aux[6] = cons[13] * prims[3] + aux[1] * sigma * (cons[10] + (prims[1] * cons[6] -
+    //          prims[2] * cons[5]) - aux[11] * prims[3]);
 
 }
