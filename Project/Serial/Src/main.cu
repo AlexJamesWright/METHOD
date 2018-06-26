@@ -21,10 +21,10 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  const double MU(1400);
+  const double MU(10000);
   // Set up domain
-  int nx(504);
-  int ny(504);
+  int nx(1600);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -32,17 +32,17 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.00001);
-  double cfl(0.5);
+  double endTime(0.4);
+  double cfl(0.001);
   int Ng(4);
-  double gamma(7.0/5.0);
-  double sigma(10);
+  double gamma(2.0);
+  double sigma(10000);
   double cp(1.0);
-  double mu1(-MU);
-  double mu2(MU);
-  int frameSkip(45);
+  double mu1(-100000);
+  double mu2(1000);
+  int frameSkip(160);
   bool output(false);
-  int safety(25);
+  int safety(99999);
 
   char * ptr(0);
   double tmp(0);
@@ -72,8 +72,11 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "gammaden") == 0 && tmp!=0) {
       gamma = tmp/(double)strtol(argv[i+1], &ptr, 10);
     }
-    if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
+    if (strcmp(argv[i], "endTime") == 0) {
       endTime = (double)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "cfl") == 0) {
+      cfl = (double)strtol(argv[i+1], &ptr, 10);
     }
   }
 
@@ -82,17 +85,17 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data);
+  BrioWuTwoFluid init(&data, 0, 1);
 
-  Flow bcs(&data);
+  Outflow bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
