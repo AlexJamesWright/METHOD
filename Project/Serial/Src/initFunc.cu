@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -147,21 +148,49 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   double B0(1);
   const double rho(1.0);
   const double p(50.0);
-  double tmp1, tmp2;
+  // double tmp1, tmp2;
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
-        tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        // tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        // tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
 
         d->prims[ID(0, i, j, k)] = rho / 2.0;
-        d->prims[ID(3, i, j, k)] = tmp1 / sqrt(1 - tmp1*tmp1);
+        d->prims[ID(3, i, j, k)] = 0;
         d->prims[ID(4, i, j, k)] = p / 2.0;
         d->prims[ID(5, i, j, k)] = rho / 2.0;
-        d->prims[ID(8, i, j, k)] = tmp2 / sqrt(1 - tmp2*tmp2);
+        d->prims[ID(8, i, j, k)] = 0;
         d->prims[ID(9, i, j, k)] = p / 2.0;
         d->prims[ID(11, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
+      }
+    }
+  }
+}
+
+
+CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+
+  double B0(1);
+  const double rho(1.0);
+  const double p(50.0);
+  // double tmp1, tmp2;
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        // tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+        // tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
+
+        d->prims[ID(0, i, j, k)] = rho;
+        d->prims[ID(4, i, j, k)] = p;
+        d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
       }
     }
   }
@@ -279,8 +308,8 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
     for (int j(0); j < d->Ny/facY; j++) {
       for (int k(0); k < d->Nz/facZ; k++) {
         // Left side
-        d->prims[ID(0, i, j, k)] = 0.5;
-        d->prims[ID(5, i, j, k)] = 0.5;
+        d->prims[ID(0, i, j, k)] = 1.0 * ((-1.0/d->mu1) / (-1.0/d->mu1 + 1.0/d->mu2));
+        d->prims[ID(5, i, j, k)] = 1.0 * ((1.0/d->mu2) / (-1.0/d->mu1 + 1.0/d->mu2));
         d->prims[ID(4, i, j, k)] = 0.5;
         d->prims[ID(9, i, j, k)] = 0.5;
         d->prims[ID(10, i, j, k)] = lBx;
@@ -288,8 +317,8 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
         d->prims[ID(12, i, j, k)] = lBz;
 
         // Right side
-        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.0635;
-        d->prims[ID(5, endX - i, endY - j, endZ - k)] = 0.0635;
+        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.125 * ((-1.0/d->mu1) / (-1.0/d->mu1 + 1.0/d->mu2));
+        d->prims[ID(5, endX - i, endY - j, endZ - k)] = 0.125 * ((1.0/d->mu2) / (-1.0/d->mu1 + 1.0/d->mu2));
         d->prims[ID(4, endX - i, endY - j, endZ - k)] = 0.05;
         d->prims[ID(9, endX - i, endY - j, endZ - k)] = 0.05;
         d->prims[ID(10, endX - i, endY - j, endZ - k)] = rBx;
@@ -343,7 +372,7 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
         // Left side
         d->prims[ID(0, i, j, k)] = 1;
         d->prims[ID(4, i, j, k)] = 1;
-        d->prims[ID(5, i, j, k)] = zz;
+        d->prims[ID(5, i, j, k)] = lBx;
         d->prims[ID(6, i, j, k)] = lBy;
         d->prims[ID(7, i, j, k)] = lBz;
 
@@ -363,26 +392,86 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
   // Syntax
   Data * d(data);
 
-  double w(0.1);
-  double sig(0.05 / sqrt(2));
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->gamma != 4.0/3.0) throw std::invalid_argument("Expected the index gamma = 4/3\n");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
+  if (d->ymin != -1.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [-1.0, 1.0]\n");
+
+  double sig(0.1);
+  double vShear(0.5);
+  double A0(0.1);
+  double a(0.01);
+  double rho0(0.55);
+  double rho1(0.45);
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        d->prims[ID(4, i, j, k)] = 2.5;
-        d->prims[ID(2, i, j, k)] = w * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j]-0.25), 2)/(2*sig*sig))+exp(-pow((d->y[j]-0.75), 2)/(2*sig*sig)));
+
+        d->prims[ID(4, i, j, k)] = 1.0;
+
+        // Magnetic Fields
         if (mag) d->prims[ID(7, i, j, k)] = 0.1;
-        if (d->y[j] > 0.25 && d->y[j] < 0.75) {
-          d->prims[ID(0, i, j, k)] = 2.0;
-          d->prims[ID(1, i, j, k)] = 0.5;
+
+        if (d->y[j] > 0) {
+          d->prims[ID(0, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(1, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(2, i, j, k)] = A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] - 0.5), 2)/(sig*sig)));
+
         }
         else {
-          d->prims[ID(0, i, j, k)] = 1.0;
-          d->prims[ID(1, i, j, k)] = -0.5;
+          d->prims[ID(0, i, j, k)] = rho0 - rho1 * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(1, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(2, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
         }
       }
     }
   }
+}
 
 
+KHInstabilityTwoFluid::KHInstabilityTwoFluid(Data * data, int mag) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
+
+  double sig(0.1);
+  double vShear(0.5);
+  double A0(0.1);
+  double a(0.01);
+  double rho0(0.55);
+  double rho1(0.45);
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        d->prims[ID(4, i, j, k)] = 1.0;
+        d->prims[ID(9, i, j, k)] = 1.0;
+
+        // Magnetic Fields
+        if (mag) d->prims[ID(12, i, j, k)] = 0.1;
+
+        if (d->y[j] > 0) {
+          d->prims[ID(0, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(1, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(2, i, j, k)] = A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] - 0.5), 2)/(sig*sig)));
+          d->prims[ID(5, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(6, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(7, i, j, k)] = A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] - 0.5), 2)/(sig*sig)));
+
+        }
+        else {
+          d->prims[ID(0, i, j, k)] = rho0 - rho1 * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(1, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(2, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
+          d->prims[ID(5, i, j, k)] = rho0 - rho1 * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(6, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(7, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
+        }
+      }
+    }
+  }
 }
