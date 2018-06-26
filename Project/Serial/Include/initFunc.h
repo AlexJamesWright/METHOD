@@ -70,7 +70,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
 
 //! <b> Two fluid self similar current sheet </b>
 /*!
-    See Palenzuela et al 2009, `Beyond ideal MHD: Towards a more...` for explanation.
+    See Amano 2016 for explanation.
   Set up is one dimensional (x-direction, although may be run in multiple Ds),
   in equilibrium, with initial By field given by the error function. Behaviour
   should be diffusive for moderate resistivities.
@@ -88,6 +88,28 @@ class CurrentSheetTwoFluid : public InitialFunc
       @sa InitialFunc
     */
     CurrentSheetTwoFluid(Data * data);
+};
+
+//! <b> Single fluid self similar current sheet </b>
+/*!
+    See Dionysopoulou 2016 for explanation
+  Set up is one dimensional (x-direction, although may be run in multiple Ds),
+  in equilibrium, with initial By field given by the error function. Behaviour
+  should be diffusive for moderate resistivities.
+    See Amano 2016 for two fluid details.
+*/
+class CurrentSheetSingleFluid : public InitialFunc
+{
+  public:
+
+    //! Current sheet initial data for two fluids
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+
+      @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    CurrentSheetSingleFluid(Data * data);
 };
 
 
@@ -149,9 +171,9 @@ class BrioWuSingleFluid : public InitialFunc
     BrioWuSingleFluid(Data * data, int dir=0);
 };
 
-//! <b> Kelvin Helmholtz instability initial data </b>
+//! <b> Kelvin Helmholtz instability initial data, single fluid </b>
 /*!
-    Data taken from Schaal 2015 'Astrophysical hydrodynamics...'
+    Initial data taken from Mignone 2009 `A five wave HLL....`
 
     @param[in] *data Pointer to Data class containing global simulation data
     @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
@@ -161,6 +183,20 @@ class KHInstabilitySingleFluid : public InitialFunc
   public:
 
     KHInstabilitySingleFluid(Data * data, int mag=0);
+};
+
+//! <b> Kelvin Helmholtz instability initial data, two fluid </b>
+/*!
+    Adapted from Schaal 2015 'Astrophysical hydrodynamics...' for two fluid set up
+
+    @param[in] *data Pointer to Data class containing global simulation data
+    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
+*/
+class KHInstabilityTwoFluid : public InitialFunc
+{
+  public:
+
+    KHInstabilityTwoFluid(Data * data, int mag=0);
 };
 
 #endif
