@@ -71,7 +71,7 @@ building a DLL on windows.
 // #endif
 
 
-#define __cminpack_attr__ //__host__ __device__
+#define __cminpack_attr__ __host__ __device__
 #ifndef __cminpack_real__
 #define __cminpack_double__
 #define __cminpack_real__ double
