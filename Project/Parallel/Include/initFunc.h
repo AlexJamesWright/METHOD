@@ -157,7 +157,7 @@ class KHInstabilitySingleFluid : public InitialFunc
 {
   public:
 
-    KHInstabilitySingleFluid(Data * data);
+    KHInstabilitySingleFluid(Data * data, int mag=0);
 };
 
 #endif

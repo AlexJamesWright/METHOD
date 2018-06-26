@@ -358,30 +358,40 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
   }
 }
 
-KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data) : InitialFunc(data)
+KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
 
-  double w(0.1);
-  double sig(0.05 / sqrt(2));
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->gamma != 4.0/3.0) throw std::invalid_argument("Expected the index gamma = 4/3\n");
+  if (d->xmin != -1.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.0, 1.0]\n");
+  if (d->ymin != -1.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [-1.0, 1.0]\n");
+
+  double sig(0.1);
+  double vShear(0.5);
+  double A0(0.1);
+  double a(0.01);
+  double rho0(0.505);
+  double rho1(0.495);
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        d->prims[ID(4, i, j, k)] = 2.5;
-        d->prims[ID(2, i, j, k)] = w * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j]-0.25), 2)/(2*sig*sig))+exp(-pow((d->y[j]-0.75), 2)/(2*sig*sig)));
-        if (d->y[j] > 0.25 && d->y[j] < 0.75) {
-          d->prims[ID(0, i, j, k)] = 2.0;
-          d->prims[ID(1, i, j, k)] = 0.5;
+        d->prims[ID(4, i, j, k)] = 1.0;
+        if (mag) d->prims[ID(7, i, j, k)] = 0.1;
+        if (d->y[j] > 0) {
+          d->prims[ID(0, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(1, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);
+          d->prims[ID(2, i, j, k)] = A0 * vShear * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
+
         }
         else {
-          d->prims[ID(0, i, j, k)] = 1.0;
-          d->prims[ID(1, i, j, k)] = -0.5;
+          d->prims[ID(0, i, j, k)] = rho0 - rho1 * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(1, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
+          d->prims[ID(2, i, j, k)] = - A0 * vShear * sin(4*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
         }
       }
     }
   }
-
-
 }
