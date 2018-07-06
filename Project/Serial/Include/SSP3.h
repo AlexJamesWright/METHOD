@@ -10,7 +10,7 @@
 //! <b> Implicit-Explicit Runge-Kutta third order SSP3(332) time integrator </b>
 /*!
   @par
-    Integrator is second order, solves the non-stiff fluxes explicitly and the
+    Integrator is third order, solves the non-stiff fluxes explicitly and the
   (possibly) stiff sources implicitly. Values for the constants and general
   methods are from Pareschi & Russo 2004.
   @par
@@ -24,7 +24,7 @@
     U^{(1)} &= U^n + \gamma dt \psi(U^{(1)}) \\
     U^{(2)} &= U^n + dt \big[F(U^{(1)}) + (1-2\gamma)\psi(U^{(1)}) + \gamma \psi(U^{(2)})\big] \\
     U^{(3)} &= U^n + \frac{dt}{4} \big[F(U^{(1)}) + F(U^{(2)})\big] + dt \big[(0.5 - \gamma) \psi(U^{(1)}) + \gamma \psi(U^{(3)})\big] \\
-    U^{n+1} &= U^n + \frac{dt}{6} \big[F{U^{(1)}} + F(U^{(2)}) + 4F(U^{(3)}) + \psi{U^{(1)}} + \psi(U^{(2)}) + 4\psi(U^{(3)}) \big]
+    U^{n+1} &= U^n + \frac{dt}{6} \big[F(U^{(1)}) + F(U^{(2)}) + 4F(U^{(3)}) + \psi{U^{(1)}} + \psi(U^{(2)}) + 4\psi(U^{(3)}) \big]
   \f}.
   @par
     The sources are necessarily solved via an implicit rootfind, using a multidimensional

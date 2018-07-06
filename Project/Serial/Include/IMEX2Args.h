@@ -19,7 +19,7 @@ class IMEX2Arguments
     double
     //@{
     *cons, *prims, *aux,        //!< Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz
-    *source, *source1, *flux1,
+    *source, *source1, *flux1, *source2, *flux2,
     //@}
     gam,      //!< IMEX2/3 constant, gamma=0.2928932188134525)
     om2gam,   //!< IMEX2/3 constant, (o)ne (m)inus 2 (gam)ma = 1-2*gamma

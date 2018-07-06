@@ -8,6 +8,7 @@
 */
 
 #include <stdexcept>
+#include <cstdio>
 #include "srrmhd.h"
 #include "cminpack.h"
 
@@ -569,7 +570,7 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   if (!found) {
     // Store result of Z=rho*h*W**2
     *Z = bestX;
-    // printf("Original C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
+    printf("Original C2P could not converge in cell (%d, %d, %d)\n", i, j, k);
     throw std::runtime_error("C2P could not converge.\n");
   }
   return 1;

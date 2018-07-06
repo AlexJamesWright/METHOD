@@ -1,13 +1,13 @@
-#ifndef SSP2_H
-#define SSP2_H
+#ifndef SSP3_H
+#define SSP3_H
 
-#include "timeInt.h"
+#include "SSP2.h"
 #include "IMEX2Args.h"
 #include "cminpack.h"
 
 
 
-//! <b> Implicit-Explicit Runge-Kutta second order SSP2 time integrator </b>
+//! <b> Implicit-Explicit Runge-Kutta second order SSP2(322) time integrator </b>
 /*!
   @par
     Integrator is second order, solves the non-stiff fluxes explicitly and the
@@ -19,32 +19,35 @@
   \f{align}{
     \partial_t U = F(U) + \psi(U)
   \f}
-  the third order SSP2(222) IMEX scheme takes the following form:
+  the second order SSP2(322) IMEX scheme takes the following form:
   \f{align}{
-    U^{(1)} &= U^n + \gamma dt \psi(U^{(1)}) \\
-    U^{(2)} &= U^n + dt \big[F(U^{(1)}) + (1-2\gamma)\psi(U^{(1)}) + \gamma \psi(U^{(2)})\big] \\
-    U^{n+1} &= U^n + \frac{dt}{2} \big[F(U^{(1)}) + F(U^{(2)}) + \psi{U^{(1)}} + \psi(U^{(2)}) \big]
+    U^{(1)} &= U^n + \frac{dt}{2} \psi(U^{(1)}) \\
+    U^{(2)} &= U^n - \frac{dt}{2} \psi(U^{(1)}) + \frac{dt}{2} \psi(U^{(2)}) \\
+    U^{(3)} &= U^n + dt F(U^{(2)}) + \frac{dt}{2} \big[\psi(U^{(2)}) + \psi(U^{(3)})\big] \\
+    U^{n+1} &= U^n + \frac{dt}{2} \big[F(U^{(2)}) + F(U^{(3)}) + \psi{U^{(2)}} + \psi(U^{(3)})\big]
   \f}.
   @par
     The sources are necessarily solved via an implicit rootfind, using a multidimensional
   Newton-Secant method found [here](https://github.com/devernay/cminpack).
 
 */
-class SSP2 : public TimeIntegrator
+class SSP2322 : public SSP2
 {
   public:
 
-    IMEX2Arguments args;     //!< IMEX2Arguments, additional arguments class, stores single cell data for hybrd rootfinder.
+    IMEX2Arguments args;     //!< IMEX2Arguments, additional arguments class, stores single cell data for hydrb rootfinder.
 
-    //! Work arrays for step function
+
     double
     //@{
     //!< Work array for the hybrd rootfinder
     *x, *fvec, *wa,
     //@}
     //@{
-    //!< Work array for specified variable. Size if Nx*Ny*Nz
-    *U1, *U2, *source1, *flux1, *source2, *flux2;
+    //!< Work array for specified variable. Size is Nvars*Nx*Ny*Nz
+    *U1, *U2, *U3, *U2guess, *U3guess,
+    *source1, *flux1, *source2, *flux2, *source3, *flux3,
+    *tempprims, *tempaux;
     //@}
 
     //! Constructor
@@ -58,11 +61,13 @@ class SSP2 : public TimeIntegrator
       @param *bcs pointer to Bcs object
       @param *fluxMethod pointer to FluxMethod object
       @sa TimeIntegrator::TimeIntegrator
+      @sa SSP2::SSP2
+      @sa SSP3::SSP3
     */
-    SSP2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
+    SSP2322(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
     //! Destructor
-    ~SSP2();
+    ~SSP2322();
 
     //! Performs a single time step
     /*!
@@ -77,6 +82,8 @@ class SSP2 : public TimeIntegrator
       @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
+      @sa SSP2::step
+      @sa SSP3::step
     */
     void step(double * cons, double * prims, double * aux, double dt=0);
 

@@ -11,7 +11,7 @@ int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2a(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2b(void *p, int n, const double *x, double *fvec, int iflag);
 
-//! BackwardsRK parameterized constructor
+//! SSP2(222) parameterized constructor
 SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
               TimeIntegrator(data, model, bc, fluxMethod)
 
