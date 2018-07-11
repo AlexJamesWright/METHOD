@@ -3,6 +3,9 @@
 
 #include "model.h"
 #include "C2PArgs.h"
+#include "deviceArguments.h"
+
+#include <stdio.h>
 
 /*
 This is the human readable description of this models variables.
@@ -154,8 +157,23 @@ class SRRMHD : public Model
       @sa Model::fluxVector
     */
     void fluxVector(double *cons, double *prims, double *aux, double *f, const int dir);
+};
 
+//! <b> SRRMHD class on the device </b>
+/*!
+  @par
+    Device class for SRRMHD
+*/
+class SRRMHD_D : public Model_D
+{
+  public:
+    __device__ SRRMHD_D(TimeIntAndModelArgs * args) : Model_D(args) { }
 
+    //!< @sa Model::sourceTermSingleCell
+    __device__ void sourceTermSingleCell(double * cons, double * prims, double * aux, double * source);
+
+    //!< @sa Model::getPrimitiveVarsSingleCell
+    __device__ void getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux);
 };
 
 #endif

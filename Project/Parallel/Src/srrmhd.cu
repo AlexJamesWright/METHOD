@@ -40,6 +40,7 @@ typedef void(*addy)(double *, double *, double *, double, double);
 
 SRRMHD::SRRMHD() : Model()
 {
+  modType_t = ModelType::SRRMHD;
   this->Ncons = 14;
   this->Nprims = 11;
   this->Naux = 17;
@@ -67,6 +68,7 @@ SRRMHD::~SRRMHD()
 
 SRRMHD::SRRMHD(Data * data) : Model(data)
 {
+  modType_t = ModelType::SRRMHD;
   this->Ncons = (this->data)->Ncons = 14;
   this->Nprims = (this->data)->Nprims = 11;
   this->Naux = (this->data)->Naux = 17;
@@ -108,12 +110,6 @@ SRRMHD::SRRMHD(Data * data) : Model(data)
                 cudaHostAllocPortable);
 
   c2pArgs = new C2PArgs(this->data);
-
-  // Need to set the global function pointer to the getPrimitiveVarsSingleCellParallel function
-  // SCC2P = &getPrimitiveVarsSingleCellParallel;
-  addy myAddy;
-  gpuErrchk( cudaMemcpyFromSymbol(&myAddy, getPrimitiveVarsSingleCellParallel, sizeof(addy)) );
-
 }
 
 void SRRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, const int dir)
@@ -632,11 +628,11 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   return 1;
 }
 
-/*!
-    This is the device version of the getPrimitiveVars that takes a streams data
-    and computes the rest of the prims and aux vars. This is called when
-    SRRMHD::getPrimitiveVars is required, i.e. all cells need to be found.
-*/
+// /*!
+//     This is the device version of the getPrimitiveVars that takes a streams data
+//     and computes the rest of the prims and aux vars. This is called when
+//     SRRMHD::getPrimitiveVars is required, i.e. all cells need to be found.
+// */
 __global__
 static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
 {
@@ -712,6 +708,7 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
 
 }
 
+
 #define TOL 1.0e-12
 #define EPS 1.0e-4
 #define MAXITER 50
@@ -762,55 +759,66 @@ static double residualParallel(const double Z, const double StildeSq, const doub
 
 
 __device__
-static void getPrimitiveVarsSingleCellParallel(double * cons, double * prims, double * aux, double gamma, double sigma)
+void SRRMHD_D::getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux)
 {
 
-    // // Set Bx/y/z and Ex/y/z field in prims
-    // prims[5] = cons[5]; prims[6] = cons[6]; prims[7] = cons[7];
-    // prims[8] = cons[8]; prims[9] = cons[9]; prims[10] = cons[10];
-    //
-    // // Bsq, Esq
-    // aux[7] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
-    // aux[8] = cons[8] * cons[8] + cons[9] * cons[9] + cons[10] * cons[10];
-    //
-    // // Sbarx, Sbary, Sbarz
-    // aux[12] = cons[1] - (cons[9] * cons[7] - cons[10] * cons[6]);
-    // aux[13] = cons[2] - (cons[10] * cons[5] - cons[8] * cons[7]);
-    // aux[14] = cons[3] - (cons[8] * cons[6] - cons[9] * cons[5]);
-    // // Sbarsq, tauBar
-    // aux[15] = aux[12] * aux[12] + aux[13] * aux[13] + aux[14] * aux[14];
-    // aux[16] = cons[4] - 0.5 * (aux[7] + aux[8]);
-    //
-    // // Solve
-    // newtonParallel(&aux[10], aux[15], cons[0], aux[16], gamma);
-    //
-    // // vsq
-    // aux[9] = aux[15] / (aux[10] * aux[10]);
-    //
-    // // W
-    // aux[1] = 1.0 / sqrt(1 - aux[9]);
-    // // rho
-    // prims[0] = cons[0] / aux[1];
-    // // h
-    // aux[0] = aux[10] / (prims[0] * aux[1] * aux[1]);
-    // // e
-    // aux[2] = (aux[0] - 1) / gamma;
-    // // c
-    // aux[3] = sqrt((aux[2] * gamma * (gamma - 1)) / aux[0]);
-    // // p
-    // prims[4] = prims[0] * aux[2] * (gamma - 1);
-    // // vx, vy, vz
-    // prims[1] = aux[12] / aux[10];
-    // prims[2] = aux[13] / aux[10];
-    // prims[3] = aux[14] / aux[10];
-    // // vE
-    // aux[11] = prims[1] * cons[8] + prims[2] * cons[9] + prims[3] * cons[10];
-    // // Jx, Jy, Jz
-    // aux[4] = cons[13] * prims[1] + aux[1] * sigma * (cons[8] + (prims[2] * cons[7] -
-    //          prims[3] * cons[6]) - aux[11] * prims[1]);
-    // aux[5] = cons[13] * prims[2] + aux[1] * sigma * (cons[9] + (prims[3] * cons[5] -
-    //          prims[1] * cons[7]) - aux[11] * prims[2]);
-    // aux[6] = cons[13] * prims[3] + aux[1] * sigma * (cons[10] + (prims[1] * cons[6] -
-    //          prims[2] * cons[5]) - aux[11] * prims[3]);
+    // Set Bx/y/z and Ex/y/z field in prims
+    prims[5] = cons[5]; prims[6] = cons[6]; prims[7] = cons[7];
+    prims[8] = cons[8]; prims[9] = cons[9]; prims[10] = cons[10];
 
+    // Bsq, Esq
+    aux[7] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+    aux[8] = cons[8] * cons[8] + cons[9] * cons[9] + cons[10] * cons[10];
+
+    // Sbarx, Sbary, Sbarz
+    aux[12] = cons[1] - (cons[9] * cons[7] - cons[10] * cons[6]);
+    aux[13] = cons[2] - (cons[10] * cons[5] - cons[8] * cons[7]);
+    aux[14] = cons[3] - (cons[8] * cons[6] - cons[9] * cons[5]);
+    // Sbarsq, tauBar
+    aux[15] = aux[12] * aux[12] + aux[13] * aux[13] + aux[14] * aux[14];
+    aux[16] = cons[4] - 0.5 * (aux[7] + aux[8]);
+
+
+    // Solve
+    newtonParallel(&aux[10], aux[15], cons[0], aux[16], args->gamma);
+
+    // vsq
+    aux[9] = aux[15] / (aux[10] * aux[10]);
+    // W
+    aux[1] = 1.0 / sqrt(1 - aux[9]);
+    // rho
+    prims[0] = cons[0] / aux[1];
+    // h
+    aux[0] = aux[10] / (prims[0] * aux[1] * aux[1]);
+    // e
+    aux[2] = (aux[0] - 1) / args->gamma;
+    // c
+    aux[3] = sqrt((aux[2] * args->gamma * (args->gamma - 1)) / aux[0]);
+    // p
+    prims[4] = prims[0] * aux[2] * (args->gamma - 1);
+    // vx, vy, vz
+    prims[1] = aux[12] / aux[10];
+    prims[2] = aux[13] / aux[10];
+    prims[3] = aux[14] / aux[10];
+    // vE
+    aux[11] = prims[1] * cons[8] + prims[2] * cons[9] + prims[3] * cons[10];
+    // Jx, Jy, Jz
+    aux[4] = cons[13] * prims[1] + aux[1] * args->sigma * (cons[8] + (prims[2] * cons[7] -
+             prims[3] * cons[6]) - aux[11] * prims[1]);
+    aux[5] = cons[13] * prims[2] + aux[1] * args->sigma * (cons[9] + (prims[3] * cons[5] -
+             prims[1] * cons[7]) - aux[11] * prims[2]);
+    aux[6] = cons[13] * prims[3] + aux[1] * args->sigma * (cons[10] + (prims[1] * cons[6] -
+             prims[2] * cons[5]) - aux[11] * prims[3]);
+}
+
+__device__
+void SRRMHD_D::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+{
+  source[0] = source[1] = source[2] = source[3] = source[4] = source[5] =
+  source[6] = source[7] = source[13] = 0.0;
+  source[8] = -aux[4];
+  source[9] = -aux[5];
+  source[10] = -aux[6];
+  source[11] = cons[13] - cons[11] / (args->cp * args->cp);
+  source[12] = -cons[12] / (args->cp * args->cp);
 }

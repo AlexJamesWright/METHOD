@@ -1,4 +1,8 @@
 #include "SSP2.h"
+#include "srmhd.h"
+#include "srrmhd.h"
+#include "twoFluidEMHD.h"
+#include "deviceArguments.h"
 #include "cudaErrorCheck.h"
 #include <iostream>
 #include <stdexcept>
@@ -13,9 +17,10 @@
 // Device function for stage one of IMEX rootfind
 __global__
 void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
-              double * wa, double dt, double gam, int stream,
-              int origWidth, int streamWidth, int Ncons, int lwa,
-              double gamma, double sigma);
+              double * wa, double dt, double gam, double tol, int stream,
+              int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
+              double gamma, double sigma, double mu1, double mu2, double cp,
+              ModelType modType_t);
 
 //! Residual functions for IMEX SSP2
 int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);
@@ -25,11 +30,6 @@ int IMEX2Residual2b(void *p, int n, const double *x, double *fvec, int iflag);
 //! Device residual functions for stage one of IMEX SSP2
 __device__
 int IMEX2Residual1Parallel(void *p, int n, const double *x, double *fvec, int iflag);
-
-//!< Pointer to singleCellC2P device function
-// __device__
-// extern void (*SCC2P)(double *, double *, double *, double, double);
-
 
 
 //! BackwardsRK parameterized constructor
@@ -123,6 +123,8 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
   callStageOne(cons, prims, aux, dt);
 
+  printf("\n\nExited stageOne...\n\n");
+  exit(-1);
 
   // @todo REMEMBER to remove all serial arrays from args when working correctly
 
@@ -243,8 +245,6 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
 {
   Data * d(this->data);
   //########################### STAGE ONE #############################//
-
-  //######## PARALLEL CODE ########//
   // First need to copy data to the device
   // A single cell requires all cons, prims and aux for the step. Rearrange so
   // we can copy data in contiguous way
@@ -253,9 +253,6 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Ncons; var++) {
           args.cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
-          if (IDCons(var, i, j, k) == IDCons(1, 20, 20, 0)) {
-            printf("Test value is %f at IDCons %d\n", args.cons_h[IDCons(var, i, j, k)], IDCons(var, i, j, k));
-          }
         }
         for (int var(0); var < d->Nprims; var++) {
           args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
@@ -277,7 +274,6 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
     // Memory size to copy in
     int width(rcell - lcell);
     int inMemsize(width * sizeof(double));
-    printf("Left bound %d, right bound %d, Ncells %d\n", lcell, rcell, d->Ncells);
 
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
@@ -288,9 +284,10 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
     // Call kernel and operate on data
     stageOne <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
             (this, args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i],
-            args.source_d[i], args.wa_d[i], dt, args.gam, i, d->tpb * d->bpg,
-            width, d->Ncons, lwa,
-            d->gamma, d->sigma);
+            args.source_d[i], args.wa_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
+            width, d->Ncons, d->Nprims, d->Naux, lwa,
+            d->gamma, d->sigma, d->mu1, d->mu2, d->cp,
+            model->modType_t);
 
     cudaStreamSynchronize(args.stream[i]);
     gpuErrchk( cudaPeekAtLastError() );
@@ -315,30 +312,12 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
   }
 }
 
-/*!
-    This is kinda hacky and not very elegant but FI, if it works it works.
-    I cant pass a pointer to host memory for use inside the device function, even if
-    the arrays I use resolve to device memory, but i need to pass a data structure
-    to the hybrd1 rootfinder, so will use a devArrays struct that will be stored
-    on the device (per thread) that contains pointers to each of the arrays that is
-    passed to the kernel.
-*/
-struct devArrays
-{
-  double
-  * sol,
-  * cons,
-  * prims,
-  * aux,
-  * source,
-  * wa;
-};
-
 __global__
 void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
-              double * wa, double dt, double gam, int stream,
-              int origWidth, int streamWidth, int Ncons, int lwa,
-              double gamma, double sigma)
+              double * wa, double dt, double gam, double tol, int stream,
+              int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
+              double gamma, double sigma, double mu1, double mu2, double cp,
+              ModelType modType_t)
 {
   const int tID(threadIdx.x);                     //!< thread index (in block)
   const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
@@ -348,25 +327,50 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
   double * fvec  = &sharedArray[tID * 2 * Ncons];
   double * guess = &fvec[Ncons];
 
-  devArrays arrs = {sol, cons, prims, aux, source, wa};
-
   if (lID < streamWidth)
   {
-    // First load initial guess (current value of cons)
-    for (int i(0); i < Ncons; i++) {
-      guess[i] = arrs.cons[i + lwa * Ncons];
+    Model_D * model_d;
+
+    // Store pointers to devuce arrays in the structure
+    // to be passed into the residual function
+    TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, sol,
+                                     cons, prims, aux, source);
+    // Need to instantiate the correct device model
+    switch (modType_t)
+    {
+      case ModelType::SRMHD:
+      //   model = new SRMHD_D();         ################### Need to implement ################
+        break;
+      case ModelType::SRRMHD:
+        model_d = new SRRMHD_D(args);
+        break;
+      case ModelType::TFEMHD:
+      //   model = new twoFluidEMHD_D();  ################### Need to implement ################
+        break;
     }
 
-    // printf("Location %p\n", (void *)SCC2P);
-    // SCC2P(NULL, NULL, NULL, 0, 0);
 
+    // First load initial guess (current value of cons)
+    for (int i(0); i < Ncons; i++)
+    {
+      guess[i] = cons[i + tID * Ncons];
+    }
+    args->cons = &cons[tID * Ncons];
+    args->prims = &prims[tID * Nprims];
+    args->aux = &aux[tID * Naux];
 
+    // Rootfind
+    // info = __cminpack_func__(hybrd1)(IMEX2Residual1Parallel, (void *)model_d, Ncons, guess, fvec, tol, wa, lwa);
+    IMEX2Residual1Parallel(model_d, Ncons, guess, fvec, info);
+    // Copy solution back to sol_d array
+    for (int i(0); i < Ncons; i++)
+    {
+      sol[i] = guess[i];
+    }
+    // Clean up
+    delete args;
+    delete model_d;
   }
-
-
-
-  // After rootfind, copy the final guess array to sol_d
-
 }
 
   //! Residual function to minimize for stage one of IMEX SSP2
@@ -391,49 +395,49 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
   __device__
   int IMEX2Residual1Parallel(void *p, int n, const double *x, double *fvec, int iflag)
   {
-  // Cast void pointer
-  SSP2 * timeInt = (SSP2 *)p;
-  IMEX2Arguments * a(&timeInt->args);
+    // Cast void pointer
+    Model_D * mod = (Model_D *)p;
 
-  // First determine the prim and aux vars due to guess x
-  // timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-  // Determine the source contribution due to the guess x
-  // timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+    // First determine the prim and aux vars due to guess x
 
-  // Set residual
-  for (int i(0); i < n; i++) {
-    fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
-  }
+    mod->getPrimitiveVarsSingleCell((double *)x, mod->args->prims, mod->args->aux);
+    // Determine the source contribution due to the guess x
+    mod->sourceTermSingleCell((double *)x, mod->args->prims, mod->args->aux, mod->args->source);
 
 
+    // Set residual
+    for (int i(0); i < n; i++) {
+      fvec[i] = x[i] - mod->args->cons[i] - mod->args->dt * mod->args->gam * mod->args->source[i];
+    }
 
-  return 0;
+
+    return 0;
   }
 
   int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag)
   {
-  // Cast void pointer
-  SSP2 * timeInt = (SSP2 *)p;
-  IMEX2Arguments * a(&timeInt->args);
+    // Cast void pointer
+    SSP2 * timeInt = (SSP2 *)p;
+    IMEX2Arguments * a(&timeInt->args);
 
-  try {
-    // First determine the prim and aux vars due to guess x
-    timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
-    // Determine the source contribution due to the guess x
-    timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
+    try {
+      // First determine the prim and aux vars due to guess x
+      timeInt->model->getPrimitiveVarsSingleCell((double *)x, a->prims, a->aux, a->i, a->j, a->k);
+      // Determine the source contribution due to the guess x
+      timeInt->model->sourceTermSingleCell((double *)x, a->prims, a->aux, a->source);
 
-    // Set residual
-    for (int i(0); i < n; i++) {
-      fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
+      // Set residual
+      for (int i(0); i < n; i++) {
+        fvec[i] = x[i] - a->cons[i] - a->dt * a->gam * a->source[i];
+      }
     }
-  }
-  catch (const std::exception& e) {
-    for (int i(0); i < n; i++) {
-      fvec[i] = 1.0e6;
+    catch (const std::exception& e) {
+      for (int i(0); i < n; i++) {
+        fvec[i] = 1.0e6;
+      }
     }
-  }
 
-  return 0;
+    return 0;
   }
 
 
