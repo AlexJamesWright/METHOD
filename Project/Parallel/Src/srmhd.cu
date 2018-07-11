@@ -20,6 +20,7 @@
 
 SRMHD::SRMHD() : Model()
 {
+  modType_t = ModelType::SRMHD;
   this->Ncons = 9;
   this->Nprims = 8;
   this->Naux = 13;
@@ -27,6 +28,7 @@ SRMHD::SRMHD() : Model()
 
 SRMHD::SRMHD(Data * data) : Model(data)
 {
+  modType_t = ModelType::SRMHD;
   this->Ncons = (this->data)->Ncons = 9;
   this->Nprims = (this->data)->Nprims = 8;
   this->Naux = (this->data)->Naux = 13;
