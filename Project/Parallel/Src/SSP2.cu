@@ -16,7 +16,7 @@
 
 // Device function for stage one of IMEX rootfind
 __global__
-void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
+void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
               double * wa, double dt, double gam, double tol, int stream,
               int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
               double gamma, double sigma, double mu1, double mu2, double cp,
@@ -91,6 +91,14 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
 
+  // REMOVE WHEN DONE (and in header and destructor)
+  cudaHostAlloc((void **)&tempCons, sizeof(double) * d->Ncons * Ntot,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&tempPrims, sizeof(double) * d->Nprims * Ntot,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&tempAux, sizeof(double) * d->Naux * Ntot,
+                  cudaHostAllocPortable);
+
 }
 
 SSP2::~SSP2()
@@ -107,6 +115,10 @@ SSP2::~SSP2()
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
 
+  cudaFreeHost(tempCons);
+  cudaFreeHost(tempPrims);
+  cudaFreeHost(tempAux);
+
 }
 
 //! Single step functions
@@ -121,10 +133,17 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   args.dt = dt;
 
 
-  callStageOne(cons, prims, aux, dt);
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Ncons ; var++) tempCons[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) tempPrims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux  ; var++) tempAux[ID(var, i, j, k)]   = aux[ID(var, i, j, k)];
+      }
+    }
+  }
+  callStageOne(tempCons, tempPrims, tempAux, source1, dt);
 
-  printf("\n\nExited stageOne...\n\n");
-  exit(-1);
 
   // @todo REMEMBER to remove all serial arrays from args when working correctly
 
@@ -167,6 +186,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
 
+
+  printf("\n\nFinished stageOne...\n\n");
+  exit(-1);
 
     //########################### STAGE TWO #############################//
   // Determine solutuion of stage 2
@@ -241,7 +263,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   }
 }
 
-void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
+void SSP2::callStageOne(double * cons, double * prims, double * aux, double * source1, double dt)
 {
   Data * d(this->data);
   //########################### STAGE ONE #############################//
@@ -251,18 +273,13 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++) {
-          args.cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
-        }
-        for (int var(0); var < d->Nprims; var++) {
-          args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
-        }
-        for (int var(0); var < d->Naux; var++) {
-          args.aux_h[IDAux(var, i, j, k)] = aux[ID(var, i, j, k)];
-        }
+        for (int var(0); var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k) ] = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)    ] = aux[ID(var, i, j, k)];
       }
     }
   }
+
   // Data is in correct order, now stream data to the device
   for (int i(0); i < d->Nstreams; i++) {
 
@@ -283,7 +300,7 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
     int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
     // Call kernel and operate on data
     stageOne <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
-            (this, args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i],
+            (args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i],
             args.source_d[i], args.wa_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
             width, d->Ncons, d->Nprims, d->Naux, lwa,
             d->gamma, d->sigma, d->mu1, d->mu2, d->cp,
@@ -304,16 +321,17 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double dt)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++) {
-          U1[ID(var, i, j, k)] = args.sol_h[IDCons(var, i, j, k)];
-        }
+        for (int var(0); var < d->Ncons; var++)  U1[ID(var, i, j, k)]      = args.sol_h[IDCons(var, i, j, k)];
+        for (int var(0); var < d->Ncons; var++)  source1[ID(var, i, j, k)] = args.source_h[IDCons(var, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) prims[ID(var, i, j, k)  ] = args.prims_h[IDPrims(var, i, j, k)];
+        for (int var(0); var < d->Naux; var++)   aux[ID(var, i, j, k)]     = args.aux_h[IDAux(var, i, j, k)];
       }
     }
   }
 }
 
 __global__
-void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, double * aux, double * source,
+void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
               double * wa, double dt, double gam, double tol, int stream,
               int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
               double gamma, double sigma, double mu1, double mu2, double cp,
@@ -323,9 +341,10 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
   const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
   const int gID(lID + stream * origWidth);        //!< global index (in domain)
   int info;
-  extern __shared__ double sharedArray[];
+  extern __shared__ double sharedArray[];         //!< Shared mem, block specific
   double * fvec  = &sharedArray[tID * 2 * Ncons];
   double * guess = &fvec[Ncons];
+
 
   if (lID < streamWidth)
   {
@@ -334,7 +353,7 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
     // Store pointers to devuce arrays in the structure
     // to be passed into the residual function
     TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, sol,
-                                     cons, prims, aux, source);
+                                                         cons, prims, aux, source);
     // Need to instantiate the correct device model
     switch (modType_t)
     {
@@ -351,17 +370,27 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
 
 
     // First load initial guess (current value of cons)
-    for (int i(0); i < Ncons; i++)
-    {
-      guess[i] = cons[i + tID * Ncons];
-    }
-    args->cons = &cons[tID * Ncons];
-    args->prims = &prims[tID * Nprims];
-    args->aux = &aux[tID * Naux];
+    for (int i(0); i < Ncons; i++) guess[i] = cons[i + lID * Ncons];
+    args->cons = &cons[lID * Ncons];
+    args->prims = &prims[lID * Nprims];
+    args->aux = &aux[lID * Naux];
 
     // Rootfind
-    // info = __cminpack_func__(hybrd1)(IMEX2Residual1Parallel, (void *)model_d, Ncons, guess, fvec, tol, wa, lwa);
-    IMEX2Residual1Parallel(model_d, Ncons, guess, fvec, info);
+    // if (gID == 18228)
+    {
+      if ((info = __cminpack_func__(hybrd1)(IMEX2Residual1Parallel, model_d, Ncons, guess, fvec, tol, wa, lwa)) != 1)
+      {
+        // printf("IMEX failed for gID %d: info %d\n", gID, info);
+      }
+    }
+    __syncthreads();
+    if (gID==8192)
+    {
+      printf("gID(%d) %s with info %d\n", gID, (info==1)?"succeeded":"failed", info);
+      for (int i(0); i<Ncons; i++) printf("fvec[%2d] = %19.16f : sol = %19.16f, init = %19.16f, source = %19.16f\n", i, fvec[i], guess[i], cons[i + lID * Ncons], model_d->args->source[i]);
+    }
+
+
     // Copy solution back to sol_d array
     for (int i(0); i < Ncons; i++)
     {
@@ -399,17 +428,18 @@ void stageOne(SSP2 * timeInt, double * sol, double * cons, double * prims, doubl
     Model_D * mod = (Model_D *)p;
 
     // First determine the prim and aux vars due to guess x
-
     mod->getPrimitiveVarsSingleCell((double *)x, mod->args->prims, mod->args->aux);
     // Determine the source contribution due to the guess x
     mod->sourceTermSingleCell((double *)x, mod->args->prims, mod->args->aux, mod->args->source);
-
-
+    __syncthreads();
     // Set residual
     for (int i(0); i < n; i++) {
       fvec[i] = x[i] - mod->args->cons[i] - mod->args->dt * mod->args->gam * mod->args->source[i];
+      if (mod->args->source[i] != mod->args->source[i] && fvec[i] == fvec[i])
+      {
+        printf("source is nan, fvec = %f: %f\n", fvec[i], x[i] - mod->args->cons[i] -  mod->args->dt * mod->args->gam * mod->args->source[i]);
+      }
     }
-
 
     return 0;
   }
