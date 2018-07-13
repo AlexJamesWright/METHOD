@@ -20,6 +20,7 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   gpuErrchk( cudaHostAlloc((void **)&prims_h  , data->Nprims * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&aux_h    , data->Naux   * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&source_h , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
+  gpuErrchk( cudaHostAlloc((void **)&cons1_h , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&flux1_h  , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&source1_h, data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&sol_h   , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
@@ -30,6 +31,7 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   prims_d   = new double*[data->Nstreams];
   aux_d     = new double*[data->Nstreams];
   source_d  = new double*[data->Nstreams];
+  cons1_d  = new double*[data->Nstreams];
   flux1_d   = new double*[data->Nstreams];
   source1_d = new double*[data->Nstreams];
   wa_d      = new double*[data->Nstreams];
@@ -39,6 +41,7 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
     gpuErrchk( cudaMalloc((void **)&prims_d[i]  , data->Nprims * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&aux_d[i]    , data->Naux * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&source_d[i] , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
+    gpuErrchk( cudaMalloc((void **)&cons1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&flux1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&source1_d[i], data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&wa_d[i]     , lwa * data->tpb * data->bpg * sizeof(double)) );
@@ -69,6 +72,7 @@ IMEX2Arguments::~IMEX2Arguments()
     gpuErrchk( cudaFree(prims_d[i]) );
     gpuErrchk( cudaFree(aux_d[i]) );
     gpuErrchk( cudaFree(source_d[i]) );
+    gpuErrchk( cudaFree(cons1_d[i]) );
     gpuErrchk( cudaFree(flux1_d[i]) );
     gpuErrchk( cudaFree(source1_d[i]) );
     gpuErrchk( cudaFree(wa_d[i]) );
@@ -77,6 +81,7 @@ IMEX2Arguments::~IMEX2Arguments()
   gpuErrchk( cudaFreeHost(prims_h) );
   gpuErrchk( cudaFreeHost(aux_h) );
   gpuErrchk( cudaFreeHost(source_h) );
+  gpuErrchk( cudaFreeHost(cons1_h) );
   gpuErrchk( cudaFreeHost(flux1_h) );
   gpuErrchk( cudaFreeHost(source1_h) );
   gpuErrchk( cudaFreeHost(sol_h) );
@@ -93,7 +98,7 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
   // If no memory has been allocated, allocate
   if (!allocd) {
     lwa = data->Ncons * (3 * data->Ncons + 13) / 2;
-    
+
     cons     = new double[data->Ncons ];
     prims    = new double[data->Nprims];
     aux      = new double[data->Naux  ];
@@ -106,6 +111,7 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     gpuErrchk( cudaHostAlloc((void **)&prims_h  , data->Nprims * data->Ncells * sizeof(double), cudaHostAllocPortable) );
     gpuErrchk( cudaHostAlloc((void **)&aux_h    , data->Naux   * data->Ncells * sizeof(double), cudaHostAllocPortable) );
     gpuErrchk( cudaHostAlloc((void **)&source_h , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
+    gpuErrchk( cudaHostAlloc((void **)&cons1_h  , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
     gpuErrchk( cudaHostAlloc((void **)&flux1_h  , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
     gpuErrchk( cudaHostAlloc((void **)&source1_h, data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
     gpuErrchk( cudaHostAlloc((void **)&sol_h    , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
@@ -116,6 +122,7 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     prims_d   = new double*[data->Nstreams];
     aux_d     = new double*[data->Nstreams];
     source_d  = new double*[data->Nstreams];
+    cons1_d   = new double*[data->Nstreams];
     flux1_d   = new double*[data->Nstreams];
     source1_d = new double*[data->Nstreams];
     wa_d      = new double*[data->Nstreams];
@@ -125,6 +132,7 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
       gpuErrchk( cudaMalloc((void **)&prims_d[i]  , data->Nprims * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&aux_d[i]    , data->Naux * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&source_d[i] , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
+      gpuErrchk( cudaMalloc((void **)&cons1_d[i] , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&flux1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&source1_d[i], data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&wa_d[i]     , lwa * data->tpb * data->bpg * sizeof(double)) );

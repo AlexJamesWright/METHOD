@@ -31,13 +31,6 @@ static int newtonParallel(double *Z, const double StildeSq, const double D, cons
 __global__
 static void getPrimitiveVarsParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
 
-__device__
-static void getPrimitiveVarsSingleCellParallel(double * cons, double * prims, double * aux, double gamma, double sigma);
-
-//!< This is the external void function pointer that the model constructor must set such that the IMEX integrator and call C2P
-typedef void(*addy)(double *, double *, double *, double, double);
-// void (*SCC2P)(double *, double *, double *, double, double);
-
 SRRMHD::SRRMHD() : Model()
 {
   modType_t = ModelType::SRRMHD;

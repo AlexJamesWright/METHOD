@@ -37,6 +37,7 @@ class IMEX2Arguments
     * prims_h,      //!< Host array for the prim vector at the current t, needed to start c2p. Will contain the prim vars associated with the hybrd1 solution after rootfind
     * aux_h,        //!< Host array for the aux vector at the current t, needed to start c2p. Will contain the aux vars associated with the hybrd1 solution after rootfind
     * source_h,     //!< Host array for the source vector associated with the solution of hybrd1 after rootfind.
+    * cons1_h,      //!< Host array for solution of stage 1
     * flux1_h,      //!< Host array for flux vector of stage 1 solution
     * source1_h,    //!< Host array for source vector of stage 1 solution
     * sol_h,        //!< Host array for the solution of the rootfind
@@ -45,6 +46,7 @@ class IMEX2Arguments
     ** prims_d,     //!< Device array for the prims vars associated with the hybrd1 guess
     ** aux_d,       //!< Device array for the aux vars associated with the hybrd1 guess
     ** source_d,    //!< Device array for the source vector associated with the hybrd1 guess
+    ** cons1_d,     //!< Device array for solution of stage 1
     ** flux1_d,     //!< Device array for flux vector of stage 1 solution
     ** source1_d,   //!< Device array for source vector of stage 1 solution
     ** wa_d;        //!< Device array, working array for rootfinder (will be stored in global memory due to size)

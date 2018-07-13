@@ -172,8 +172,8 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVect
 
 
 # Executable
-main : $(OBJS) $(RTFIND_OBJS)
-	@$(CC)	$^	-o $@ $(CXXFLAGS) $(NVFLAGS)
+main : $(RTFIND_OBJS) $(OBJS)
+	@$(CC) $^	-o $@ $(CXXFLAGS) $(NVFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
