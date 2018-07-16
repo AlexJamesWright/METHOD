@@ -391,63 +391,33 @@ class InteractivePlot(object):
             plt.show()
 
 
-    def plotTwoFluidTotalPrims(self, axis=0):
+    def plotTwoFluidSlice(self):
         """
-        Plots the variation of total data in the `axis` direction of the two fluids.
+        Plots the variation of total data in the x-direction of the two fluids.
 
-        Parameters
-        ----------
-            data: string
-                Describes which variables the user wants to plot. Choose from
-                'prims', 'cons', 'aux' or 'primitive', 'conserved' and 'auxilliary'
-            color: matplotlib color map
-                The colour theme to be plotting in. This can take string arguments
-                but best to stick to variants of cm.somecolourscheme
-                E.g. cm.magma
-            axis: int, optional
-                The axis the user wants to plot in.
-                (0, 1, 2) = (x, y, z)
-                Defaults to axis=0, x-direction.
         """
-        data = self.prims
-        dataLabels = self.cleanPrimLabels
 
         c = self.c
-        Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
-        singles=5
+        Ny, Nz, Ng = c['Ny'], c['Nz'], c['Ng']
 
-        avgPlotVars = (data[:singles] + data[singles:2*singles])
+        rho = self.prims[0, Ng:-Ng, Ny//2, Nz//2] + self.prims[5, Ng:-Ng, Ny//2, Nz//2]
+        p   = self.prims[4, Ng:-Ng, Ny//2, Nz//2] + self.prims[9, Ng:-Ng, Ny//2, Nz//2]
+        var = [rho, *self.aux[31:34, Ng:-Ng, Ny//2, Nz//2], p, *self.prims[10:, Ng:-Ng, Ny//2, Nz//2]]
+        varLab = [r'$\rho$', r'$u_x$', r'$u_y$', r'$u_z$', r'$p$', r'$B_x$', r'$B_y$', r'$B_z$', r'$E_x$', r'$E_y$', r'$E_z$']
+            
+        xs = np.linspace(c['xmin'] + c['dx']/2, c['xmax'] - c['dx']/2, c['nx'])
 
-        for i in range(singles):
+        for i, v in enumerate(var):
             plt.figure()
-            if (axis == 0):
-                plotVars = avgPlotVars[i, Ng:-Ng, Ny//2, Nz//2]
-                axisLabel = r'$x$'
-                step = c['dx']
-                n = c['nx']
-                left, right = c['xmin'], c['xmax']
-            if (axis == 1):
-                plotVars = avgPlotVars[i, Nx//2, Ng:-Ng, Nz//2]
-                axisLabel = r'$y$'
-                step = c['dy']
-                n = c['ny']
-                left, right = c['ymin'], c['ymax']
-            if (axis == 2):
-                plotVars = avgPlotVars[i, Nx//2, Ny//2, Ng:-Ng]
-                axisLabel = r'$z$'
-                step = c['dz']
-                n = c['nz']
-                left, right = c['zmin'], c['zmax']
-
-            ymin = np.min(plotVars)
-            ymax = np.max(plotVars)
+            plt.plot(xs, v)
+            plt.title(varLab[i])
+            ymin = np.min(v)
+            ymax = np.max(v)
             rangeY = ymax - ymin
             ylower = ymin - 0.025 * rangeY
             yupper = ymax + 0.025 * rangeY
-            xs = np.linspace(left + step/2, right - step/2, n)
-            plt.plot(xs, plotVars)
-            plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i][:-1], c['t']))
-            plt.xlabel(axisLabel)
+            plt.title(r'Time Evolution for {}: $t = {}$'.format(varLab[i], c['t']))
+            plt.xlabel(r'$x$')
             plt.ylabel(r'$q_{}(x)$'.format(i+1))
             plt.ylim((ylower, yupper))
             plt.xlim([c['xmin'], c['xmax']])

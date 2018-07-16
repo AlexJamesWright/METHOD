@@ -22,11 +22,6 @@ static double residualNew(double p, const double Stilx, const double Stily, cons
 static int newtonNew(double *p, const double Stilx, const double Stily, const double Stilz,
                      const double Ds, const double tauTildes, double gamma,
                      int i, int j, int k, int fluid);
-static double residualAmano(double u, const double Stilsq, const double D,
-                            const double tauTil, double gamma);
-static int newtonAmano(double *u, const double Stilsq, const double D,
-                       const double tauTil, double gamma,
-                       int i, int j, int k, int fluid);
 
 TwoFluidEMHD::TwoFluidEMHD() : Model()
 {
@@ -528,41 +523,6 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
     aux[4] = prims[0] * aux[0] * aux[1] * aux[1];
     aux[14] = prims[5] * aux[10] * aux[11] * aux[11];
     }
-    // else if (/*Switch off for now as incomplete*/0 && newtonAmano(&vmag1, Stilde1sq, aux[5], aux[9], d->gamma, i, j, k, 0) &&
-    //          newtonAmano(&vmag2, Stilde2sq, aux[15], aux[19], d->gamma, i, j, k, 1)) {
-    //   // vsq1, vsq2
-    //   aux[3] = vmag1*vmag1;
-    //   aux[13] = vmag2*vmag2;
-    //   // W1, W2
-    //   aux[1] = 1 / sqrt(1 - aux[3]);
-    //   aux[11] = 1 / sqrt(1 - aux[13]);
-    //   // rho1, rho2
-    //   prims[0] = aux[5] / aux[1];
-    //   prims[5] = aux[15] / aux[11];
-    //   // Z1, Z2
-    //   if (Stilde1sq < 1.0e-15) aux[4] = 0;
-    //   else aux[4] = sqrt(Stilde1sq / aux[3]);
-    //   if (Stilde2sq < 1.0e-15) aux[14] = 0;
-    //   else aux[14] = sqrt(Stilde2sq / aux[13]);
-    //   // e1, e2
-    //   aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (d->gamma * prims[0]);
-    //   aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (d->gamma * prims[5]);
-    //   // h1, h2
-    //   aux[0] = aux[4] / (prims[0] * aux[1] * aux[1]);
-    //   aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
-    //   // p1, p2
-    //   prims[4] = prims[0] * aux[2] * (d->gamma - 1);
-    //   prims[9] = prims[5] * aux[12] * (d->gamma - 1);
-    //   // vx1, vy1, vz1
-    //   prims[1] = aux[6] / aux[4];
-    //   prims[2] = aux[7] / aux[4];
-    //   prims[3] = aux[8] / aux[4];
-    //   // if (i == 0) printf("%19.16f, %19.16f, %19.16f\n", prims[3], aux[8], aux[4]);
-    //   // vx2, vy2, vz2
-    //   prims[6] = aux[16] / aux[14];
-    //   prims[7] = aux[17] / aux[14];
-    //   prims[8] = aux[18] / aux[14];
-    // }
     else {
       // Could solve cons to prims, raise error
       printf("Exiting at time t=%18.16f, after %d iterations.\n", d->t, d->iters);
@@ -752,7 +712,7 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
 
 }
 
-
+#define TOL 1.48e-13
 
 //! Residual function to minimize for cons2prims solver
 /*!
@@ -802,7 +762,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
   double x0(*Z);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.0e-8);
+  double tol(TOL);
   double x2;
   double bestF;
   double f0(residual(x0, StildeSqs, Ds, tauTildes, gamma));
@@ -840,15 +800,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
   return 1;
 }
 
-
-
-
-
-
-
 /**     Palenzuela C2P conversion       */
-
-
 static double residualNew(double p, const double Stilx, const double Stily, const double Stilz,
                                  const double D, const double tauTil, double gamma)
 {
@@ -889,7 +841,7 @@ static int newtonNew(double *p, const double Stilx, const double Stily, const do
   double x0(*p);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.0e-8);
+  double tol(TOL);
   double x2;
   double bestF;
   double f0(residualNew(x0, Stilx, Stily, Stilz, D, tauTilde, gamma));
@@ -921,83 +873,6 @@ static int newtonNew(double *p, const double Stilx, const double Stily, const do
     // Store result of Z=rho*h*W**2
     *p = bestX;
     printf("Palenzuela C2P could not converge in cell (%d, %d, %d) for fluid %d\n", i, j, k, fluid);
-    // throw std::runtime_error("C2P could not converge.\n");
-    return 0;
-  }
-  return 1;
-}
-
-
-
-
-            /*        Amanos method         */
-            /*##############################*/
-            /*##  CURRENTLY INCOMPLETE    ##*/
-            /*##############################*/
-static double residualAmano(double u, const double Stilsq, const double D,
-                            const double tauTil, double gamma)
-{
-
-  double a, b, c, d, theta, y, z, m, k, omysq;
-  m = sqrt(Stilsq);
-  if (m < 1.0e-8) return 0;
-  k = tauTil + D;
-  theta = gamma / (gamma - 1);
-  y = m / k;
-  omysq = 1 - y * y;
-  z = D / k;
-
-  a = (-2 * y * z) / (theta * omysq);
-  b = (theta * theta - 2 * theta * (theta - 1) * y * y - z * z) / (theta * theta * omysq);
-  c = (-2 * (theta - 1) * y * z) / (theta * theta * omysq);
-  d = (-y * y * (theta - 1) * (theta - 1)) / (theta * theta * omysq);
-
-  return u*u*u*u + a*u*u*u + b*u*u + c*u + d;
-}
-
-static int newtonAmano(double *u, const double Stilsq, const double D,
-                        const double tauTil, double gamma,
-                        int i, int j, int k, int fluid)
-{
-
-  // Rootfind data
-  double bestX;
-  double x0(*u);
-  double eps(1.0e-4);
-  double x1(x0 + eps);
-  double tol(1.0e-8);
-  double x2;
-  double bestF;
-  double f0(residualAmano(x0, Stilsq, D, tauTil, gamma));
-  double f1(residualAmano(x1, Stilsq, D, tauTil, gamma));
-  int iter;
-  int maxiter(50);
-  int found(0);
-
-  // If root can not be found return the best so far
-  bestX = x0; bestF = f0;
-  for (iter=0; iter<maxiter; iter++) {
-    if (fabs(f0) < tol) {
-      *u = x0;
-      found = 1;
-      break;
-    }
-
-    x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
-    x1 = x0;
-    x0 = x2;
-    f1 = f0;
-    f0 = residualAmano(x0, Stilsq, D, tauTil, gamma);
-    if (fabs(f0) < fabs(bestF)) {
-      bestX = x0;
-      bestF = f0;
-    }
-  }
-  if (!found) {
-    // Store result of Z=rho*h*W**2
-    *u = bestX;
-    printf("Amano C2P could not converge in cell (%d, %d, %d) for fluid %d\n", i, j, k, fluid);
-    printf("Best is %19.16f, with residual %19.16f\n", bestX, bestF);
     // throw std::runtime_error("C2P could not converge.\n");
     return 0;
   }

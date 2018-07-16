@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <cstdio>
 
+#define WITH 0
+
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
@@ -11,7 +13,7 @@ int IMEX2Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2a(void *p, int n, const double *x, double *fvec, int iflag);
 int IMEX2Residual2b(void *p, int n, const double *x, double *fvec, int iflag);
 
-//! BackwardsRK parameterized constructor
+//! SSP2(222) parameterized constructor
 SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
               TimeIntegrator(data, model, bc, fluxMethod)
 
@@ -142,6 +144,8 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 
     //########################### STAGE TWO #############################//
+
+
   // Determine solutuion of stage 2
   for (int i(is); i < ie; i++) {
     for (int j(js); j < je; j++) {
@@ -156,39 +160,62 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         args.j = j;
         args.k = k;
 
+        // Dont need to solve the additional stage
+        // try {
+        //   // Solve for source terms only
+        //   if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+        //     // Source rootfind successful, euler step flux for stage 2 estimate
+        //     for (int var(0); var < d->Ncons; var++) {
+        //       x[var] = 0.5 * (x[var] + U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)]);
+        //     }
+        //     try {
+        //       // Solve stage 2
+        //       if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+        //         for (int var(0); var < d->Ncons; var++) U2[ID(var, i, j, k)] = x[var];
+        //       }
+        //       else {
+        //         char s[200];
+        //         sprintf(s, "SSP2 stage 2b failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2b.\n", i, j, k, info);
+        //         throw std::runtime_error(s);
+        //       }
+        //     }
+        //     catch (const std::exception& e) {
+        //       printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
+        //       throw e;
+        //     }
+        //   }
+        //   else {
+        //     char s[200];
+        //     sprintf(s, "SSP2 stage 2a failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
+        //     throw std::runtime_error(s);
+        //   }
+        // }
+        // catch (const std::exception& e) {
+        //   printf("Stage 2 raises exception with following message:\n%s\n", e.what());
+        //   throw e;
+        // }
+
+        // Euler step flux for stage 2 estimate
+        for (int var(0); var < d->Ncons; var++) {
+          x[var] = 0.5 * (cons[ID(var, i, j, k)] + U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)]);
+        }
         try {
-          // Solve for source terms only
-          if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2a, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
-            // Source rootfind successful, euler step flux for stage 2 estimate
-            for (int var(0); var < d->Ncons; var++) {
-              x[var] = 0.5 * (x[var] + U1[ID(var, i, j, k)] - dt * flux1[ID(var, i, j, k)]);
-            }
-            try {
-              // Solve stage 2
-              if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
-                for (int var(0); var < d->Ncons; var++) U2[ID(var, i, j, k)] = x[var];
-              }
-              else {
-                char s[200];
-                sprintf(s, "SSP2 stage 2b failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
-                throw std::runtime_error(s);
-              }
-            }
-            catch (const std::exception& e) {
-              printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
-              throw e;
-            }
+          // Solve stage 2
+          if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2b, this, d->Ncons, x, fvec, tol, wa, lwa))==1) {
+            for (int var(0); var < d->Ncons; var++) U2[ID(var, i, j, k)] = x[var];
           }
           else {
             char s[200];
-            sprintf(s, "SSP2 stage 2a failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2a.\n", i, j, k, info);
+            sprintf(s, "SSP2 stage 2b failed in cell (%d, %d, %d) with info = %d\nIMEX time integrator could not converge to a solution for stage 2b.\n", i, j, k, info);
             throw std::runtime_error(s);
           }
         }
         catch (const std::exception& e) {
-          printf("Stage 2a, U2S, raises exception with following message:\n%s\n", e.what());
+          printf("Stage 2, raises exception with following message:\n%s\n", e.what());
           throw e;
         }
+
+
       }
     }
   }
@@ -349,7 +376,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
       fvec[i] = 1.0e6;
     }
   }
-
 
   return 0;
   }

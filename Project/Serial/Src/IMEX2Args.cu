@@ -12,6 +12,8 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   source   = new double[data->Ncons ];
   source1  = new double[data->Ncons ];
   flux1    = new double[data->Ncons ];
+  source2  = new double[data->Ncons ];
+  flux2    = new double[data->Ncons ];
   allocd = 1;
 }
 
@@ -24,6 +26,8 @@ IMEX2Arguments::~IMEX2Arguments()
   delete [] source;
   delete [] source1;
   delete [] flux1;
+  delete [] source2;
+  delete [] flux2;
   allocd = 0;
 }
 
@@ -42,6 +46,8 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     source   = new double[data->Ncons ];
     source1  = new double[data->Ncons ];
     flux1    = new double[data->Ncons ];
+    source2  = new double[data->Ncons ];
+    flux2    = new double[data->Ncons ];
     allocd = 1;
   }
 
@@ -52,5 +58,7 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
   for (int i(0); i < data->Ncons ; i++) source[i]  = args.source[i];
   for (int i(0); i < data->Ncons ; i++) source1[i] = args.source1[i];
   for (int i(0); i < data->Ncons ; i++) flux1[i]   = args.flux1[i];
+  for (int i(0); i < data->Ncons ; i++) source2[i] = args.source2[i];
+  for (int i(0); i < data->Ncons ; i++) flux2[i]   = args.flux2[i];
   return *this;
 }

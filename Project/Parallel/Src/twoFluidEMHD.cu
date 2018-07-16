@@ -713,6 +713,7 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
   }
 }
 
+#define TOL 1.48e-13
 
 //! Residual function to minimize for cons2prims solver
 /*!
@@ -762,7 +763,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
   double x0(*Z);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.0e-8);
+  double tol(TOL);
   double x2;
   double bestF;
   double f0(residual(x0, StildeSqs, Ds, tauTildes, gamma));
@@ -800,15 +801,7 @@ static int newton(double *Z, const double StildeSqs, const double Ds, const doub
   return 1;
 }
 
-
-
-
-
-
-
 /**     Palenzuela C2P conversion       */
-
-
 static double residualNew(double p, const double Stilx, const double Stily, const double Stilz,
                                  const double D, const double tauTil, double gamma)
 {
@@ -849,7 +842,7 @@ static int newtonNew(double *p, const double Stilx, const double Stily, const do
   double x0(*p);
   double eps(1.0e-4);
   double x1(x0 + eps);
-  double tol(1.0e-8);
+  double tol(TOL);
   double x2;
   double bestF;
   double f0(residualNew(x0, Stilx, Stily, Stilz, D, tauTilde, gamma));

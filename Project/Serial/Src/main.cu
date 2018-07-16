@@ -8,7 +8,7 @@
 #include "rkSplit.h"
 #include "backwardsRK.h"
 #include "SSP2.h"
-#include "SSP3.h"
+#include "SSP2322.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
@@ -21,9 +21,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  const double MU(10000);
+  const double MU(1000);
   // Set up domain
-  int nx(1600);
+  int nx(6400);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.001);
+  double cfl(0.3);
   int Ng(4);
   double gamma(2.0);
   double sigma(10000);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   double mu2(1000);
   int frameSkip(160);
   bool output(false);
-  int safety(99999);
+  int safety(300);
 
   char * ptr(0);
   double tmp(0);
@@ -66,13 +66,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "frameSkip") == 0) {
       frameSkip = (int)strtol(argv[i+1], &ptr, 10);
     }
-    if (strcmp(argv[i], "gammanum") == 0) {
-      tmp = (double)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "gammaden") == 0 && tmp!=0) {
-      gamma = tmp/(double)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "endTime") == 0) {
+    if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
       endTime = (double)strtol(argv[i+1], &ptr, 10);
     }
     if (strcmp(argv[i], "cfl") == 0) {
@@ -91,7 +85,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data, 0, 1);
+  BrioWuTwoFluid init(&data);
 
   Outflow bcs(&data);
 
