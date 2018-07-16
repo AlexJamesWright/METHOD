@@ -232,8 +232,6 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   callStageTwo(tempCons, tempPrims, tempAux, tempSource2, tempCons1, tempSource1, tempFlux1, dt);
   this->fluxMethod->F(tempCons, tempPrims, tempAux, d->f, tempFlux2);
 
-  printf("Exited stage2...\n");
-  exit(1);
 
   // Determine solutuion of stage 2
   for (int i(is); i < ie; i++) {
@@ -285,6 +283,10 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+
+  printf("Exited stage2...\n");
+  printf("\n\n\nSITREP:\nStage 2a seems OK, stage 2b differs. Comparing (what i think is) the same cell in serial and parallel.\n\n\n");
+  exit(1);
 
   this->bcs->apply(U2, prims, aux);
   this->model->getPrimitiveVars(U2, prims, aux);
@@ -462,15 +464,6 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
   __device__
   int IMEX2Residual1Parallel(void *p, int n, const double *x, double *fvec, int iflag)
   {
-    // // Ensure guess is sensible
-    // for (int i(0); i < n; i++) {
-    //   if (x[i] != x[i])
-    //   {
-    //     for (int j(0); j<n; j++) fvec[j] = 1e6;
-    //     return 0;
-    //   }
-    // }
-
     // Cast void pointer
     Model_D * mod = (Model_D *)p;
 
@@ -535,6 +528,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
           for (int var(0); var < d->Ncons; var++)  args.cons1_h[IDCons(var, i, j, k)  ] = cons1[ID(var, i, j, k)];
           for (int var(0); var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
           for (int var(0); var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
+          for (int var(0); var < d->Ncons; var++)  if (IDCons(0, i, j, k)/d->Ncons == 16507) printf("(%d, %d, %d)\n", i, j, k);
         }
       }
     }
@@ -651,8 +645,11 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     // Rootfind stage 2
     if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2Parallel, model_d, Ncons, guess, fvec, tol, WA, lwa)) != 1)
     {
-      printf("IMEX failed stage 2 for gID %d: info %d\n", gID, info);
+      // printf("IMEX failed stage 2 for gID %d: info %d\n", gID, info);
     }
+    // if (gID == 16507) printf("gID %d %s with info %d\n", gID, info==1?"passed":"failed", info);
+    // if (gID == 16507) for (int i(0); i<Ncons; i++) printf("fvec[%2d] = %19.16f\n", i, fvec[i]);
+    // if (gID == 16507) for (int i(0); i<Ncons; i++) printf("source[%2d] = %19.16f\n", i, args->source[i]);
 
     // Copy solution back to sol_d array
     for (int i(0); i < Ncons; i++)
@@ -734,6 +731,11 @@ Model_D * mod = (Model_D *)p;
       return 0;
     }
   }
+  if (mod->args->gID == 16705)
+  {
+    int var(0);
+    printf("P: %f, %f, %f, %f, %f\n", x[var], mod->args->cons[var], mod->args->flux1[var], mod->args->source1[var], mod->args->source[var]);
+  }
 
 return 0;
 }
@@ -807,6 +809,12 @@ return 0;
     for (int i(0); i < n; i++) {
       fvec[i] = 1.0e6;
     }
+  }
+
+  if (a->i==121 && a->j==51)
+  {
+    int var(0);
+    printf("S: %f, %f, %f, %f, %f\n", x[var], a->cons[var], a->flux1[var], a->source1[var], a->source[var]);
   }
 
 
