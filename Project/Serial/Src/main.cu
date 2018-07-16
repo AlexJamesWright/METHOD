@@ -21,9 +21,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  const double MU(1400);
+  const double MU(1000);
   // Set up domain
-  int nx(100);
+  int nx(1600);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.9);
+  double cfl(0.1);
   int Ng(4);
-  double gamma(5.0/3.0);
-  double sigma(1000000000);
+  double gamma(2.0);
+  double sigma(10000);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
@@ -76,17 +76,17 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  BrioWuTwoFluid init(&data);
 
   Outflow bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
