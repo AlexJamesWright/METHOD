@@ -50,7 +50,8 @@ SRCS = main.cu \
 			 boundaryConds.cu \
 			 saveData.cu \
 			 fluxVectorSplitting.cu \
-			 srrmhd.cu
+			 srrmhd.cu \
+			 C2PArgs.cu
 
 
 # Headers
@@ -115,13 +116,16 @@ simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
+C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_DIR)/C2PArgs.h	$(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
 twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
-srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h
+srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h $(INC_DIR)/C2PArgs.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
@@ -168,8 +172,8 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVect
 
 
 # Executable
-main : $(OBJS) $(RTFIND_OBJS)
-	@$(CC)	$^	-o $@ $(CXXFLAGS) $(NVFLAGS)
+main : $(RTFIND_OBJS) $(OBJS)
+	@$(CC) $^	-o $@ $(CXXFLAGS) $(NVFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

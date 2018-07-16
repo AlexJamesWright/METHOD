@@ -4,7 +4,7 @@
 CC = nvcc
 
 # Compiler flag
-CFLAGS = -c
+CFLAGS = -c -rdc=true
 
 # Module directory
 MODULE_DIR = ./Src

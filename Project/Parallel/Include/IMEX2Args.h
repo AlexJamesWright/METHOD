@@ -16,6 +16,8 @@ class IMEX2Arguments
 
     Data * data; //!< Pointer to Data class containing global simulation data
 
+    // ########### SERIAL DATA ARRAYS ##########//
+
     double
     //@{
     *cons, *prims, *aux,        //!< Pointers to arrays of specified variables. Size is Nvars*Nx*Ny*Nz
@@ -26,7 +28,32 @@ class IMEX2Arguments
     dt;       //!< Size of the timestep
     int
     allocd,   //!< Signifies is the prim aux and source arrays have been allocated memory. 1 if allocated, 0 otherwise.
-    i, j, k;  //!< Which cell is currently being solved
+    i, j, k,  //!< Which cell is currently being solved
+    lwa;      //!< Length of hybrd1 working array
+
+    // ########### PARALLEL DATA ARRAYS ##########//
+    double
+    * cons_h,       //!< Host array for current value of cons vector at t
+    * prims_h,      //!< Host array for the prim vector at the current t, needed to start c2p. Will contain the prim vars associated with the hybrd1 solution after rootfind
+    * aux_h,        //!< Host array for the aux vector at the current t, needed to start c2p. Will contain the aux vars associated with the hybrd1 solution after rootfind
+    * source_h,     //!< Host array for the source vector associated with the solution of hybrd1 after rootfind.
+    * cons1_h,      //!< Host array for solution of stage 1
+    * flux1_h,      //!< Host array for flux vector of stage 1 solution
+    * source1_h,    //!< Host array for source vector of stage 1 solution
+    * sol_h,        //!< Host array for the solution of the rootfind
+    ** sol_d,       //!< Device array for the solution of the rootfind
+    ** cons_d,      //!< Device array for current value of cons vector at t
+    ** prims_d,     //!< Device array for the prims vars associated with the hybrd1 guess
+    ** aux_d,       //!< Device array for the aux vars associated with the hybrd1 guess
+    ** source_d,    //!< Device array for the source vector associated with the hybrd1 guess
+    ** cons1_d,     //!< Device array for solution of stage 1
+    ** flux1_d,     //!< Device array for flux vector of stage 1 solution
+    ** source1_d,   //!< Device array for source vector of stage 1 solution
+    ** wa_d;        //!< Device array, working array for rootfinder (will be stored in global memory due to size)
+
+
+    cudaStream_t * stream; //!< Pointer to CUDA streams
+
 
     //! Default constructor
     /*!

@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
   double gamma(2.0);
   double sigma(10000);
   double cp(1.0);
-  double mu1(-MU);
-  double mu2(MU);
-  int frameSkip(45);
+  double mu1(-100000);
+  double mu2(1000);
+  int frameSkip(160);
   bool output(false);
   int safety(300);
 
@@ -68,6 +68,9 @@ int main(int argc, char *argv[]) {
     }
     if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
       endTime = (double)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "cfl") == 0) {
+      cfl = (double)strtol(argv[i+1], &ptr, 10);
     }
   }
 

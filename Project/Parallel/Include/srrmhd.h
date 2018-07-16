@@ -2,6 +2,10 @@
 #define SRRMHD_H
 
 #include "model.h"
+#include "C2PArgs.h"
+#include "deviceArguments.h"
+
+#include <stdio.h>
 
 /*
 This is the human readable description of this models variables.
@@ -27,12 +31,19 @@ This is the human readable description of this models variables.
 //! <b> Special Relativistic Resistive MagnetHydroDynamics </b>
 /*!
     @par
-      COMPLETE DESCRIPTION
+      @todo COMPLETE DESCRIPTION
 */
 class SRRMHD : public Model
 {
 
   public:
+
+    // Work arrays
+    double * singleCons;
+    double * singlePrims;
+    double * singleAux;
+    double * singleSource;
+    C2PArgs * c2pArgs;
 
     SRRMHD(); //!< Default constructor
 
@@ -45,7 +56,7 @@ class SRRMHD : public Model
     */
     SRRMHD(Data * data);
 
-    ~SRRMHD() { };  //!< Destructor
+    ~SRRMHD();  //!< Destructor
 
     //! Single cell source term contribution
     /*!
@@ -146,8 +157,23 @@ class SRRMHD : public Model
       @sa Model::fluxVector
     */
     void fluxVector(double *cons, double *prims, double *aux, double *f, const int dir);
+};
 
+//! <b> SRRMHD class on the device </b>
+/*!
+  @par
+    Device class for SRRMHD
+*/
+class SRRMHD_D : public Model_D
+{
+  public:
+    __device__ SRRMHD_D(TimeIntAndModelArgs * args) : Model_D(args) { }
 
+    //!< @sa Model::sourceTermSingleCell
+    __device__ void sourceTermSingleCell(double * cons, double * prims, double * aux, double * source);
+
+    //!< @sa Model::getPrimitiveVarsSingleCell
+    __device__ void getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux);
 };
 
 #endif

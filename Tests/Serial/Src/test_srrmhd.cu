@@ -121,18 +121,14 @@ namespace
     for (int var(0); var < d.Nprims; var++) {
       for (int i(2); i < d.Nx-2; i++) {
         for (int j(2); j < d.Ny-2; j++) {
-          for (int k(2); k < d.Nz-2; k++) {
-            EXPECT_NEAR(d.prims[d.id(var, i, j, k)], d2.prims[d.id(var, i, j, k)], tol);
-          }
+          EXPECT_NEAR(d.prims[d.id(var, i, j, 0)], d2.prims[d.id(var, i, j, 0)], tol);
         }
       }
     }
     for (int var(0); var < d.Naux; var++) {
       for (int i(2); i < d.Nx-2; i++) {
         for (int j(2); j < d.Ny-2; j++) {
-          for (int k(2); k < d.Nz-2; k++) {
-            EXPECT_NEAR(d.aux[d.id(var, i, j, k)], d2.aux[d.id(var, i, j, k)], tol);
-          }
+          EXPECT_NEAR(d.aux[d.id(var, i, j, 0)], d2.aux[d.id(var, i, j, 0)], tol);
         }
       }
     }
@@ -141,18 +137,14 @@ namespace
     for (int var(0); var < d.Nprims; var++) {
       for (int i(0); i < d.Nx; i++) {
         for (int j(0); j < d.Ny; j++) {
-          for (int k(0); k < d.Nz; k++) {
-            d2.prims[d.id(var, i, j, k)] *= 0.9;
-          }
+          d2.prims[d.id(var, i, j, 0)] *= 0.9;
         }
       }
     }
     for (int var(0); var < d.Naux; var++) {
       for (int i(0); i < d.Nx; i++) {
         for (int j(0); j < d.Ny; j++) {
-          for (int k(0); k < d.Nz; k++) {
-            d2.aux[d.id(var, i, j, k)] *= 0.9;
-          }
+          d2.aux[d.id(var, i, j, 0)] *= 0.9;
         }
       }
     }
@@ -162,18 +154,14 @@ namespace
     for (int var(0); var < d.Nprims; var++) {
       for (int i(2); i < d.Nx-2; i++) {
         for (int j(2); j < d.Ny-2; j++) {
-          for (int k(2); k < d.Nz-2; k++) {
-            EXPECT_NEAR(d.prims[d.id(var, i, j, k)], d2.prims[d.id(var, i, j, k)], tol);
-          }
+          EXPECT_NEAR(d.prims[d.id(var, i, j, 0)], d2.prims[d.id(var, i, j, 0)], tol);
         }
       }
     }
     for (int var(0); var < d.Naux; var++) {
       for (int i(2); i < d.Nx-2; i++) {
         for (int j(2); j < d.Ny-2; j++) {
-          for (int k(2); k < d.Nz-2; k++) {
-            EXPECT_NEAR(d.aux[d.id(var, i, j, k)], d2.aux[d.id(var, i, j, k)], tol);
-          }
+          EXPECT_NEAR(d.aux[d.id(var, i, j, 0)], d2.aux[d.id(var, i, j, 0)], tol);
         }
       }
     }

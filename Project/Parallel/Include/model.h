@@ -2,6 +2,10 @@
 #define MODEL_H
 
 #include "simData.h"
+#include "deviceArguments.h"
+
+//!< Identifier for the model that has been selected in main()
+enum class ModelType { SRMHD, SRRMHD, TFEMHD };
 
 //! <b> Physics model that we want to use </b>
 /*!
@@ -22,6 +26,8 @@ class Model
     //@{
     Ncons, Nprims, Naux;  //!< Size of specified vector
     //@}
+
+    ModelType modType_t;
 
     Model() : data(NULL) {}     //!< Default constructor
 
@@ -124,6 +130,33 @@ class Model
     virtual void fluxVector(double *cons, double *prims, double *aux, double *f, int dir) = 0;
 
 };
+
+
+//! <b> Physics model on the device </b>
+/*!
+  @par
+    In the parallel case, we need to clone the model object to the device so we
+  have access to its member functions. Keep same layout as host objects, with
+  slightly reduced functionality.
+  @par
+    CUDA kernels can not have virtual functions, so they have been commented out,
+  this is therefore and empty class, but required such that we can point to
+  different models using this base class.
+*/
+class Model_D
+{
+  public:
+    TimeIntAndModelArgs * args;
+
+    __device__ Model_D(TimeIntAndModelArgs * args) : args(args) { }
+
+    //!< @sa Model::sourceTermSingleCell
+    __device__ virtual void sourceTermSingleCell(double * cons, double * prims, double * aux, double * source) = 0;
+
+    //!< @sa Model::getPrimitiveVarsSingleCell
+    __device__ virtual void getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux) = 0;
+};
+
 
 
 #endif

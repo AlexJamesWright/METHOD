@@ -21,7 +21,6 @@ int __cminpack_func__(fdjac1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
     int i, j, k;
     real eps, temp;
     int msum;
-    real epsmch;
     int iflag = 0;
 
 /*     ********** */
@@ -121,9 +120,6 @@ int __cminpack_func__(fdjac1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
 
     /* Function Body */
 
-/*     epsmch is the machine precision. */
-
-    epsmch = 0.0000000000000002;
 		// HARD CODE
     eps = 1.414213562373095e-08;
     msum = ml + mu + 1;

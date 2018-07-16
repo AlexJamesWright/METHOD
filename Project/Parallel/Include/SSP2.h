@@ -46,6 +46,7 @@ class SSP2 : public TimeIntegrator
     //!< Work array for specified variable. Size if Nx*Ny*Nz
     *U1, *U2, *source1, *flux1, *source2, *flux2,
     //@}
+    *tempCons, *tempPrims, *tempAux, *tempCons1, *tempSource1, *tempFlux1, *tempSource2, *tempFlux2,
     tol; //!< Tolerance of the N-dim newton rootfinder
     int
     Ntot, //!< Total number of cells in entire domain
@@ -88,10 +89,15 @@ class SSP2 : public TimeIntegrator
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
       @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *source pointer to source vector for solution. Size is Naux*Nx*Ny*Nz
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
     */
     void step(double * cons, double * prims, double * aux, double dt=0);
+
+    //! Performs stage one/two of IMEX2(222)
+    void callStageOne(double * cons, double * prims, double * aux, double * source, double dt);
+    void callStageTwo(double * cons, double * prims, double * aux, double * source, double * cons1, double * source1, double * flux1, double dt);
 
 };
 

@@ -7,18 +7,14 @@
 #include "cminpackP.h"
 
 __cminpack_attr__
-int __cminpack_func__(hybrd1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, real *fvec, real tol, real *wa, int lwa)
+int __cminpack_func__(hybrd1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, real *
+	fvec, real tol, real *wa, int lwa)
 {
     /* Initialized data */
 
-    const real factor = 100.;
 
     /* Local variables */
-    int j, ml, lr, mu, mode, nfev;
-    real xtol;
-    int index;
-    real epsfcn;
-    int maxfev, nprint;
+    int j, nfev;
     int info;
 
 /*     ********** */
@@ -113,33 +109,27 @@ int __cminpack_func__(hybrd1)(__cminpack_decl_fcn_nn__ void *p, int n, real *x, 
     /* Function Body */
 
 /*     check the input parameters for errors. */
-
+		// printf("lwa=%d, min=%d\n", lwa, n * (n * 3 + 13) / 2);
     if (n <= 0 || tol < 0. || lwa < n * (n * 3 + 13) / 2) {
-      printf("Hybrd1 solver is returning zero: rootfinder not called...\n");
-        return 0;
-    }
+			printf("Hybrd1 solver is returning zero: rootfinder not called...\n");
+      return 0;
+		}
 
 /*     call hybrd. */
 
-    maxfev = (n + 1) * 200;
-    xtol = tol;
-    ml = n - 1;
-    mu = n - 1;
-    epsfcn = 0.;
-    mode = 2;
     for (j = 1; j <= n; ++j) {
 	wa[j] = 1.;
     }
-    nprint = 0;
-    lr = n * (n + 1) / 2;
-    index = n * 6 + lr;
-    info = __cminpack_func__(hybrd)(__cminpack_param_fcn_nn__ p, n, &x[1], &fvec[1], xtol, maxfev, ml, mu, epsfcn, &
-	    wa[1], mode, factor, nprint, &nfev, &wa[index + 1], n, &
-	    wa[n * 6 + 1], lr, &wa[n + 1], &wa[(n << 1) + 1], &wa[n * 3
+
+
+    info = __cminpack_func__(hybrd)(__cminpack_param_fcn_nn__ p, n, &x[1], &fvec[1], tol, (n + 1) * 200, n-1, n-1, 0.0, &
+	    wa[1], 2, 100.0, 0, &nfev, &wa[n * 6 + n * (n + 1) / 2 + 1], n, &
+	    wa[n * 6 + 1], n * (n + 1) / 2, &wa[n + 1], &wa[(n << 1) + 1], &wa[n * 3
 	    + 1], &wa[(n << 2) + 1], &wa[n * 5 + 1]);
     if (info == 5) {
 	info = 4;
     }
+		// printf("hybrd completed, returning %d\n", info);
     return info;
 
 /*     last card of subroutine hybrd1. */

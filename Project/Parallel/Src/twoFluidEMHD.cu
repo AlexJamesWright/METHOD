@@ -25,6 +25,7 @@ static int newtonNew(double *p, const double Stilx, const double Stily, const do
 
 TwoFluidEMHD::TwoFluidEMHD() : Model()
 {
+  modType_t = ModelType::TFEMHD;
   this->Ncons = 18;
   this->Nprims = 16;
   this->Naux = 35;
@@ -35,6 +36,7 @@ TwoFluidEMHD::TwoFluidEMHD(Data * data) : Model(data)
   // Syntax
   Data * d(this->data);
 
+  modType_t = ModelType::TFEMHD;
   this->Ncons = d->Ncons = 18;
   this->Nprims = d->Nprims = 16;
   this->Naux = d->Naux = 35;
@@ -709,7 +711,6 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
       }
     }
   }
-
 }
 
 #define TOL 1.48e-13

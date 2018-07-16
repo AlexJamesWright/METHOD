@@ -1,4 +1,5 @@
 #include "simData.h"
+#include "cudaErrorCheck.h"
 #include <stdexcept>
 #include <cstdio>
 
@@ -9,7 +10,9 @@ Data::Data(int nx, int ny, int nz,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
            double cp,
-           double mu1, double mu2, int frameSkip)
+           double mu1, double mu2,
+           int frameSkip,
+           int tpb, int bpg)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -20,7 +23,9 @@ Data::Data(int nx, int ny, int nz,
            memSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
-           mu1(mu1), mu2(mu2), frameSkip(frameSkip)
+           mu1(mu1), mu2(mu2),
+           frameSkip(frameSkip),
+           tpb(tpb), bpg(bpg)
 {
 
   this->Nx = nx + 2 * Ng;
@@ -42,6 +47,10 @@ Data::Data(int nx, int ny, int nz,
     zmax = ymax = 1e20;
     dims = 1;
   }
+
+  // Total number of cells
+  Ncells = Nx * Ny * Nz;
+
   // Ensure there is some Resistivity
   if (this->sigma < 0.0) {
     throw std::invalid_argument("Conductivity must be non-negative, sigma >= 0.\n");
@@ -54,18 +63,25 @@ Data::Data(int nx, int ny, int nz,
   // Determine the specs of the GPU(s) and thus set details in simData
   cudaGetDeviceCount(&GPUcount);
   cudaGetDeviceProperties(&prop, 0);
-  // printf("totGlobMem = %zu\n", prop.totalGlobalMem);
-  // printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);
-  // printf("GPU name: %s\n", prop.name);
-  // printf("Shared mem per block = %zu\n", prop.sharedMemPerBlock);
-  // printf("Max threads per multiprocessor = %i\n", prop.maxThreadsPerMultiProcessor);
-  // printf("Number of multiprocessors = %i\n", prop.multiProcessorCount);
-  // printf("Global L1 cahche supported = %i\n", prop.globalL1CacheSupported);
-  // printf("Local L1 cahche supported = %i\n", prop.localL1CacheSupported);
-  // printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);
-  // printf("L2 cache size = %i\n", prop.l2CacheSize);
-  // printf("Total global memory = %ld\n", prop.totalGlobalMem);
-  // printf("Execute kernels concurrently? (1/0) = %d\n", prop.concurrentKernels);
-  // printf("Compute Capability (major) %d\n", prop.major);
+  // Determine the number of GPU streams
+  Nstreams = Ncells / (tpb * bpg) + 1;
+
+  if (true)
+  {
+    printf("totGlobMem = %zu\n", prop.totalGlobalMem);
+    printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);
+    printf("GPU name: %s\n", prop.name);
+    printf("Shared mem per block = %zu\n", prop.sharedMemPerBlock);
+    printf("Max threads per multiprocessor = %i\n", prop.maxThreadsPerMultiProcessor);
+    printf("Number of multiprocessors = %i\n", prop.multiProcessorCount);
+    printf("Global L1 cahche supported = %i\n", prop.globalL1CacheSupported);
+    printf("Local L1 cahche supported = %i\n", prop.localL1CacheSupported);
+    printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);
+    printf("L2 cache size = %i\n", prop.l2CacheSize);
+    printf("Total global memory = %ld\n", prop.totalGlobalMem);
+    printf("Execute kernels concurrently? (1/0) = %d\n", prop.concurrentKernels);
+    printf("Compute Capability (major) %d\n", prop.major);
+    printf("\n");
+  }
 
 }
