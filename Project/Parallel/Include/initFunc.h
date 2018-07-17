@@ -21,7 +21,6 @@ class InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods and
       initializes all primtive variables are zero.
-
       @param[in] *data pointer to Data class
     */
     InitialFunc(Data * data);
@@ -31,7 +30,6 @@ class InitialFunc
 /*!
     Two fluid version of the CP Alfven wave test. See Amano 2016 for description.
   Such a set up is an exact solution and so should be useful for convergence testing.
-
   @sa CPAlfvenWaveSingleFluid
 */
 class CPAlfvenWaveTwoFluid : public InitialFunc
@@ -40,7 +38,6 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
     //! CP Alfven wave initial data for a two-fluid
     /*!
         Stores a pointer to the Data class for reference in its methods
-
       @param[in] *data pointer to Data class containing global simulation data
       @sa InitialFunc
     */
@@ -51,7 +48,6 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
 /*!
     See Del Zanna et al. 2007 for the details. Such a set up is an exact solution
   and as such can be used as a method for plotting convergence.
-
   @sa CPAlfvenWaveTwoFluid
   @sa InitialFunc
 */
@@ -62,7 +58,6 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
     //! CP Alfven wave initial data for single fluid
     /*!
         Stores a pointer to the Data class for reference in its methods
-
       @param[in] *data pointer to Data class containing global simulation data
     */
     CPAlfvenWaveSingleFluid(Data * data);
@@ -70,7 +65,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
 
 //! <b> Two fluid self similar current sheet </b>
 /*!
-    See Palenzuela et al 2009, `Beyond ideal MHD: Towards a more...` for explanation.
+    See Amano 2016 for explanation.
   Set up is one dimensional (x-direction, although may be run in multiple Ds),
   in equilibrium, with initial By field given by the error function. Behaviour
   should be diffusive for moderate resistivities.
@@ -83,11 +78,31 @@ class CurrentSheetTwoFluid : public InitialFunc
     //! Current sheet initial data for two fluids
     /*!
         Stores a pointer to the Data class for reference in its methods
-
       @param[in] *data pointer to Data class containing global simulation data
       @sa InitialFunc
     */
     CurrentSheetTwoFluid(Data * data);
+};
+
+//! <b> Single fluid self similar current sheet </b>
+/*!
+    See Dionysopoulou 2016 for explanation
+  Set up is one dimensional (x-direction, although may be run in multiple Ds),
+  in equilibrium, with initial By field given by the error function. Behaviour
+  should be diffusive for moderate resistivities.
+    See Amano 2016 for two fluid details.
+*/
+class CurrentSheetSingleFluid : public InitialFunc
+{
+  public:
+
+    //! Current sheet initial data for two fluids
+    /*!
+        Stores a pointer to the Data class for reference in its methods
+      @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    CurrentSheetSingleFluid(Data * data);
 };
 
 
@@ -99,7 +114,6 @@ class CurrentSheetTwoFluid : public InitialFunc
   John Muddle, for initial data, Table 5.8. Orignally from Section 4.4 of `A second
   order Godunov Method for multidimentional relativistic magnetohydrodynamcis`,
   Kirs Beckwith.
-
 */
 class OTVortexSingleFluid : public InitialFunc
 {
@@ -108,7 +122,6 @@ class OTVortexSingleFluid : public InitialFunc
     //! Orzsang-Tang vortex initial data for single fluid
     /*!
         Stores a pointer to the Data class for reference in its methods
-
       @param[in] *data pointer to Data class containing global simulation data
     */
     OTVortexSingleFluid(Data * data);
@@ -119,7 +132,6 @@ class OTVortexSingleFluid : public InitialFunc
 //! <b> Brio-Wu shock tube initial data (1D) </b>
 /*!
     Standard shock tube test taken from Amano 2016.
-
 */
 
 class BrioWuTwoFluid : public InitialFunc
@@ -133,7 +145,6 @@ class BrioWuTwoFluid : public InitialFunc
       3D generalisation is also selected by default (setUp=0), but for the values
       used in Amano 2016 use setUp=1.
         Stores a pointer to the Data class for reference in its methods
-
     @param[in] *data Pointer to Data class containing global simulation data
     @param dir direction in which to place the discontinuity. (0, 1, 2) = (x, y, z) axis
     @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case
@@ -149,15 +160,30 @@ class BrioWuSingleFluid : public InitialFunc
     BrioWuSingleFluid(Data * data, int dir=0);
 };
 
-//! <b> Kelvin Helmholtz instability initial data </b>
+//! <b> Kelvin Helmholtz instability initial data, single fluid </b>
 /*!
-    Data taken from Schaal 2015 'Astrophysical hydrodynamics...'
+    Initial data taken from Mignone 2009 `A five wave HLL....`
+    @param[in] *data Pointer to Data class containing global simulation data
+    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
 */
 class KHInstabilitySingleFluid : public InitialFunc
 {
   public:
 
     KHInstabilitySingleFluid(Data * data, int mag=0);
+};
+
+//! <b> Kelvin Helmholtz instability initial data, two fluid </b>
+/*!
+    Adapted from Schaal 2015 'Astrophysical hydrodynamics...' for two fluid set up
+    @param[in] *data Pointer to Data class containing global simulation data
+    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
+*/
+class KHInstabilityTwoFluid : public InitialFunc
+{
+  public:
+
+    KHInstabilityTwoFluid(Data * data, int mag=0);
 };
 
 #endif
