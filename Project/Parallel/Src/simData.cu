@@ -66,7 +66,7 @@ Data::Data(int nx, int ny, int nz,
   // Determine the number of GPU streams
   Nstreams = Ncells / (tpb * bpg) + 1;
 
-  if (true)
+  if (false)
   {
     printf("totGlobMem = %zu\n", prop.totalGlobalMem);
     printf("Shared mem per multiprocessor = %zu\n", prop.sharedMemPerMultiprocessor);

@@ -12,6 +12,10 @@
 #include "srrmhd.h"
 #include "cminpack.h"
 
+#define TOL 1.0e-12
+#define EPS 1.0e-4
+#define MAXITER 50
+
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 static double residual(const double, const double, const double, const double, double);
@@ -537,15 +541,15 @@ static int newton(double *Z, const double StildeSq, const double D, const double
   // Rootfind data
   double bestX;
   double x0(*Z);
-  double eps(1.0e-4);
+  double eps(EPS);
   double x1(x0 + eps);
-  double tol(1.0e-12);
+  double tol(TOL);
   double x2;
   double bestF;
   double f0(residual(x0, StildeSq, D, tauTilde, gamma));
   double f1(residual(x1, StildeSq, D, tauTilde, gamma));
   int iter;
-  int maxiter(50);
+  int maxiter(MAXITER);
   int found(0);
 
   // If root can not be found return the best so far

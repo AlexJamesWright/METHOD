@@ -36,14 +36,15 @@ CPPFLAGS = -isystem $(GTEST_DIR)/include
 # c++11 is required for the vector looping srmhd
 # First four required to get the c++11 standard to compile with NVIDIA, dont ask me why,
 # found the solution on https://github.com/NVIDIA/nccl/issues/29
-CXXFLAGS = -std=c++11	\
-					 -D_MWAITXINTRIN_H_INCLUDED \
+CXXFLAGS = -D_MWAITXINTRIN_H_INCLUDED \
 					 -D_FORCE_INLINES \
 					 -D__STRICT_ANSI__ \
 					 -Wno-deprecated-gpu-targets \
 
-NVFLAGS = -rdc=true \
-					-fmad=false
+NVFLAGS = -std=c++11 \
+					-rdc=true \
+					-fmad=false \
+					-Wno-deprecated-gpu-targets
 
 
 
