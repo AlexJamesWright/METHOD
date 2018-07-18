@@ -46,6 +46,7 @@ class SSP2 : public TimeIntegrator
     //!< Work array for specified variable. Size if Nx*Ny*Nz
     *U1, *U2, *source1, *flux1, *source2, *flux2,
     //@}
+    *tempPrims, *tempAux,
     tol; //!< Tolerance of the N-dim newton rootfinder
     int
     Ntot, //!< Total number of cells in entire domain

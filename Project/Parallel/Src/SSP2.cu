@@ -98,6 +98,13 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
 
+  // REMOVE WHEN DONE from header and dest4ructor
+  cudaHostAlloc((void **)&tempPrims, sizeof(double) * d->Nprims * Ntot,
+                cudaHostAllocPortable);
+  cudaHostAlloc((void **)&tempAux, sizeof(double) * d->Naux * Ntot,
+                  cudaHostAllocPortable);
+                  // printf("Ke is %d\n", ke);
+
 }
 
 SSP2::~SSP2()
@@ -114,13 +121,16 @@ SSP2::~SSP2()
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
 
+  cudaFreeHost(tempPrims);
+  cudaFreeHost(tempAux);
+
 
 }
 
 //! Single step functions
 void SSP2::step(double * cons, double * prims, double * aux, double dt)
 {
-
+  // printf("Ke is %d\n", ke);
   // Syntax
   Data * d(this->data);
 
@@ -133,10 +143,12 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Ncons ; var++) U1[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims ; var++) tempPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux ; var++) tempAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)];
       }
     }
   }
-  callStageOne(U1, prims, aux, source1, dt);
+  callStageOne(U1, tempPrims, tempAux, source1, dt);
   this->fluxMethod->F(U1, prims, aux, d->f, flux1);
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
@@ -147,27 +159,36 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Ncons ; var++) U2[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
+        for (int var(0); var < d->Nprims ; var++) tempPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)];
+        for (int var(0); var < d->Naux ; var++) tempAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)];
       }
     }
   }
 
-  callStageTwo(U2, prims, aux, source2, U1, source1, flux1, dt);
-  this->fluxMethod->F(U2, prims, aux, d->f, flux2);
+  callStageTwo(U2, tempPrims, tempAux, source2, U1, source1, flux1, dt);
 
+  this->bcs->apply(U2, prims, aux);
+  this->model->getPrimitiveVars(U2, prims, aux);
+  this->model->sourceTerm(U2, prims, aux, source2);
+  this->fluxMethod->F(U2, prims, aux, d->f, flux2);
+  this->bcs->apply(flux2);
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(is); i < ie; i++) {
-      for (int j(js); j < je; j++) {
-        for (int k(ks); k < ke; k++) {
-          cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - 0.5 * dt *
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          cons[ID(var, i, j, k)] +=  - 0.5 * dt *
                     (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
                     source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
         }
       }
     }
   }
-  this->bcs->apply(cons);
+
+  this->model->getPrimitiveVars(cons, prims, aux);
+  this->bcs->apply(cons, prims, aux);
+
 }
 
 void SSP2::callStageOne(double * cons, double * prims, double * aux, double * source, double dt)
