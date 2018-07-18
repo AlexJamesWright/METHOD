@@ -636,7 +636,7 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
   // First need thread indicies
   const int tID(threadIdx.x);                     //!< thread index (in block)
   const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
-  const int gID(lID + stream * origWidth);        //!< global index (in domain)
+  // const int gID(lID + stream * origWidth);        //!< global index (in domain)
   // Allocate shared memory
   extern __shared__ double sharedArray [];
   double * cons = &sharedArray[tID * (Ncons + Nprims + Naux)];

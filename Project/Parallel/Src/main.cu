@@ -26,16 +26,16 @@ int main(int argc, char *argv[]) {
 
   const double MU(1400);
   // Set up domain
-  int nx(64);
-  int ny(16);
+  int nx(120);
+  int ny(248);
   int nz(0);
-  double xmin(0.0);
-  double xmax(1.0);
-  double ymin(0.0);
+  double xmin(-0.5);
+  double xmax(0.5);
+  double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.05);
+  double endTime(0.0005);
   double cfl(0.5);
   int Ng(4);
   double gamma(4.0/3.0);
@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
   int frameSkip(30);
   bool output(false);
   int safety(99999999);
-  int tpb(128);
-  int bpg(64);
+  int tpb(32);
+  int bpg(4800);
 
   char * ptr(0);
   double tmp(0);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   Outflow bcs(&data);
 
@@ -107,15 +107,14 @@ int main(int argc, char *argv[]) {
   double startTime(omp_get_wtime());
 
   // // Run until end time and save results
-  // sim.evolve(output, safety);
-  sim.updateTime();
-  sim.updateTime();
+  sim.evolve(output, safety);
+
   double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
-  printf("End [1](34, 4, 0): %19.16f\n", data.cons[ID(1, 34, 4, 0)]);
+  printf("Parallel speedup of %6.3fx\n",3.45/timeTaken);
 
   return 0;
 

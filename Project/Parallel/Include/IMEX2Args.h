@@ -49,7 +49,8 @@ class IMEX2Arguments
     ** cons1_d,     //!< Device array for solution of stage 1
     ** flux1_d,     //!< Device array for flux vector of stage 1 solution
     ** source1_d,   //!< Device array for source vector of stage 1 solution
-    ** wa_d;        //!< Device array, working array for rootfinder (will be stored in global memory due to size)
+    ** wa_d,        //!< Device array, working array for rootfinder (will be stored in global memory due to size)
+    ** fvec_d;      //!< Device array, stores residual
 
 
     cudaStream_t * stream; //!< Pointer to CUDA streams

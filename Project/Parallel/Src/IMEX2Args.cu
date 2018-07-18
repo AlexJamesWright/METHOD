@@ -35,6 +35,7 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   flux1_d   = new double*[data->Nstreams];
   source1_d = new double*[data->Nstreams];
   wa_d      = new double*[data->Nstreams];
+  fvec_d      = new double*[data->Nstreams];
   for (int i(0); i < data->Nstreams; i++) {
     gpuErrchk( cudaMalloc((void **)&sol_d[i]    , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&cons_d[i]   , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
@@ -45,6 +46,7 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
     gpuErrchk( cudaMalloc((void **)&flux1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&source1_d[i], data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&wa_d[i]     , lwa * data->tpb * data->bpg * sizeof(double)) );
+    gpuErrchk( cudaMalloc((void **)&fvec_d[i]   , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
   }
 
   // Create streams
@@ -76,6 +78,7 @@ IMEX2Arguments::~IMEX2Arguments()
     gpuErrchk( cudaFree(flux1_d[i]) );
     gpuErrchk( cudaFree(source1_d[i]) );
     gpuErrchk( cudaFree(wa_d[i]) );
+    gpuErrchk( cudaFree(fvec_d[i]) );
   }
   gpuErrchk( cudaFreeHost(cons_h) );
   gpuErrchk( cudaFreeHost(prims_h) );
@@ -126,16 +129,18 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     flux1_d   = new double*[data->Nstreams];
     source1_d = new double*[data->Nstreams];
     wa_d      = new double*[data->Nstreams];
+    fvec_d      = new double*[data->Nstreams];
     for (int i(0); i < data->Nstreams; i++) {
       gpuErrchk( cudaMalloc((void **)&sol_d[i]    , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&cons_d[i]   , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&prims_d[i]  , data->Nprims * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&aux_d[i]    , data->Naux * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&source_d[i] , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
-      gpuErrchk( cudaMalloc((void **)&cons1_d[i] , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
+      gpuErrchk( cudaMalloc((void **)&cons1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&flux1_d[i]  , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&source1_d[i], data->Ncons * data->tpb * data->bpg * sizeof(double)) );
       gpuErrchk( cudaMalloc((void **)&wa_d[i]     , lwa * data->tpb * data->bpg * sizeof(double)) );
+      gpuErrchk( cudaMalloc((void **)&fvec_d[i]   , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     }
 
     // Create streams

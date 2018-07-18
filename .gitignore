@@ -34,3 +34,5 @@ cleanData.sh
 TestData
 
 .cache
+
+ProfileParallel.nvvp

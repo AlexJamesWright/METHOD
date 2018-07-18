@@ -29,7 +29,7 @@ DOC_DIR = ../Doxumentation
 CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3
 
 # Sources
 SRCS = main.cu \
@@ -150,7 +150,7 @@ backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_DIR)/backRKArgs.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
 IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)

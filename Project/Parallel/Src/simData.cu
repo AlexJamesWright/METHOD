@@ -84,4 +84,6 @@ Data::Data(int nx, int ny, int nz,
     printf("\n");
   }
 
+  // cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
+
 }

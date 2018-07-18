@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
+#include <omp.h>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -17,18 +18,18 @@
 // Device function for stage one of IMEX rootfind
 __global__
 void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
-              double * wa, double dt, double gam, double tol, int stream,
-              int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
-              double gamma, double sigma, double mu1, double mu2, double cp,
+              double * wa, double * fvec, const double dt, const double gam, const double tol, const int stream,
+              const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
+              const double gamma, const double sigma, const double mu1, const double mu2, const double cp,
               ModelType modType_t);
 
 // Device function for stage two of IMEX rootfind
 __global__
 void stageTwo(double * sol, double * cons, double * prims, double * aux, double * source,
-              double * cons1, double * source1, double * flux1,
-              double * wa, double dt, double gam, double tol, int stream,
-              int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
-              double gamma, double sigma, double mu1, double mu2, double cp,
+              double * cons1, double * source1, double * flux1, double * wa, double * fvec,
+              const double dt, const double gam, const double tol, const int stream,
+              const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
+              const double gamma, const double sigma, const double mu1, const double mu2, const double cp,
               ModelType modType_t);
 
 
@@ -76,14 +77,6 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
     ke = 1;
   }
 
-
-  // Need work arrays
-  cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fvec, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&wa, sizeof(double) * lwa,
-                cudaHostAllocPortable);
   // Interstage results
   cudaHostAlloc((void **)&U1, sizeof(double) * d->Ncons * Ntot,
                 cudaHostAllocPortable);
@@ -98,22 +91,18 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
 
-  // REMOVE WHEN DONE from header and dest4ructor
-  cudaHostAlloc((void **)&tempPrims, sizeof(double) * d->Nprims * Ntot,
+  //! In order to keep consitency with the serial version we need to begin the
+  //! C2P rootfind from the same guess, so need to double up on those arrays
+  cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempAux, sizeof(double) * d->Naux * Ntot,
-                  cudaHostAllocPortable);
-                  // printf("Ke is %d\n", ke);
-
+  cudaHostAlloc((void **)&holdAux, sizeof(double) * d->Naux * Ntot,
+                cudaHostAllocPortable);
 }
 
 SSP2::~SSP2()
 {
 
   // Clean up your mess
-  cudaFreeHost(x);
-  cudaFreeHost(fvec);
-  cudaFreeHost(wa);
   cudaFreeHost(U1);
   cudaFreeHost(U2);
   cudaFreeHost(source1);
@@ -121,16 +110,14 @@ SSP2::~SSP2()
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
 
-  cudaFreeHost(tempPrims);
-  cudaFreeHost(tempAux);
-
-
+  cudaFreeHost(holdPrims);
+  cudaFreeHost(holdAux);
 }
 
 //! Single step functions
 void SSP2::step(double * cons, double * prims, double * aux, double dt)
 {
-  // printf("Ke is %d\n", ke);
+  int i, j, k, var;
   // Syntax
   Data * d(this->data);
 
@@ -138,46 +125,51 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   if (dt <= 0) dt = d->dt;
   args.dt = dt;
 
-
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons ; var++) U1[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims ; var++) tempPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux ; var++) tempAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)];
+  #pragma omp parallel for
+  for (i = 0; i < d->Nx; i++) {
+    for (j = 0; j < d->Ny; j++) {
+      for (k = 0; k < d->Nz; k++) {
+        for (var = 0; var < d->Ncons ; var++) U1[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
+        // for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+        // for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
       }
     }
   }
-  callStageOne(U1, tempPrims, tempAux, source1, dt);
+  callStageOne(U1, prims, aux, source1, dt);
+  // this->model->getPrimitiveVars(U1, prims, aux);
+  // this->model->sourceTerm(U1, prims, aux, source1);
   this->fluxMethod->F(U1, prims, aux, d->f, flux1);
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
 
 
   //########################### STAGE TWO #############################//
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons ; var++) U2[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims ; var++) tempPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux ; var++) tempAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)];
+  #pragma omp parallel for
+  for (i = 0; i < d->Nx; i++) {
+    for (j = 0; j < d->Ny; j++) {
+      for (k = 0; k < d->Nz; k++) {
+        for (var = 0; var < d->Ncons ; var++) U2[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
+        // for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+        // for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+
       }
     }
   }
 
-  callStageTwo(U2, tempPrims, tempAux, source2, U1, source1, flux1, dt);
+  callStageTwo(U2, prims, aux, source2, U1, source1, flux1, dt);
 
-  this->bcs->apply(U2, prims, aux);
-  this->model->getPrimitiveVars(U2, prims, aux);
-  this->model->sourceTerm(U2, prims, aux, source2);
+  // this->bcs->apply(U2, prims, aux);
+  // this->model->getPrimitiveVars(U2, prims, aux);
+  // this->model->sourceTerm(U2, prims, aux, source2);
   this->fluxMethod->F(U2, prims, aux, d->f, flux2);
   this->bcs->apply(flux2);
 
   // Prediction correction
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+  #pragma omp parallel for
+  for (var = 0; var < d->Ncons; var++) {
+    for (i = 0; i < d->Nx; i++) {
+      for (j = 0; j < d->Ny; j++) {
+        for (k = 0; k < d->Nz; k++) {
           cons[ID(var, i, j, k)] +=  - 0.5 * dt *
                     (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
                     source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
@@ -193,17 +185,20 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
 void SSP2::callStageOne(double * cons, double * prims, double * aux, double * source, double dt)
 {
+  int i, j, k, var;
+
   Data * d(this->data);
   //########################### STAGE ONE #############################//
   // First need to copy data to the device
   // A single cell requires all cons, prims and aux for the step. Rearrange so
   // we can copy data in contiguous way
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k) ] = cons[ID(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
-        for (int var(0); var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)    ] = aux[ID(var, i, j, k)];
+  #pragma omp parallel for
+  for (i = 0; i < d->Nx; i++) {
+    for (j = 0; j < d->Ny; j++) {
+      for (k = 0; k < d->Nz; k++) {
+        for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k) ] = cons[ID(var, i, j, k)];
+        for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
+        for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)    ] = aux[ID(var, i, j, k)];
       }
     }
   }
@@ -222,14 +217,14 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
 
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
 
-    int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
+    // int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
+    int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
     // Call kernel and operate on data
     stageOne <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
             (args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i],
-            args.source_d[i], args.wa_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
+            args.source_d[i], args.wa_d[i], args.fvec_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
             width, d->Ncons, d->Nprims, d->Naux, lwa,
             d->gamma, d->sigma, d->mu1, d->mu2, d->cp,
             model->modType_t);
@@ -247,13 +242,14 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
 
 
   // Rearrange data back into arrays
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Ncons; var++)  cons[ID(var, i, j, k)]   = args.sol_h[IDCons(var, i, j, k)];
-        for (int var(0); var < d->Ncons; var++)  source[ID(var, i, j, k)] = args.source_h[IDCons(var, i, j, k)];
-        for (int var(0); var < d->Nprims; var++) prims[ID(var, i, j, k) ] = args.prims_h[IDPrims(var, i, j, k)];
-        for (int var(0); var < d->Naux; var++)   aux[ID(var, i, j, k)]    = args.aux_h[IDAux(var, i, j, k)];
+  #pragma omp parallel for
+  for (i = 0; i < d->Nx; i++) {
+    for (j = 0; j < d->Ny; j++) {
+      for (k = 0; k < d->Nz; k++) {
+        for (var = 0; var < d->Ncons; var++)  cons[ID(var, i, j, k)]   = args.sol_h[IDCons(var, i, j, k)];
+        for (var = 0; var < d->Ncons; var++)  source[ID(var, i, j, k)] = args.source_h[IDCons(var, i, j, k)];
+        for (var = 0; var < d->Nprims; var++) prims[ID(var, i, j, k) ] = args.prims_h[IDPrims(var, i, j, k)];
+        for (var = 0; var < d->Naux; var++)   aux[ID(var, i, j, k)]    = args.aux_h[IDAux(var, i, j, k)];
       }
     }
   }
@@ -261,29 +257,37 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
 
 __global__
 void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
-              double * wa, double dt, double gam, double tol, int stream,
-              int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
-              double gamma, double sigma, double mu1, double mu2, double cp,
+              double * wa, double * fvec, const double dt, const double gam, const double tol, const int stream,
+              const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
+              const double gamma, const double sigma, double mu1, const double mu2, const double cp,
               ModelType modType_t)
 {
   const int tID(threadIdx.x);                     //!< thread index (in block)
   const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
   const int gID(lID + stream * origWidth);        //!< global index (in domain)
-  int info;
-  extern __shared__ double sharedArray[];         //!< Shared mem, block specific
-  double * fvec  = &sharedArray[tID * 2 * Ncons];
-  double * guess = &fvec[Ncons];
-  double * WA = &wa[lwa * lID];
+  extern __shared__ double sharedMem[];
+  double * CONS = &sharedMem[tID * (Ncons + Ncons + Ncons + Nprims + Naux)];
+  double * PRIMS = &CONS[Ncons];
+  double * AUX = &PRIMS[Nprims];
+  double * SOURCE = &AUX[Naux];
+  double * SOL = &SOURCE[Ncons];
 
+  int info;
 
   if (lID < streamWidth)
   {
+    // Load data into shared memory
+    for (int i(0); i < Ncons; i++) CONS[i] = cons[i + lID * Ncons];
+    for (int i(0); i < Nprims; i++) PRIMS[i] = prims[i + lID * Nprims];
+    for (int i(0); i < Naux; i++) AUX[i] = aux[i + lID * Naux];
+    for (int i(0); i < Ncons; i++) SOURCE[i] = source[i + lID * Ncons];
+
     Model_D * model_d;
 
     // Store pointers to devuce arrays in the structure
     // to be passed into the residual function
-    TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, sol,
-                                                         cons, prims, aux, source);
+    TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, SOL,
+                                                         CONS,  PRIMS, AUX, SOURCE);
     args->gID = gID;
     // Need to instantiate the correct device model
     switch (modType_t)
@@ -301,23 +305,18 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 
 
     // First load initial guess (current value of cons)
-    for (int i(0); i < Ncons; i++) guess[i] = cons[i + lID * Ncons];
-    args->cons = &cons[lID * Ncons];
-    args->prims = &prims[lID * Nprims];
-    args->aux = &aux[lID * Naux];
-    args->source = &source[lID * Ncons];
+    for (int i(0); i < Ncons; i++) SOL[i] = cons[i + lID * Ncons];
 
     // Rootfind
-    if ((info = __cminpack_func__(hybrd1)(IMEX2Residual1Parallel, model_d, Ncons, guess, fvec, tol, WA, lwa)) != 1)
+    if ((info = __cminpack_func__(hybrd1)(IMEX2Residual1Parallel, model_d, Ncons, SOL, &fvec[lID * Ncons], tol, &wa[lwa * lID], lwa)) != 1)
     {
       printf("IMEX failed stage 1 for gID %d: info %d\n", gID, info);
     }
 
-    // Copy solution back to sol_d array
-    for (int i(0); i < Ncons; i++)
-    {
-      sol[i + lID * Ncons] = guess[i];
-    }
+    for (int i(0); i < Nprims; i++) prims[i + lID * Nprims] = PRIMS[i];
+    for (int i(0); i < Naux; i++) aux[i + lID * Naux] =  AUX[i];
+    for (int i(0); i < Ncons; i++) source[i + lID * Ncons] = SOURCE[i];
+    for (int i(0); i < Ncons; i++) sol[i + lID * Ncons] = SOL[i];
 
     // Clean up
     delete args;
@@ -371,20 +370,23 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 
   void SSP2::callStageTwo(double * cons, double * prims, double * aux, double * source, double * cons1, double * source1, double * flux1, double dt)
   {
+    int i, j, k, var;
+
     Data * d(this->data);
     //########################### STAGE TWO A #############################//
     // First need to copy data to the device
     // A single cell requires all cons, prims and aux for the step. Rearrange so
     // we can copy data in contiguous way
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          for (int var(0); var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
-          // for (int var(0); var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
-          for (int var(0); var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
-          for (int var(0); var < d->Ncons; var++)  args.cons1_h[IDCons(var, i, j, k)  ] = cons1[ID(var, i, j, k)];
-          for (int var(0); var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
-          for (int var(0); var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
+    #pragma omp parallel for
+    for (i = 0; i < d->Nx; i++) {
+      for (j = 0; j < d->Ny; j++) {
+        for (k = 0; k < d->Nz; k++) {
+          for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
+          for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
+          for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  args.cons1_h[IDCons(var, i, j, k)  ] = cons1[ID(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
         }
       }
     }
@@ -409,11 +411,12 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
       gpuErrchk( cudaMemcpyAsync(args.source1_d[i], args.source1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
       gpuErrchk( cudaMemcpyAsync(args.flux1_d[i], args.flux1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
 
-      int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
+      int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
+      // int sharedMem(0);
       // Call kernel and operate on data
       stageTwo <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
               (args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i], args.source_d[i], args.cons1_d[i],
-              args.source1_d[i], args.flux1_d[i], args.wa_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
+              args.source1_d[i], args.flux1_d[i], args.wa_d[i], args.fvec_d[i], dt, args.gam, tol, i, d->tpb * d->bpg,
               width, d->Ncons, d->Nprims, d->Naux, lwa,
               d->gamma, d->sigma, d->mu1, d->mu2, d->cp,
               model->modType_t);
@@ -430,13 +433,14 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     gpuErrchk( cudaDeviceSynchronize() );
 
     // Rearrange data back into arrays
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          for (int var(0); var < d->Ncons; var++)  cons[ID(var, i, j, k)]    = args.sol_h[IDCons(var, i, j, k)];
-          for (int var(0); var < d->Ncons; var++)  source[ID(var, i, j, k)]  = args.source_h[IDCons(var, i, j, k)];
-          for (int var(0); var < d->Nprims; var++) prims[ID(var, i, j, k)  ] = args.prims_h[IDPrims(var, i, j, k)];
-          for (int var(0); var < d->Naux; var++)   aux[ID(var, i, j, k)]     = args.aux_h[IDAux(var, i, j, k)];
+    #pragma omp parallel for
+    for (i = 0; i < d->Nx; i++) {
+      for (j = 0; j < d->Ny; j++) {
+        for (k = 0; k < d->Nz; k++) {
+          for (var = 0; var < d->Ncons; var++)  cons[ID(var, i, j, k)]    = args.sol_h[IDCons(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  source[ID(var, i, j, k)]  = args.source_h[IDCons(var, i, j, k)];
+          for (var = 0; var < d->Nprims; var++) prims[ID(var, i, j, k)  ] = args.prims_h[IDPrims(var, i, j, k)];
+          for (var = 0; var < d->Naux; var++)   aux[ID(var, i, j, k)]     = args.aux_h[IDAux(var, i, j, k)];
         }
       }
     }
@@ -444,31 +448,38 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 
   __global__
   void stageTwo(double * sol, double * cons, double * prims, double * aux, double * source,
-                double * cons1, double * source1, double * flux1,
-                double * wa, double dt, double gam, double tol, int stream,
-                int origWidth, int streamWidth, int Ncons, int Nprims, int Naux, int lwa,
-                double gamma, double sigma, double mu1, double mu2, double cp,
+                double * cons1, double * source1, double * flux1, double * wa, double * fvec,
+                const double dt, const double gam, const double tol, const int stream,
+                const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
+                const double gamma, const double sigma, const double mu1, const double mu2, const double cp,
                 ModelType modType_t)
 {
   const int tID(threadIdx.x);                     //!< thread index (in block)
   const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
   const int gID(lID + stream * origWidth);        //!< global index (in domain)
   int info;
-  extern __shared__ double sharedArray[];         //!< Shared mem, block specific
-  double * fvec  = &sharedArray[tID * 2 * Ncons];
-  double * guess = &fvec[Ncons];
-  double * WA = &wa[lwa * lID];
-
+  extern __shared__ double sharedMem[];
+  double * CONS = &sharedMem[tID * (Ncons + Ncons + Ncons +  Nprims + Naux)];
+  double * PRIMS = &CONS[Ncons];
+  double * AUX = &PRIMS[Nprims];
+  double * SOURCE = &AUX[Naux];
+  double * SOL = &SOURCE[Ncons];
 
   if (lID < streamWidth)
   {
+
+    for (int i(0); i < Ncons; i++) CONS[i] = cons[i + lID * Ncons];
+    for (int i(0); i < Nprims; i++) PRIMS[i] = prims[i + lID * Nprims];
+    for (int i(0); i < Naux; i++) AUX[i] = aux[i + lID * Naux];
+    for (int i(0); i < Ncons; i++) SOURCE[i] = source[i + lID * Ncons];
+
     Model_D * model_d;
 
     // Store pointers to devuce arrays in the structure
     // to be passed into the residual function
-    TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, sol,
-                                                         &cons[lID * Ncons], &prims[lID * Nprims],
-                                                         &aux[lID * Naux], &source[lID * Ncons],
+    TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, SOL,
+                                                         CONS, PRIMS,
+                                                         AUX, SOURCE,
                                                          &cons1[lID * Ncons], &source1[lID * Ncons],
                                                          &flux1[lID * Ncons]);
     args->gID = gID;
@@ -487,19 +498,18 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     }
 
     // First load initial guess (current value of cons)
-    for (int i(0); i < Ncons; i++) guess[i] = 0.5*(cons[i + lID * Ncons] + args->cons1[i] - dt*args->flux1[i]);
+    for (int i(0); i < Ncons; i++) SOL[i] = 0.5*(cons[i + lID * Ncons] + args->cons1[i] - dt*args->flux1[i]);
 
 
-    if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2Parallel, model_d, Ncons, guess, fvec, tol, WA, lwa)) != 1)
+    if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2Parallel, model_d, Ncons, SOL, &fvec[lID * Ncons], tol,  &wa[lwa * lID], lwa)) != 1)
     {
       printf("IMEX failed stage 2 for gID %d: info %d\n", gID, info);
     }
 
-    // Copy solution back to sol_d array
-    for (int i(0); i < Ncons; i++)
-    {
-      sol[i + lID * Ncons] = guess[i];
-    }
+    for (int i(0); i < Nprims; i++) prims[i + lID * Nprims] = PRIMS[i];
+    for (int i(0); i < Naux; i++) aux[i + lID * Naux] =  AUX[i];
+    for (int i(0); i < Ncons; i++) source[i + lID * Ncons] =  SOURCE[i];
+    for (int i(0); i < Ncons; i++) sol[i + lID * Ncons] =  SOL[i];
 
     // Clean up
     delete args;

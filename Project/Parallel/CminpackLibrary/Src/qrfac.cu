@@ -12,93 +12,7 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
 	lda, int pivot, int *ipvt, int lipvt, real *rdiag,
 	 real *acnorm, real *wa)
 {
-#ifdef USE_LAPACK
-    __CLPK_integer m_ = m;
-    __CLPK_integer n_ = n;
-    __CLPK_integer lda_ = lda;
-    __CLPK_integer *jpvt;
 
-    int i, j, k;
-    double t;
-    double* tau = wa;
-    const __CLPK_integer ltau = m > n ? n : m;
-    __CLPK_integer lwork = -1;
-    __CLPK_integer info = 0;
-    double* work;
-
-    if (pivot) {
-        assert( lipvt >= n );
-        if (sizeof(__CLPK_integer) != sizeof(ipvt[0])) {
-            jpvt = malloc(n*sizeof(__CLPK_integer));
-        } else {
-            /* __CLPK_integer is actually an int, just do a cast */
-            jpvt = (__CLPK_integer *)ipvt;
-        }
-        /* set all columns free */
-        memset(jpvt, 0, sizeof(int)*n);
-    }
-
-    /* query optimal size of work */
-    lwork = -1;
-    if (pivot) {
-        dgeqp3_(&m_,&n_,a,&lda_,jpvt,tau,tau,&lwork,&info);
-        lwork = (int)tau[0];
-        assert( lwork >= 3*n+1  );
-    } else {
-        dgeqrf_(&m_,&n_,a,&lda_,tau,tau,&lwork,&info);
-        lwork = (int)tau[0];
-        assert( lwork >= 1 && lwork >= n );
-    }
-
-    assert( info == 0 );
-
-    /* alloc work area */
-    work = (double *)malloc(sizeof(double)*lwork);
-    assert(work != NULL);
-
-    /* set acnorm first (from the doc of qrfac, acnorm may point to the same area as rdiag) */
-    if (acnorm != rdiag) {
-        for (j = 0; j < n; ++j) {
-            acnorm[j] = __cminpack_enorm__(m, &a[j * lda]);
-        }
-    }
-
-    /* QR decomposition */
-    if (pivot) {
-        dgeqp3_(&m_,&n_,a,&lda_,jpvt,tau,work,&lwork,&info);
-    } else {
-        dgeqrf_(&m_,&n_,a,&lda_,tau,work,&lwork,&info);
-    }
-    assert(info == 0);
-
-    /* set rdiag, before the diagonal is replaced */
-    memset(rdiag, 0, sizeof(double)*n);
-    for(i=0 ; i<n ; ++i) {
-        rdiag[i] = a[i*lda+i];
-    }
-
-    /* modify lower trinagular part to look like qrfac's output */
-    for(i=0 ; i<ltau ; ++i) {
-        k = i*lda+i;
-        t = tau[i];
-        a[k] = t;
-        for(j=i+1 ; j<m ; j++) {
-            k++;
-            a[k] *= t;
-        }
-    }
-
-    free(work);
-    if (pivot) {
-        /* convert back jpvt to ipvt */
-        if (sizeof(__CLPK_integer) != sizeof(ipvt[0])) {
-            for(i=0; i<n; ++i) {
-                ipvt[i] = jpvt[i];
-            }
-            free(jpvt);
-        }
-    }
-#else /* !USE_LAPACK */
     /* Initialized data */
 
 #define p05 .05
@@ -280,5 +194,4 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
     }
 
 /*     last card of subroutine qrfac. */
-#endif /* !USE_LAPACK */
 } /* qrfac_ */
