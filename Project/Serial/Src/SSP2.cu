@@ -154,7 +154,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.flux1[var]   = flux1[ID(var,i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.source1[var] = source1[ID(var, i, j, k)];
-        for (int var(0); var < d->Ncons ; var++) x[var]            = U1[ID(var, i, j, k)];
+
         args.i = i;
         args.j = j;
         args.k = k;
@@ -193,16 +193,18 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(is); i < ie; i++) {
-      for (int j(js); j < je; j++) {
-        for (int k(ks); k < ke; k++) {
-          cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - 0.5 * dt *
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          cons[ID(var, i, j, k)] +=  - 0.5 * dt *
                     (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
                     source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
         }
       }
     }
   }
+  this->model->getPrimitiveVars(cons, prims, aux);
+  this->bcs->apply(cons, prims, aux);
 
 }
 
