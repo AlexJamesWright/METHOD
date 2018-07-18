@@ -32,3 +32,5 @@ runMultipleSims.sh
 cleanData.sh
 
 TestData
+
+.cache
