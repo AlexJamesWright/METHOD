@@ -9,6 +9,15 @@
 #include <cstdio>
 #include <omp.h>
 
+// There are some optimisations that can be made if we allow the parallel and
+// serial verions to differ. The simulations are still accurate to within the
+// specified tolerance and so valid solutions, but the test_imex module requires
+// they agree exactly. If performing tests, only expect test_imex to pass if
+// MATCH_SERIAL = 1
+}
+#define MATCH_SERIAL 0
+
+
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 #define IDCons(var, idx, jdx, kdx) ( (var) + (idx)*(d->Ncons)*(d->Nz)*(d->Ny) + (jdx)*(d->Ncons)*(d->Nz) + (kdx)*(d->Ncons)  )
@@ -93,11 +102,12 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
   //! In order to keep consitency with the serial version we need to begin the
   //! C2P rootfind from the same guess, so need to double up on those arrays
-  printf("Remove to optimise! SSP2 holdPrims, holdAux\n");
-  cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&holdAux, sizeof(double) * d->Naux * Ntot,
-                cudaHostAllocPortable);
+  #if MATCH_SERIAL
+    cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
+                  cudaHostAllocPortable);
+    cudaHostAlloc((void **)&holdAux, sizeof(double) * d->Naux * Ntot,
+                  cudaHostAllocPortable);
+  #endif
 }
 
 SSP2::~SSP2()
@@ -111,8 +121,10 @@ SSP2::~SSP2()
   cudaFreeHost(source2);
   cudaFreeHost(flux2);
 
-  cudaFreeHost(holdPrims);
-  cudaFreeHost(holdAux);
+  #if MATCH_SERIAL
+    cudaFreeHost(holdPrims);
+    cudaFreeHost(holdAux);
+  #endif
 }
 
 //! Single step functions
@@ -131,14 +143,20 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
         for (var = 0; var < d->Ncons ; var++) U1[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
-        for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+        #if MATCH_SERIAL
+          for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+          for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+        #endif
       }
     }
   }
-  callStageOne(U1, holdPrims, holdAux, source1, dt);
-  this->model->getPrimitiveVars(U1, prims, aux);
-  this->model->sourceTerm(U1, prims, aux, source1);
+  #if MATCH_SERIAL
+    callStageOne(U1, holdPrims, holdAux, source1, dt);
+    this->model->getPrimitiveVars(U1, prims, aux);
+    this->model->sourceTerm(U1, prims, aux, source1);
+  #else
+    callStageOne(U1, prims, aux, source1, dt);
+  #endif
   this->fluxMethod->F(U1, prims, aux, d->f, flux1);
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
@@ -150,18 +168,21 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
         for (var = 0; var < d->Ncons ; var++) U2[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
-        for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
-
+        #if MATCH_SERIAL
+          for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+          for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+        #endif
       }
     }
   }
-
-  callStageTwo(U2, holdPrims, holdAux, source2, U1, source1, flux1, dt);
-
-  this->bcs->apply(U2, prims, aux);
-  this->model->getPrimitiveVars(U2, prims, aux);
-  this->model->sourceTerm(U2, prims, aux, source2);
+  #if MATCH_SERIAL
+    callStageTwo(U2, holdPrims, holdAux, source2, U1, source1, flux1, dt);
+    this->bcs->apply(U2, prims, aux);
+    this->model->getPrimitiveVars(U2, prims, aux);
+    this->model->sourceTerm(U2, prims, aux, source2);
+  #else
+    callStageTwo(U2, prims, aux, source2, U1, source1, flux1, dt);
+  #endif
   this->fluxMethod->F(U2, prims, aux, d->f, flux2);
   this->bcs->apply(flux2);
 
@@ -311,10 +332,12 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
       printf("IMEX failed stage 1 for gID %d: info %d\n", gID, info);
     }
 
-    for (int i(0); i < Nprims; i++) prims[i + lID * Nprims] = PRIMS[i];
-    for (int i(0); i < Naux; i++) aux[i + lID * Naux] =  AUX[i];
-    for (int i(0); i < Ncons; i++) source[i + lID * Ncons] = SOURCE[i];
-    for (int i(0); i < Ncons; i++) sol[i + lID * Ncons] = SOL[i];
+    #if MATCH_SERIAL==0
+      for (int i(0); i < Nprims; i++) prims[i + lID * Nprims] = PRIMS[i];
+      for (int i(0); i < Naux; i++) aux[i + lID * Naux] =  AUX[i];
+      for (int i(0); i < Ncons; i++) source[i + lID * Ncons] = SOURCE[i];
+    #endif
+      for (int i(0); i < Ncons; i++) sol[i + lID * Ncons] = SOL[i];
 
     // Clean up
     delete args;
@@ -502,9 +525,11 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
       printf("IMEX failed stage 2 for gID %d: info %d\n", gID, info);
     }
 
-    for (int i(0); i < Nprims; i++) prims[ i + lID * Nprims] = PRIMS[i];
-    for (int i(0); i < Naux; i++  ) aux[   i + lID * Naux  ] = AUX[i];
-    for (int i(0); i < Ncons; i++ ) source[i + lID * Ncons ] = SOURCE[i];
+    #if MATCH_SERIAL==0
+      for (int i(0); i < Nprims; i++) prims[ i + lID * Nprims] = PRIMS[i];
+      for (int i(0); i < Naux; i++  ) aux[   i + lID * Naux]   = AUX[i];
+      for (int i(0); i < Ncons; i++ ) source[i + lID * Ncons]  = SOURCE[i];
+    #endif
     for (int i(0); i < Ncons; i++ ) sol[   i + lID * Ncons ] = SOL[i];
 
     // Clean up
