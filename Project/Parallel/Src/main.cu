@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.000006);
+  double endTime(0.0000006);
   double cfl(0.2);
   int Ng(4);
   double gamma(4.0/3.0);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
   save.saveAll();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
-  printf("Parallel speedup of %6.3fx\n",1.1/timeTaken);
+  printf("Parallel speedup of %6.3fx\n", 0.55/timeTaken);
 
   return 0;
 
