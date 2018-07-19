@@ -220,7 +220,6 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
     gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
-
     // int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
     int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
     // Call kernel and operate on data
@@ -230,7 +229,6 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
             width, d->Ncons, d->Nprims, d->Naux, lwa,
             d->gamma, d->sigma, d->mu1, d->mu2, d->cp,
             model->modType_t);
-
     cudaStreamSynchronize(args.stream[i]);
     gpuErrchk( cudaPeekAtLastError() );
 
@@ -284,7 +282,6 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     for (int i(0); i < Ncons; i++) SOURCE[i] = source[i + lID * Ncons];
 
     Model_D * model_d;
-
     // Store pointers to devuce arrays in the structure
     // to be passed into the residual function
     TimeIntAndModelArgs * args = new TimeIntAndModelArgs(dt, gamma, sigma, mu1, mu2, cp, gam, SOL,
@@ -300,7 +297,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
         model_d = new SRRMHD_D(args);
         break;
       case ModelType::TFEMHD:
-      //   model = new twoFluidEMHD_D();  ################### Need to implement ################
+        model_d = new TFEMHD_D(args);
         break;
     }
 
@@ -424,7 +421,6 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 
       cudaStreamSynchronize(args.stream[i]);
       gpuErrchk( cudaPeekAtLastError() );
-
       // Copy all data back
       gpuErrchk( cudaMemcpyAsync(args.sol_h + lcell*d->Ncons, args.sol_d[i], inMemsize*d->Ncons, cudaMemcpyDeviceToHost, args.stream[i]) );
       gpuErrchk( cudaMemcpyAsync(args.prims_h + lcell*d->Nprims, args.prims_d[i], inMemsize*d->Nprims, cudaMemcpyDeviceToHost, args.stream[i]) );
@@ -494,7 +490,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
         model_d = new SRRMHD_D(args);
         break;
       case ModelType::TFEMHD:
-      //   model = new twoFluidEMHD_D();  ################### Need to implement ################
+        model_d = new TFEMHD_D(args);
         break;
     }
 

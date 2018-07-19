@@ -27,25 +27,25 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int nx(120);
-  int ny(248);
+  int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(0.0);
+  double xmax(1.0);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.0005);
-  double cfl(0.5);
+  double endTime(0.4);
+  double cfl(0.2);
   int Ng(4);
   double gamma(4.0/3.0);
-  double sigma(0);
+  double sigma(10000);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(30);
+  int frameSkip(60);
   bool output(false);
-  int safety(99999999);
+  int safety(500);
 
   char * ptr(0);
   double tmp(0);
@@ -82,13 +82,13 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  BrioWuTwoFluid init(&data);
 
   Outflow bcs(&data);
 

@@ -208,4 +208,23 @@ class TwoFluidEMHD : public Model
 };
 
 
+
+//! <b> TwoFluidEMHD class on the device </b>
+/*!
+  @par
+    Device class for TwoFluidEMHD
+*/
+class TFEMHD_D : public Model_D
+{
+  public:
+    __device__ TFEMHD_D(TimeIntAndModelArgs * args) : Model_D(args) { }
+
+    //!< @sa Model::sourceTermSingleCell
+    __device__ void sourceTermSingleCell(double * cons, double * prims, double * aux, double * source);
+
+    //!< @sa Model::getPrimitiveVarsSingleCell
+    __device__ void getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux);
+};
+
+
 #endif

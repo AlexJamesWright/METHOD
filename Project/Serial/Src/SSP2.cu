@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <cstdio>
 
-#define WITH 0
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))

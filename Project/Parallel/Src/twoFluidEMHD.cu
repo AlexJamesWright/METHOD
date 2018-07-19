@@ -11,6 +11,10 @@ int counter(0);
 #include <cstdio>
 #include <iostream>
 
+#define TOL 1.0e-13
+#define EPS 1.0e-4
+#define MAXITER 50
+
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
@@ -22,6 +26,12 @@ static double residualNew(double p, const double Stilx, const double Stily, cons
 static int newtonNew(double *p, const double Stilx, const double Stily, const double Stilz,
                      const double Ds, const double tauTildes, double gamma,
                      int i, int j, int k, int fluid);
+
+ // C2P residual and rootfinder (Parallel)
+ __device__
+ static double residualParallel(const double Z, const double StildeSq, const double D, const double tauTilde, double gamma);
+ __device__
+ static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma);
 
 TwoFluidEMHD::TwoFluidEMHD() : Model()
 {
@@ -713,7 +723,6 @@ void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)
   }
 }
 
-#define TOL 1.48e-13
 
 //! Residual function to minimize for cons2prims solver
 /*!
@@ -878,4 +887,185 @@ static int newtonNew(double *p, const double Stilx, const double Stily, const do
     return 0;
   }
   return 1;
+}
+
+
+
+__device__
+static int newtonParallel(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma)
+{
+  // Rootfind data
+  double x0(*Z);
+  double x1(x0 + EPS);
+  double x2;
+  double f0(residualParallel(x0, StildeSq, D, tauTilde, gamma));
+  double f1(residualParallel(x1, StildeSq, D, tauTilde, gamma));
+  int iter;
+
+  for (iter=0; iter<MAXITER; iter++) {
+    if (fabs(f0) < TOL) {
+      *Z = x0;
+      return 1;
+    }
+
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
+    x1 = x0;
+    x0 = x2;
+    f1 = f0;
+    f0 = residualParallel(x0, StildeSq, D, tauTilde, gamma);
+  }
+
+  return 0;
+}
+
+__device__
+static double residualParallel(const double Z, const double StildeSq, const double D, const double tauTilde, double gamma)
+{
+  // Declare variables
+  double  W;
+
+  // Sanity check
+  if (Z < 0) return 1.0e6;
+
+  // Continue
+  W = 1 / sqrt(1 - (StildeSq / (Z * Z)));
+
+  // Values are physical, compute residual
+  return (1 - (gamma - 1) / (W * W * gamma)) * Z + ((gamma - 1) /
+          (W * gamma) - 1) * D - tauTilde;
+
+}
+
+
+
+__device__
+void TFEMHD_D::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
+{
+  // Set Bx/y/z and Ex/y/z field in prims
+  prims[10] = cons[10]; prims[11] = cons[11]; prims[12] = cons[12];
+  prims[13] = cons[13]; prims[14] = cons[14]; prims[15] = cons[15];
+
+  // Bsq, Esq
+  aux[27] = cons[10] * cons[10] + cons[11] * cons[11] + cons[12] * cons[12];
+  aux[28] = cons[13] * cons[13] + cons[14] * cons[14] + cons[15] * cons[15];
+
+  // Remove EM contribution to momentum equations
+  // Stildex, Stildey, Stildez
+  aux[23] = cons[1] - (cons[14] * cons[12] - cons[15] * cons[11]);
+  aux[24] = cons[2] - (cons[15] * cons[10] - cons[13] * cons[12]);
+  aux[25] = cons[3] - (cons[13] * cons[11] - cons[14] * cons[10]);
+  // and the energy equations
+  // tauTilde
+  aux[26] = cons[4] - (aux[27] + aux[28]) * 0.5;
+
+  // Now split fluid up into its constituent species
+  // D1, D2
+  aux[5] = (cons[5] - args->mu2 * cons[0]) / (args->mu1 - args->mu2);
+  aux[15] = (cons[5] - args->mu1 * cons[0]) / (args->mu2 - args->mu1);
+  // Stildex1, Stildey1, Stildez1
+  aux[6] = (cons[6] - args->mu2 * aux[23]) / (args->mu1 - args->mu2);
+  aux[7] = (cons[7] - args->mu2 * aux[24]) / (args->mu1 - args->mu2);
+  aux[8] = (cons[8] - args->mu2 * aux[25]) / (args->mu1 - args->mu2);
+  // Stildex2, Stildey2, Stildez2
+  aux[16] = (cons[6] - args->mu1 * aux[23]) / (args->mu2 - args->mu1);
+  aux[17] = (cons[7] - args->mu1 * aux[24]) / (args->mu2 - args->mu1);
+  aux[18] = (cons[8] - args->mu1 * aux[25]) / (args->mu2 - args->mu1);
+  // Stilde1sq, Stilde2sq
+  double Stilde1sq(aux[6] * aux[6] + aux[7] * aux[7] + aux[8] * aux[8]);
+  double Stilde2sq(aux[16] * aux[16] + aux[17] * aux[17] + aux[18] * aux[18]);
+  // tauTilde1, tauTilde2
+  aux[9] = (cons[9] - args->mu2 * aux[26]) / (args->mu1 - args->mu2);
+  aux[19] = (cons[9] - args->mu1 * aux[26]) / (args->mu2 - args->mu1);
+
+  // May also need magnitude of velocity for Amano C2P
+  double vmag1(sqrt(aux[3]));
+  double vmag2(sqrt(aux[13]));
+
+  // We now have everything we need
+  if (newtonParallel(&aux[4], Stilde1sq, aux[5], aux[9], args->gamma)==0 ||
+      newtonParallel(&aux[14], Stilde2sq, aux[15], aux[19], args->gamma)==0) {
+        printf("C2P failed for gID = %d\n", args->gID);
+  }
+
+  // vsq1, vsq2
+  aux[3] = Stilde1sq / (aux[4] * aux[4]);
+  aux[13] = Stilde2sq / (aux[14] * aux[14]);
+  // W1, W2
+  aux[1] = 1.0 / sqrt(1 - aux[3]);
+  aux[11] = 1.0 / sqrt(1 - aux[13]);
+  // rho1, rho2
+  prims[0] = aux[5] / aux[1];
+  prims[5] = aux[15] / aux[11];
+  // e1, e2
+  aux[2] = (aux[4] / (aux[1] * aux[1]) - prims[0]) / (args->gamma * prims[0]);
+  aux[12] = (aux[14] / (aux[11] * aux[11]) - prims[5]) / (args->gamma * prims[5]);
+  // h1, h2
+  aux[0] = aux[4] / (prims[0] * aux[1] * aux[1]);
+  aux[10] = aux[14] / (prims[5] * aux[11] * aux[11]);
+  // p1, p2
+  prims[4] = prims[0] * aux[2] * (args->gamma - 1);
+  prims[9] = prims[5] * aux[12] * (args->gamma - 1);
+  // vx1, vy1, vz1
+  prims[1] = aux[6] / aux[4];
+  prims[2] = aux[7] / aux[4];
+  prims[3] = aux[8] / aux[4];
+  // vx2, vy2, vz2
+  prims[6] = aux[16] / aux[14];
+  prims[7] = aux[17] / aux[14];
+  prims[8] = aux[18] / aux[14];
+  // Jx, Jy, Jz
+  aux[20] = args->mu1 * prims[0] * aux[1] * prims[1] + args->mu2 * prims[5] * aux[11] * prims[6];
+  aux[21] = args->mu1 * prims[0] * aux[1] * prims[2] + args->mu2 * prims[5] * aux[11] * prims[7];
+  aux[22] = args->mu1 * prims[0] * aux[1] * prims[3] + args->mu2 * prims[5] * aux[11] * prims[8];
+  // rhoCh
+  aux[30] = args->mu1 * prims[0] * aux[1] + args->mu2 * prims[5] * aux[11];
+  // W
+  aux[34] = (args->mu1 * args->mu1 * prims[0] * aux[1] + args->mu2 * args->mu2 * prims[5] * aux[11]) /
+                            (args->mu1 * args->mu1 * prims[0] + args->mu2 * args->mu2 * prims[5]);
+  // ux, uy, uz
+  aux[31] = (args->mu1 * args->mu1 * prims[0] * aux[1] * prims[1] + args->mu2 * args->mu2 * prims[5] *
+                            aux[11] * prims[6]) / (args->mu1 * args->mu1 * prims[0] + args->mu2 * args->mu2 * prims[5]);
+  aux[32] = (args->mu1 * args->mu1 * prims[0] * aux[1] * prims[2] + args->mu2 * args->mu2 * prims[5] *
+                            aux[11] * prims[7]) / (args->mu1 * args->mu1 * prims[0] + args->mu2 * args->mu2 * prims[5]);
+  aux[33] = (args->mu1 * args->mu1 * prims[0] * aux[1] * prims[3] + args->mu2 * args->mu2 * prims[5] *
+                            aux[11] * prims[8]) / (args->mu1 * args->mu1 * prims[0] + args->mu2 * args->mu2 * prims[5]);
+  // rhoCh0
+  aux[29] = aux[34] * aux[30] - (aux[20] * aux[31] + aux[21] * aux[32] + aux[22] * aux[33]);
+
+}
+
+
+
+
+
+
+__device__
+//! Source contribution for a single cell
+void TFEMHD_D::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+{
+
+  double wpsq(args->mu1 * args->mu1 * prims[0] + args->mu2 * args->mu2 * prims[5]);
+
+  source[0] = 0;
+  source[1] = 0;
+  source[2] = 0;
+  source[3] = 0;
+  source[4] = 0;
+  source[5] = 0;
+  source[6] = wpsq * (aux[34] * cons[13] + (aux[32] * cons[12] - aux[33] * cons[11]) -
+                              (aux[20] - aux[29] * aux[31]) / args->sigma);
+  source[7] = wpsq * (aux[34] * cons[14] + (aux[33] * cons[10] - aux[31] * cons[12]) -
+                              (aux[21] - aux[29] * aux[32]) / args->sigma);
+  source[8] = wpsq * (aux[34] * cons[15] + (aux[31] * cons[11] - aux[32] * cons[10]) -
+                              (aux[22] - aux[29] * aux[33]) / args->sigma);
+  source[9] = wpsq * (aux[31] * cons[13] + aux[32] * cons[14] + aux[33] * cons[15] -
+                              (aux[30] - aux[29] * aux[34]) / args->sigma);
+  source[10] = 0;
+  source[11] = 0;
+  source[12] = 0;
+  source[13] = - aux[20];
+  source[14] = - aux[21];
+  source[15] = - aux[22];
+  source[16] = aux[30] - cons[16] / (args->cp * args->cp);
+  source[17] = - cons[17] / (args->cp * args->cp);
 }

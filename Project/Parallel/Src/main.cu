@@ -24,7 +24,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  const double MU(1400);
+
+  const double MU(1000);
   // Set up domain
   int nx(120);
   int ny(0);
@@ -36,17 +37,17 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.4);
+  double cfl(0.2);
   int Ng(4);
   double gamma(4.0/3.0);
-  double sigma(0);
+  double sigma(10000);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(60);
-  bool output(true);
+  bool output(false);
   int safety(500);
-  int tpb(32);
+  int tpb(1);
   int bpg(19200);
 
   char * ptr(0);
@@ -87,13 +88,13 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, tpb, bpg);
 
   // Choose particulars of simulation
-  SRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  BrioWuTwoFluid init(&data);
 
   Outflow bcs(&data);
 

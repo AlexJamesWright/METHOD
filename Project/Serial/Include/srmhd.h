@@ -267,6 +267,7 @@ typedef struct
   Ssq,  //!< Square magnitude of momentum for a single cell
   BS,   //!< Scalar product of magnetic field and momentum vector for a single cell
   tau;  //!< Kinetic energy for a single cell
+  int i;
 } Args;
 
 

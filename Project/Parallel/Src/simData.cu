@@ -63,6 +63,7 @@ Data::Data(int nx, int ny, int nz,
   // Determine the specs of the GPU(s) and thus set details in simData
   cudaGetDeviceCount(&GPUcount);
   cudaGetDeviceProperties(&prop, 0);
+  cudaDeviceSetLimit(cudaLimitStackSize, 2048); // Needed for SRMHS and SSP2, hybrd called recursively meaning nvcc does not know the stack size at compile time. Manually set.
   // Determine the number of GPU streams
   Nstreams = Ncells / (tpb * bpg) + 1;
 
