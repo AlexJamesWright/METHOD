@@ -93,6 +93,7 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
   //! In order to keep consitency with the serial version we need to begin the
   //! C2P rootfind from the same guess, so need to double up on those arrays
+  printf("Remove to optimise! SSP2 holdPrims, holdAux\n");
   cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&holdAux, sizeof(double) * d->Naux * Ntot,
@@ -130,14 +131,14 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
         for (var = 0; var < d->Ncons ; var++) U1[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        // for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
-        // for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+        for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+        for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
       }
     }
   }
-  callStageOne(U1, prims, aux, source1, dt);
-  // this->model->getPrimitiveVars(U1, prims, aux);
-  // this->model->sourceTerm(U1, prims, aux, source1);
+  callStageOne(U1, holdPrims, holdAux, source1, dt);
+  this->model->getPrimitiveVars(U1, prims, aux);
+  this->model->sourceTerm(U1, prims, aux, source1);
   this->fluxMethod->F(U1, prims, aux, d->f, flux1);
   this->bcs->apply(U1);
   this->bcs->apply(flux1);
@@ -149,18 +150,18 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
         for (var = 0; var < d->Ncons ; var++) U2[ID(var, i, j, k)]  = cons[ID(var, i, j, k)];
-        // for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
-        // for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
+        for (var = 0; var < d->Nprims ; var++) holdPrims[ID(var, i, j, k)]  = prims[ID(var, i, j, k)]; // holdVars ---> see constructor
+        for (var = 0; var < d->Naux ; var++) holdAux[ID(var, i, j, k)]  = aux[ID(var, i, j, k)]; // holdVars ---> see constructor
 
       }
     }
   }
 
-  callStageTwo(U2, prims, aux, source2, U1, source1, flux1, dt);
+  callStageTwo(U2, holdPrims, holdAux, source2, U1, source1, flux1, dt);
 
-  // this->bcs->apply(U2, prims, aux);
-  // this->model->getPrimitiveVars(U2, prims, aux);
-  // this->model->sourceTerm(U2, prims, aux, source2);
+  this->bcs->apply(U2, prims, aux);
+  this->model->getPrimitiveVars(U2, prims, aux);
+  this->model->sourceTerm(U2, prims, aux, source2);
   this->fluxMethod->F(U2, prims, aux, d->f, flux2);
   this->bcs->apply(flux2);
 
@@ -217,6 +218,7 @@ void SSP2::callStageOne(double * cons, double * prims, double * aux, double * so
 
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
 
     // int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
@@ -271,7 +273,6 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
   double * AUX = &PRIMS[Nprims];
   double * SOURCE = &AUX[Naux];
   double * SOL = &SOURCE[Ncons];
-
   int info;
 
   if (lID < streamWidth)
@@ -293,7 +294,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     switch (modType_t)
     {
       case ModelType::SRMHD:
-      //   model = new SRMHD_D();         ################### Need to implement ################
+        model_d = new SRMHD_D(args);
         break;
       case ModelType::SRRMHD:
         model_d = new SRRMHD_D(args);
@@ -487,7 +488,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     switch (modType_t)
     {
       case ModelType::SRMHD:
-      //   model = new SRMHD_D();         ################### Need to implement ################
+        model_d = new SRMHD_D(args);
         break;
       case ModelType::SRRMHD:
         model_d = new SRRMHD_D(args);
@@ -498,18 +499,17 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
     }
 
     // First load initial guess (current value of cons)
-    for (int i(0); i < Ncons; i++) SOL[i] = 0.5*(cons[i + lID * Ncons] + args->cons1[i] - dt*args->flux1[i]);
-
+    for (int i(0); i < Ncons; i++) SOL[i] = 0.5*(CONS[i] + args->cons1[i] - dt*args->flux1[i]);
 
     if ((info = __cminpack_func__(hybrd1)(IMEX2Residual2Parallel, model_d, Ncons, SOL, &fvec[lID * Ncons], tol,  &wa[lwa * lID], lwa)) != 1)
     {
       printf("IMEX failed stage 2 for gID %d: info %d\n", gID, info);
     }
 
-    for (int i(0); i < Nprims; i++) prims[i + lID * Nprims] = PRIMS[i];
-    for (int i(0); i < Naux; i++) aux[i + lID * Naux] =  AUX[i];
-    for (int i(0); i < Ncons; i++) source[i + lID * Ncons] =  SOURCE[i];
-    for (int i(0); i < Ncons; i++) sol[i + lID * Ncons] =  SOL[i];
+    for (int i(0); i < Nprims; i++) prims[ i + lID * Nprims] = PRIMS[i];
+    for (int i(0); i < Naux; i++  ) aux[   i + lID * Naux  ] = AUX[i];
+    for (int i(0); i < Ncons; i++ ) source[i + lID * Ncons ] = SOURCE[i];
+    for (int i(0); i < Ncons; i++ ) sol[   i + lID * Ncons ] = SOL[i];
 
     // Clean up
     delete args;
@@ -522,8 +522,8 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 __device__
 int IMEX2Residual2Parallel(void *p, int n, const double *x, double *fvec, int iflag)
 {
-// Cast void pointer
-Model_D * mod = (Model_D *)p;
+  // Cast void pointer
+  Model_D * mod = (Model_D *)p;
 
   // First determine the prim and aux vars due to guess x
   mod->getPrimitiveVarsSingleCell((double *)x, mod->args->prims, mod->args->aux);
