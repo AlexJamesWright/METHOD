@@ -2,6 +2,7 @@
 #define SRMHD_H
 
 #include "model.h"
+#include "deviceArguments.h"
 
 
 /*
@@ -288,5 +289,23 @@ typedef struct
   x, y, z;  //!< Cell number of failed C2P conversion
   //@}
 } Failed;
+
+//! <b> SRRMHD class on the device </b>
+/*!
+  @par
+    Device class for SRRMHD
+*/
+class SRMHD_D : public Model_D
+{
+  public:
+    __device__ SRMHD_D(TimeIntAndModelArgs * args) : Model_D(args) { }
+
+    //!< @sa Model::sourceTermSingleCell
+    __device__ void sourceTermSingleCell(double * cons, double * prims, double * aux, double * source);
+
+    //!< @sa Model::getPrimitiveVarsSingleCell
+    __device__ void getPrimitiveVarsSingleCell(double * cons, double * prims, double * aux);
+};
+
 
 #endif

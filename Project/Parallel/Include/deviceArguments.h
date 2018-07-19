@@ -1,7 +1,7 @@
 #ifndef DEVICEARGUMENTS_H
 #define DEVICEARGUMENTS_H
 
-//!< Time integrator and device model arguments structure for IMEX222
+//!< Time integrator and device model arguments class for IMEX scheme
 /*!
     This is not very elegant but FI, if it works it works.
     I cant pass a pointer to host memory for use inside the device function, even if
@@ -54,6 +54,7 @@ class TimeIntAndModelArgs
                           mu2(mu2), cp(cp), gam(gam), sol(sol), cons(cons),
                           prims(prims), aux(aux), source(source), cons1(cons1),
                           source1(source1), flux1(flux1) { }
+
 };
 
 

@@ -18,6 +18,13 @@
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
+__device__
+int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int iflag);
+
+int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag);
+
+
+
 SRMHD::SRMHD() : Model()
 {
   modType_t = ModelType::SRMHD;
@@ -701,6 +708,126 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
       } // End k-loop
     } // End j-loop
   } // End i-loop
+}
+
+#define Bsq (args->guess[5] * args->guess[5] + args->guess[6] * args->guess[6] + args->guess[7] + args->guess[7])
+#define Ssq (args->guess[1] * args->guess[1] + args->guess[2] * args->guess[2] + args->guess[3] + args->guess[3])
+#define BS  (args->guess[5] * args->guess[1] + args->guess[6] * args->guess[2] + args->guess[7] + args->guess[3])
+
+//! Need a structure to pass to C2P hybrd rootfind to hold the current cons values
+typedef struct
+{
+  double guess[9];
+  double gamma;
+} getPrimVarsArgs;
+
+__device__
+int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int iflag)
+{
+  // Retrieve additional arguments
+  getPrimVarsArgs * args = (getPrimVarsArgs*) p;
+
+  // Values must make sense
+  if (x[0] >= 1.0 || x[1] < 0) {
+    fvec[0] = fvec[1] = 1e6;
+    return 0;
+  }
 
 
+  double W(1 / sqrt(1 - x[0]));
+  double rho(args->guess[0] / W);
+  double h(x[1] / (rho * W * W));
+  double pr((h - 1) * rho * (args->gamma - 1) / args->gamma);
+  if (pr < 0 || rho < 0 || h < 0 || W < 1) {
+    fvec[0] = fvec[1] = 1e6;
+    return 0;
+  }
+  // Values should be OK
+  fvec[0] = (x[1] + Bsq) * (x[1] + Bsq) * x[0] - (2 * x[1] + Bsq) * BS * BS / (x[1] * x[1]) - Ssq;
+  fvec[1] = x[1] + Bsq - pr - Bsq / (2 * W * W) - BS * BS / (2 * x[1] * x[1]) - args->guess[0] - args->guess[4];
+
+  return 0;
+}
+__device__
+void SRMHD_D::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
+{
+  // Hybrd1 set-up
+  double sol[2];                      // Guess and solution vector
+  double res[2];                      // Residual/fvec vector
+  int info;                           // Rootfinder flag
+  double wa[19];                     // Work array
+
+
+  // Update known values
+  // Bx, By, Bz
+  prims[5] = cons[5];
+  prims[6] = cons[6];
+  prims[7] = cons[8];
+
+  // BS
+  aux[10] = cons[5] * cons[1] + cons[6] * cons[2] + cons[7] * cons[3];
+  // Bsq
+  aux[11] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+  // Ssq
+  aux[12] = cons[1] * cons[1] + cons[2] * cons[2] + cons[3] * cons[3];
+
+
+  // Set args for rootfind
+  getPrimVarsArgs GPVAArgs = {cons[0], cons[1], cons[2], cons[3], cons[4], cons[6], cons[7], cons[8], args->gamma};
+
+  // Guesses of solution
+  sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+  sol[1] = prims[0] * aux[0] / (1 - sol[0]);
+
+
+  // Solve residual = 0
+  if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-8, wa, 19))!=1)
+  {
+    // printf("C2P single cell failed for gID %d, hybrd returns info=%d\n", args->gID, info);
+  }
+  // W
+  aux[1] = 1 / sqrt(1 - sol[0]);
+  // rho
+  prims[0] = cons[0] / aux[1];
+  // h
+  aux[0] = sol[1] / (prims[0] * aux[1] * aux[1]);
+  // p
+  prims[4] = (aux[0] - 1) * prims[0] *
+                             (args->gamma - 1) / args->gamma;
+  // e
+  aux[2] = prims[4] / (prims[0] * (args->gamma - 1));
+  // vx, vy, vz
+  prims[1] = (cons[5] * aux[10] + cons[1] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+  prims[2] = (cons[6] * aux[10] + cons[2] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+  prims[3] = (cons[7] * aux[10] + cons[3] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+  // vsq
+  aux[9] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+  // c
+  aux[3] = sqrt(aux[2] * args->gamma * (args->gamma - 1) /   aux[0]);
+  // b0
+  aux[4] = aux[1] * (cons[5] * prims[1] + cons[6] * prims[2] + cons[7] * prims[3]);
+  // bx, by, bz
+  aux[5] = cons[5] / aux[1] + aux[4] * prims[1];
+  aux[6] = cons[6] / aux[1] + aux[4] * prims[2];
+  aux[7] = cons[7] / aux[1] + aux[4] * prims[3];
+  // bsq
+  aux[8] = (prims[5] * prims[5] + prims[6] * prims[6] + prims[7] * prims[7] +
+                           aux[4] * aux[4]) / (aux[1] * aux[1]);
+
+
+}
+
+
+
+//! Single cell source term for device model
+/*!
+    See Anton 2010, `Relativistic Magnetohydrodynamcis: Renormalized Eignevectors
+  and Full Wave Decompostiion Riemann Solver`
+*/
+__device__
+void SRMHD_D::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source)
+{
+  source[0] = source[1] = source[2] = source[3] = source[4] =
+  source[5] = source[6] = source[7] = 0.0;
+  source[8] = - cons[8] / (args->cp*args->cp);
 }
