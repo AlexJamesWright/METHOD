@@ -11,8 +11,7 @@ Data::Data(int nx, int ny, int nz,
            double gamma, double sigma,
            double cp,
            double mu1, double mu2,
-           int frameSkip,
-           int tpb, int bpg)
+           int frameSkip)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -24,8 +23,7 @@ Data::Data(int nx, int ny, int nz,
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
            mu1(mu1), mu2(mu2),
-           frameSkip(frameSkip),
-           tpb(tpb), bpg(bpg)
+           frameSkip(frameSkip)
 {
 
   this->Nx = nx + 2 * Ng;
@@ -50,6 +48,11 @@ Data::Data(int nx, int ny, int nz,
 
   // Total number of cells
   Ncells = Nx * Ny * Nz;
+
+  // Set threads and blocks
+  tpb = 32; // Small so we dont fill up shared memory
+  bpg = (Ncells%tpb==0)?(Ncells/tpb):(Ncells/tpb+1);
+
 
   // Ensure there is some Resistivity
   if (this->sigma < 0.0) {

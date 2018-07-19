@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
   const double MU(1000);
   // Set up domain
-  int nx(120);
+  int nx(6400);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.4);
+  double endTime(0.000006);
   double cfl(0.2);
   int Ng(4);
   double gamma(4.0/3.0);
@@ -47,8 +47,7 @@ int main(int argc, char *argv[]) {
   int frameSkip(60);
   bool output(false);
   int safety(500);
-  int tpb(1);
-  int bpg(19200);
+
 
   char * ptr(0);
   double tmp(0);
@@ -85,7 +84,7 @@ int main(int argc, char *argv[]) {
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, tpb, bpg);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
   TwoFluidEMHD model(&data);
@@ -115,7 +114,7 @@ int main(int argc, char *argv[]) {
   save.saveAll();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
-  // printf("Parallel speedup of %6.3fx\n",3.45/timeTaken);
+  printf("Parallel speedup of %6.3fx\n",1.1/timeTaken);
 
   return 0;
 

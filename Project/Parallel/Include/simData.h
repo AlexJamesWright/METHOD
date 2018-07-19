@@ -173,8 +173,7 @@ class Data
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10,
-         int tpb=32, int bpg=19200);
+         int frameskip=10);
 
 };
 
