@@ -14,7 +14,6 @@
 // specified tolerance and so valid solutions, but the test_imex module requires
 // they agree exactly. If performing tests, only expect test_imex to pass if
 // MATCH_SERIAL = 1
-}
 #define MATCH_SERIAL 0
 
 
