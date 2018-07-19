@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
   const double MU(1000);
   // Set up domain
-  int nx(120);
+  int nx(6400);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.4);
+  double endTime(0.000006);
   double cfl(0.2);
   int Ng(4);
   double gamma(4.0/3.0);
