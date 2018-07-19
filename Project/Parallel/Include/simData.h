@@ -174,7 +174,7 @@ class Data
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
          int frameskip=10,
-         int tpb=128, int bpg=64);
+         int tpb=32, int bpg=19200);
 
 };
 

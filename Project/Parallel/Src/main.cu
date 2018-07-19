@@ -27,27 +27,27 @@ int main(int argc, char *argv[]) {
   const double MU(1400);
   // Set up domain
   int nx(120);
-  int ny(248);
+  int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(0.0);
+  double xmax(1.0);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.0005);
-  double cfl(0.5);
+  double endTime(0.4);
+  double cfl(0.4);
   int Ng(4);
   double gamma(4.0/3.0);
   double sigma(0);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(30);
-  bool output(false);
-  int safety(99999999);
+  int frameSkip(60);
+  bool output(true);
+  int safety(500);
   int tpb(32);
-  int bpg(4800);
+  int bpg(19200);
 
   char * ptr(0);
   double tmp(0);
@@ -87,13 +87,13 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, tpb, bpg);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
   save.saveAll();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
-  printf("Parallel speedup of %6.3fx\n",3.45/timeTaken);
+  // printf("Parallel speedup of %6.3fx\n",3.45/timeTaken);
 
   return 0;
 
