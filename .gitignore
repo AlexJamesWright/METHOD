@@ -14,6 +14,7 @@ test_rk2
 test_imex
 gtest_main.a
 
+GoogleTest
 
 Doxumentation/html/*
 
