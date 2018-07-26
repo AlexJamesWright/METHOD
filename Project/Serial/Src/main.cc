@@ -104,13 +104,13 @@ int main(int argc, char *argv[]) {
   double startTime(omp_get_wtime());
 
   // // Run until end time and save results
-  sim.evolve(output, safety);
+  // sim.evolve(output, safety);
+  sim.updateTime();
 
   double timeTaken(omp_get_wtime() - startTime);
 
-  save.saveAll();
-
-  printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  // save.saveAll();
+  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 
