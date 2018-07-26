@@ -28,7 +28,8 @@ int main(int argc, char *argv[]) {
 
   const double MU(1000);
   // Set up domain
-  int nx(6400);
+  int Ng(4);
+  int nx(4096-2*Ng);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -39,8 +40,7 @@ int main(int argc, char *argv[]) {
   double zmax(1.0);
   double endTime(0.0000006);
   double cfl(0.2);
-  int Ng(4);
-  double gamma(4.0/3.0);
+  double gamma(2.0);
   double sigma(10000);
   double cp(1.0);
   double mu1(-MU);
