@@ -10,6 +10,8 @@ int counter(0);
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <stdexcept>
+
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))

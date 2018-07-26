@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include <stdexcept>
 #include <omp.h>
 
 // Macro for getting array index

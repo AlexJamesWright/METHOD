@@ -10,6 +10,8 @@ int counter(0);
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <stdexcept>
+
 
 #define TOL 1.0e-13
 #define EPS 1.0e-4

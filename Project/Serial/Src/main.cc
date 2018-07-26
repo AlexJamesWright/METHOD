@@ -1,3 +1,4 @@
+// Serial main
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -83,13 +84,13 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  TwoFluidEMHD model(&data);
+  SRRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 

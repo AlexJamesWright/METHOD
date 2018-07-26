@@ -1,3 +1,4 @@
+// Parallel main
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -87,13 +88,13 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  TwoFluidEMHD model(&data);
+  SRRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  BrioWuTwoFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 
@@ -113,8 +114,6 @@ int main(int argc, char *argv[]) {
 
   save.saveAll();
   printf("\nRuntime: %.3fs\nCompleted %d iterations.\n", timeTaken, data.iters);
-
-  printf("Parallel speedup of %6.3fx\n", 0.55/timeTaken);
 
   return 0;
 
