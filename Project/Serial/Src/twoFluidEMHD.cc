@@ -328,14 +328,11 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   double * singleAux;
   double * singleSource;
 
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleSource, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
+  singleCons = (double *) malloc(sizeof(double) * d->Ncons);
+  singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
+  singleAux = (double *) malloc(sizeof(double) * d->Naux);
+  singleSource = (double *) malloc(sizeof(double) * d->Ncons);
+
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -362,10 +359,10 @@ void TwoFluidEMHD::sourceTerm(double *cons, double *prims, double *aux, double *
   }
 
   // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
-  cudaFreeHost(singleSource);
+  free(singleCons);
+  free(singlePrims);
+  free(singleAux);
+  free(singleSource);
 }
 
 //! Conservative to Primitive transformation for all cells
@@ -378,12 +375,9 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   double * singleCons;
   double * singlePrims;
   double * singleAux;
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
+  singleCons = (double *) malloc(sizeof(double) * d->Ncons);
+  singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
+  singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
 
   for (int i(0); i < d->Nx; i++) {
@@ -413,9 +407,9 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
   // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
+  free(singleCons);
+  free(singlePrims);
+  free(singleAux);
 }
 
 void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
@@ -458,10 +452,6 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
   // tauTilde1, tauTilde2
   aux[9] = (cons[9] - d->mu2 * aux[26]) / (d->mu1 - d->mu2);
   aux[19] = (cons[9] - d->mu1 * aux[26]) / (d->mu2 - d->mu1);
-
-  // May also need magnitude of velocity for Amano C2P
-  double vmag1(sqrt(aux[3]));
-  double vmag2(sqrt(aux[13]));
 
   // We now have everything we need
   if (newton(&aux[4], Stilde1sq, aux[5], aux[9], d->gamma, i, j, k, 0) &&

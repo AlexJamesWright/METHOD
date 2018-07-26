@@ -21,25 +21,17 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   int Ntot = data->Nx * data->Ny * data->Nz;
   // Need work arrays
-  cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fvec, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&wa, sizeof(double) * lwa,
-                cudaHostAllocPortable);
+  x = (double *) malloc(sizeof(double) * d->Ncons);
+  fvec = (double *) malloc(sizeof(double) * d->Ncons);
+  wa = (double *) malloc(sizeof(double) * lwa);
+
   // Interstage results
-  cudaHostAlloc((void **)&U1, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&source1, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&flux1, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&source2, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
+  U1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
+  U2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
+  source1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
+  flux1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
+  source2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
+  flux2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
 
 }
 
@@ -47,15 +39,15 @@ SSP2::~SSP2()
 {
 
   // Clean up your mess
-  cudaFreeHost(x);
-  cudaFreeHost(fvec);
-  cudaFreeHost(wa);
-  cudaFreeHost(U1);
-  cudaFreeHost(U2);
-  cudaFreeHost(source1);
-  cudaFreeHost(flux1);
-  cudaFreeHost(source2);
-  cudaFreeHost(flux2);
+  free(x);
+  free(fvec);
+  free(wa);
+  free(U1);
+  free(U2);
+  free(source1);
+  free(flux1);
+  free(source2);
+  free(flux2);
 
 }
 

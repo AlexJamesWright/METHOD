@@ -34,20 +34,13 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
 
   // Want initial guess/solution array, and work array for hybrd
   double * initGuess, * tempPrims, * tempAux, * tempSource, * x, * fvec, * wa;
-  cudaHostAlloc((void **)&x, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fvec, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&wa, sizeof(double) * lwa,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&initGuess, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempPrims, sizeof(double) * d->Nprims * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempAux, sizeof(double) * d->Naux * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&tempSource, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
+  x = (double *) malloc( sizeof(double) * d->Ncons );
+  fvec = (double *) malloc( sizeof(double) * d->Ncons );
+  wa = (double *) malloc( sizeof(double) * lwa );
+  initGuess = (double *) malloc( sizeof(double) * d->Ncons * Ntot );
+  tempPrims = (double *) malloc( sizeof(double) * d->Nprims * Ntot );
+  tempAux = (double *) malloc( sizeof(double) * d->Naux * Ntot );
+  tempSource = (double *) malloc( sizeof(double) * d->Ncons * Ntot );
 
   // Copy current cons data to initGuess ready for rkSplit as estimate
   for (int i(0); i < d->Nx; i++) {
@@ -106,6 +99,14 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
   // Determine new prim and aux variables
   this->model->getPrimitiveVars(cons, prims, aux);
   this->bcs->apply(cons, prims, aux);
+
+  free(x);
+  free(fvec);
+  free(wa);
+  free(initGuess);
+  free(tempPrims);
+  free(tempAux);
+  free(tempSource);
 }
 
 

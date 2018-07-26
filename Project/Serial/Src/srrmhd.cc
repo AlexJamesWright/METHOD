@@ -9,6 +9,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include <cmath>
 #include "srrmhd.h"
 #include "cminpack.h"
 
@@ -216,14 +217,10 @@ void SRRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source
   double * singleAux;
   double * singleSource;
 
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleSource, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
+  singleCons = (double *) malloc(sizeof(double) * d->Ncons);
+  singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
+  singleAux = (double *) malloc(sizeof(double) * d->Naux);
+  singleSource = (double *) malloc(sizeof(double) * d->Ncons);
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -250,10 +247,10 @@ void SRRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source
   }
 
   // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
-  cudaFreeHost(singleSource);
+  free(singleCons);
+  free(singlePrims);
+  free(singleAux);
+  free(singleSource);
 }
 
 void SRRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
@@ -321,13 +318,9 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   double * singleCons;
   double * singlePrims;
   double * singleAux;
-  cudaHostAlloc((void **)&singleCons, sizeof(double) * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singlePrims, sizeof(double) * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&singleAux, sizeof(double) * d->Naux,
-                cudaHostAllocPortable);
-
+  singleCons = (double *) malloc(sizeof(double) * d->Ncons);
+  singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
+  singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -355,9 +348,9 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
   // Free up
-  cudaFreeHost(singleCons);
-  cudaFreeHost(singlePrims);
-  cudaFreeHost(singleAux);
+  free(singleCons);
+  free(singlePrims);
+  free(singleAux);
 }
 
 void SRRMHD::primsToAll(double *cons, double *prims, double *aux)

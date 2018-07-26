@@ -31,8 +31,7 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->Naux = (this->data)->Naux = 13;
 
   // Solutions for C2P all cells
-  cudaHostAlloc((void **)&solution, sizeof(double)*2*data->Nx*data->Ny*data->Nz,
-                cudaHostAllocPortable);
+  solution = (double *) malloc(sizeof(double)*2*data->Nx*data->Ny*data->Nz);
 
   smartGuesses = 0;
 
@@ -58,7 +57,7 @@ SRMHD::SRMHD(Data * data) : Model(data)
 
 SRMHD::~SRMHD()
 {
-  cudaFreeHost(solution);
+  free(solution);
 }
 
 
@@ -394,10 +393,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
-  // Solutions
-  double * solution;
-  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
-                cudaHostAllocPortable);
 
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
@@ -567,8 +562,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       } // End k-loop
     } // End j-loop
   } // End i-loop
-
-  cudaFreeHost(solution);
 
 }
 

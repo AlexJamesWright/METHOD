@@ -13,11 +13,11 @@ MODULE_DIR = ./Src
 INC_DIR = ./Include
 
 # Source files
-SRCS = $(wildcard $(MODULE_DIR)/*.cu)
-OBJS = $(SRCS:.cu=.o)
+SRCS = $(wildcard $(MODULE_DIR)/*.cc)
+OBJS = $(SRCS:.cc=.o)
 
 # Compile rule
-%.o: %.cu $(INC_DIR)/cminpack.h  $(INC_DIR)/cminpackP.h
+%.o: %.cc $(INC_DIR)/cminpack.h  $(INC_DIR)/cminpackP.h
 	${CC} ${CFLAGS}  -o $@ $< -I$(INC_DIR)
 
 # Compile all rootfinder objects

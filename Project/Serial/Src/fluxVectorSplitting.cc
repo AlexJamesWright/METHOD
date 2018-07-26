@@ -19,10 +19,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Up and downwind fluxes
   double *fplus, *fminus;
-  cudaHostAlloc((void **)&fplus, sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&fminus, sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz,
-                  cudaHostAllocPortable);
+  fplus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
+  fminus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
 
   // Get flux vector
   this->model->fluxVector(cons, prims, aux, f, dir);
@@ -104,8 +102,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   // Free arrays
-  cudaFreeHost(fplus);
-  cudaFreeHost(fminus);
+  free(fplus);
+  free(fminus);
 }
 
 void FVS::F(double * cons, double * prims, double * aux, double * f, double * fnet)
@@ -118,12 +116,9 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
 
   // 3D domain, loop over all cells determining the net flux
   if (d->Ny > 1 && d->Nz > 1) {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fz, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
+    fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
+    fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
+    fz = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     // Determine flux vectors
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
@@ -139,18 +134,16 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
         }
       }
     }
-    cudaFreeHost(fx);
-    cudaFreeHost(fy);
-    cudaFreeHost(fz);
+    free(fx);
+    free(fy);
+    free(fz);
   }
 
 
   // 2D domain, loop over x- and y-directions determining the net flux
   else if (d->Ny > 1) {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
-    cudaHostAlloc((void **)&fy, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
+    fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
+    fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
     for (int var(0); var < d->Ncons; var++) {
@@ -161,21 +154,20 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
         }
       }
     }
-    cudaFreeHost(fx);
-    cudaFreeHost(fy);
+    free(fx);
+    free(fy);
   }
 
 
   // Otherwise, domain is 1D only loop over x direction
   else {
-    cudaHostAlloc((void **)&fx, sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons,
-                  cudaHostAllocPortable);
+    fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
           fnet[ID(var, i, 0, 0)] = (fx[ID(var, i+1, 0, 0)] / d->dx - fx[ID(var, i, 0, 0)] / d->dx);
       }
     }
-    cudaFreeHost(fx);
+    free(fx);
   }
 }

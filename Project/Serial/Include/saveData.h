@@ -19,6 +19,9 @@ using namespace std;
 class SaveData
 {
   private:
+
+    Data * d; //!< Pointer to Data class containing global simulation data
+
     int
     Nouts,         //!< Number of output files
     Ncount;        //!< Which user defined variable is this?
@@ -40,8 +43,6 @@ class SaveData
     char
     dir[30],   //!< String path to the directory in which to write files
     app[10];   //!< String appendix to add to end of file names
-
-    Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
     /*!

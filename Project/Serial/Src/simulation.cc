@@ -1,5 +1,4 @@
 #include "simulation.h"
-#include "cudaErrorCheck.h"
 #include <cmath>
 #include <stdexcept>
 #include <cstdio>
@@ -15,34 +14,15 @@ Simulation::Simulation(Data * data) : data(data)
 
   if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
 
-  gpuErrchk( cudaHostAlloc((void **)&d->cons,
-                sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->f,
-                sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->fnet,
-                sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->source,
-                sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->prims,
-                sizeof(double) * Ntot * d->Nprims,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->aux,
-                sizeof(double) * Ntot * d->Naux,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->x,
-                sizeof(double) * d->Nx,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->y,
-                sizeof(double) * d->Ny,
-                cudaHostAllocPortable) );
-  gpuErrchk( cudaHostAlloc((void **)&d->z,
-                sizeof(double) * d->Nz,
-                cudaHostAllocPortable) );
-
+  d->cons = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->f = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->fnet = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->source = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->prims = (double *) malloc(sizeof(double) * Ntot * d->Nprims);
+  d->aux = (double *) malloc(sizeof(double) * Ntot * d->Naux);
+  d->x = (double *) malloc(sizeof(double) * d->Nx);
+  d->y = (double *) malloc(sizeof(double) * d->Ny);
+  d->z = (double *) malloc(sizeof(double) * d->Nz);
 
   // Initialise the data
   d->dx = (d->xmax - d->xmin) / d->nx;
@@ -75,15 +55,15 @@ Simulation::Simulation(Data * data) : data(data)
 Simulation::~Simulation()
 {
   // Need to free arrays
-  gpuErrchk( cudaFreeHost(this->data->cons) );
-  gpuErrchk( cudaFreeHost(this->data->f) );
-  gpuErrchk( cudaFreeHost(this->data->fnet) );
-  gpuErrchk( cudaFreeHost(this->data->source) );
-  gpuErrchk( cudaFreeHost(this->data->prims) );
-  gpuErrchk( cudaFreeHost(this->data->aux) );
-  gpuErrchk( cudaFreeHost(this->data->x) );
-  gpuErrchk( cudaFreeHost(this->data->y) );
-  gpuErrchk( cudaFreeHost(this->data->z) );
+  free(this->data->cons);
+  free(this->data->f);
+  free(this->data->fnet);
+  free(this->data->source);
+  free(this->data->prims);
+  free(this->data->aux);
+  free(this->data->x);
+  free(this->data->y);
+  free(this->data->z);
 }
 
 

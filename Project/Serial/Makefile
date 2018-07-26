@@ -2,7 +2,7 @@
 # and links for main.cc
 
 # Compiler
-CC = nvcc
+CC = g++
 
 # Module directory
 MODULE_DIR = ./Src
@@ -23,39 +23,36 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 TEST_DIR = ../../Tests/Serial
 
 # C++ compiler flags
-CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
-
-# NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets
+CXXFLAGS = -Wall -std=c++11
 
 # Sources
-SRCS = main.cu \
-			 simulation.cu \
-			 srmhd.cu \
-			 twoFluidEMHD.cu \
-			 initFunc.cu \
-			 simData.cu \
-			 weno.cu \
-			 RK2.cu \
-			 rkSplit.cu \
-			 backwardsRK.cu \
-			 backRKArgs.cu \
-			 SSP2.cu \
-			 SSP2322.cu \
-			 IMEX2Args.cu \
-			 SSP3.cu \
-			 IMEX3Args.cu \
-			 boundaryConds.cu \
-			 saveData.cu \
-			 fluxVectorSplitting.cu \
-			 srrmhd.cu
+SRCS = main.cc \
+			 simulation.cc \
+			 srmhd.cc \
+			 twoFluidEMHD.cc \
+			 initFunc.cc \
+			 simData.cc \
+			 weno.cc \
+			 RK2.cc \
+			 rkSplit.cc \
+			 backwardsRK.cc \
+			 backRKArgs.cc \
+			 SSP2.cc \
+			 SSP2322.cc \
+			 IMEX2Args.cc \
+			 SSP3.cc \
+			 IMEX3Args.cc \
+			 boundaryConds.cc \
+			 saveData.cc \
+			 fluxVectorSplitting.cc \
+			 srrmhd.cc
 
 
 # Headers
-HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
+HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
 
 # Objects
-OBJS = ${SRCS:.cu=.o}
+OBJS = ${SRCS:.cc=.o}
 
 # Rootfinder objects
 RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
@@ -70,7 +67,7 @@ RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
 							$(RTFIND_SRC_DIR)/r1updt.o
 
 # Programmes
-PROGS = ${SRCS:.cu=}
+PROGS = ${SRCS:.cc=}
 
 # Main programme executable
 EXEC = main
@@ -105,70 +102,70 @@ clean :
 # Build objects #
 #################
 
-simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
+main.o : $(MODULE_DIR)/main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
-weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
-		$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
+		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backwardsRK.o : $(MODULE_DIR)/backwardsRK.cc $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_DIR)/backRKArgs.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backRKArgs.o : $(MODULE_DIR)/backRKArgs.cc $(INC_DIR)/backRKArgs.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-SSP2322.o : $(MODULE_DIR)/SSP2322.cu $(INC_DIR)/SSP2322.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2322.o : $(MODULE_DIR)/SSP2322.cc $(INC_DIR)/SSP2322.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-SSP3.o : $(MODULE_DIR)/SSP3.cu $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP3.o : $(MODULE_DIR)/SSP3.cc $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cu $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	@$(CC)	$^	-o $@ $(CXXFLAGS) $(NVFLAGS)
+	@$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

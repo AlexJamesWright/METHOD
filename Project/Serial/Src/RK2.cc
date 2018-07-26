@@ -17,16 +17,11 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
 
   int Ntot(d->Nx * d->Ny * d->Nz);
 
-  cudaHostAlloc((void **)&p1cons, sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&p1prims, sizeof(double) * Ntot * d->Nprims,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&p1aux, sizeof(double) * Ntot * d->Naux,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&args1, sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
-                cudaHostAllocPortable);
+  p1cons = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  p1prims = (double *) malloc(sizeof(double) * Ntot * d->Nprims);
+  p1aux = (double *) malloc(sizeof(double) * Ntot * d->Naux);
+  args1 = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  args2 = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
@@ -95,9 +90,9 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    this->bcs->apply(cons, prims, aux);
 
    // Free arrays
-   cudaFreeHost(p1cons);
-   cudaFreeHost(p1prims);
-   cudaFreeHost(p1aux);
-   cudaFreeHost(args1);
-   cudaFreeHost(args2);
+   free(p1cons);
+   free(p1prims);
+   free(p1aux);
+   free(args1);
+   free(args2);
 }

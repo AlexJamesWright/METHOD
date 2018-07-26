@@ -32,9 +32,9 @@ class IMEX2Arguments
     /*!
         Sets the allocd flag to false and defines the integration constants.
     */
-    IMEX2Arguments() : allocd(0),
-                       gam(0.2928932188134525),
-                       om2gam(0.4142135623730950) { }
+    IMEX2Arguments() : gam(0.2928932188134525),
+                       om2gam(0.4142135623730950),
+                       allocd(0) { }
 
     //! Parameterized constructor
     /*!
