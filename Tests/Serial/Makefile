@@ -16,11 +16,11 @@
 # but shouldn't modify.
 
 # Compiler
-CC = nvcc
+CC = g++
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = ../GoogleTest
+GTEST_DIR = ../../../GoogleTest
 
 # Where to find user code.
 MODULE_DIR = ./../../Project/Serial/Src
@@ -40,12 +40,7 @@ CXXFLAGS = -std=c++11	\
 					 -D_MWAITXINTRIN_H_INCLUDED \
 					 -D_FORCE_INLINES \
 					 -D__STRICT_ANSI__ \
-					 -Wno-deprecated-gpu-targets \
-
-NVFLAGS = -rdc=true \
-					-fmad=false
-
-
+					 -DBUILD_SHARED_LIBS
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -138,132 +133,132 @@ gtest_main.a : gtest-all.o gtest_main.o
 	####################################################
 
 # simData
-simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h $(INC_DIR)/cudaErrorCheck.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/simData.cu -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cc -I$(INC_DIR)
 
 # Weno reconstruction
-weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/weno.cu -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cc -I$(INC_DIR)
 
 # Runge-Kutta integrators
-RK2.o	:	$(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/RK2.cu -I$(INC_DIR)
+RK2.o	:	$(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/RK2.cc -I$(INC_DIR)
 
-test_rk2.o : $(TEST_DIR)/test_rk2.cu $(INC_DIR)/RK2.h \
+test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_rk2 : test_rk2.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Explicit RK split integrator
-rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/rkSplit.cu -I$(INC_DIR)
+rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/rkSplit.cc -I$(INC_DIR)
 
 # Flux vector splitting method
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/fluxVectorSplitting.cu -I$(INC_DIR)
+fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/fluxVectorSplitting.cc -I$(INC_DIR)
 
-test_fvs.o : $(TEST_DIR)/test_fvs.cu \
+test_fvs.o : $(TEST_DIR)/test_fvs.cc \
 	                    $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_fvs.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_fvs.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_fvs : srmhd.o test_fvs.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Save data (required for simulation.evolve)
-saveData.o :  $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/saveData.cu -I$(INC_DIR)
+saveData.o :  $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/saveData.cc -I$(INC_DIR)
 
 # Simulation
-simulation.o : $(MODULE_DIR)/simulation.cu $(INC_DIR)/simulation.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/simulation.cu -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/simulation.cc $(INC_DIR)/simulation.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cc -I$(INC_DIR)
 
-test_simulation.o : $(TEST_DIR)/test_simulation.cu \
+test_simulation.o : $(TEST_DIR)/test_simulation.cc \
                      $(INC_DIR)/simulation.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_simulation.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_simulation : simulation.o test_simulation.o simData.o fluxVectorSplitting.o srmhd.o boundaryConds.o initFunc.o RK2.o rkSplit.o saveData.o $(RTFIND_OBJS) weno.o gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # SRMHD Model
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/srmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-test_srmhd.o : $(TEST_DIR)/test_srmhd.cu \
+test_srmhd.o : $(TEST_DIR)/test_srmhd.cc \
                      $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_srmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_srmhd : srmhd.o test_srmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # SRRMHD Model
-srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/srrmhd.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srrmhd.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cu \
+test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cc \
                      $(INC_DIR)/srrmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_srrmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srrmhd.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_srrmhd : srrmhd.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # TwoFluidEMHD Model
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/twoFluidEMHD.cu  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/twoFluidEMHD.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-test_twoFluidEMHD.o : $(TEST_DIR)/test_twoFluidEMHD.cu \
+test_twoFluidEMHD.o : $(TEST_DIR)/test_twoFluidEMHD.cc \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_twoFluidEMHD.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_twoFluidEMHD.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_twoFluidEMHD : twoFluidEMHD.o test_twoFluidEMHD.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # InitialFunc
 
-initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/initFunc.cu -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cc -I$(INC_DIR)
 
-test_initFunc.o : $(TEST_DIR)/test_initFunc.cu $(INC_DIR)/initFunc.h \
+test_initFunc.o : $(TEST_DIR)/test_initFunc.cc $(INC_DIR)/initFunc.h \
 									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_initFunc.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_initFunc : initFunc.o test_initFunc.o simData.o simulation.o twoFluidEMHD.o srmhd.o saveData.o $(RTFIND_OBJS) weno.o gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # Cminpack rootfinder
-test_cminpack.o : $(TEST_DIR)/test_cminpack.cu $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_cminpack.cu -I$(RTFIND_INC_DIR)
+test_cminpack.o : $(TEST_DIR)/test_cminpack.cc $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_cminpack.cc -I$(RTFIND_INC_DIR)
 
 test_cminpack : test_cminpack.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # Boundary Conditions
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/boundaryConds.cu -I$(INC_DIR)
+boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cc -I$(INC_DIR)
 
-test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cu $(INC_DIR)/boundaryConds.h \
+test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cc $(INC_DIR)/boundaryConds.h \
 									$(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_boundaryConds.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_boundaryConds : test_boundaryConds.o boundaryConds.o simData.o srmhd.o simulation.o initFunc.o weno.o saveData.o $(RTFIND_OBJS) gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Imex Schemes
-SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	@$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
+	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
-	@$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
+	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
-test_imex.o : $(TEST_DIR)/test_imex.cu
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_imex.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_imex.o : $(TEST_DIR)/test_imex.cc
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_imex : IMEX2Args.o SSP2.o simData.o srrmhd.o initFunc.o boundaryConds.o saveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
-	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@

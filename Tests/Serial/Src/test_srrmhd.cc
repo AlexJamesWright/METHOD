@@ -33,11 +33,15 @@ namespace
   TEST(SRRMHD, FluxVectorSplittingStationary)
   {
 
+    printf("Entered\n");
+
     // Set up
     Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
     SRRMHD model(&d);
     FVS fluxMethod(&d, &model);
+    printf("Constructing sim\n");
     Simulation sim(&d);
+    printf("Sim constructed\n");
 
     // Set state to stationary equilibrium state
     for (int i(0); i < d.Nx; i++) {
@@ -95,6 +99,8 @@ namespace
         }
       }
     }
+
+    printf("Finished tests\n");
   }
 
 

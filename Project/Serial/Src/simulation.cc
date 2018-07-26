@@ -2,6 +2,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <cstdio>
+#include <cstdlib>
 
 Simulation::Simulation(Data * data) : data(data)
 {
