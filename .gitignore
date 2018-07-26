@@ -37,3 +37,5 @@ TestData
 .cache
 
 ProfileParallel.nvvp
+ 
+slurm*
