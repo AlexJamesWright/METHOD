@@ -16,7 +16,6 @@
 class IMEX3Arguments : public IMEX2Arguments
 {
   public:
-    double *flux2;  //!< Flux due to stage 2 solution, i.e. Fnet(U2)
     double hmgam;   //!< (h)alf (m)inus (gam)ma = 0.5-gamma
 
     //!< Default constructor
@@ -57,7 +56,7 @@ class IMEX3Arguments : public IMEX2Arguments
     /*!
         Frees allocated memory.
     */
-    ~IMEX3Arguments();
+    virtual ~IMEX3Arguments();
 
     //!< Overload assignment operator
     /*!

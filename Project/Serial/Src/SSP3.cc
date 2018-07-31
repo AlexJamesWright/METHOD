@@ -22,18 +22,9 @@ SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   int Ntot = data->Nx * data->Ny * data->Nz;
   // Need work arrays
-  x = (double *) malloc(sizeof(double) * d->Ncons);
-  fvec = (double *) malloc(sizeof(double) * d->Ncons);
-  wa = (double *) malloc(sizeof(double) * lwa);
   // Interstage results
-  U1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
-  U2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
   U3 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
   U3guess = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
-  source1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
-  flux1 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
-  source2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
-  flux2 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
   source3 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
   flux3 = (double *) malloc(sizeof(double) * d->Ncons * Ntot);
   tempprims = (double *) malloc(sizeof(double) * d->Nprims * Ntot);
@@ -42,19 +33,9 @@ SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 
 SSP3::~SSP3()
 {
-
   // Clean up your mess
-  free(x);
-  free(fvec);
-  free(wa);
-  free(U1);
-  free(U2);
   free(U3);
   free(U3guess);
-  free(source1);
-  free(flux1);
-  free(source2);
-  free(flux2);
   free(source3);
   free(flux3);
   free(tempprims);

@@ -29,24 +29,10 @@ SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
   cudaHostAlloc((void **)&wa, sizeof(double) * lwa,
                 cudaHostAllocPortable);
   // Interstage results
-  cudaHostAlloc((void **)&U1, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
   cudaHostAlloc((void **)&U3, sizeof(double) * d->Ncons * Ntot,
-                cudaHostAllocPortable);
-  cudaHostAlloc((void **)&U2guess, sizeof(double) * d->Ncons * Ntot,
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&U3guess, sizeof(double) * d->Ncons * Ntot,
                 cudaHostAllocPortable);
-  cudaHostAlloc((void **)&source1, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&flux1, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&source2, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
-  cudaHostAlloc((void **)&flux2, sizeof(double) * d->Ncons * Ntot,
-            cudaHostAllocPortable);
   cudaHostAlloc((void **)&source3, sizeof(double) * d->Ncons * Ntot,
             cudaHostAllocPortable);
   cudaHostAlloc((void **)&flux3, sizeof(double) * d->Ncons * Ntot,
@@ -64,15 +50,8 @@ SSP3::~SSP3()
   cudaFreeHost(x);
   cudaFreeHost(fvec);
   cudaFreeHost(wa);
-  cudaFreeHost(U1);
-  cudaFreeHost(U2);
   cudaFreeHost(U3);
-  cudaFreeHost(U2guess);
   cudaFreeHost(U3guess);
-  cudaFreeHost(source1);
-  cudaFreeHost(flux1);
-  cudaFreeHost(source2);
-  cudaFreeHost(flux2);
   cudaFreeHost(source3);
   cudaFreeHost(flux3);
   cudaFreeHost(tempprims);

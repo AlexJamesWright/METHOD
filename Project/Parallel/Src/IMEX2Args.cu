@@ -1,5 +1,6 @@
 #include "IMEX2Args.h"
 #include "cudaErrorCheck.h"
+#include <cstdio>
 
 //! Additional arguments parameterized constructor
 IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
@@ -14,7 +15,9 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   aux      = new double[data->Naux  ];
   source   = new double[data->Ncons ];
   source1  = new double[data->Ncons ];
+  source2  = new double[data->Ncons ];
   flux1    = new double[data->Ncons ];
+  flux2    = new double[data->Ncons ];
   // Alloc host arrays
   gpuErrchk( cudaHostAlloc((void **)&cons_h   , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
   gpuErrchk( cudaHostAlloc((void **)&prims_h  , data->Nprims * data->Ncells * sizeof(double), cudaHostAllocPortable) );
@@ -31,11 +34,11 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
   prims_d   = new double*[data->Nstreams];
   aux_d     = new double*[data->Nstreams];
   source_d  = new double*[data->Nstreams];
-  cons1_d  = new double*[data->Nstreams];
+  cons1_d   = new double*[data->Nstreams];
   flux1_d   = new double*[data->Nstreams];
   source1_d = new double*[data->Nstreams];
   wa_d      = new double*[data->Nstreams];
-  fvec_d      = new double*[data->Nstreams];
+  fvec_d    = new double*[data->Nstreams];
   for (int i(0); i < data->Nstreams; i++) {
     gpuErrchk( cudaMalloc((void **)&sol_d[i]    , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
     gpuErrchk( cudaMalloc((void **)&cons_d[i]   , data->Ncons * data->tpb * data->bpg * sizeof(double)) );
@@ -60,13 +63,14 @@ IMEX2Arguments::IMEX2Arguments(Data * data) : data(data),
 
 IMEX2Arguments::~IMEX2Arguments()
 {
-
   delete [] cons;
   delete [] prims;
   delete [] aux;
   delete [] source;
   delete [] source1;
+  delete [] source2;
   delete [] flux1;
+  delete [] flux2;
 
   for (int i(0); i < data->Nstreams; i++) {
     gpuErrchk( cudaFree(sol_d[i]) );
@@ -107,7 +111,9 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
     aux      = new double[data->Naux  ];
     source   = new double[data->Ncons ];
     source1  = new double[data->Ncons ];
+    source2  = new double[data->Ncons ];
     flux1    = new double[data->Ncons ];
+    flux2    = new double[data->Ncons ];
 
     // Alloc host arrays
     gpuErrchk( cudaHostAlloc((void **)&cons_h   , data->Ncons  * data->Ncells * sizeof(double), cudaHostAllocPortable) );
@@ -159,7 +165,9 @@ IMEX2Arguments& IMEX2Arguments::operator=(const IMEX2Arguments &args)
   for (int i(0); i < data->Naux  ; i++) aux[i]     = args.aux[i];
   for (int i(0); i < data->Ncons ; i++) source[i]  = args.source[i];
   for (int i(0); i < data->Ncons ; i++) source1[i] = args.source1[i];
+  for (int i(0); i < data->Ncons ; i++) source2[i] = args.source2[i];
   for (int i(0); i < data->Ncons ; i++) flux1[i]   = args.flux1[i];
+  for (int i(0); i < data->Ncons ; i++) flux2[i]   = args.flux2[i];
 
   return *this;
 }

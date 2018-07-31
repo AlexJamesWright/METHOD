@@ -40,13 +40,9 @@ class SSP3 : public SSP2
 
     double
     //@{
-    //!< Work array for the hybrd rootfinder
-    *x, *fvec, *wa,
-    //@}
-    //@{
     //!< Work array for specified variable. Size is Nvars*Nx*Ny*Nz
-    *U1, *U2, *U3, *U2guess, *U3guess,
-    *source1, *flux1, *source2, *flux2, *source3, *flux3,
+    *U3, *U3guess,
+    *source3, *flux3,
     *tempprims, *tempaux;
     //@}
 
