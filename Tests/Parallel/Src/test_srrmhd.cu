@@ -54,7 +54,6 @@ namespace
           d.prims[d.id(8, i, j, k)] = 0.0;
           d.prims[d.id(9, i, j, k)] = 0.0;
           d.prims[d.id(10, i, j, k)] = 0.0;
-          d.prims[d.id(11, i, j, k)] = 0.0;
         }
       }
     }
