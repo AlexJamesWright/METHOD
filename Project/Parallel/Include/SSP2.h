@@ -72,7 +72,7 @@ class SSP2 : public TimeIntegrator
     SSP2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
     //! Destructor
-    ~SSP2();
+    virtual ~SSP2();
 
     //! Performs a single time step
     /*!

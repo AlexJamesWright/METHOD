@@ -257,8 +257,14 @@ SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DI
 IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
 	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
+SSP3.o : $(MODULE_DIR)/SSP3.cc $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
+	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h
+	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
 test_imex.o : $(TEST_DIR)/test_imex.cc
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_imex : IMEX2Args.o SSP2.o simData.o srrmhd.o initFunc.o boundaryConds.o saveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
+test_imex : IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o boundaryConds.o saveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@

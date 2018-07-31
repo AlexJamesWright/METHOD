@@ -63,7 +63,7 @@ class IMEX2Arguments
     /*!
         Frees allocated memory.
     */
-    ~IMEX2Arguments();
+    virtual ~IMEX2Arguments();
 
     //! Overload assignment operator
     /*!
