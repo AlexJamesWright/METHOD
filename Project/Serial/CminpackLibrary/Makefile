@@ -1,7 +1,7 @@
 # Builds all objects for the cminpack library
 
 # Compiler
-CC = nvcc
+CC = g++
 
 # Compiler flag
 CFLAGS = -c
