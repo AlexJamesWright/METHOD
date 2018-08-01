@@ -9,13 +9,6 @@
 #include <cstdio>
 #include <omp.h>
 
-// There are some optimisations that can be made if we allow the parallel and
-// serial verions to differ. The simulations are still accurate to within the
-// specified tolerance and so valid solutions, but the test_imex module requires
-// they agree exactly. If performing tests, only expect test_imex to pass if
-// MATCH_SERIAL = 1
-#define MATCH_SERIAL 0
-
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -25,7 +18,7 @@
 
 // Device function for stage one of IMEX rootfind
 __global__
-void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
+static void stageOne(double * sol, double * cons, double * prims, double * aux, double * source,
               double * wa, double * fvec, const double dt, const double gam, const double tol, const int stream,
               const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
               const double gamma, const double sigma, const double mu1, const double mu2, const double cp,
@@ -33,7 +26,7 @@ void stageOne(double * sol, double * cons, double * prims, double * aux, double 
 
 // Device function for stage two of IMEX rootfind
 __global__
-void stageTwo(double * sol, double * cons, double * prims, double * aux, double * source,
+static void stageTwo(double * sol, double * cons, double * prims, double * aux, double * source,
               double * cons1, double * source1, double * flux1, double * wa, double * fvec,
               const double dt, const double gam, const double tol, const int stream,
               const int origWidth, const int streamWidth, const int Ncons, const int Nprims, const int Naux, const int lwa,
@@ -100,7 +93,7 @@ SSP2::SSP2(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
             cudaHostAllocPortable);
 
   //! In order to keep consitency with the serial version we need to begin the
-  //! C2P rootfind from the same guess, so need to double up on those arrays
+  //! C2P rootfind from the same guess, so need to double up on those arrays (see timeInt.h)
   #if MATCH_SERIAL
     cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
                   cudaHostAllocPortable);

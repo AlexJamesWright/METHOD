@@ -1,4 +1,4 @@
-// Parallel main
+// Serial main
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <omp.h>
 #include <iostream>
+#include <cstring>
 
 #define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
 
@@ -29,8 +30,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(4096-2*Ng);
-  int ny(0);
+  int nx(64);
+  int ny(16);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -38,10 +39,10 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.0000006);
-  double cfl(0.2);
-  double gamma(2.0);
-  double sigma(10000);
+  double endTime(0.05);
+  double cfl(0.5);
+  double gamma(4.0/3.0);
+  double sigma(0);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);

@@ -30,7 +30,8 @@ class TimeIntAndModelArgs
     * source,   //!< Source vector for guessed conserved vector
     * cons1,    //!< Solution to stage1
     * source1,  //!< Source vector for solution of stage 1
-    * flux1;    //!< Flux vector for solution of stage 1
+    * flux1,    //!< Flux vector for solution of stage 1
+    * flux2;    //!< Flux vector for solution of stage 2
 
     int gID;    //!< global thread ID for debugging
 
@@ -55,6 +56,17 @@ class TimeIntAndModelArgs
                           prims(prims), aux(aux), source(source), cons1(cons1),
                           source1(source1), flux1(flux1) { }
 
+      //! IMEX3(322) constructor (stage 3)
+      __device__
+      TimeIntAndModelArgs(double dt, double gamma, double sigma, double mu1,
+                          double mu2, double cp, double gam, double * sol,
+                          double * cons, double * prims, double * aux,
+                          double * source, double * cons1, double * source1,
+                          double * flux1, double * flux2) :
+                          dt(dt), gamma(gamma), sigma(sigma), mu1(mu1),
+                          mu2(mu2), cp(cp), gam(gam), sol(sol), cons(cons),
+                          prims(prims), aux(aux), source(source), cons1(cons1),
+                          source1(source1), flux1(flux1), flux2(flux2) { }
 };
 
 

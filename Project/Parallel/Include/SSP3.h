@@ -85,6 +85,11 @@ class SSP3 : public SSP2
     */
     void step(double * cons, double * prims, double * aux, double dt=0);
 
+    //! Performs stage one/two/three of IMEX3(322)
+    virtual void callStageOne(double * cons, double * prims, double * aux, double * source, double dt);
+    virtual void callStageTwo(double * cons, double * prims, double * aux, double * source, double * cons1, double * source1, double * flux1, double dt);
+    virtual void callStageThree(double * cons, double * prims, double * aux, double * source, double * source1, double * flux1, double * cons2, double * flux2, double dt);
+
 };
 
 

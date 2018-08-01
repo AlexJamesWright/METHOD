@@ -6,6 +6,15 @@
 #include "boundaryConds.h"
 #include "flux.h"
 
+// There are some optimisations that can be made if we allow the parallel and
+// serial verions to differ. The simulations are still accurate to within the
+// specified tolerance and so valid solutions, but the test_imex module requires
+// they agree exactly. If performing tests, only expect test_imex to pass if
+// MATCH_SERIAL = 1
+#ifndef MATCH_SERIAL
+  #define MATCH_SERIAL 1
+#endif
+
 //! <b> General form of the time integrator </b>
 /*!
   @par
