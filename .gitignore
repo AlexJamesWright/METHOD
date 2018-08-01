@@ -24,7 +24,9 @@ __pycache__
 
 Figures
 
-Data/
+*.dat
+
+UserDef/info
 
 .ipynb_checkpoints
 
