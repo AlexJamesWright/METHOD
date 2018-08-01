@@ -18,6 +18,11 @@ class IMEX3Arguments : public IMEX2Arguments
   public:
     double hmgam;   //!< (h)alf (m)inus (gam)ma = 0.5-gamma
 
+    // ########### PARALLEL DATA ARRAYS ##########//
+    double
+    * flux2_h,      //!< Host array for flux vector of stage 1 solution
+    ** flux2_d;     //!< Device array for flux vector of stage 1 solution
+
     //!< Default constructor
     /*!
         Calls the IMEX2Arguments constructor to store pointer to Data and sets

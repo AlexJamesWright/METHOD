@@ -1,3 +1,6 @@
+//! Need to insure that serial and parallel match
+#define MATCH_SERIAL 1
+
 #include "gtest/gtest.h"
 #include "simData.h"
 #include "simulation.h"
@@ -39,7 +42,6 @@ namespace
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
     sim.evolve();
 
-
     // Save data in test directory
     strcpy(save.dir, "../TestData/Parallel");
     strcpy(save.app, "SSP2");
@@ -70,9 +72,9 @@ namespace
     Outflow bcs(&data);
     SSP3 timeInt(&data, &model, &bcs, &fluxMethod);
     SaveData save(&data);
+
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
     sim.evolve();
-
 
     // Save data in test directory
     strcpy(save.dir, "../TestData/Parallel");
@@ -81,7 +83,6 @@ namespace
     save.savePrims();
     save.saveAux();
     save.saveConsts();
-    printf("Data saved\n");
   }
 
 }

@@ -9,7 +9,7 @@
 #include "rkSplit.h"
 #include "backwardsRK.h"
 #include "SSP2.h"
-#include "SSP2322.h"
+#include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
@@ -26,11 +26,12 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(4096-2*Ng);
-  int ny(0);
+  int nx(64);
+  int ny(16);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -38,16 +39,17 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.0000006);
-  double cfl(0.2);
-  double gamma(2.0);
-  double sigma(10000);
+  double endTime(0.05);
+  double cfl(0.5);
+  double gamma(4.0/3.0);
+  double sigma(0);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(60);
   bool output(false);
   int safety(500);
+
 
   char * ptr(0);
   double tmp(0);
@@ -71,11 +73,14 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "frameSkip") == 0) {
       frameSkip = (int)strtol(argv[i+1], &ptr, 10);
     }
+    if (strcmp(argv[i], "gammanum") == 0) {
+      tmp = (double)strtol(argv[i+1], &ptr, 10);
+    }
+    if (strcmp(argv[i], "gammaden") == 0 && tmp!=0) {
+      gamma = tmp/(double)strtol(argv[i+1], &ptr, 10);
+    }
     if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
       endTime = (double)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "cfl") == 0) {
-      cfl = (double)strtol(argv[i+1], &ptr, 10);
     }
   }
 
