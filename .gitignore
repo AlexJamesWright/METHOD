@@ -14,19 +14,11 @@ test_rk2
 test_imex
 gtest_main.a
 
-GoogleTest
+*.dat
 
 Doxumentation/html/*
 
-Project/Serial/Data/*.dat
-
 __pycache__
-
-Figures
-
-*.dat
-
-UserDef/info
 
 .ipynb_checkpoints
 
@@ -34,10 +26,8 @@ runMultipleSims.sh
 
 cleanData.sh
 
-TestData
-
 .cache
 
 ProfileParallel.nvvp
- 
+
 slurm*
