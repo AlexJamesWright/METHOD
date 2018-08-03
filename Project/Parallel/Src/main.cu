@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(64);
-  int ny(16);
+  int nx(131072-2*Ng);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   double zmax(1.0);
   double endTime(0.05);
   double cfl(0.5);
-  double gamma(4.0/3.0);
+  double gamma(2.0);
   double sigma(0);
   double cp(1.0);
   double mu1(-MU);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP3 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 

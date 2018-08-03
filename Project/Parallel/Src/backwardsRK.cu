@@ -106,6 +106,15 @@ void BackwardsRK2::step(double * cons, double * prims, double * aux, double dt)
   // Determine new prim and aux variables
   this->model->getPrimitiveVars(cons, prims, aux);
   this->bcs->apply(cons, prims, aux);
+
+  // Free
+  cudaFreeHost(initGuess);
+  cudaFreeHost(tempPrims);
+  cudaFreeHost(tempAux);
+  cudaFreeHost(tempSource);
+  cudaFreeHost(x);
+  cudaFreeHost(fvec);
+  cudaFreeHost(wa);
 }
 
 
