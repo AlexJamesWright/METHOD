@@ -6,7 +6,7 @@
 
 import numpy as np
 import pylab as plt
-import scipy
+from scipy.special import erf
 from matplotlib import cm
 import warnings
 from contextlib import suppress
@@ -125,7 +125,7 @@ class InteractivePlot(object):
         self.cleanConsLabels = []
         for i in range(len(consLabels)-1):
             self.cleanConsLabels.append(consLabels[i][:-1])
-            self.cleanConsLabels.append(consLabels[-1])
+        self.cleanConsLabels.append(consLabels[-1])
 
 
 
@@ -171,6 +171,25 @@ class InteractivePlot(object):
                 self.cleanAuxLabels.append(auxLabels[i][:-1])
             self.cleanAuxLabels.append(auxLabels[-1])
 
+
+        with suppress(FileNotFoundError):
+            # Grab domain data
+            self.x = np.zeros(c['Nx'])
+            self.y = np.zeros(c['Ny'])
+            self.z = np.zeros(c['Nz'])
+            coords = [self.x, self.y, self.z]
+            print("Fetching domain coordinates...")
+            with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
+                for coord, (i, line) in zip(coords, enumerate(f)):
+                    temp = line.split()
+                    for k, val in enumerate(temp):
+                        coord[k] = float(val)
+
+            # Clean up labels (remove the commas)
+            self.cleanAuxLabels = []
+            for i in range(len(auxLabels)-1):
+                self.cleanAuxLabels.append(auxLabels[i][:-1])
+            self.cleanAuxLabels.append(auxLabels[-1])
 
 
     def _getVarFromLine(self, line, Nx, Ny):
@@ -428,7 +447,7 @@ class InteractivePlot(object):
         c = self.c
         plt.figure()
         xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
-        exact = np.sign(xs)*scipy.special.erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
+        exact = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
         plt.plot(xs, By[c['Ng']:-c['Ng'], 0, 0], label='Numerical')
         plt.plot(xs, exact, label='Exact')
         plt.xlim([c['xmin'], c['xmax']])

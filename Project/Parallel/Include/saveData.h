@@ -19,7 +19,7 @@ using namespace std;
 class SaveData
 {
   private:
-    
+
     int
     Nouts,         //!< Number of output files
     Ncount;        //!< Which user defined variable is this?
@@ -34,6 +34,9 @@ class SaveData
 
     //! Saves the auxilliary vector state
     void saveAux();
+
+    //! Saves the domain coordinates
+    void saveDomain();
 
     //! Saves the constant data
     void saveConsts();

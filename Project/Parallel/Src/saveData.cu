@@ -24,6 +24,7 @@ void SaveData::saveAll(bool timeSeries)
   this->saveCons();
   this->savePrims();
   this->saveAux();
+  this->saveDomain();
   this->saveConsts();
 }
 
@@ -130,6 +131,38 @@ void SaveData::saveAux()
       }
     }
   }
+
+  fclose(f);
+
+}
+
+
+void SaveData::saveDomain()
+{
+  FILE * f;
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Domain/domain");
+  strcat(fname, app);
+  strcat(fname, ".dat");  f = fopen(fname, "w");
+
+  // Ensure file is open
+  if (f == NULL) {
+    printf("Error: could not open 'domain.dat' for writing.\n");
+    exit(1);
+  }
+
+  // File is open, write data
+  for (int i(0); i < d->Nx; i++)
+    fprintf(f, "%.16f ", d->x[i]);
+  fprintf(f, "\n");
+  for (int j(0); j < d->Ny; j++)
+    fprintf(f, "%.16f ", d->y[j]);
+  fprintf(f, "\n");
+  for (int k(0); k < d->Nz; k++)
+    fprintf(f, "%.16f ", d->z[k]);
+  fprintf(f, "\n");
+
 
   fclose(f);
 
