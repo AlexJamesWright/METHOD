@@ -26,6 +26,7 @@ mkdir Project/Serial/Data/TimeSeries/Constants
 mkdir Project/Serial/Data/TimeSeries/Primitive
 mkdir Project/Serial/Data/TimeSeries/UserDef
 
+mkdir Tests/TestData
 mkdir Tests/TestData/Parallel/Auxilliary
 mkdir Tests/TestData/Parallel/Conserved
 mkdir Tests/TestData/Parallel/Constants
