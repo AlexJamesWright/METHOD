@@ -27,11 +27,13 @@ mkdir Project/Serial/Data/TimeSeries/Primitive
 mkdir Project/Serial/Data/TimeSeries/UserDef
 
 mkdir Tests/TestData
+mkdir Tests/TestData/Parallel
 mkdir Tests/TestData/Parallel/Auxilliary
 mkdir Tests/TestData/Parallel/Conserved
 mkdir Tests/TestData/Parallel/Constants
 mkdir Tests/TestData/Parallel/Primitive
 
+mkdir Tests/TestData/Serial
 mkdir Tests/TestData/Serial/Auxilliary
 mkdir Tests/TestData/Serial/Conserved
 mkdir Tests/TestData/Serial/Constants
