@@ -48,15 +48,3 @@ tests. From the *Test* directory, running
 will compile all unit tests and, using the GoogleTest framework, execute the
 available tests. If any tests fail unexpectedly, update the files on you machine
 by pulling the repository and try again.
-
-@section example Example Simulations
-@par
-  A few example simulations have been provided that illustrate how to use the
-various classes. By typing `make run` in one of the example directories, the
-relevant object files will be built and executed. Data is saved in the *Examples/Data*
-directory and is easily viewed using the interactivePlot script, run from the
-root Example directory with something like `spyder interactivePlot.py`. For the
-Kelvin-Helmholtz simulation, running the `animation.py` script will create an
-animatation called `Output.gif` in the root Example directory to view (may take up
-to ten minutes to run the simulation and make the animation).
-  @note When generating animations, besure to delete all TimeSeries data after each run.
