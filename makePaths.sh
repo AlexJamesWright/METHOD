@@ -35,3 +35,17 @@ mkdir Tests/TestData/Serial/Auxilliary
 mkdir Tests/TestData/Serial/Conserved
 mkdir Tests/TestData/Serial/Constants
 mkdir Tests/TestData/Serial/Primitive
+
+mkdir Examples/Data
+mkdir Examples/Data/Final
+mkdir Examples/Data/Final/Auxilliary
+mkdir Examples/Data/Final/Conserved
+mkdir Examples/Data/Final/Primitive
+mkdir Examples/Data/Final/Constants
+mkdir Examples/Data/Final/Domain
+mkdir Examples/Data/TimeSeries
+mkdir Examples/Data/TimeSeries/Auxilliary
+mkdir Examples/Data/TimeSeries/Conserved
+mkdir Examples/Data/TimeSeries/Constants
+mkdir Examples/Data/TimeSeries/Primitive
+mkdir Examples/Data/TimeSeries/UserDef
