@@ -143,7 +143,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   Data * d(data);
 
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
-  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
@@ -153,8 +153,6 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        // tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
-        // tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
 
         d->prims[ID(0, i, j, k)] = rho / 2.0;
         d->prims[ID(3, i, j, k)] = 0;
@@ -175,7 +173,7 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
@@ -185,15 +183,14 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        // tmp1 = (B0 / (d->mu1 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
-        // tmp2 = (B0 / (d->mu2 * rho * sqrt(PI / d->sigma))) * exp(-d->x[i] * d->x[i] * d->sigma / 4.0);
-
         d->prims[ID(0, i, j, k)] = rho;
         d->prims[ID(4, i, j, k)] = p;
         d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
       }
     }
   }
+  printf("By[14391] = %19.16f\n", d->prims[ID(6, 14391, 0, 0)]);
+  printf("x = %19.16f\n, B0 = %19.16f\nsigma = %19.16f\nsqrt = %19.16f\n", d->x[14391], B0, d->sigma, sqrt(d->sigma));
 }
 
 
@@ -236,11 +233,12 @@ BrioWuTwoFluid::BrioWuTwoFluid(Data * data, int dir, int setUp) : InitialFunc(da
   // Syntax
   Data * d(data);
   // Ensure correct model
-  if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
+  if (d->Nprims != 16)
+    throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
   // Ensure even number of cells to prevent zero in initial data at centre of domain
-  if (d->nx%2 || d->ny%2 || d->nz%2) {
+  if (d->nx%2 || d->ny%2 || d->nz%2)
     throw std::invalid_argument("Please ensure even number of cells in each direction for Brio Wu initial data.\n");
-  }
+
   // Determine which direction the discontinuity it in
   int endX(d->Nx - 1);
   int endY(d->Ny - 1);
@@ -333,6 +331,12 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
+  // Ensure correct model
+  if (d->Nprims >= 16)
+    throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  // Ensure even number of cells to prevent zero in initial data at centre of domain
+  if (d->nx%2 || d->ny%2 || d->nz%2)
+    throw std::invalid_argument("Please ensure even number of cells in each direction for Brio Wu initial data.\n");
 
   int endX(d->Nx - 1);
   int endY(d->Ny - 1);
@@ -471,6 +475,34 @@ KHInstabilityTwoFluid::KHInstabilityTwoFluid(Data * data, int mag) : InitialFunc
           d->prims[ID(6, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
           d->prims[ID(7, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
         }
+      }
+    }
+  }
+}
+
+
+FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-5, 5]\n");
+  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [-5, 5]\n");
+
+
+  double R(0.3);
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        double r(sqrt(d->x[i] * d->x[i] + d->y[j]*d->y[j]));
+        d->prims[ID(0, i, j, k)] = 1.0;
+        d->prims[ID(4, i, j, k)] = 3.0;
+
+        d->prims[ID(1, i, j, k)] = 0.1;
+        d->prims[ID(1, i, j, k)] = 0.1;
+        if (r <= R)
+          d->prims[ID(7, i, j, k)] = 0.001 * (R - r);
       }
     }
   }

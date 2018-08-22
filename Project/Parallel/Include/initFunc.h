@@ -44,7 +44,7 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
     CPAlfvenWaveTwoFluid(Data * data);
 };
 
-//! <b> Single fluid circularly polarized Alfven wave </b>
+//! <b> Single-fluid circularly polarized Alfven wave </b>
 /*!
     See Del Zanna et al. 2007 for the details. Such a set up is an exact solution
   and as such can be used as a method for plotting convergence.
@@ -59,6 +59,7 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
     */
     CPAlfvenWaveSingleFluid(Data * data);
 };
@@ -84,12 +85,12 @@ class CurrentSheetTwoFluid : public InitialFunc
     CurrentSheetTwoFluid(Data * data);
 };
 
-//! <b> Single fluid self similar current sheet </b>
+//! <b> Single-fluid current sheet </b>
 /*!
-    See Dionysopoulou 2016 for explanation
-  Set up is one dimensional (x-direction, although may be run in multiple Ds),
-  in equilibrium, with initial By field given by the error function. Behaviour
-  should be diffusive for moderate resistivities.
+    See Dionysopoulou 2016 for explanation.
+  Set up is one dimensional and starts in hydrodynamic equilibrium, with
+  initial By field given by the error function. Behaviour should be diffusive
+  for moderate resistivities.
     See Amano 2016 for two fluid details.
 */
 class CurrentSheetSingleFluid : public InitialFunc
@@ -106,7 +107,7 @@ class CurrentSheetSingleFluid : public InitialFunc
 };
 
 
-//! <b> Single fluid Orszag-Tang voretx </b>
+//! <b> Single-fluid Orszag-Tang voretx </b>
 /*!
     See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
   or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
@@ -114,6 +115,8 @@ class CurrentSheetSingleFluid : public InitialFunc
   John Muddle, for initial data, Table 5.8. Orignally from Section 4.4 of `A second
   order Godunov Method for multidimentional relativistic magnetohydrodynamcis`,
   Kirs Beckwith.
+    This is a two-dimensional problem that tests the quality of the divergence
+    cleaning.
 */
 class OTVortexSingleFluid : public InitialFunc
 {
@@ -123,67 +126,112 @@ class OTVortexSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
+      @sa InitialFunc
     */
     OTVortexSingleFluid(Data * data);
 };
 
 
 
-//! <b> Brio-Wu shock tube initial data (1D) </b>
+//! <b> Two-fluid Brio-Wu shock tube</b>
 /*!
-    Standard shock tube test taken from Amano 2016.
+      Two, one-dimensional discontinuities. This tests the high-resolution shock
+    capturing at discontinuous data.
 */
-
 class BrioWuTwoFluid : public InitialFunc
 {
   public:
 
-    //! <b> Brio-Wu shock tube initial data for two-fluid model </b>
-    /*!
+    /*! Constructor
         Few options for the set up. All set ups will place a discontinuity along
       some axis, which is defined by dir where (0, 1, 2) = (x, y, z). The symmetric
       3D generalisation is also selected by default (setUp=0), but for the values
       used in Amano 2016 use setUp=1.
         Stores a pointer to the Data class for reference in its methods
     @param[in] *data Pointer to Data class containing global simulation data
-    @param dir direction in which to place the discontinuity. (0, 1, 2) = (x, y, z) axis
-    @param setUp Type of set up, 0=3D consistent, 1=Amano 1D case
+    @param dir direction in which to place the discontinuity:
+    (0, 1, 2) = (x, y, z)
+    @param setUp Type of set up: 0=Palenzuela 2009, 1=Amano 2016
     @sa InitialFunc
     */
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=1);
 };
 
+//! <b> Single-fluid Brio-Wu shock tube </b>
+/*!
+      Taken from Palenzuela 2009, `Beyond ideal...`. One-dimensional,
+    discontinuous initial data.
+      This tests the high-resolution shock
+    capturing at discontinuous data.
+*/
 class BrioWuSingleFluid : public InitialFunc
 {
   public:
-
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] dir integar defining direction of discontinuity. {0, 1, 2} = {x, y, z}
+      @sa InitialFunc
+    */
     BrioWuSingleFluid(Data * data, int dir=0);
 };
 
-//! <b> Kelvin Helmholtz instability initial data, single fluid </b>
+//! <b> Single-fluid Kelvin-Helmholtz instability </b>
 /*!
-    Initial data taken from Mignone 2009 `A five wave HLL....`
-    @param[in] *data Pointer to Data class containing global simulation data
-    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
+      Taken from Mignone 2009 `A five wave HLL....`. This is a two-dimensional
+    test
 */
 class KHInstabilitySingleFluid : public InitialFunc
 {
   public:
-
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] mag Flag for seed magnetic field of B_z = 0.1. Switch 0 for
+      off, or 1 for on.
+      @sa InitialFunc
+    */
     KHInstabilitySingleFluid(Data * data, int mag=0);
 };
 
-//! <b> Kelvin Helmholtz instability initial data, two fluid </b>
+//! <b> Two-fluid Kelvin-Helmholtz instability </b>
 /*!
-    Adapted from Schaal 2015 'Astrophysical hydrodynamics...' for two fluid set up
-    @param[in] *data Pointer to Data class containing global simulation data
-    @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
+      Adapted from Mignone 2009 `A five wave HLL....` for the two fluid set-up.
+    This is a two-dimensional test.
 */
 class KHInstabilityTwoFluid : public InitialFunc
 {
   public:
-
+    /*! Constructor
+        @param[in] *data Pointer to Data class containing global simulation data
+        @param[in] mag Flag for seed magnetic field of B_z = 0.1. 0 for off, 1 for on.
+        @sa InitialFunc
+    */
     KHInstabilityTwoFluid(Data * data, int mag=0);
 };
+
+
+//! <b> Field loop advection initial data, single fluid </b>
+/*!
+      Adapted from Beckwith 2011, `A second-order...`. This is a two-dimensional
+    ideal MHD test in which the z-direction magnetic field is advected. This is
+    useful as a convergence test.
+*/
+class FieldLoopAdvectionSingleFluid : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    FieldLoopAdvectionSingleFluid(Data * data);
+};
+
+
+
+
+
+
+
+
+
 
 #endif
