@@ -8,31 +8,17 @@
 
 using namespace std;
 
-//! <b> Save simulation data </b>
+//! <b> Class used to save simulation data </b>
 /*!
   @par
-    This class contains functions to store simulation data. The format is
-  read by the interactivePlot class (in Src/interactivePlot.py).
-
-  @note
-    Data is saved to the 'Data' directory, which lies in the Project/Parallel and
-  Project/Serial directories. If these directories do not exist, no data will
-  be written. Within the data directory must also exist two subdirectories,
-  'Final' and 'TimeSeries', each with the sub-directorie, 'Conserved', 'Primitive',
-  'Auxilliary', 'Constants'. In addition, 'TimeSeries' must also include a 'UserDef'
-  directory.
-
-  @par
-      When save.saveAll() is called, all data is stored in the 'Final' directory.
-    To save on memory usage, when using the option to store time series data, we
-    recommend going into Simulation and selecting only the variables as needed.
-    @sa Simulation
+    Class is initialized with the data that is to be saved. Saves the simulation
+  data in the Data directory, located within the Project folder. All data is
+  saved automatically, including all constant data (xmin, ymax, endTime etc) and
+  and the values of all prims, aux and cons variables.
 */
 class SaveData
 {
   private:
-
-    Data * d; //!< Pointer to Data class containing global simulation data
 
     int
     Nouts,         //!< Number of output files
@@ -49,12 +35,17 @@ class SaveData
     //! Saves the auxilliary vector state
     void saveAux();
 
+    //! Saves the domain coordinates
+    void saveDomain();
+
     //! Saves the constant data
     void saveConsts();
 
     char
     dir[30],   //!< String path to the directory in which to write files
     app[10];   //!< String appendix to add to end of file names
+
+    Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
     /*!
