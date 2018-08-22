@@ -7,6 +7,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
+#include <omp.h>
+
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -79,14 +81,6 @@ SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
                 cudaHostAllocPortable);
   cudaHostAlloc((void **)&tempaux, sizeof(double) * d->Naux * Ntot,
                 cudaHostAllocPortable);
-
-  //! Unlike in SSP2 implementation, we need
-  // #if MATCH_SERIAL
-  //   cudaHostAlloc((void **)&holdPrims, sizeof(double) * d->Nprims * Ntot,
-  //                 cudaHostAllocPortable);
-  //   cudaHostAlloc((void **)&holdAux, sizeof(double) * d->Naux * Ntot,
-  //                 cudaHostAllocPortable);
-  // #endif
 }
 
 SSP3::~SSP3()
@@ -232,12 +226,11 @@ void SSP3::callStageOne(double * cons, double * prims, double * aux, double * so
     // Memory size to copy in
     int width(rcell - lcell);
     int inMemsize(width * sizeof(double));
-
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
-    // int sharedMem((d->Ncons + d->Ncons) * sizeof(double) * d->tpb);
+
     int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
     // Call kernel and operate on data
     stageOne <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
@@ -398,9 +391,11 @@ void SSP3::callStageTwo(double * cons, double * prims, double * aux, double * so
   for (i = 0; i < d->Nx; i++) {
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
-        // for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
-        // for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
-        // for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
+        #if MATCH_SERIAL
+          for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
+          for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
+        #endif
+        for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
         for (var = 0; var < d->Ncons; var++)  args.cons1_h[IDCons(var, i, j, k)  ] = cons1[ID(var, i, j, k)];
         for (var = 0; var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
         for (var = 0; var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
@@ -421,15 +416,17 @@ void SSP3::callStageTwo(double * cons, double * prims, double * aux, double * so
     int inMemsize(width * sizeof(double));
 
     // Send stream's data
-    // gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
+    #if MATCH_SERIAL
+      gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+      gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
+    #endif
+    gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.cons1_d[i], args.cons1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.source1_d[i], args.source1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.flux1_d[i], args.flux1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
 
     int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
-    // int sharedMem(0);
+
     // Call kernel and operate on data
     stageTwo <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
             (args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i], args.source_d[i], args.cons1_d[i],
@@ -576,12 +573,14 @@ void SSP3::callStageThree(double * cons, double * prims, double * aux, double * 
   for (i = 0; i < d->Nx; i++) {
     for (j = 0; j < d->Ny; j++) {
       for (k = 0; k < d->Nz; k++) {
-        // for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
-        // for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
-        // for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
+        #if MATCH_SERIAL
+          for (var = 0; var < d->Ncons; var++)  args.cons_h [IDCons(var, i, j, k)  ] = cons[ID(var, i, j, k)];
+          for (var = 0; var < d->Nprims; var++) args.prims_h[IDPrims(var, i, j, k) ] = prims[ID(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
+          for (var = 0; var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
+        #endif
+        for (var = 0; var < d->Naux; var++)   args.aux_h[IDAux(var, i, j, k)     ] = aux[ID(var, i, j, k)];
         for (var = 0; var < d->Ncons; var++)  args.cons1_h[IDCons(var, i, j, k)  ] = cons2[ID(var, i, j, k)]; // NOTE: Storing cons2 in host cons1 array to save on memory
-        for (var = 0; var < d->Ncons; var++)  args.source1_h[IDCons(var, i, j, k)] = source1[ID(var, i, j, k)];
-        for (var = 0; var < d->Ncons; var++)  args.flux1_h[IDCons(var, i, j, k)]   = flux1[ID(var, i, j, k)];
         for (var = 0; var < d->Ncons; var++)  args.flux2_h[IDCons(var, i, j, k)]   = flux2[ID(var, i, j, k)];
       }
     }
@@ -600,16 +599,18 @@ void SSP3::callStageThree(double * cons, double * prims, double * aux, double * 
     int inMemsize(width * sizeof(double));
 
     // Send stream's data
-    // gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
+    #if MATCH_SERIAL
+      gpuErrchk( cudaMemcpyAsync(args.cons_d[i], args.cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+      gpuErrchk( cudaMemcpyAsync(args.prims_d[i], args.prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, args.stream[i]) );
+      gpuErrchk( cudaMemcpyAsync(args.source1_d[i], args.source1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+      gpuErrchk( cudaMemcpyAsync(args.flux1_d[i], args.flux1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
+    #endif
+    gpuErrchk( cudaMemcpyAsync(args.aux_d[i], args.aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.cons1_d[i], args.cons1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.source1_d[i], args.source1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
-    // gpuErrchk( cudaMemcpyAsync(args.flux1_d[i], args.flux1_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
     gpuErrchk( cudaMemcpyAsync(args.flux2_d[i], args.flux2_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, args.stream[i]) );
 
     int sharedMem((d->Ncons + d->Ncons + d->Ncons + d->Nprims + d->Naux) * sizeof(double) * d->tpb);
-    // int sharedMem(0);
+
     // Call kernel and operate on data
     stageThree <<< d->bpg, d->tpb, sharedMem, args.stream[i] >>>
             (args.sol_d[i], args.cons_d[i], args.prims_d[i], args.aux_d[i], args.source_d[i], args.cons1_d[i],
