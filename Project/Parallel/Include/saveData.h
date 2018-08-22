@@ -28,7 +28,8 @@ class SaveData
 
     int
     Nouts,         //!< Number of output files
-    Ncount;        //!< Which user defined variable is this?
+    Ncount,        //!< Which user defined variable is this?
+    test;          //!< Flags if we are running one of the given examples
 
   public:
 
@@ -63,13 +64,12 @@ class SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0)
+    SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0), test(test)
     {
       dir[0] = '\0';
       app[0] = '\0';
       if (test) {
         strcpy(dir, "../../");
-        printf("dir is %s\n", dir);
       }
     }
 

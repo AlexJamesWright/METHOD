@@ -11,6 +11,8 @@ using namespace std;
 void SaveData::saveAll(bool timeSeries)
 {
   // Determine the directory to write files to
+  if (test)
+    strcpy(dir, "../../");
   if (!timeSeries) {
     strcat(dir, "Data/Final");
     app[0]=0;
@@ -200,7 +202,7 @@ void SaveData::saveVar(string variable, int num)
   int Nvar(0); // Variable number
   FILE * f;
   char fname[60];
-  char temp[50];
+
   // Determine which variable the user wants saved
   for (int var(0); var < d->Ncons; var++) {
     if (strcmp(d->consLabels[var].c_str(), variable.c_str()) == 0) {
@@ -235,15 +237,13 @@ void SaveData::saveVar(string variable, int num)
 
 
   // Directory
-  if (strcmp(dir, "../../Data/Final")==0)
-    strcat(dir, "../../Data/TimeSeries/UserDef/");
+  if (this->test)
+    strcpy(fname, "../../Data/TimeSeries/UserDef/");
   else
-    strcat(dir, "Data/TimeSeries/UserDef/");
+    strcpy(fname, "Data/TimeSeries/UserDef/");
   sprintf(app, "%d", Nouts);
 
-
   // Location of output file
-  strcat(fname, dir);
   strcat(fname, variable.c_str());
   strcat(fname, app);
   strcat(fname, ".dat");
@@ -279,7 +279,10 @@ void SaveData::saveVar(string variable, int num)
   if (Nouts==0) {
     if (Ncount==0) {
       ofstream info;
-      strcat(fname, dir);
+      if (this->test)
+        strcpy(fname, "../../Data/TimeSeries/UserDef/");
+      else
+        strcpy(fname, "Data/TimeSeries/UserDef/");
       strcat(fname, "info");
       info.open(fname);
       info << variable << endl;
