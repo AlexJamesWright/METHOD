@@ -335,7 +335,7 @@ class InteractivePlot(object):
             plt.show()
 
 
-    def plotSlice(self, data, axis=0):
+    def plotSlice(self, data='prims', axis=0):
         """
         Plots the variation of data in the `axis` direction.
 
@@ -418,7 +418,7 @@ class InteractivePlot(object):
         p   = self.prims[4, Ng:-Ng, Ny//2, Nz//2] + self.prims[9, Ng:-Ng, Ny//2, Nz//2]
         var = [rho, *self.aux[31:34, Ng:-Ng, Ny//2, Nz//2], p, *self.prims[10:, Ng:-Ng, Ny//2, Nz//2]]
         varLab = [r'$\rho$', r'$u_x$', r'$u_y$', r'$u_z$', r'$p$', r'$B_x$', r'$B_y$', r'$B_z$', r'$E_x$', r'$E_y$', r'$E_z$']
-            
+
         xs = np.linspace(c['xmin'] + c['dx']/2, c['xmax'] - c['dx']/2, c['nx'])
 
         for i, v in enumerate(var):

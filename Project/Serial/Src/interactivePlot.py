@@ -1,17 +1,12 @@
 """
     Script gathers the state vectors stored in the Data directory and offers
     functionality to plot various elements.
-
-    Running this script will gather data from the Method data folder and store
-    it in the Plot object.
-
-    To plot a 2D diagram, run `Plot.plotHeatMaps('prims')` for example.
 """
 
 
 import numpy as np
 import pylab as plt
-import scipy
+from scipy.special import erf
 from matplotlib import cm
 import warnings
 from contextlib import suppress
@@ -177,6 +172,25 @@ class InteractivePlot(object):
             self.cleanAuxLabels.append(auxLabels[-1])
 
 
+        with suppress(FileNotFoundError):
+            # Grab domain data
+            self.x = np.zeros(c['Nx'])
+            self.y = np.zeros(c['Ny'])
+            self.z = np.zeros(c['Nz'])
+            coords = [self.x, self.y, self.z]
+            print("Fetching domain coordinates...")
+            with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
+                for coord, (i, line) in zip(coords, enumerate(f)):
+                    temp = line.split()
+                    for k, val in enumerate(temp):
+                        coord[k] = float(val)
+
+            # Clean up labels (remove the commas)
+            self.cleanAuxLabels = []
+            for i in range(len(auxLabels)-1):
+                self.cleanAuxLabels.append(auxLabels[i][:-1])
+            self.cleanAuxLabels.append(auxLabels[-1])
+
 
     def _getVarFromLine(self, line, Nx, Ny):
         """
@@ -321,7 +335,7 @@ class InteractivePlot(object):
             plt.show()
 
 
-    def plotSlice(self, data, axis=0):
+    def plotSlice(self, data='prims', axis=0):
         """
         Plots the variation of data in the `axis` direction.
 
@@ -404,7 +418,7 @@ class InteractivePlot(object):
         p   = self.prims[4, Ng:-Ng, Ny//2, Nz//2] + self.prims[9, Ng:-Ng, Ny//2, Nz//2]
         var = [rho, *self.aux[31:34, Ng:-Ng, Ny//2, Nz//2], p, *self.prims[10:, Ng:-Ng, Ny//2, Nz//2]]
         varLab = [r'$\rho$', r'$u_x$', r'$u_y$', r'$u_z$', r'$p$', r'$B_x$', r'$B_y$', r'$B_z$', r'$E_x$', r'$E_y$', r'$E_z$']
-            
+
         xs = np.linspace(c['xmin'] + c['dx']/2, c['xmax'] - c['dx']/2, c['nx'])
 
         for i, v in enumerate(var):
@@ -433,7 +447,7 @@ class InteractivePlot(object):
         c = self.c
         plt.figure()
         xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
-        exact = np.sign(xs)*scipy.special.erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
+        exact = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
         plt.plot(xs, By[c['Ng']:-c['Ng'], 0, 0], label='Numerical')
         plt.plot(xs, exact, label='Exact')
         plt.xlim([c['xmin'], c['xmax']])
