@@ -11,6 +11,7 @@ int counter(0);
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include <omp.h>
 
 
 #define TOL 1.0e-13

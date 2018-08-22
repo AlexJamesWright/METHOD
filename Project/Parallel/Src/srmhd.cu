@@ -784,7 +784,7 @@ void SRMHD_D::getPrimitiveVarsSingleCell(double *cons, double *prims, double *au
   // Solve residual = 0
   if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-8, wa, 19))!=1)
   {
-    // printf("C2P single cell failed for gID %d, hybrd returns info=%d\n", args->gID, info);
+    printf("C2P single cell failed for gID %d, hybrd returns info=%d\n", args->gID, info);
   }
   // W
   aux[1] = 1 / sqrt(1 - sol[0]);
