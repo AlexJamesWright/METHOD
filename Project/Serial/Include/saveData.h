@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "simData.h"
 
 using namespace std;
@@ -18,6 +20,10 @@ using namespace std;
 */
 class SaveData
 {
+
+  public:
+    Data * d; //!< Pointer to Data class containing global simulation data
+
   private:
 
     int
@@ -42,10 +48,9 @@ class SaveData
     void saveConsts();
 
     char
-    dir[30],   //!< String path to the directory in which to write files
+    dir[50],   //!< String path to the directory in which to write files
     app[10];   //!< String appendix to add to end of file names
 
-    Data * d; //!< Pointer to Data class containing global simulation data
 
     //! Constructor
     /*!
@@ -55,11 +60,17 @@ class SaveData
       in the Project folder.
 
       @param *data pointer to the Data class
+      @param test integar flagging if we are in the 'Examples' directory or not,
+      Only used for running the given examples, can ignore otherwise.
     */
-    SaveData(Data * data) : d(data), Nouts(0), Ncount(0)
+    SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0)
     {
       dir[0] = '\0';
       app[0] = '\0';
+      if (test) {
+        strcpy(dir, "../../");
+        printf("dir is %s\n", dir);
+      }
     }
 
 
