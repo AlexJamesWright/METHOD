@@ -20,8 +20,14 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 ## Multifluid Electromagneto-HydroDynamics
 ---------------------------------------------
 
+This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic
+solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)
+under the guidance of [Dr Ian Hawke](https://www.southampton.ac.uk/maths/about/staff/ih3.page).
+METHOD is being developed as a result of a PhD project to model neutron star mergers
+with multi-fluid models of MHD. As a result, ideal and resistive single fluid models exist
+that are more conventional in astrophysical model, and a relatively new two-fluid
+model adapted from Amano 2016.
 
-A three dimensional single- and multi-fluid EMHD solver, based in CUDA and C++.
 
 ### Builds
 To build all the elements of the programme at once go to the Project directory
@@ -63,12 +69,23 @@ to compile and run the simulation.
 
 ### Plotting Tools
 The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
-folder. This is done automatically when using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. E.g. enter
-  `SaveData save(&data);`
+folder. This is done automatically when using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. Then, simply include
+  `save.saveAll();`
 in *main* after the initial data has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
+### Example Simulations
+Example simulations have been provided that illustrate how to use the
+various classes. By typing `make run` in one of the example directories, the
+relevant object files will be built and executed. Data is saved in the *Examples/Data*
+directory and is easily viewed using the interactivePlot script, run from the
+root Example directory with something like `spyder interactivePlot.py`. For the
+Kelvin-Helmholtz simulation, running the `animation.py` script will create an
+animatation called `Output.gif` in the root Example directory to view (may take up
+to ten minutes to run the simulation and make the animation).
+NOTE: When generating animations, besure to delete all TimeSeries data after each run.
+
 ### Side notes
-I realise that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). Unfortunately, I've realised too late and now it's ingrained! 
+I realize that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). Unfortunately, I've realized too late and now it's ingrained!
 
 
-\* *due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*
+\* *due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using NVIDIA hardware will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*

@@ -7,7 +7,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEETTTTTTTTTTTTTTTTTTTTTTTHHHH
 M:::::::M             M:::::::ME::::::::::::::::::::ET:::::::::::::::::::::TH:::::::H     H:::::::H   OO:::::::::OO   D::::::::::::DDD
 M::::::::M           M::::::::ME::::::::::::::::::::ET:::::::::::::::::::::TH:::::::H     H:::::::H OO:::::::::::::OO D:::::::::::::::DD
 M:::::::::M         M:::::::::MEE::::::EEEEEEEEE::::ET:::::TT:::::::TT:::::THH::::::H     H::::::HHO:::::::OOO:::::::ODDD:::::DDDDD:::::D
-M::::::::::M       M::::::::::M  E:::::E       EEEEEETTTTTT  T:::::T  TTTTTT  H:::::H     H:::::H  O::::::O   O::::::O  D:::::D    D:::::D 
+M::::::::::M       M::::::::::M  E:::::E       EEEEEETTTTTT  T:::::T  TTTTTT  H:::::H     H:::::H  O::::::O   O::::::O  D:::::D    D:::::D
 M:::::::::::M     M:::::::::::M  E:::::E                     T:::::T          H:::::H     H:::::H  O:::::O     O:::::O  D:::::D     D:::::D
 M:::::::M::::M   M::::M:::::::M  E::::::EEEEEEEEEE           T:::::T          H::::::HHHHH::::::H  O:::::O     O:::::O  D:::::D     D:::::D
 M::::::M M::::M M::::M M::::::M  E:::::::::::::::E           T:::::T          H:::::::::::::::::H  O:::::O     O:::::O  D:::::D     D:::::D
@@ -24,7 +24,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic
 solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)
 under the guidance of [Dr Ian Hawke](https://www.southampton.ac.uk/maths/about/staff/ih3.page).
-METHOD is being developed as a result of a PhD project to model neutron star systems
+METHOD is being developed as a result of a PhD project to model neutron star mergers
 with multi-fluid models. As a result, ideal and resistive single fluid models exist
 that are more conventional in astrophysical model, and a relatively new two-fluid
 model adapted from Amano 2016.
@@ -51,11 +51,12 @@ by pulling the repository and try again.
 
 @section example Example Simulations
 @par
-There is currently work on going to build a set of test cases and examples from  
-which an understanding of the underlying code and processes that are implemented
-can be understood. These examples range from standard Brio Wu shock tube tests
-to set ups in which there are exact solutions in the form of self similar current
-sheets. These examples should be the first port of call for anyone trying to use
-the METHOD code for the first time, of if you are using a particular aspect of the
-code for the first time and wish to understand what is required to perform a succesfull
-simulation.
+  A few example simulations have been provided that illustrate how to use the
+various classes. By typing `make run` in one of the example directories, the
+relevant object files will be built and executed. Data is saved in the *Examples/Data*
+directory and is easily viewed using the interactivePlot script, run from the
+root Example directory with something like `spyder interactivePlot.py`. For the
+Kelvin-Helmholtz simulation, running the `animation.py` script will create an
+animatation called `Output.gif` in the root Example directory to view (may take up
+to ten minutes to run the simulation and make the animation).
+  @note When generating animations, besure to delete all TimeSeries data after each run.
