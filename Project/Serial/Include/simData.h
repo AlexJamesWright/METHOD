@@ -36,7 +36,8 @@
   we wish to access, and \f$(i, j, k)\f$ corresond to the\f$ (x, y, z)\f$ coordinates of the
   cell we wish to access. Note: this includes ghost cells, so in practice these values
   can range from \f$ 0 \le (i,j,k) < (nx,ny,nz)+2 Ng \f$ or \f$0 \le (i,j,k) < (Nx,Ny,Nz) \f$
-  assuming we are working in 3D. <br>
+  assuming we are working in 3D. To speed up this method, however, we have defined
+  a macro in each file with the same functionality <br>
   For 2D simulations, k=0 at all times, and similarly j=0 for 1D simulations.
 */
 class Data

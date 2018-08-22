@@ -24,10 +24,55 @@ This is the human readable description of this models variables.
 [15] Sbarsq, tauBar
 */
 
-//! <b> Special Relativistic Resistive MagnetHydroDynamics </b>
+//! <b>Special Relativistic Resistive MagnetHydroDynamics </b>
 /*!
-    @par
-      COMPLETE DESCRIPTION
+  @par
+    The single fluid, special relativistic, resistive limit of the MHD equations. <br>
+
+  @note
+  Model has 14 conserved variables: <br>
+   \f$\ \ \ D\f$, \f$S_x\f$, \f$S_y\f$, \f$S_z\f$, \f$\tau\f$, \f$B_x\f$, \f$B_y\f$, \f$B_z\f$, \f$E_x\f$, \f$E_y\f$, \f$E_z\f$, \f$\psi\f$, \f$\phi\f$, \f$\varrho\f$ <br>
+  11 primitive variables: <br>
+    \f$\ \ \ \rho\f$, \f$v_x\f$, \f$v_y\f$, \f$v_z\f$, \f$p\f$, \f$B_x\f$, \f$B_y\f$, \f$B_z\f$, \f$E_x\f$, \f$E_y\f$, \f$E_z\f$ <br>
+  17 auxilliary variables:<br>
+    \f$\ \ \ h\f$, \f$W\f$, \f$e\f$, \f$c\f$, \f$J_x\f$, \f$J_y\f$, \f$J_z\f$, \f$B^2\f$, \f$E^2\f$, \f$v^2\f$, \f$\rho h W^2\f$, \f$v \cdot E\f$, \f$\overline{S}_x\f$, \f$\overline{S}_y\f$, \f$\overline{S}_z\f$, \f$\overline{S}^2\f$, \f$\overline{\tau}\f$ <br>
+
+
+    The equations of motion are:
+  \f{align}{
+    \partial_t
+    \begin{pmatrix}
+      D \\ S^i \\ \tau \\ B^i \\ E^i \\ \psi \\ \phi \\ \varrho
+    \end{pmatrix}
+    + \partial_k
+    \begin{pmatrix}
+      Dv^k \\ S^k_i\\ S^k - D v^k \\ - \epsilon^{ijk} E^j + \delta^k_i \phi \\ \epsilon^{ijk} B^j + \delta^k_i \psi \\ E^k \\ B^k \\ J^k
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+      0 \\ 0 \\ 0 \\ 0 \\ -J^i \\ \varrho -\psi / c_p^2 \\ -\phi / c_p^2 \\ 0
+    \end{pmatrix}.
+  \f}
+  @par
+    Here, we sum over the \f$k\f$ coordinate directions, and note the following
+  relations:
+  \f{align}{
+    D &= \rho W \\
+    S^i &= \rho h^* W^2 v^i + \epsilon^{ijk}E^j B^k \\
+    \tau &= \rho h^* W^2 - p^* + \frac{E^2 + B^2}{2} - D \\
+    W &= 1 / \sqrt(1 - v_i v^i) \\
+    J^i &= \varrho v^i + W \sigma \bigg[E^i + \epsilon^{ijk} v^j B^k - (v^kE^k)v^i\bigg] \\
+    S^{ij} &= \rho h W^2 v^i v^j + \delta^{ij}\bigg(P + \frac{E^2 + B^2}{2}\bigg) - E^i E^j - B^i B^j \\
+    c_p &= const.
+  \f}
+  @par
+    We have also included the additional scalar fields \f$\psi\f$ and \f$\phi\f$ such that any
+  errors in the evolution of the magnetic/electric fields that break the divergence constraint
+  set by Maxwell's equations are driven to zero on a timescale set by the constant parameter \f$c_p\f$.
+  See Dedner et al. 2002.
+
+
+  @sa Model
 */
 class SRRMHD : public Model
 {

@@ -130,7 +130,7 @@ class InteractivePlot(object):
         self.cleanConsLabels = []
         for i in range(len(consLabels)-1):
             self.cleanConsLabels.append(consLabels[i][:-1])
-            self.cleanConsLabels.append(consLabels[-1])
+        self.cleanConsLabels.append(consLabels[-1])
 
 
 

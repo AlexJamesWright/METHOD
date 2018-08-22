@@ -6,24 +6,25 @@
 
 //! <b> Semi-implicit second order Runge-Kutta time integrator </b>
 /*!
-@par
-    Integrator deals with the flux contribution explicitly and the source terms
-  implicitly. Soecifically, the explicit step is performed by a second order
-  RK method, and the implicit is a backwards euler formulism. <br>
-@par
-    The form of the forward step is TVD second order RK2. Such that the intermediate
-  state due to the flux contribution is <br>
-  \f{align}{
-    U^* = RK2(U^n)
-  \f}
-  with the source contribution determined via a backwards Euler step, <br>
-  \f{align}{
-    U^{n+1} = U^* + \Psi(U^{n+1})
-  \f}
-  where \f$\Psi(U)\f$ is the source vector due to the conserved vector \f$U\f$.
-@par
-    The backwards step is solved using a multidimensional newton secant method,
-  which we've implemented using the hydr1 rootfinder available [here](<https://github.com/devernay/cminpack>).
+  @par
+      Integrator deals with the flux contribution explicitly and the source terms
+    implicitly. Soecifically, the explicit step is performed by a second order
+    RK method, and the implicit is a backwards euler formulism. <br>
+  @par
+      The form of the forward step is TVD second order RK2. Such that the intermediate
+    state due to the flux contribution is <br>
+    \f{align}{
+      U^* = RK2(U^n)
+    \f}
+    with the source contribution determined via a backwards Euler step, <br>
+    \f{align}{
+      U^{n+1} = U^* + \Psi(U^{n+1})
+    \f}
+    where \f$\Psi(U)\f$ is the source vector due to the conserved vector \f$U\f$.
+  @par
+      The backwards step is solved using a multidimensional newton secant method,
+    which we've implemented using the hydr1 rootfinder available [here](<https://github.com/devernay/cminpack>).
+  @sa RK2
 */
 class BackwardsRK2 : public RKSplit
 {

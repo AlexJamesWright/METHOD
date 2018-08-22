@@ -36,7 +36,7 @@ class BackwardsRK2 : public RKSplit
         Constructor requires simulation data and the flux and source functions
       from the model class.
 
-      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] *data pointer to Data class containing global simulation data
       @param[in] *model pointer to Model object
       @param[in] *bcs pointer to Bcs object
       @param[in] *fluxMethod pointer to FluxMethod object

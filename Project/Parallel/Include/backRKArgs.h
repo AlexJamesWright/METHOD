@@ -16,11 +16,11 @@ class BackRKArguments
 {
   public:
 
-    Data * data; //!< Pointer to Data class containing global simulation data
+    Data * data; //!< pointer to Data class containing global simulation data
 
     double
     //@{
-    //!< Interstage work array for specified variable
+    //! Interstage work array for specified variable
     *constar, *primstar, *auxstar,
     *sourcestar,
     //@}

@@ -8,7 +8,7 @@
   @par
     We're using an abstract base class to form the foundations of the models preparing
   for additional set ups. Systems will derive from Model and supply their own
-  spectral analyses for cons2prims, prims2cons functions and the flux vectors.
+  primitive recoveries for cons2prims, prims2cons functions and the flux vectors.
   Constructors must require access to public Simulation data.
 */
 

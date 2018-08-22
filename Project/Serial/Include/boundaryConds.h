@@ -134,16 +134,34 @@ class Periodic : public Bcs
 
 };
 
+
+//! <b> Flow boundary conditions </b>
 /*!
-  Boundary conditions for the Kelvin Helmholtz instability
-  x-direction is periodic and others are outflow
+    Boundary conditions used for the Kelvin Helmholtz instability. The
+  x-direction is periodic and y- and z-directions are outflow.
 */
 class Flow : public Bcs
 {
 
   public:
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class.
+
+      @param[in] *data pointer to Data class
+      @sa Bcs::Bcs
+    */
     Flow(Data * data) : Bcs(data) { }
 
+    //! Application function
+    /*!
+        Applies the Flow boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
 };

@@ -15,6 +15,22 @@
   do not expect this integrator to converge for large source contributions, i.e.
   for sources that act on a fast timescale compared to the flux terms. For stiff
   hyperbolic systems, we need to solve the sources implicitly to ensure stability.
+
+  @par
+    The step function performs the RK2 step:
+    \f{align}{
+      U^{*} = \frac{1}{2} U^n + \frac{1}{2} U^{(1)} + \frac{1}{2} \Delta t \mathcal{F}(U^{(1)})
+    \f}
+    where the first stage result is
+    \f{align}{
+      U^{(1)} = U^n + \Delta t \mathcal{F}(U^n),
+    \f}
+    and then adds the source due to this stage,
+    \f{align}{
+      U^{n+1} = U^* + \Delta t \Psi(U^*),
+    \f}
+    where \f$\Psi(U)\f$ is the source vector due to the state \f$U\f$.
+  @sa RK2
 */
 class RKSplit : public RK2
 {

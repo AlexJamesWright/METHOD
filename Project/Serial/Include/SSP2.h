@@ -39,11 +39,11 @@ class SSP2 : public TimeIntegrator
     //! Work arrays for step function
     double
     //@{
-    //!< Work array for the hybrd rootfinder
+    //! Work array for the hybrd rootfinder
     *x, *fvec, *wa,
     //@}
     //@{
-    //!< Work array for specified variable. Size if Nx*Ny*Nz
+    //! Work array for specified variable. Size is \f$N_{cons}*N_x*N_y*N_z\f$
     *U1, *U2, *source1, *flux1, *source2, *flux2;
     //@}
 

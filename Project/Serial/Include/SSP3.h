@@ -40,7 +40,7 @@ class SSP3 : public SSP2
 
     double
     //@{
-    //!< Work array for specified variable. Size is Nvars*Nx*Ny*Nz
+    //! Work array for specified variable. Size is \f$N_{cons}*N_x*N_y*N_z\f$
     *U3, *U3guess,
     *source3, *flux3,
     *tempprims, *tempaux;

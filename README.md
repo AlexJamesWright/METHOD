@@ -67,6 +67,8 @@ folder. This is done automatically when using the SaveData class---call the clas
   `SaveData save(&data);`
 in *main* after the initial data has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
+### Side notes
+I realise that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). Unfortunately, I've realised too late and now it's ingrained! 
 
 
 \* *due to the cryptic and poorly laid out package we have moved bits about and re-order various headers and includes. Most of the preprocessor stuff has been deleted (using cuda architechture will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the cuda scripts directly, which is horrid practice).*

@@ -25,8 +25,8 @@
   \f}
   such that
   \f{align}{
-    U^{n+1} =& U^n + \mathcal{F}(U) \\
-            =& U^n + \frac{f_{i+1/2} - f_{i-1/2}}{\Delta x}
+    U^{n+1} =& U^n + \Delta t \mathcal{F}(U) \\
+            =& U^n + \Delta t \frac{f_{i+1/2} - f_{i-1/2}}{\Delta x}
   \f}
   where we define \f$f_{i+1/2}\f$ as the value of the flux vector at the righthand
   edge of the \f$i^{th}\f$ cell, and each cell has width \f$\Delta x\f$. To determine
@@ -58,6 +58,11 @@
   so that the reconstruction if \f$f_{i+1/2} = f^+_{i, right} + f^-_{i, left}\f$.
   Note that this final equation is essentially a difference equation as the fluxes
   are moving in opposing directions.
+
+  @note
+      In the code, we have absorbed a minus into the definition of the numerical
+    flux, and so where it says \f$U^n + \Delta t \mathcal{F}(U^{(n)})\f$, the code
+    actually implements \f$cons - dt * flux\f$.
 */
 class FVS : public FluxMethod
 {

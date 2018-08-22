@@ -6,15 +6,25 @@
 //! <b> TVD Runge-Kutta 2nd order time integrator </b>
 /*!
   @par
-    Integrator performs a single step using the TVD RK2 algorithm. See Shu & Osher 1988
-  for original description.
+      Integrator performs a single step using the TVD RK2 algorithm. See Shu & Osher 1988
+    for original description.
 
   @note
-    Method is fully explicit and only deals with the flux contributions of the
-  two stages of the second order Runge-Kutta integrator. Method should not really
-  be used in isolation as most (if not all) models we will be using will contain
-  some source terms.
+      Method is fully explicit and only deals with the flux contributions of the
+    two stages of the second order Runge-Kutta integrator. Method should not really
+    be used in isolation as most (if not all) models we will be using will contain
+    some source terms.
+  @par
+    The step function performs the following:
+    \f{align}{
+      U^{n+1} = \frac{1}{2} U^n + \frac{1}{2} U^{(1)} + \frac{1}{2} \Delta t \mathcal{F}(U^{(1)})
+    \f}
+    where the first stage result is
+    \f{align}{
+      U^{(1)} = U^n + \Delta t \mathcal{F}(U^n).
+    \f}
 */
+
 class RK2 : public TimeIntegrator
 {
   public:

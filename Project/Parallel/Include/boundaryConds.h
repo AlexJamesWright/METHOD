@@ -32,7 +32,8 @@ class Bcs
       apply the specified boundary condition to the given vectors.
         Most often the convervative vector, or a vector of the same size (e.g.
       source/flux vector), will be the intended vector to apply boundary
-      conditions too. Primitive and auxilliary variables can also be applied to.
+      conditions too. Primitive and auxilliary variables can also be applied,
+      but must be applied with an \f$N_{cons}\f$-sized array.
 
       @param[in, out] *cons pointer to the conservative (sized) vector
       @param[in, out] *prims optional pointer to the primitive vector

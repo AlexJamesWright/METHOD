@@ -40,11 +40,11 @@ class SSP2322 : public SSP2
 
     double
     //@{
-    //!< Work array for the hybrd rootfinder
+    //! Work array for the hybrd rootfinder
     *x, *fvec, *wa,
     //@}
     //@{
-    //!< Work array for specified variable. Size is Nvars*Nx*Ny*Nz
+    //! Work array for specified variable. Size is \f$N_{cons}*N_x*N_y*N_z\f$
     *U1, *U2, *U3, *U2guess, *U3guess,
     *source1, *flux1, *source2, *flux2, *source3, *flux3,
     *tempprims, *tempaux;

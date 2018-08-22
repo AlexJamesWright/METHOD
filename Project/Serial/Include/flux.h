@@ -4,7 +4,7 @@
 #include "simData.h"
 #include "model.h"
 
-//! <b> Abstract base class for any future flux methods </b>
+//! <b> Abstract base class for flux reconstruction methods </b>
 /*!
   @par
     May want to implement various numerical flux functions. Should all have same
