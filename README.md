@@ -28,6 +28,12 @@ with multi-fluid models of MHD. As a result, ideal and resistive single fluid mo
 that are more conventional for astrophysical models, and a relatively new two-fluid
 model adapted from Amano 2016.
 
+### Initial set-up
+To begin using METHOD, first clone the repository
+  `git clone https://github.com/AlexJamesWright/METHOD.git`
+To set up the correct directories for storing data, run the provided shell script from the project root,
+  `bash makePaths.sh`
+Next, you will need to ensure the Makefiles are valid for your system, changing any compilers to your preferred ones and setting the GoogleTest home directory to its location on you machine. That should be it. Should be.
 
 ### Builds
 To build all the elements of the programme at once go from the Project directory, to either Serial (if you dont have CUDA capable hardware) or Parallel (if you do) and use
