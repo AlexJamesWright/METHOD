@@ -500,7 +500,7 @@ FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : Init
         d->prims[ID(4, i, j, k)] = 3.0;
 
         d->prims[ID(1, i, j, k)] = 0.1;
-        d->prims[ID(1, i, j, k)] = 0.1;
+        d->prims[ID(2, i, j, k)] = 0.1;
         if (r <= R)
           d->prims[ID(7, i, j, k)] = 0.001 * (R - r);
       }
