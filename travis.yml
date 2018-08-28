@@ -1,0 +1,2 @@
+language: cpp
+before_script: cd Tests/Serial

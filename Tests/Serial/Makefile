@@ -65,11 +65,11 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-all : $(RTFIND) $(TESTS)
-
 test : $(RTFIND) $(TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
+
+all : $(RTFIND) $(TESTS)
 
 buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects

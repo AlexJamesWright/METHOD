@@ -72,19 +72,15 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-all : $(RTFIND) $(TESTS)
-
 test : $(RTFIND) $(TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
-	$(compare)
+
+all : $(RTFIND) $(TESTS)
 
 buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects
 
-compare : test_rk2 test_imex
-	./test_rk2
-	./test_imex
 
 clean :
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
