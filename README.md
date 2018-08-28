@@ -32,11 +32,11 @@ model adapted from Amano 2016.
 To begin using METHOD, first clone the repository
 
     `git clone https://github.com/AlexJamesWright/METHOD.git`
-    
+
 To set up the correct directories for storing data, run the provided shell script from the project root,
 
     `bash makePaths.sh`
-  
+
 Next, you will need to ensure the Makefiles are valid for your system, changing any compilers to your preferred ones and setting the GoogleTest home directory to its location on you machine. That should be it. Should be.
 
 It is a good idea to check that the examples run successfully first.
@@ -57,7 +57,7 @@ NOTE: When generating animations, besure to delete all TimeSeries data after eac
 To build all the elements of the programme at once go from the Project directory, to either Serial (if you dont have CUDA capable hardware) or Parallel (if you do) and use
 
     `make build`
-  
+
 to build each element of the programme.
 
 ### Documentation
@@ -66,25 +66,19 @@ Alternatively find the respective header file for the class or function that you
 To build the documentation simply go the the `Doxumentation` folder and run
 
     `doxygen Doxyfile`
-  
-or alternatively
-
-    `make doxumentation`
-  
-from the Project directory.
 
 
 ### Testing
-We use the Google Test framework for unit testing---any tests are saved in the `Tests/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/Parallel/Src` and `Tests/Serial/Src`) to point to the GoogleTest root directory. 
+We use the Google Test framework for unit testing---any tests are saved in the `Tests/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/Parallel/Src` and `Tests/Serial/Src`) to point to the GoogleTest root directory.
 
-The serial and parallel versions have separate testing directories. As far as possible the tests are the same, but there is additional testing such that the parallel results match the serial to within floating point accuracy. First, run 
+The serial and parallel versions have separate testing directories. As far as possible the tests are the same, but there is additional testing such that the parallel results match the serial to within floating point accuracy. First, run
 
     `make test`
-  
+
 from the `Tests/Serial` directory, then the `Tests/Parallel` directory. To check if results match, from `Tests/Parallel` run
- 
+
      `py.test -v Src/compareSerialAndParallel.py`
- 
+
 NOTE: this final test will only pass if the `MATCH_SERIAL` defined constant in `Project/Parallel/Include/timeInt.h` is set to unity, `MATCH_SERIAL=1`.
 
 ### Rootfinder
@@ -92,7 +86,7 @@ Some simulations will require the use of an N-dimensional footfinder, either for
 for the conservative to primitive transformation. We have elected to use the [CMINPACK library](https://github.com/devernay/cminpack)\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
 
     `make objects`
-  
+
 to compile all the object files. Then, if the build was successful, for gods sake dont touch/look at this library again.
 
 
@@ -100,7 +94,7 @@ to compile all the object files. Then, if the build was successful, for gods sak
 Simulations are run from the *main.cc/cu* scripts. Simply use
 
     `make run`
-  
+
 to compile and run the simulation from within `Project/Serial` or `Project/Parallel`.
 
 
@@ -109,13 +103,13 @@ The *Src* directory has a tool for interactively plotting the end state of a sim
 folder. This is done using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. Then, simply include
 
     `save.saveAll();`
-  
+
 in *main* after the simulation has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
 There is also the functionality to save time series data. In order to reduce memory requirements, the user must specify the variables they wish to save (names of the variables should match those given as the labels in the model's header file. To save variables, go into `simulation.cc/cu` and change the three conditional blocks to save the variables you want using
- 
+
      `this->save->saveVar('SomeVar', totalNumberOfUserDefinedVars)`
- 
+
 NOTE: The second variable must be included and be the number of variables you wish to save at each output.
 
 
