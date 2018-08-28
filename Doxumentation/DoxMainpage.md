@@ -29,22 +29,33 @@ with multi-fluid models. As a result, ideal and resistive single fluid models ex
 that are more conventional in astrophysical model, and a relatively new two-fluid
 model adapted from Amano 2016.
 
-@section install Installation
+@section gettingStarted Getting started
 @par
 The easiest way to install METHOD is to clone the github [repository](https://github.com/AlexJamesWright/METHOD).
 The repository contains all the source files, tests and makefiles that one needs
 to get going. To start, copy the HTTPS tag on the main page or run
 
     git clone https://github.com/AlexJamesWright/METHOD
-to copy all files to your machine. There are then multiple options, but the safest
-is to go to the *Project* directory and build all objects first. Do this by running
 
-    make build
-This will compile all the source code and build the rootfinders, and also generate
-the documetation. To check the build has worked, the best option is to run all the
-tests. From the *Test* directory, running
+to copy all files to your machine. To build the correct paths to the data directories
+required for saving simulation output, from the METHOD root directory run the
+shell script
+
+    bash makePaths.sh
+
+It is then a good idea to run all the tests to ensure the latest build is working. First,
+enter the Tests/Serial directory and run
 
     make test
-will compile all unit tests and, using the GoogleTest framework, execute the
-available tests. If any tests fail unexpectedly, update the files on you machine
-by pulling the repository and try again.
+
+followed by the same command in Tests/Parallel. The parallel tests will only
+run if you have the CUDA drivers installed and an NVIDIA graphics cards. Finally,
+from the Tests/Parallel directory, run
+
+    py.test -v Src/comapreParallelAndSerial.py
+
+If all is well, the examples provided will give a good indication of how to use
+METHOD.
+
+NOTE: More information about setting up and using METHOD can be found in the project's
+`README.md`.
