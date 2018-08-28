@@ -17,7 +17,7 @@ M::::::M               M::::::ME::::::::::::::::::::E      T:::::::::T      H:::
 MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHHHHHHH     HHHHHHHHH     OOOOOOOOO     DDDDDDDDDDDDD <br></sup></sub>
 </pre>
 
-[![DOI](https://zenodo.org/badge/105871037.svg)](https://zenodo.org/badge/latestdoi/105871037)
+[![DOI](https://zenodo.org/badge/105871037.svg)](http://doi.org/10.5281/zenodo.1404697)
 
 ## Multifluid Electromagneto-HydroDynamics
 ---------------------------------------------
