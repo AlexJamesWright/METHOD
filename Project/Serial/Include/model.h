@@ -109,11 +109,8 @@ class Model
 
     //! Flux vector
     /*!
-        Generates the values of the net numerical flux of the conserved variables
-      at the cell faces.
-        Method uses the flux vector splitting method along with a lax-friedrichs
-      approximation to determine the flux. `dir` corresponds to the direction in
-      which we want the flux: 0=x-direction, 1=y-direction.
+        Generates the values of the flux vector at the cell centre. `dir` corresponds to the direction in
+      which we want the flux: 0=x-direction, 1=y-direction, 2=z-direction.
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
