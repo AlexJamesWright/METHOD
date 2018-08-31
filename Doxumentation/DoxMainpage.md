@@ -21,19 +21,24 @@ M::::::M               M::::::ME::::::::::::::::::::E      T:::::::::T      H:::
 MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHHHHHHH     HHHHHHHHH     OOOOOOOOO     DDDDDDDDDDDDD <br><br>
 </pre>
 
-## Multifluid Electromagneto-HydroDynamics
+### Multifluid Electromagneto-HydroDynamics
 ---------------------------------------------
-@par
-This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic
+
+This is METHOD, a relativistic multi-dimensional, multi-fluid electro-magnetohydrodynamic
 solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)
 under the guidance of [Dr Ian Hawke](https://www.southampton.ac.uk/maths/about/staff/ih3.page).
-METHOD is being developed as a result of a PhD project to model neutron star mergers
-with multi-fluid models of MHD. As a result, ideal and resistive single fluid models exist
-that are more conventional for astrophysical models, and a relatively new two-fluid
+METHOD is being developed as part of a PhD project to model neutron star mergers
+using multi-fluid models of MHD. As a result, there are ideal and resistive single fluid models
+that are more conventional for modelling astrophysical systems, and a relatively new two-fluid
 model adapted from Amano 2016.
 
+METHOD aims to make comparisons of the various MHD models as simple as possible. It
+is designed in an object-oriented mannor. The modular nature of METHOD means that it
+is quick and easy to change the model, time integrator, or flux reconstruction method.
+It also means that extensions to these features are easy, and involves minimal
+changes to existing code.
+
 ### Getting started
-@par
 To begin using METHOD, first clone the repository
 
     git clone https://github.com/AlexJamesWright/METHOD.git
@@ -42,15 +47,11 @@ To set up the correct directories for storing data, run the provided shell scrip
 
     bash makePaths.sh
 
-@par
 Next, you will need to ensure the Makefiles are valid for your system, changing any compilers to your preferred ones and setting the GoogleTest home directory to its location on you machine. That should be it. Should be.
 
 ### Testing
-@par
 Once METHOD is installed, check the latest build is working by running the unittests.
-@par
 We use the Google Test framework for unit testing---any tests are saved in the `Tests/Serial/Src` or `Tests/Parallel/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/Parallel/Src` and `Tests/Serial/Src`) to point to the GoogleTest root directory.
-@par
 The serial and parallel versions have separate testing directories. As far as possible the tests are the same, but there is additional testing such that the parallel results match the serial to within floating point accuracy. First, run
 
     make test
@@ -58,13 +59,10 @@ The serial and parallel versions have separate testing directories. As far as po
 from the `Tests/Serial` directory, then the `Tests/Parallel` directory. To check if results match, from `Tests/Parallel` run
 
      py.test -v Src/compareSerialAndParallel.py
-@par
 NOTE: this final test will only pass if the `MATCH_SERIAL` defined constant in `Project/Parallel/Include/timeInt.h` is set to unity, `MATCH_SERIAL=1`.
-@par
 It is a good idea to check that the examples run successfully next.
 
 ### Example Simulations
-@par
 Example simulations have been provided that illustrate how to use the
 various classes. By typing `make run` in one of the example directories, the
 relevant object files will be built and executed. Data is saved in the *Examples/Data*
@@ -73,12 +71,10 @@ root Example directory with something like `spyder interactivePlot.py`. For the
 Kelvin-Helmholtz simulation, running the `animation.py` script will create an
 animatation called `Output.gif` in the root Example directory to view (may take up
 to ten minutes to run the simulation and make the animation).
-@par
 NOTE: When generating animations, besure to delete all TimeSeries data after each run.
 
 
 ### Builds
-@par
 To build all the elements of the programme at once go from the Project directory, to either Serial (if you dont have CUDA capable hardware) or Parallel (if you do) and use
 
     make build
@@ -86,20 +82,16 @@ To build all the elements of the programme at once go from the Project directory
 to build each element of the programme.
 
 ### Documentation
-@par
 I have tried to maintain good documentation standards, but cant guarantee that everything you want will be here. If you are unsure of any functionality, first look in the respective header file, source code, and you are still unsure contact the authors.
 
-@par
 The documentation is built automatically using [ReadTheDocs](https://method.readthedocs.io/en/latest/index.html) and can be viewed there. Currently the latex doesn't render on ReadTheDocs but can be view if you build it locally.
 
-@par
 If you are unsure of any of the functionality, find the documentation in the `index.html` file, generated by [doxygen](https://github.com/doxygen/doxygen) and located in the `Doxumentation/html` directory.
 To build the documentation locally simply go the the `Doxumentation` folder and run
 
     doxygen
 
 ### Rootfinder
-@par
 Some simulations will require the use of an N-dimensional footfinder, either for a (semi-) implicit time integrator or
 for the conservative to primitive transformation. We have elected to use the [CMINPACK library](https://github.com/devernay/cminpack)\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
 
@@ -109,7 +101,6 @@ to compile all the object files. Then, if the build was successful, don't touch/
 
 
 ### Simulations
-@par
 Simulations are run from the *main.cc/cu* scripts. Simply use
 
     make run
@@ -123,7 +114,6 @@ will also work.
 
 
 ### Saving and Plotting Tools
-@par
 The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
 folder. This is done using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. Then, simply include
 
@@ -131,19 +121,25 @@ folder. This is done using the SaveData class---call the class constructor with 
 
 in *main* after the simulation has been evolved. Running the python script as main will load and store the data ready for plotting, and the easiest way to interact with the data is in a python environment such as spyder.
 
-@par
 There is also the functionality to save time series data. In order to reduce memory requirements, the user must specify the variables they wish to save (names of the variables should match those given as the labels in the model's header file. To save variables, go into `simulation.cc/cu` and change the three conditional blocks to save the variables you want using
 
      this->save->saveVar('SomeVar', totalNumberOfUserDefinedVars)
 
 NOTE: The second variable must be included and be the number of variables you wish to save at each output.
 
+### Extending METHOD
+To extend METHOD to include new integrators, flux reconstructions or physics models,
+simply look at the header for the abstract base class of the feature you wish to
+implement and provide the required class methods. This should not require changing
+any code outside of the feature you want to implement. Ideally you should do this
+in test driven way and provide the units tests as well. If all is working, push
+the new branch and submit a merge request.
+
 ### Authors
 
 [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk
 
 ### Side notes
-@par
 I realise that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). This is of minor importance, but feel free to change it yourself!
 
 
