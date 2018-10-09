@@ -29,6 +29,21 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+
+  // If there is a subgrid model, add that contribution
+  if (subgridModel != NULL) {
+    this->subgridModel->subgridSource(cons, prims, aux, d->source);
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
+          }
+        }
+      }
+    }
+  }
+
   // Determine new prim and aux variables
   try {
     this->model->getPrimitiveVars(cons, prims, aux);

@@ -18,7 +18,6 @@ SSP3::SSP3(Data * data, Model * model, Bcs * bc, FluxMethod * fluxMethod) :
 {
   Data * d(this->data);
   this->args = IMEX3Arguments(data);
-  int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   int Ntot = data->Nx * data->Ny * data->Nz;
   // Need work arrays
   // Interstage results
@@ -58,28 +57,6 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
   double tol(1.0e-8);
 
 
-  // We only need to implement the integrator on the physical cells provided
-  // we apply the boundary conditions to each stage.
-  // Determine start and end points
-  int is(d->Ng);          // i start and end points
-  int ie(d->Nx - d->Ng);
-  int js, je, ks, ke;     // k & k start and end points
-  if (d->Ny > 1) {
-    js = d->Ng;
-    je = d->Ny - d->Ng;
-  }
-  else {
-    js = 0;
-    je = 1;
-  }
-  if (d->Nz > 1) {
-    ks = d->Ng;
-    ke = d->Nz - d->Ng;
-  }
-  else {
-    ks = 0;
-    ke = 1;
-  }
 
   //########################### STAGE ONE #############################//
   this->model->sourceTerm(cons, prims, aux, d->source);

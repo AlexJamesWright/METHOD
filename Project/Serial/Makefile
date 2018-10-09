@@ -42,7 +42,8 @@ SRCS = main.cc \
 			 boundaryConds.cc \
 			 saveData.cc \
 			 fluxVectorSplitting.cc \
-			 srrmhd.cc
+			 srrmhd.cc \
+			 resistiveSGM.cc
 
 
 # Headers
@@ -153,10 +154,12 @@ saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
+resistiveSGM.o : $(MODULE_DIR)/resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	@$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
+	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

@@ -4,15 +4,13 @@
 #include "initFunc.h"
 #include "srmhd.h"
 #include "srrmhd.h"
-#include "twoFluidEMHD.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "backwardsRK.h"
 #include "SSP2.h"
-#include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "resistiveSGM.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <omp.h>
@@ -50,48 +48,15 @@ int main(int argc, char *argv[]) {
   bool output(false);
   int safety(500);
 
-
-  char * ptr(0);
-  double tmp(0);
-  //! Overwrite any variables that have been passed in as main() arguments
-  for (int i(0); i < argc; i++) {
-    if (strcmp(argv[i], "nx") == 0) {
-      nx = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "ny") == 0) {
-      ny = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "nz") == 0) {
-      nz = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "safety") == 0) {
-      safety = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "output") == 0) {
-      output = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "frameSkip") == 0) {
-      frameSkip = (int)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "gammanum") == 0) {
-      tmp = (double)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "gammaden") == 0 && tmp!=0) {
-      gamma = tmp/(double)strtol(argv[i+1], &ptr, 10);
-    }
-    if (strcmp(argv[i], "endTime") == 0 && tmp!=0) {
-      endTime = (double)strtol(argv[i+1], &ptr, 10);
-    }
-  }
-
-
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
+
+  ResistiveSGM subgridModel(&data, &fluxMethod);
 
   Simulation sim(&data);
 
@@ -99,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
 
   SaveData save(&data);
 
@@ -108,13 +73,12 @@ int main(int argc, char *argv[]) {
   // Time execution of programme
   double startTime(omp_get_wtime());
 
-  // // Run until end time and save results
-  // sim.evolve(output, safety);
-  sim.updateTime();
+  // Run until end time and save results
+  sim.evolve(output, safety);
 
   double timeTaken(omp_get_wtime() - startTime);
 
-  // save.saveAll();
+  save.saveAll();
   printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;

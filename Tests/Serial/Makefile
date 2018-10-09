@@ -53,7 +53,8 @@ TESTS = test_simulation \
 				test_srrmhd \
 				test_fvs \
 				test_rk2 \
-				test_imex
+				test_imex \
+				test_resistiveSGM
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -267,4 +268,16 @@ test_imex.o : $(TEST_DIR)/test_imex.cc
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_imex : IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o boundaryConds.o saveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
+
+# Resistive subgrid model
+resistiveSGM.o : $(MODULE_DIR)/resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/resistiveSGM.cc -I$(INC_DIR)   -I$(RTFIND_INC_DIR)
+
+test_resistiveSGM.o : $(TEST_DIR)/test_resistiveSGM.cc $(INC_DIR)/resistiveSGM.h \
+										$(GTEST_HEADERS)
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_resistiveSGM.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_resistiveSGM : srmhd.o test_resistiveSGM.o resistiveSGM.o simData.o fluxVectorSplitting.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
