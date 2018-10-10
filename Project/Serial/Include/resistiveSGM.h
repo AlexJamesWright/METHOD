@@ -8,38 +8,38 @@ class ResistiveSGM : public SubGridModel
 {
   public:
 
-    double *
+    double
     //{
-    dfxdw, dfydw, dfzdw,      //!< Derivative of flux vector wrt to primitive variables
+    *dfxdw, *dfydw, *dfzdw,      //!< Derivative of flux vector wrt to primitive variables
     //}
-    dwdsb,                    //!< Derivative of primitive vector wrt stiff source
+    *dwdsb,                    //!< Derivative of primitive vector wrt stiff source
+    *E,                        //!< Electric field vector
+    *q,                        //!< Charge density
+    *K,                        //!< partial_a fbar^a
     //{
-    A, B, C, D,               //!< Innereds of dwdsb
-    //}
-    E,                        //!< Electric field vector
-    q,                        //!< Charge density
-    K,                        //!< partial_a fbar^a
-    //{
-    Mx, My, Mz,               //!< Directional matrices multiplying K. Dot prod(partial_w f^a, partial_sbar w)
+    *Mx, *My, *Mz,               //!< Directional matrices multiplying K. Dot prod(partial_w f^a, partial_sbar w)
     //}
     //{
-    fx, fy, fz,               //!< Stiff flux vector
+    *fx, *fy, *fz,               //!< Stiff flux vector
     //}
     //{
-    diffuX, diffuY, diffuZ,   //!< Diffusion vector
+    *diffuX, *diffuY, *diffuZ,   //!< Diffusion vector
     //}
-    alpha;                    //!< Prefactor for dwdsb
+    *alpha;                    //!< Prefactor for dwdsb
 
     FluxMethod * fluxMethod;  //!< Pointer to the flux method class
 
     //! Constructor
     ResistiveSGM(Data * data, FluxMethod * fluxMethod);
 
+    //! Destructor
+    ~ResistiveSGM();
+
     //! Main user function.
     void subgridSource(double * cons, double * prims, double * aux, double * source);
 
     //! Need to ensure that all work arrays are zero before calculating
-    void reset(void);
+    void reset(double * source);
 
     //! Sets up variables including the electric field and charge density
     void set_vars(double * cons, double * prims, double * aux);
