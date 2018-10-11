@@ -11,7 +11,7 @@
 // Mx, My, and Mz matrix
 #define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 // dfxdw, dfydw, dfzdw
-#define IDFW(ldx, mdx, idx, jdx, kdx)  ((ldx)*(d.Nprims)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
+#define IDFW(ldx, mdx, idx, jdx, kdx)  ((ldx)*(12)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 // dwdsb
 #define IDWS(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
@@ -390,17 +390,473 @@ namespace
       EXPECT_NEAR(subgridModel.dwdsb[IDWS(4, 1, mid, mid, mid)], 0.0, 1e-15);
       EXPECT_NEAR(subgridModel.dwdsb[IDWS(4, 2, mid, mid, mid)], 0.0, 1e-15);
     }
+
   }
 
-  TEST(RSGM, Directionality)
+
+  //---------------------------------------------------------------------------
+  //---------------------------------------------------------------------------
+  //---------------------------------------------------------------------------
+
+
+    TEST(RSGM, Directionality)
   {
+    Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+    SRMHD model(&d);
+    Simulation sim(&d);
+    FVS fluxMethod(&d, &model);
+    ResistiveSGM subgridModel(&d, &fluxMethod);
 
-  }
+    // Set mid point where x=1
+    int mid(d.Nz/2-1);
+    EXPECT_NEAR(d.z[mid], 1.0, 1e-15);
+
+    // Set primitive variables to known values
+    for (int i(0); i<d.Nx; i++) {
+      for (int j(0); j<d.Ny; j++) {
+        for (int k(0); k<d.Nz; k++) {
+          d.prims[ID(0, i, j, k)] = 0.1;
+          d.prims[ID(1, i, j, k)] = 0.41;
+          d.prims[ID(2, i, j, k)] = 0.51;
+          d.prims[ID(3, i, j, k)] = 0.61;
+          d.prims[ID(4, i, j, k)] = 0.66;
+          d.prims[ID(5, i, j, k)] = 0.22;
+          d.prims[ID(6, i, j, k)] = 0.33;
+          d.prims[ID(7, i, j, k)] = 0.44;
+        }
+      }
+    }
+
+    // Set global variables and direction-free matrices (testing so set factor=false)
+    subgridModel.set_vars(NULL, d.prims, NULL);
+    // Set the electric field and charge density to known values (note this
+    // wont be consistent with the prims but that shouldnt matter for this)
+    for (int i(0); i<d.Nx; i++) {
+      for (int j(0); j<d.Ny; j++) {
+        for (int k(0); k<d.Nz; k++) {
+          subgridModel.E[ID(0, i, j, k)] = 0.13;
+          subgridModel.E[ID(1, i, j, k)] = 0.17;
+          subgridModel.E[ID(2, i, j, k)] = 0.21;
+          subgridModel.q[ID(0, i, j, k)] = 0.23;
+        }
+      }
+    }
+
+    // First, check that dfxdw is set correctly
+    {
+      subgridModel.set_dfxdw(NULL, d.prims, NULL);
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny; j++) {
+          for (int k(0); k<d.Nz; k++) {
+            // Row 0
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 0, i, j, k)], 0.41, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 1, i, j, k)], 0.1, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+            // Row 1
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 4, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 5, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 6, i, j, k)], 0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 7, i, j, k)], 0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 8, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 9, i, j, k)], 0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 10, i, j, k)], 0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+            // Row 2
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 5, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 6, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 8, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 9, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+            // Row 3
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 5, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 7, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 8, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 10, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+            // Row 4
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 1, i, j, k)], 2*0.66, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 4, i, j, k)], 2*0.41, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 6, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 7, i, j, k)], 0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 9, i, j, k)], 0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 10, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+            // Row 5
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+            // Row 6
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 10, i, j, k)], -1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+            // Row 7
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 8, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 9, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
+            // Row 8
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 1, i, j, k)], 0.23, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 2, i, j, k)], 50*0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 3, i, j, k)], -50*0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 6, i, j, k)], -50*0.61, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 7, i, j, k)], 50*0.51, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 8, i, j, k)], 50, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 11, i, j, k)], 0.41, 1e-15);
+          }
+        }
+      }
+    } // dfxdw
+
+
+    // Second, check that dfydw is set correctly
+    {
+      subgridModel.set_dfydw(NULL, d.prims, NULL);
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny; j++) {
+          for (int k(0); k<d.Nz; k++) {
+            // Row 0
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 0, i, j, k)], 0.51, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 2, i, j, k)], 0.1, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+            // Row 1
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 5, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 6, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 8, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 9, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+            // Row 2
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 4, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 5, i, j, k)], 0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 6, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 7, i, j, k)], 0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 8, i, j, k)], 0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 9, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 10, i, j, k)], 0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+            // Row 3
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 6, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 7, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 9, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 10, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+            // Row 4
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 2, i, j, k)], 2*0.66, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 4, i, j, k)], 2*0.51, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 5, i, j, k)], 0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 7, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 8, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 10, i, j, k)], 0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+            // Row 5
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 10, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+            // Row 6
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+            // Row 7
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 8, i, j, k)], -1.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
+            // Row 8
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 1, i, j, k)], -50*0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 2, i, j, k)], 0.23, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 3, i, j, k)], 50*0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 5, i, j, k)], 50*0.61, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 6, i, j, k)], 0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 7, i, j, k)], -50*0.41, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 9, i, j, k)], 50, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 11, i, j, k)], 0.51, 1e-15);
+          }
+        }
+      }
+    } // dfydw
+
+
+
+    // Second, check that dfzdw is set correctly
+    {
+      subgridModel.set_dfzdw(NULL, d.prims, NULL);
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny; j++) {
+          for (int k(0); k<d.Nz; k++) {
+            // Row 0
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 0, i, j, k)], 0.61, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 3, i, j, k)], 0.1, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+            // Row 1
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 5, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 7, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 8, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 10, i, j, k)], -0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+            // Row 2
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 6, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 7, i, j, k)], -0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 9, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 10, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+            // Row 3
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 4, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 5, i, j, k)], 0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 6, i, j, k)], 0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 7, i, j, k)], -0.44, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 8, i, j, k)], 0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 9, i, j, k)], 0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 10, i, j, k)], -0.21, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+            // Row 4
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 3, i, j, k)], 2*0.66, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 4, i, j, k)], 2*0.61, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 5, i, j, k)], -0.17, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 6, i, j, k)], 0.13, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 8, i, j, k)], 0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 9, i, j, k)], -0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+            // Row 5
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 9, i, j, k)], -1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+            // Row 6
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 8, i, j, k)], 1.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+            // Row 7
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 8, i, j, k)], 0.0, 1e-16);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
+            // Row 8
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 1, i, j, k)], 50*0.33, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 2, i, j, k)], -50*0.22, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 3, i, j, k)], 0.23, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 5, i, j, k)], -50*0.51, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 6, i, j, k)], 50*0.41, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 7, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 10, i, j, k)], 50, 1e-15);
+            EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 11, i, j, k)], 0.61, 1e-15);
+          }
+        }
+      }
+    } // dfzdw
+
+
+  } // TEST(RSGM, Directionality)
+
+
+  //---------------------------------------------------------------------------
+  //---------------------------------------------------------------------------
+  //---------------------------------------------------------------------------
+
 
   TEST(RSGM, RotationallyInvariant)
   {
-    
+    EXPECT_EQ(1, 2);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   // SLOWWWWWW
