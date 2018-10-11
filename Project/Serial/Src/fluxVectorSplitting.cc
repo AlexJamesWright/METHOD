@@ -12,18 +12,12 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   int order(2);
 
   // Wave speed
-  double alpha;
-  if (dir == 0) alpha = d->alphaX;
-  else if (dir == 1) alpha = d->alphaY;
-  else alpha = d->alphaZ;
+  double alpha(1);
 
   // Up and downwind fluxes
   double *fplus, *fminus;
   fplus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
   fminus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
-
-  // Get flux vector
-  this->model->fluxVector(cons, prims, aux, f, dir);
 
   // Lax-Friedrichs approximation of flux
   for (int var(0); var < d->Ncons; var++) {
@@ -115,13 +109,17 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
   double *fx, *fy, *fz;
 
   // 3D domain, loop over all cells determining the net flux
-  if (d->Ny > 1 && d->Nz > 1) {
+  if (d->dims==2)
+  {
     fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     fz = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     // Determine flux vectors
+    this->model->fluxVector(cons, prims, aux, f, 0);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
+    this->model->fluxVector(cons, prims, aux, f, 1);
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
+    this->model->fluxVector(cons, prims, aux, f, 2);
     this->fluxReconstruction(cons, prims, aux, f, fz, 2);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
@@ -141,10 +139,13 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
 
 
   // 2D domain, loop over x- and y-directions determining the net flux
-  else if (d->Ny > 1) {
+  else if (d->dims==1)
+  {
     fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
+    this->model->fluxVector(cons, prims, aux, f, 0);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
+    this->model->fluxVector(cons, prims, aux, f, 1);
     this->fluxReconstruction(cons, prims, aux, f, fy, 1);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
@@ -160,8 +161,10 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
 
 
   // Otherwise, domain is 1D only loop over x direction
-  else {
+  else
+  {
     fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
+    this->model->fluxVector(cons, prims, aux, f, 0);
     this->fluxReconstruction(cons, prims, aux, f, fx, 0);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx-1; i++) {
