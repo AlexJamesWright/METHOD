@@ -37,7 +37,6 @@ namespace
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     Simulation sim(&d);
-
     // Set state to stationary equilibrium state
     for (int i(0); i < d.Nx; i++) {
       for (int j(0); j < d.Ny; j++) {
@@ -50,7 +49,6 @@ namespace
           d.prims[d.id(5, i, j, k)] = 0.0;
           d.prims[d.id(6, i, j, k)] = 0.0;
           d.prims[d.id(7, i, j, k)] = 0.0;
-          d.prims[d.id(8, i, j, k)] = 0.0;
         }
       }
     }
