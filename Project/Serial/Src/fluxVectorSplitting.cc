@@ -3,7 +3,7 @@
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double * f, double * frecon, int dir)
+void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double * f, double * frecon, int dir, int vars)
 {
   // Syntax
   Data * d(this->data);
@@ -14,13 +14,16 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Wave speed
   double alpha(1);
 
+  // Size of vector to reconstruct (can be set to save time for subgrid models)
+  if (vars<0) vars = d->Ncons;
+
   // Up and downwind fluxes
   double *fplus, *fminus;
-  fplus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
-  fminus = (double *) malloc(sizeof(double) * d->Ncons * d->Nx * d->Ny * d->Nz);
+  fplus = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
+  fminus = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
 
   // Lax-Friedrichs approximation of flux
-  for (int var(0); var < d->Ncons; var++) {
+  for (int var(0); var < vars; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
@@ -33,7 +36,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Reconstruct to determine the flux at the cell face and compute difference
   if (dir == 0) { // x-direction
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < vars; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -54,7 +57,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else if (dir == 1) { // y-direction
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < vars; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
@@ -75,7 +78,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else { // z-direction
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < vars; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
