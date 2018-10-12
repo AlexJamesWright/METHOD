@@ -57,7 +57,23 @@ namespace
           // Set source as nonzero
           for (int var(0); var<d.Ncons; var++) {
             d.source[ID(var, i, j, k)] = 4.0;
+            subgridModel.diffuX[ID(var, i, j, k)] = 4.0;
+            subgridModel.diffuY[ID(var, i, j, k)] = 4.0;
+            subgridModel.diffuZ[ID(var, i, j, k)] = 4.0;
             EXPECT_NEAR(d.source[ID(var, i, j, k)], 4.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuX[ID(var, i, j, k)], 4.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuY[ID(var, i, j, k)], 4.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuZ[ID(var, i, j, k)], 4.0, 1e-15);
+          }
+          for (int l(0); l<9; l++) {
+            for (int m(0); m<3; m++) {
+              subgridModel.Mx[IDM(l, m, i, j, k)] = 4.0;
+              subgridModel.My[IDM(l, m, i, j, k)] = 4.0;
+              subgridModel.Mz[IDM(l, m, i, j, k)] = 4.0;
+              EXPECT_NEAR(subgridModel.Mx[IDM(l, m, i, j, k)], 4.0, 1e-15);
+              EXPECT_NEAR(subgridModel.My[IDM(l, m, i, j, k)], 4.0, 1e-15);
+              EXPECT_NEAR(subgridModel.Mz[IDM(l, m, i, j, k)], 4.0, 1e-15);
+            }
           }
         }
       }
@@ -74,6 +90,16 @@ namespace
           // Set source as nonzero
           for (int var(0); var<d.Ncons; var++) {
             EXPECT_NEAR(d.source[ID(var, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuX[ID(var, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuY[ID(var, i, j, k)], 0.0, 1e-15);
+            EXPECT_NEAR(subgridModel.diffuZ[ID(var, i, j, k)], 0.0, 1e-15);
+          }
+          for (int l(0); l<9; l++) {
+            for (int m(0); m<3; m++) {
+              EXPECT_NEAR(subgridModel.Mx[IDM(l, m, i, j, k)], 0.0, 1e-15);
+              EXPECT_NEAR(subgridModel.My[IDM(l, m, i, j, k)], 0.0, 1e-15);
+              EXPECT_NEAR(subgridModel.Mz[IDM(l, m, i, j, k)], 0.0, 1e-15);
+            }
           }
         }
       }
@@ -840,8 +866,185 @@ namespace
 
   TEST(RSGM, RotationallyInvariant)
   {
-    EXPECT_EQ(1, 2);
-  }
+    Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50); // Just to use ID macro
+    Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+    Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+    Data d3(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+    SRMHD model(&d);
+    SRMHD model1(&d1);
+    SRMHD model2(&d2);
+    SRMHD model3(&d3);
+    Simulation sim(&d);
+    Simulation sim1(&d1);
+    Simulation sim2(&d2);
+    Simulation sim3(&d3);
+    FVS fluxMethod1(&d1, &model1);
+    FVS fluxMethod2(&d2, &model2);
+    FVS fluxMethod3(&d3, &model3);
+    ResistiveSGM subgridModel1(&d1, &fluxMethod1);
+    ResistiveSGM subgridModel2(&d2, &fluxMethod2);
+    ResistiveSGM subgridModel3(&d3, &fluxMethod3);
+
+      // Set mid point where x=1
+      int mid(d1.Nz/2-1);
+      EXPECT_NEAR(d1.z[mid], 1.0, 1e-15);
+
+      // Set primitive variables to known values
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny; j++) {
+          for (int k(0); k<d.Nz; k++) {
+            // Sim 1
+            d1.prims[ID(0, i, j, k)] = 0.1;
+            d1.prims[ID(1, i, j, k)] = 0.0;
+            d1.prims[ID(2, i, j, k)] = 0.41 * d1.x[i];
+            d1.prims[ID(3, i, j, k)] = 0.51;
+            d1.prims[ID(4, i, j, k)] = 0.66;
+            d1.prims[ID(5, i, j, k)] = 0.0;
+            d1.prims[ID(6, i, j, k)] = 0.22 * d1.x[i];
+            d1.prims[ID(7, i, j, k)] = 0.33;
+            // Sim 2
+            d2.prims[ID(0, i, j, k)] = 0.1;
+            d2.prims[ID(1, i, j, k)] = 0.51;
+            d2.prims[ID(2, i, j, k)] = 0.0;
+            d2.prims[ID(3, i, j, k)] = 0.41 * d2.y[j];
+            d2.prims[ID(4, i, j, k)] = 0.66;
+            d2.prims[ID(5, i, j, k)] = 0.33;
+            d2.prims[ID(6, i, j, k)] = 0.0;
+            d2.prims[ID(7, i, j, k)] = 0.22 * d2.y[j];
+            // Sim 3
+            d3.prims[ID(0, i, j, k)] = 0.1;
+            d3.prims[ID(1, i, j, k)] = 0.41 * d3.z[k];
+            d3.prims[ID(2, i, j, k)] = 0.51;
+            d3.prims[ID(3, i, j, k)] = 0.0;
+            d3.prims[ID(4, i, j, k)] = 0.66;
+            d3.prims[ID(5, i, j, k)] = 0.22 * d3.z[k];
+            d3.prims[ID(6, i, j, k)] = 0.33;
+            d3.prims[ID(7, i, j, k)] = 0.0;
+          }
+        }
+      }
+
+      // Check that the set up is consistent
+      {
+        for (int i(0); i<d1.Nx; i++) {
+          for (int j(0); j<d1.Ny; j++) {
+            for (int k(0); k<d1.Nz; k++) {
+              // y->x
+              EXPECT_NEAR(d1.prims[ID(0, i, j, k)], d2.prims[ID(0, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(1, i, j, k)], d2.prims[ID(2, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(2, i, j, k)], d2.prims[ID(3, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(3, i, j, k)], d2.prims[ID(1, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(4, i, j, k)], d2.prims[ID(4, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(5, i, j, k)], d2.prims[ID(6, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(6, i, j, k)], d2.prims[ID(7, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(7, i, j, k)], d2.prims[ID(5, k, i, j)], 1e-15);
+              //z->x
+              EXPECT_NEAR(d1.prims[ID(0, i, j, k)], d3.prims[ID(0, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(1, i, j, k)], d3.prims[ID(3, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(2, i, j, k)], d3.prims[ID(1, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(3, i, j, k)], d3.prims[ID(2, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(4, i, j, k)], d3.prims[ID(4, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(5, i, j, k)], d3.prims[ID(7, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(6, i, j, k)], d3.prims[ID(5, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.prims[ID(7, i, j, k)], d3.prims[ID(6, j, k, i)], 1e-15);
+              // z->y
+              EXPECT_NEAR(d2.prims[ID(0, i, j, k)], d3.prims[ID(0, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(1, i, j, k)], d3.prims[ID(2, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(2, i, j, k)], d3.prims[ID(3, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(3, i, j, k)], d3.prims[ID(1, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(4, i, j, k)], d3.prims[ID(4, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(5, i, j, k)], d3.prims[ID(6, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(6, i, j, k)], d3.prims[ID(7, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.prims[ID(7, i, j, k)], d3.prims[ID(5, i, k, j)], 1e-15);
+            }
+          }
+        }
+      }
+
+      // Generate source terms for each sim
+      subgridModel1.subgridSource(NULL, d1.prims, NULL, d1.source);
+      subgridModel2.subgridSource(NULL, d2.prims, NULL, d2.source);
+      subgridModel3.subgridSource(NULL, d3.prims, NULL, d3.source);
+
+      // Check Da is unchanged on rotation
+      {
+        for (int i(4); i<d1.Nx-4; i++) {
+          for (int j(4); j<d1.Ny-4; j++) {
+            for (int k(4); k<d1.Nz-4; k++) {
+              // y->x
+              EXPECT_NEAR(subgridModel1.diffuX[ID(0, i, j, k)], subgridModel2.diffuY[ID(0, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(1, i, j, k)], subgridModel2.diffuY[ID(2, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(2, i, j, k)], subgridModel2.diffuY[ID(3, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(3, i, j, k)], subgridModel2.diffuY[ID(1, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(4, i, j, k)], subgridModel2.diffuY[ID(4, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(5, i, j, k)], subgridModel2.diffuY[ID(6, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(6, i, j, k)], subgridModel2.diffuY[ID(7, k, i, j)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(7, i, j, k)], subgridModel2.diffuY[ID(5, k, i, j)], 1e-15);
+              //z->x
+              EXPECT_NEAR(subgridModel1.diffuX[ID(0, i, j, k)], subgridModel3.diffuZ[ID(0, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(1, i, j, k)], subgridModel3.diffuZ[ID(3, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(2, i, j, k)], subgridModel3.diffuZ[ID(1, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(3, i, j, k)], subgridModel3.diffuZ[ID(2, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(4, i, j, k)], subgridModel3.diffuZ[ID(4, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(5, i, j, k)], subgridModel3.diffuZ[ID(7, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(6, i, j, k)], subgridModel3.diffuZ[ID(5, j, k, i)], 1e-15);
+              EXPECT_NEAR(subgridModel1.diffuX[ID(7, i, j, k)], subgridModel3.diffuZ[ID(6, j, k, i)], 1e-15);
+              // z->y
+              EXPECT_NEAR(subgridModel2.diffuY[ID(0, i, j, k)], subgridModel3.diffuZ[ID(0, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(1, i, j, k)], subgridModel3.diffuZ[ID(2, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(2, i, j, k)], subgridModel3.diffuZ[ID(3, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(3, i, j, k)], subgridModel3.diffuZ[ID(1, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(4, i, j, k)], subgridModel3.diffuZ[ID(4, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(5, i, j, k)], subgridModel3.diffuZ[ID(6, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(6, i, j, k)], subgridModel3.diffuZ[ID(7, i, k, j)], 1e-15);
+              EXPECT_NEAR(subgridModel2.diffuY[ID(7, i, j, k)], subgridModel3.diffuZ[ID(5, i, k, j)], 1e-15);
+            }
+          }
+        }
+      }
+
+      // // Check source is unchanged on rotation
+      // {
+      //   for (int i(4); i<d1.Nx-4; i++) {
+      //     for (int j(4); j<d1.Ny-4; j++) {
+      //       for (int k(4); k<d1.Nz-4; k++) {
+      //         // y->x
+      //         EXPECT_NEAR(d1.source[ID(0, i, j, k)], d2.source[ID(0, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(1, i, j, k)], d2.source[ID(2, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(2, i, j, k)], d2.source[ID(3, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(3, i, j, k)], d2.source[ID(1, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(4, i, j, k)], d2.source[ID(4, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(5, i, j, k)], d2.source[ID(6, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(6, i, j, k)], d2.source[ID(7, k, i, j)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(7, i, j, k)], d2.source[ID(5, k, i, j)], 1e-15);
+      //         //z->x
+      //         EXPECT_NEAR(d1.source[ID(0, i, j, k)], d3.source[ID(0, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(1, i, j, k)], d3.source[ID(3, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(2, i, j, k)], d3.source[ID(1, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(3, i, j, k)], d3.source[ID(2, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(4, i, j, k)], d3.source[ID(4, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(5, i, j, k)], d3.source[ID(7, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(6, i, j, k)], d3.source[ID(5, j, k, i)], 1e-15);
+      //         EXPECT_NEAR(d1.source[ID(7, i, j, k)], d3.source[ID(6, j, k, i)], 1e-15);
+      //         // z->y
+      //         EXPECT_NEAR(d2.source[ID(0, i, j, k)], d3.source[ID(0, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(1, i, j, k)], d3.source[ID(2, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(2, i, j, k)], d3.source[ID(3, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(3, i, j, k)], d3.source[ID(1, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(4, i, j, k)], d3.source[ID(4, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(5, i, j, k)], d3.source[ID(6, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(6, i, j, k)], d3.source[ID(7, i, k, j)], 1e-15);
+      //         EXPECT_NEAR(d2.source[ID(7, i, j, k)], d3.source[ID(5, i, k, j)], 1e-15);
+      //       }
+      //     }
+      //   }
+      // }
+
+
+
+
+
+    }
 
 
 

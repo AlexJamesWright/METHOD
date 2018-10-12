@@ -1,5 +1,6 @@
 #include "resistiveSGM.h"
 #include <cstdio>
+#include <cmath>
 
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
@@ -7,6 +8,8 @@
 #define IDWS(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 // dfxdw, dfydw, dfzdw
 #define IDFW(ldx, mdx, idx, jdx, kdx)  ((ldx)*(12)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+// Mx, My, and Mz matrix
+#define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 
 ResistiveSGM::ResistiveSGM(Data * data, FluxMethod * fluxMethod) : SubGridModel(data), fluxMethod(fluxMethod)
@@ -59,15 +62,63 @@ ResistiveSGM::~ResistiveSGM()
 
 void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, double * source)
 {
+  // Syntax
+  Data * d(this->data);
+
   // Zero arrays and set vars
-  reset(source);
-  set_vars(cons, prims, aux);
+  this->reset(source);
+  this->set_vars(cons, prims, aux);
 
   // Ensure K and dwdsb are set
-  set_K(cons, prims, aux);
-  set_dwdsb(cons, prims, aux);
+  this->set_K(cons, prims, aux);
+  this->set_dwdsb(cons, prims, aux);
+
+  // Determine the diffusion vectors
+  this->set_Dx(cons, prims, aux);
+
+  // MINMOD
+  // For this, I will use data->f and data->fnet as the ahead and behind
+  // arrays, but will rename, saving on memory.
+  /* ##################################################################
+      This can be modified.
+      I do not need to store all ahead and behind. Store in a single variable at a time
+      and calculate as needed.
+      ################################################################*/
+
+  double * ahead(d->f);
+  double * behind(d->fnet);
+
+  // Do minmod on Dx to get gradient
+  for (int var(0); var<d->Ncons; var++) {
+    for (int i(0); i<d->Nx-1; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0);k<d->Nz; k++) {
+          ahead[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / d->dx;
+          behind[ID(var, i+1, j, k)] = ahead[var, i, j, k];
+        }
+      }
+    }
+    for (int i(0); i<d->Nx-1; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0);k<d->Nz; k++) {
+          if (ahead[ID(var, i, j, k)]*behind[ID(var, i, j, k)] > 0) {
+            if (fabs(ahead[ID(var, i, j, k)]) < fabs(behind[ID(var, i, j, k)]))
+              source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
+            else
+              source[ID(var, i, j, k)] += behind[ID(var, i, j, k)];
+          }
+        }
+      }
+    }
+  }
+
 
   // TODO
+  // Continue with minmod for Y and Z directions. Should then be done!
+
+
+
+
   // Determine Dx (and Dy and Dz if multi-dimensional domain)
   // Apply MidMod to gradient and add to source vector.
 }
@@ -76,14 +127,28 @@ void ResistiveSGM::reset(double * source)
 {
   // Syntax
   Data * d(this->data);
+
   // Reset the arrays in which we use the += operator
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
+        // Source vector, and Da
         for (int var(0); var<d->Ncons; var++) {
           source[ID(var, i, j, k)] = 0.0;
+          diffuX[ID(var, i, j, k)] = 0.0;
+          diffuY[ID(var, i, j, k)] = 0.0;
+          diffuZ[ID(var, i, j, k)] = 0.0;
         }
+        // partial_a f^a
         K[ID(0, i, j, k)] = 0.0;
+        // Mx, My, Mz
+        for (int l(0); l<9; l++) {
+          for (int m(0); m<3; m++) {
+            Mx[IDM(l, m, i, j, k)] = 0.0;
+            My[IDM(l, m, i, j, k)] = 0.0;
+            Mz[IDM(l, m, i, j, k)] = 0.0;
+          }
+        }
       }
     }
   }
@@ -212,7 +277,7 @@ void ResistiveSGM::set_dwdsb(double * cons, double * prims, double * aux)
           dwdsb[IDWS(11, 2, i, j, k)] = -prims[ID(3, i, j, k)]*qsigsq - sig*sig*prims[ID(7, i, j, k)]*vdotB;
         }
 
-        // Dont forget to multiply by the prefactor! (if not testing)
+        // Dont forget to multiply by the prefactor!
         for (int l(0); l<12; l++) {
           for (int m(0); m<3; m++) {
             dwdsb[IDWS(l, m, i, j, k)] *= alpha[ID(0, i, j, k)];
@@ -225,24 +290,189 @@ void ResistiveSGM::set_dwdsb(double * cons, double * prims, double * aux)
 
 void ResistiveSGM::set_Dx(double * cons, double * prims, double * aux)
 {
-  // TODO
+  // Syntax
+  Data * d(this->data);
+
+  this->set_dfxdw(cons, prims, aux);
+  // Mx = -1 * DOT(dfxdw, dwdsb)
+  for (int l(0); l<9; l++) {
+    for (int m(0); m<3; m++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0); k<d->Nz; k++) {
+            for (int n(0); n<12; n++) {
+              Mx[IDM(l, m, i, j, k)] -= dfxdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+  // Dx = DOT(Mx, K)
+  for (int l(0); l<9; l++) {
+    for (int i(0); i<d->Nx; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          for (int m(0); m<3; m++) {
+            diffuX[ID(l, i, j, k)] += Mx[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
+      }
+    }
+  }
 }
 
 void ResistiveSGM::set_Dy(double * cons, double * prims, double * aux)
 {
-  // TODO
+  // Syntax
+  Data * d(this->data);
+
+  this->set_dfydw(cons, prims, aux);
+  // My = -1 * DOT(dfydw, dwdsb)
+  for (int l(0); l<9; l++) {
+    for (int m(0); m<3; m++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0); k<d->Nz; k++) {
+            for (int n(0); n<12; n++) {
+              My[IDM(l, m, i, j, k)] -= dfydw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+  // Dy = DOT(My, K)
+  for (int l(0); l<9; l++) {
+    for (int i(0); i<d->Nx; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          for (int m(0); m<3; m++) {
+            diffuY[ID(l, i, j, k)] += My[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
+      }
+    }
+  }
 }
 
 
 void ResistiveSGM::set_Dz(double * cons, double * prims, double * aux)
 {
-  // TODO
+  // Syntax
+  Data * d(this->data);
+
+  this->set_dfydw(cons, prims, aux);
+  // Mz = -1 * DOT(dfzdw, dwdsb)
+  for (int l(0); l<9; l++) {
+    for (int m(0); m<3; m++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0); k<d->Nz; k++) {
+            for (int n(0); n<12; n++) {
+              Mz[IDM(l, m, i, j, k)] -= dfzdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+  // Dz = DOT(Mz, K)
+  for (int l(0); l<9; l++) {
+    for (int i(0); i<d->Nx; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          for (int m(0); m<3; m++) {
+            diffuZ[ID(l, i, j, k)] += Mz[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
+      }
+    }
+  }
 }
 
 
 void ResistiveSGM::set_K(double * cons, double * prims, double * aux)
 {
-  // TODO
+  // Syntax
+  Data * d(this->data);
+
+// First do x-direction
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+        fx[ID(0, i, j, k)] = 0;
+        fx[ID(1, i, j, k)] = prims[ID(7, i, j, k)];
+        fx[ID(2, i, j, k)] = -prims[ID(6, i, j, k)];
+      }
+    }
+  }
+  // Reconstruct stiff fluxes
+  this->fluxMethod->fluxReconstruction(E, NULL, NULL, fx, d->fnet, 0, 3);
+  // Add flux differencing to K
+  for (int var(0); var<3; var++) {
+    for (int i(1); i<d->Nx-1; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          K[ID(var, i, j, k)] += d->fnet[ID(var, i+1, j, k)]/(2*d->dx) - d->fnet[ID(var, i-1, j, k)]/(2*d->dx);
+        }
+      }
+    }
+  }
+
+  // Now add y-contribution
+  if (d->dims>1)
+  {
+    for (int i(0); i<d->Nx; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          fy[ID(0, i, j, k)] = -prims[ID(7, i, j, k)];
+          fy[ID(1, i, j, k)] = 0;
+          fy[ID(2, i, j, k)] = prims[ID(5, i, j, k)];
+        }
+      }
+    }
+    // Reconstruct stiff fluxes
+    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fy, d->fnet, 1, 3);
+    // Add flux differencing to K
+    for (int var(0); var<3; var++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(1); j<d->Ny-1; j++) {
+          for (int k(0); k<d->Nz; k++) {
+            K[ID(var, i, j, k)] += d->fnet[ID(var, i, j+1, k)]/(2*d->dy) - d->fnet[ID(var, i, j-1, k)]/(2*d->dy);
+          }
+        }
+      }
+    }
+  }
+
+  // Finally, add z-contribution
+  if (d->dims==3)
+  {
+    for (int i(0); i<d->Nx; i++) {
+      for (int j(0); j<d->Ny; j++) {
+        for (int k(0); k<d->Nz; k++) {
+          fz[ID(0, i, j, k)] = prims[ID(6, i, j, k)];
+          fz[ID(1, i, j, k)] = -prims[ID(5, i, j, k)];
+          fz[ID(2, i, j, k)] = 0;
+        }
+      }
+    }
+    // Reconstruct stiff fluxes
+    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fz, d->fnet, 2, 3);
+    // Add flux differencing to K
+    for (int var(0); var<3; var++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(1); k<d->Nz-1; k++) {
+            K[ID(var, i, j, k)] += d->fnet[ID(var, i, j, k+1)]/(2*d->dz) - d->fnet[ID(var, i, j, k-1)]/(2*d->dz);
+          }
+        }
+      }
+    }
+
+  }
+
 }
 
 
