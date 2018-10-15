@@ -601,3 +601,5 @@ class InteractivePlot(object):
 if __name__ == '__main__':
 
     Plot = InteractivePlot()
+    
+    Plot.plotSlice('prims')

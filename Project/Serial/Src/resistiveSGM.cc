@@ -48,16 +48,16 @@ ResistiveSGM::~ResistiveSGM()
   delete[] dwdsb;
   delete[] E;
   delete[] q;
-  delete[] K;
-  delete[] Mx;
-  delete[] My;
-  delete[] Mz;
+  delete[] K; //
+  delete[] Mx; //
+  delete[] My; //
+  delete[] Mz; //
   delete[] fx;
   delete[] fy;
   delete[] fz;
-  delete[] diffuX;
-  delete[] diffuY;
-  delete[] diffuZ;
+  delete[] diffuX; //
+  delete[] diffuY; //
+  delete[] diffuZ; //
   delete[] alpha;
 }
 
@@ -67,8 +67,8 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   Data * d(this->data);
 
   // Zero arrays and set vars
-  this->reset(source);
   this->set_vars(cons, prims, aux);
+  this->reset(source);
 
   // Ensure K and dwdsb are set
   this->set_K(cons, prims, aux);
@@ -96,15 +96,12 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
       minmod(diffuZ, ahead, behind, source, d->dz, d->Ncons, d->Nx, d->Ny, d->Nz, 2, d);
     }
   }
-
-
 }
 
 void ResistiveSGM::reset(double * source)
 {
   // Syntax
   Data * d(this->data);
-
   // Reset the arrays in which we use the += operator
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
@@ -112,12 +109,16 @@ void ResistiveSGM::reset(double * source)
         // Source vector, and Da
         for (int var(0); var<d->Ncons; var++) {
           source[ID(var, i, j, k)] = 0.0;
+        }
+        for (int var(0); var<9; var++) {
           diffuX[ID(var, i, j, k)] = 0.0;
           diffuY[ID(var, i, j, k)] = 0.0;
           diffuZ[ID(var, i, j, k)] = 0.0;
         }
         // partial_a f^a
         K[ID(0, i, j, k)] = 0.0;
+        K[ID(1, i, j, k)] = 0.0;
+        K[ID(2, i, j, k)] = 0.0;
         // Mx, My, Mz
         for (int l(0); l<9; l++) {
           for (int m(0); m<3; m++) {

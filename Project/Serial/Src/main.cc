@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(64);
-  int ny(16);
+  int nx(100);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -37,16 +37,16 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.05);
+  double endTime(0.4);
   double cfl(0.5);
-  double gamma(4.0/3.0);
-  double sigma(0);
+  double gamma(2.0);
+  double sigma(100);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(60);
   bool output(false);
-  int safety(500);
+  int safety(999999);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
   Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
