@@ -259,6 +259,7 @@ namespace
 
       // System is stationary, there should be zero flux
       // x-direction
+      model.fluxVector(d.cons, d.prims, d.aux, d.f, 0);
       fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
 
 
@@ -272,6 +273,7 @@ namespace
         }
       }
       // y-direction
+      model.fluxVector(d.cons, d.prims, d.aux, d.f, 1);
       fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
       for (int i(d.Ng); i < d.Nx-d.Ng; i++) {
         for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
@@ -283,6 +285,7 @@ namespace
         }
       }
       // z-direction
+      model.fluxVector(d.cons, d.prims, d.aux, d.f, 2);
       fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
       for (int i(d.Ng); i < d.Nx-d.Ng; i++) {
         for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
