@@ -15,12 +15,6 @@
 // dwdsb
 #define IDWS(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
-// Function required for the memory allocation check
-int deref(double * in)
-{
-    return * in;
-}
-
 
 
 /******************************************************************************
@@ -980,7 +974,7 @@ namespace
               EXPECT_NEAR(subgridModel1.diffuX[ID(5, i, j, k)], subgridModel2.diffuY[ID(6, k, i, j)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(6, i, j, k)], subgridModel2.diffuY[ID(7, k, i, j)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(7, i, j, k)], subgridModel2.diffuY[ID(5, k, i, j)], 1e-15);
-              //z->x
+              // z->x
               EXPECT_NEAR(subgridModel1.diffuX[ID(0, i, j, k)], subgridModel3.diffuZ[ID(0, j, k, i)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(1, i, j, k)], subgridModel3.diffuZ[ID(3, j, k, i)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(2, i, j, k)], subgridModel3.diffuZ[ID(1, j, k, i)], 1e-15);
@@ -989,7 +983,7 @@ namespace
               EXPECT_NEAR(subgridModel1.diffuX[ID(5, i, j, k)], subgridModel3.diffuZ[ID(7, j, k, i)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(6, i, j, k)], subgridModel3.diffuZ[ID(5, j, k, i)], 1e-15);
               EXPECT_NEAR(subgridModel1.diffuX[ID(7, i, j, k)], subgridModel3.diffuZ[ID(6, j, k, i)], 1e-15);
-              // z->y
+              // // z->y
               EXPECT_NEAR(subgridModel2.diffuY[ID(0, i, j, k)], subgridModel3.diffuZ[ID(0, i, k, j)], 1e-15);
               EXPECT_NEAR(subgridModel2.diffuY[ID(1, i, j, k)], subgridModel3.diffuZ[ID(2, i, k, j)], 1e-15);
               EXPECT_NEAR(subgridModel2.diffuY[ID(2, i, j, k)], subgridModel3.diffuZ[ID(3, i, k, j)], 1e-15);
@@ -1003,42 +997,42 @@ namespace
         }
       }
 
-      // // Check source is unchanged on rotation
-      // {
-      //   for (int i(4); i<d1.Nx-4; i++) {
-      //     for (int j(4); j<d1.Ny-4; j++) {
-      //       for (int k(4); k<d1.Nz-4; k++) {
-      //         // y->x
-      //         EXPECT_NEAR(d1.source[ID(0, i, j, k)], d2.source[ID(0, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(1, i, j, k)], d2.source[ID(2, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(2, i, j, k)], d2.source[ID(3, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(3, i, j, k)], d2.source[ID(1, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(4, i, j, k)], d2.source[ID(4, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(5, i, j, k)], d2.source[ID(6, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(6, i, j, k)], d2.source[ID(7, k, i, j)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(7, i, j, k)], d2.source[ID(5, k, i, j)], 1e-15);
-      //         //z->x
-      //         EXPECT_NEAR(d1.source[ID(0, i, j, k)], d3.source[ID(0, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(1, i, j, k)], d3.source[ID(3, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(2, i, j, k)], d3.source[ID(1, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(3, i, j, k)], d3.source[ID(2, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(4, i, j, k)], d3.source[ID(4, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(5, i, j, k)], d3.source[ID(7, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(6, i, j, k)], d3.source[ID(5, j, k, i)], 1e-15);
-      //         EXPECT_NEAR(d1.source[ID(7, i, j, k)], d3.source[ID(6, j, k, i)], 1e-15);
-      //         // z->y
-      //         EXPECT_NEAR(d2.source[ID(0, i, j, k)], d3.source[ID(0, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(1, i, j, k)], d3.source[ID(2, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(2, i, j, k)], d3.source[ID(3, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(3, i, j, k)], d3.source[ID(1, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(4, i, j, k)], d3.source[ID(4, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(5, i, j, k)], d3.source[ID(6, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(6, i, j, k)], d3.source[ID(7, i, k, j)], 1e-15);
-      //         EXPECT_NEAR(d2.source[ID(7, i, j, k)], d3.source[ID(5, i, k, j)], 1e-15);
-      //       }
-      //     }
-      //   }
-      // }
+      // Check source is unchanged on rotation
+      {
+        for (int i(4); i<d1.Nx-4; i++) {
+          for (int j(4); j<d1.Ny-4; j++) {
+            for (int k(4); k<d1.Nz-4; k++) {
+              // y->x
+              EXPECT_NEAR(d1.source[ID(0, i, j, k)], d2.source[ID(0, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(1, i, j, k)], d2.source[ID(2, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(2, i, j, k)], d2.source[ID(3, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(3, i, j, k)], d2.source[ID(1, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(4, i, j, k)], d2.source[ID(4, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(5, i, j, k)], d2.source[ID(6, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(6, i, j, k)], d2.source[ID(7, k, i, j)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(7, i, j, k)], d2.source[ID(5, k, i, j)], 1e-15);
+              //z->x
+              EXPECT_NEAR(d1.source[ID(0, i, j, k)], d3.source[ID(0, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(1, i, j, k)], d3.source[ID(3, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(2, i, j, k)], d3.source[ID(1, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(3, i, j, k)], d3.source[ID(2, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(4, i, j, k)], d3.source[ID(4, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(5, i, j, k)], d3.source[ID(7, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(6, i, j, k)], d3.source[ID(5, j, k, i)], 1e-15);
+              EXPECT_NEAR(d1.source[ID(7, i, j, k)], d3.source[ID(6, j, k, i)], 1e-15);
+              // z->y
+              EXPECT_NEAR(d2.source[ID(0, i, j, k)], d3.source[ID(0, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(1, i, j, k)], d3.source[ID(2, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(2, i, j, k)], d3.source[ID(3, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(3, i, j, k)], d3.source[ID(1, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(4, i, j, k)], d3.source[ID(4, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(5, i, j, k)], d3.source[ID(6, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(6, i, j, k)], d3.source[ID(7, i, k, j)], 1e-15);
+              EXPECT_NEAR(d2.source[ID(7, i, j, k)], d3.source[ID(5, i, k, j)], 1e-15);
+            }
+          }
+        }
+      }
 
 
 
@@ -1054,88 +1048,4 @@ namespace
 
 
 
-
-
-
-
-
-
-
-
-  // SLOWWWWWW
-  // TEST(RSGM, MemoryAllocation)
-  // /*
-  //   Ensure constructor allocates memory for all the necessary arrays
-  // */
-  // {
-  //   Data d(7, 5, 1, 0, 1, 0, 1, 0, 1, 0.4, 0.1, 4, 2, 50);
-  //   SRMHD model(&d);
-  //   Simulation sim(&d);
-  //   FVS fluxMethod(&d, &model);
-  //   ResistiveSGM subgridModel(&d, &fluxMethod);
-  //
-  //   for (int i(0); i<d.Nx; i++) {
-  //     for (int j(0); j<d.Ny; j++) {
-  //       for (int k(0); k<d.Nz; k++) {
-  //         printf("(%d, %d, %d)\n", i, j, k);
-  //         // dfxdw, dfydw, dfzdw
-  //         for (int l(0); l<d.Ncons; l++) {
-  //           for (int m(0); m<d.Nprims; m++) {
-  //             ASSERT_EXIT((deref(&subgridModel.dfxdw[IDFW(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //             ASSERT_EXIT((deref(&subgridModel.dfydw[IDFW(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //             ASSERT_EXIT((deref(&subgridModel.dfzdw[IDFW(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           }
-  //         }
-  //
-  //         // dwdsb
-  //         for (int l(0); l<d.Nprims; l++) {
-  //           for (int m(0); m<3; m++) {
-  //             ASSERT_EXIT((deref(&subgridModel.dwdsb[IDWS(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           }
-  //         }
-  //
-  //         // E
-  //         for (int l(0); l<3; l++) {
-  //             ASSERT_EXIT((deref(&subgridModel.E[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //         }
-  //
-  //         // q
-  //         ASSERT_EXIT((deref(&subgridModel.q[ID(0, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //
-  //         // K
-  //         for (int l(0); l<3; l++) {
-  //             ASSERT_EXIT((deref(&subgridModel.K[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //         }
-  //
-  //         // Mx, My, Mz
-  //         for (int l(0); l<d.Ncons; l++) {
-  //           for (int m(0); m<3; m++) {
-  //             ASSERT_EXIT((deref(&subgridModel.Mx[IDM(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //             ASSERT_EXIT((deref(&subgridModel.My[IDM(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //             ASSERT_EXIT((deref(&subgridModel.Mz[IDM(l, m, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           }
-  //         }
-  //
-  //         // Stiff flux x, y, z
-  //         for (int l(0); l<3; l++) {
-  //           ASSERT_EXIT((deref(&subgridModel.fx[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           ASSERT_EXIT((deref(&subgridModel.fy[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           ASSERT_EXIT((deref(&subgridModel.fz[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //         }
-  //
-  //         // Diffusion vector
-  //         for (int l(0); l<3; l++) {
-  //           ASSERT_EXIT((deref(&subgridModel.diffuX[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           ASSERT_EXIT((deref(&subgridModel.diffuY[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //           ASSERT_EXIT((deref(&subgridModel.diffuZ[ID(l, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //         }
-  //
-  //         // alpha
-  //         ASSERT_EXIT((deref(&subgridModel.alpha[ID(0, i, j, k)]), exit(0)), ::testing::ExitedWithCode(0),".*");
-  //       }
-  //     }
-  //   }
-  //
-  //
-  // }
 }

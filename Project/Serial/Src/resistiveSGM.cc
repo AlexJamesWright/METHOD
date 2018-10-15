@@ -11,6 +11,7 @@
 // Mx, My, and Mz matrix
 #define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
+void minmod(double * array, double * ahead, double * behind, double * source, double delta, int Nv, int Nx, int Ny, int Nz, int dir, Data * d);
 
 ResistiveSGM::ResistiveSGM(Data * data, FluxMethod * fluxMethod) : SubGridModel(data), fluxMethod(fluxMethod)
 {
@@ -73,54 +74,30 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   this->set_K(cons, prims, aux);
   this->set_dwdsb(cons, prims, aux);
 
-  // Determine the diffusion vectors
-  this->set_Dx(cons, prims, aux);
-
   // MINMOD
   // For this, I will use data->f and data->fnet as the ahead and behind
   // arrays, but will rename, saving on memory.
-  /* ##################################################################
-      This can be modified.
-      I do not need to store all ahead and behind. Store in a single variable at a time
-      and calculate as needed.
-      ################################################################*/
-
   double * ahead(d->f);
   double * behind(d->fnet);
 
-  // Do minmod on Dx to get gradient
-  for (int var(0); var<d->Ncons; var++) {
-    for (int i(0); i<d->Nx-1; i++) {
-      for (int j(0); j<d->Ny; j++) {
-        for (int k(0);k<d->Nz; k++) {
-          ahead[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / d->dx;
-          behind[ID(var, i+1, j, k)] = ahead[var, i, j, k];
-        }
-      }
+  // Do minmod on Da to get gradient and add to source
+  {
+    // Determine the diffusion vectors
+    this->set_Dx(cons, prims, aux);
+    minmod(diffuX, ahead, behind, source, d->dx, d->Ncons, d->Nx, d->Ny, d->Nz, 0, d);
+    if (d->dims>1)
+    {
+      this->set_Dy(cons, prims, aux);
+      minmod(diffuY, ahead, behind, source, d->dy, d->Ncons, d->Nx, d->Ny, d->Nz, 1, d);
     }
-    for (int i(0); i<d->Nx-1; i++) {
-      for (int j(0); j<d->Ny; j++) {
-        for (int k(0);k<d->Nz; k++) {
-          if (ahead[ID(var, i, j, k)]*behind[ID(var, i, j, k)] > 0) {
-            if (fabs(ahead[ID(var, i, j, k)]) < fabs(behind[ID(var, i, j, k)]))
-              source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
-            else
-              source[ID(var, i, j, k)] += behind[ID(var, i, j, k)];
-          }
-        }
-      }
+    if (d->dims==3)
+    {
+      this->set_Dz(cons, prims, aux);
+      minmod(diffuZ, ahead, behind, source, d->dz, d->Ncons, d->Nx, d->Ny, d->Nz, 2, d);
     }
   }
 
 
-  // TODO
-  // Continue with minmod for Y and Z directions. Should then be done!
-
-
-
-
-  // Determine Dx (and Dy and Dz if multi-dimensional domain)
-  // Apply MidMod to gradient and add to source vector.
 }
 
 void ResistiveSGM::reset(double * source)
@@ -328,6 +305,8 @@ void ResistiveSGM::set_Dy(double * cons, double * prims, double * aux)
   Data * d(this->data);
 
   this->set_dfydw(cons, prims, aux);
+
+
   // My = -1 * DOT(dfydw, dwdsb)
   for (int l(0); l<9; l++) {
     for (int m(0); m<3; m++) {
@@ -362,7 +341,7 @@ void ResistiveSGM::set_Dz(double * cons, double * prims, double * aux)
   // Syntax
   Data * d(this->data);
 
-  this->set_dfydw(cons, prims, aux);
+  this->set_dfzdw(cons, prims, aux);
   // Mz = -1 * DOT(dfzdw, dwdsb)
   for (int l(0); l<9; l++) {
     for (int m(0); m<3; m++) {
@@ -635,6 +614,97 @@ void ResistiveSGM::set_dfzdw(double * cons, double * prims, double * aux)
         dfzdw[IDFW(8, 10, i, j, k)] = d->sigma;
         dfzdw[IDFW(8, 11, i, j, k)] = prims[ID(3, i, j, k)];
 
+      }
+    }
+  }
+}
+
+
+void minmod(double * array, double * ahead, double * behind, double * source, double delta, int Nv, int Nx, int Ny, int Nz, int dir, Data * d)
+{
+
+  /* ##################################################################
+      This can be optimised.
+      I do not need to store all ahead and behind. Store in a single variable at a time
+      and calculate as needed.
+      ################################################################*/
+
+  if (dir == 0)
+  {
+    for (int var(0); var<Nv; var++) {
+      for (int i(0); i<d->Nx-1; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0);k<d->Nz; k++) {
+            ahead[ID(var, i, j, k)] = (array[ID(var, i+1, j, k)] - array[ID(var, i, j, k)]) / delta;
+            behind[ID(var, i+1, j, k)] = ahead[ID(var, i, j, k)];
+          }
+        }
+      }
+      for (int i(0); i<d->Nx-1; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0);k<d->Nz; k++) {
+            if (ahead[ID(var, i, j, k)]*behind[ID(var, i, j, k)] > 0) {
+              if (fabs(ahead[ID(var, i, j, k)]) < fabs(behind[ID(var, i, j, k)]))
+                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
+              else
+                source[ID(var, i, j, k)] += behind[ID(var, i, j, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  else if (dir == 1)
+  {
+    for (int var(0); var<Nv; var++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny-1; j++) {
+          for (int k(0);k<d->Nz; k++) {
+            ahead[ID(var, i, j, k)] = (array[ID(var, i, j+1, k)] - array[ID(var, i, j, k)]) / delta;
+            behind[ID(var, i, j+1, k)] = ahead[ID(var, i, j, k)];
+          }
+        }
+      }
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny-1; j++) {
+          for (int k(0);k<d->Nz; k++) {
+            if (ahead[ID(var, i, j, k)]*behind[ID(var, i, j, k)] > 0) {
+              if (fabs(ahead[ID(var, i, j, k)]) < fabs(behind[ID(var, i, j, k)]))
+                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
+              else
+                source[ID(var, i, j, k)] += behind[ID(var, i, j, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  else
+  {
+    for (int var(0); var<Nv; var++) {
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0); k<d->Nz-1; k++) {
+            ahead[ID(var, i, j, k)] = (array[ID(var, i, j, k+1)] - array[ID(var, i, j, k)]) / delta;
+            behind[ID(var, i, j, k+1)] = ahead[ID(var, i, j, k)];
+          }
+        }
+      }
+      for (int i(0); i<d->Nx; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0);k<d->Nz-1; k++) {
+            if (ahead[ID(var, i, j, k)]*behind[ID(var, i, j, k)] > 0) {
+              if (fabs(ahead[ID(var, i, j, k)]) < fabs(behind[ID(var, i, j, k)]))
+                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
+              else
+                source[ID(var, i, j, k)] += behind[ID(var, i, j, k)];
+            }
+          }
+        }
       }
     }
   }
