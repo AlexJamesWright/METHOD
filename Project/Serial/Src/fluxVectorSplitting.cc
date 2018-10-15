@@ -112,7 +112,7 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
   double *fx, *fy, *fz;
 
   // 3D domain, loop over all cells determining the net flux
-  if (d->dims==2)
+  if (d->dims==3)
   {
     fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
@@ -142,7 +142,7 @@ void FVS::F(double * cons, double * prims, double * aux, double * f, double * fn
 
 
   // 2D domain, loop over x- and y-directions determining the net flux
-  else if (d->dims==1)
+  else if (d->dims==2)
   {
     fx = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
     fy = (double *) malloc(sizeof(double) * d->Nx * d->Ny * d->Nz * d->Ncons);
