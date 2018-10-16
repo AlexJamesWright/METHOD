@@ -96,6 +96,16 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
       minmod(diffuZ, ahead, behind, source, d->dz, d->Ncons, d->Nx, d->Ny, d->Nz, 2, d);
     }
   }
+
+  // NOTE: cons[8] if phi, not qch. So set source[8] to zero
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+        source[ID(8, i, j, k)] = 0.0;
+      }
+    }
+  }
+
 }
 
 void ResistiveSGM::reset(double * source)
