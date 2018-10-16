@@ -159,7 +159,7 @@ resistiveSGM.o : $(MODULE_DIR)/resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
+	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

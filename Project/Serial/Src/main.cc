@@ -13,7 +13,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <omp.h>
+#include <ctime>
 #include <iostream>
 #include <cstring>
 
@@ -28,25 +28,25 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(512);
-  int ny(1024);
+  int nx(256);
+  int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(-1.5);
+  double xmax(1.5);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(6.0);
+  double endTime(9);
   double cfl(0.3);
   double gamma(4.0/3.0);
-  double sigma(10);
+  double sigma(100);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(195);
-  bool output(true);
-  int safety(100);
+  bool output(false);
+  int safety(9999999999999);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data);
+  CurrentSheetSingleFluid init(&data);
 
   Outflow bcs(&data);
 
@@ -71,12 +71,12 @@ int main(int argc, char *argv[]) {
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   // Time execution of programme
-  double startTime(omp_get_wtime());
+  clock_t startTime(clock());
 
   // Run until end time and save results
   sim.evolve(output, safety);
 
-  double timeTaken(omp_get_wtime() - startTime);
+  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
   printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
