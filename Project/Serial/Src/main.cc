@@ -28,25 +28,25 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(100);
-  int ny(0);
+  int nx(512);
+  int ny(1024);
   int nz(0);
-  double xmin(0.0);
-  double xmax(1.0);
+  double xmin(-0.5);
+  double xmax(0.5);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.4);
-  double cfl(0.5);
-  double gamma(2.0);
-  double sigma(100);
+  double endTime(6.0);
+  double cfl(0.3);
+  double gamma(4.0/3.0);
+  double sigma(10);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(60);
-  bool output(false);
-  int safety(999999);
+  int frameSkip(195);
+  bool output(true);
+  int safety(100);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -60,12 +60,11 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data);
 
   Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 

@@ -326,7 +326,7 @@ class InteractivePlot(object):
 
             if color==None:
                 color = cm.afmhot
-            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic')
+            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
             plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
             plt.xlabel(axisLabel2)
             plt.ylabel(axisLabel1)
@@ -602,4 +602,4 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotSlice('prims')
+    Plot.plotHeatMaps()

@@ -10,10 +10,12 @@ using namespace std;
 
 void SaveData::saveAll(bool timeSeries)
 {
+  // Clean directory variable
+  dir[0] = '\0';
   // Determine the directory to write files to
   if (test)
     strcpy(dir, "../../");
-  if (!timeSeries) {
+  if (!timeSeries && strcmp(dir, "Data/Final")!=0) {
     strcat(dir, "Data/Final");
     app[0]=0;
   }

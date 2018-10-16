@@ -48,16 +48,16 @@ ResistiveSGM::~ResistiveSGM()
   delete[] dwdsb;
   delete[] E;
   delete[] q;
-  delete[] K; //
-  delete[] Mx; //
-  delete[] My; //
-  delete[] Mz; //
+  delete[] K;
+  delete[] Mx;
+  delete[] My;
+  delete[] Mz;
   delete[] fx;
   delete[] fy;
   delete[] fz;
-  delete[] diffuX; //
-  delete[] diffuY; //
-  delete[] diffuZ; //
+  delete[] diffuX;
+  delete[] diffuY;
+  delete[] diffuZ;
   delete[] alpha;
 }
 
