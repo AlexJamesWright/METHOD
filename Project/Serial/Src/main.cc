@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(256);
-  int ny(512);
+  int nx(128);
+  int ny(256);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -44,9 +44,19 @@ int main(int argc, char *argv[]) {
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(70);
+  int frameSkip(35);
   bool output(true);
   int safety(100);
+
+
+  char * ptr(0);
+  double tmp(0);
+  //! Overwrite any variables that have been passed in as main() arguments
+  for (int i(0); i < argc; i++) {
+    if (strcmp(argv[i], "sigma") == 0 && tmp!=0) {
+      sigma = (double)strtol(argv[i+1], &ptr, 10);
+    }
+  }
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -56,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  //ResistiveSGM subgridModel(&data, &fluxMethod);
+  ResistiveSGM subgridModel(&data, &fluxMethod);
 
   Simulation sim(&data);
 

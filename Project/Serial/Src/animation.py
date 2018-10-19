@@ -94,7 +94,7 @@ if __name__ == '__main__':
     
     plt.colorbar()
     plt.show()
-#    ani.save('Output.gif', writer='imagemagick', fps=20)
+    ani.save('Output.gif', writer='imagemagick', fps=20)
     
     
     
