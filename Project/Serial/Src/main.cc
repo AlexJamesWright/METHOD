@@ -29,24 +29,24 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(256);
-  int ny(0);
+  int ny(512);
   int nz(0);
-  double xmin(-1.5);
-  double xmax(1.5);
+  double xmin(-0.5);
+  double xmax(0.5);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(9);
-  double cfl(0.3);
+  double endTime(6.0);
+  double cfl(0.4);
   double gamma(4.0/3.0);
   double sigma(100);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(195);
-  bool output(false);
-  int safety(9999999999999);
+  int frameSkip(70);
+  bool output(true);
+  int safety(100);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -56,15 +56,16 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  ResistiveSGM subgridModel(&data, &fluxMethod);
+  //ResistiveSGM subgridModel(&data, &fluxMethod);
 
   Simulation sim(&data);
 
-  CurrentSheetSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
-  Outflow bcs(&data);
+  Flow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
+//  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 

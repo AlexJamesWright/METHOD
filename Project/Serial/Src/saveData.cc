@@ -292,9 +292,9 @@ void SaveData::saveVar(string variable, int num)
     }
     else {
       ofstream info;
-      strcat(fname, dir);
-      strcat(fname, "info");
-      info.open(fname, ios::app);
+      // strcat(fname, dir);
+      // strcat(fname, "info");
+      info.open("Data/TimeSeries/UserDef/info", ios::app);
       info << variable << endl;
       info.close();
     }
