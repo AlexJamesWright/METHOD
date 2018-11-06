@@ -31,3 +31,5 @@ cleanData.sh
 ProfileParallel.nvvp
 
 slurm*
+
+build
