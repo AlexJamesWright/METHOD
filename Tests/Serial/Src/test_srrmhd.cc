@@ -27,6 +27,7 @@ TEST(SRRMHD, Constructor)
 
 TEST(SRRMHD, FluxVectorSplittingStationary)
 {
+  double tol(1.0e-15);
   // Set up
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRRMHD model(&d);
@@ -61,7 +62,7 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, tol);
         }
       }
     }
@@ -72,7 +73,7 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, tol);
         }
       }
     }
@@ -83,7 +84,7 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, tol);
         }
       }
     }
