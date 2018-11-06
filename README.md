@@ -18,6 +18,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 </pre>
 
 [![Build Status](https://travis-ci.org/AlexJamesWright/METHOD.svg?branch=master)](https://travis-ci.org/AlexJamesWright/METHOD)
+[![Coverage Status](https://coveralls.io/repos/github/AlexJamesWright/METHOD/badge.svg?branch=master)](https://coveralls.io/github/AlexJamesWright/METHOD?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/method/badge/?version=latest)](https://method.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/105871037.svg)](http://doi.org/10.5281/zenodo.1404697)
 
