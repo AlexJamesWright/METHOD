@@ -63,7 +63,7 @@ TEST(SRMHD, FluxVectorSplittingStationary)
     }
   }
   // y-direction
-  fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+  fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 1);
   for (int i(d.Ng); i < d.Nx-d.Ng; i++) {
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
@@ -74,7 +74,7 @@ TEST(SRMHD, FluxVectorSplittingStationary)
     }
   }
   // z-direction
-  fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
+  fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 2);
   for (int i(d.Ng); i < d.Nx-d.Ng; i++) {
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {

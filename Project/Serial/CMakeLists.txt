@@ -10,7 +10,6 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/IMEX2Args.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/IMEX3Args.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/initFunc.cc
-      ${CMAKE_CURRENT_LIST_DIR}/Src/resistiveSGM.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/RK2.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/rkSplit.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/saveData.cc
@@ -44,7 +43,6 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/IMEX3Args.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/initFunc.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/model.h
-    ${CMAKE_CURRENT_LIST_DIR}/Include/resistiveSGM.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/RK2.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/rkSplit.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/saveData.h
