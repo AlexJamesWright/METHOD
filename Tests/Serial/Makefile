@@ -63,7 +63,7 @@ RTFIND = buildRootfinder
 
 test : $(RTFIND) $(TESTS)
 	# Run all tests
-	@$(foreach exe, $(TESTS), ./$(exe);)
+	$(foreach exe, $(TESTS), ./$(exe);)
 
 all : $(RTFIND) $(TESTS)
 

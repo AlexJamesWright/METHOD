@@ -1,12 +1,12 @@
 add_executable(
     unit_tests
-    test_srmhd.cc
-    test_boundaryConds.cc
-    test_cminpack.cc
-    test_initFunc.cc
     test_simulation.cc
-    test_srrmhd.cc
+    test_srmhd.cc
+    test_initFunc.cc
+    test_cminpack.cc
+    test_boundaryConds.cc
     test_twoFluidEMHD.cc
+    test_srrmhd.cc
     )
 
 target_link_libraries(
