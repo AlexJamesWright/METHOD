@@ -36,11 +36,7 @@ CPPFLAGS = -isystem $(GTEST_DIR)/include
 # c++11 is required for the vector looping srmhd
 # First four required to get the c++11 standard to compile with NVIDIA, dont ask me why,
 # found the solution on https://github.com/NVIDIA/nccl/issues/29
-CXXFLAGS = -std=c++11	\
-					 -D_MWAITXINTRIN_H_INCLUDED \
-					 -D_FORCE_INLINES \
-					 -D__STRICT_ANSI__ \
-					 -DBUILD_SHARED_LIBS
+CXXFLAGS = -std=c++11
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.

@@ -12,7 +12,7 @@ script:
   - cmake -H. -Bbuild
   - cd build
   - cmake --build .
-  - ctest
+  - ./bin/unit_tests
 
 notifications:
-  email: false
+  email: true
