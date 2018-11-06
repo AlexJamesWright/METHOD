@@ -9,6 +9,7 @@ int counter(0);
 #include "twoFluidEMHD.h"
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 

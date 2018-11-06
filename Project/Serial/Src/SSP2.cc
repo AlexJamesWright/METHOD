@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
+#include <cstdlib>
 
 
 // Macro for getting array index

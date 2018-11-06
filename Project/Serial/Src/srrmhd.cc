@@ -9,6 +9,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include <cstdlib>
 #include <cmath>
 #include "srrmhd.h"
 #include "cminpack.h"
