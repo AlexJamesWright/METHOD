@@ -67,8 +67,8 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   Data * d(this->data);
 
   // Zero arrays and set vars
-  this->set_vars(cons, prims, aux);
   this->reset(source);
+  this->set_vars(cons, prims, aux);
 
   // Ensure K and dwdsb are set
   this->set_K(cons, prims, aux);
@@ -498,15 +498,6 @@ void ResistiveSGM::set_dfxdw(double * cons, double * prims, double * aux)
         dfxdw[IDFW(6, 10, i, j, k)] = -1;
         // Row 7
         dfxdw[IDFW(7, 9, i, j, k)] = 1;
-        // Row 8
-        // dfxdw[IDFW(8, 1, i, j, k)] = q[ID(0, i, j, k)];
-        // dfxdw[IDFW(8, 2, i, j, k)] = d->sigma*prims[ID(7, i, j, k)];
-        // dfxdw[IDFW(8, 3, i, j, k)] = -d->sigma*prims[ID(6, i, j, k)];
-        // dfxdw[IDFW(8, 6, i, j, k)] = -d->sigma*prims[ID(3, i, j, k)];
-        // dfxdw[IDFW(8, 7, i, j, k)] = d->sigma*prims[ID(2, i, j, k)];
-        // dfxdw[IDFW(8, 8, i, j, k)] = d->sigma;
-        // dfxdw[IDFW(8, 11, i, j, k)] = prims[ID(1, i, j, k)];
-
       }
     }
   }
@@ -553,15 +544,6 @@ void ResistiveSGM::set_dfydw(double * cons, double * prims, double * aux)
         dfydw[IDFW(5, 10, i, j, k)] = 1;
         // Row 7
         dfydw[IDFW(7, 8, i, j, k)] = -1;
-        // Row 8
-        // dfydw[IDFW(8, 1, i, j, k)] = -d->sigma*prims[ID(7, i, j, k)];
-        // dfydw[IDFW(8, 2, i, j, k)] = q[ID(0, i, j, k)];
-        // dfydw[IDFW(8, 3, i, j, k)] = d->sigma*prims[ID(5, i, j, k)];
-        // dfydw[IDFW(8, 5, i, j, k)] = d->sigma*prims[ID(3, i, j, k)];
-        // dfydw[IDFW(8, 7, i, j, k)] = -d->sigma*prims[ID(1, i, j, k)];
-        // dfydw[IDFW(8, 9, i, j, k)] = d->sigma;
-        // dfydw[IDFW(8, 11, i, j, k)] = prims[ID(2, i, j, k)];
-
       }
     }
   }
@@ -608,15 +590,6 @@ void ResistiveSGM::set_dfzdw(double * cons, double * prims, double * aux)
         dfzdw[IDFW(5, 9, i, j, k)] = -1;
         // Row 7
         dfzdw[IDFW(6, 8, i, j, k)] = 1;
-        // Row 8
-        // dfzdw[IDFW(8, 1, i, j, k)] = d->sigma*prims[ID(6, i, j, k)];
-        // dfzdw[IDFW(8, 2, i, j, k)] = - d->sigma*prims[ID(5, i, j, k)];
-        // dfzdw[IDFW(8, 3, i, j, k)] = q[ID(0, i, j, k)];
-        // dfzdw[IDFW(8, 5, i, j, k)] = -d->sigma*prims[ID(2, i, j, k)];
-        // dfzdw[IDFW(8, 6, i, j, k)] = d->sigma*prims[ID(1, i, j, k)];
-        // dfzdw[IDFW(8, 10, i, j, k)] = d->sigma;
-        // dfzdw[IDFW(8, 11, i, j, k)] = prims[ID(3, i, j, k)];
-
       }
     }
   }

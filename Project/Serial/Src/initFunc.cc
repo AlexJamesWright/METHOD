@@ -173,12 +173,11 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
   const double p(50.0);
-  // double tmp1, tmp2;
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -189,8 +188,6 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data
       }
     }
   }
-  printf("By[14391] = %19.16f\n", d->prims[ID(6, 14391, 0, 0)]);
-  printf("x = %19.16f\n, B0 = %19.16f\nsigma = %19.16f\nsqrt = %19.16f\n", d->x[14391], B0, d->sigma, sqrt(d->sigma));
 }
 
 

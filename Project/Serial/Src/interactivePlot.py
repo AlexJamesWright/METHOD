@@ -395,7 +395,7 @@ class InteractivePlot(object):
             ylower = ymin - 0.025 * rangeY
             yupper = ymax + 0.025 * rangeY
             xs = np.linspace(left + step/2, right - step/2, n)
-            plt.plot(xs, plotVars)
+            plt.plot(xs, plotVars, label='{}'.format(dataLabels[i]))
             plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
             plt.xlabel(axisLabel)
             plt.ylabel(r'$q_{}(x)$'.format(i+1))
@@ -458,6 +458,30 @@ class InteractivePlot(object):
         plt.legend(loc='upper left')
         plt.show()
         #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
+
+        
+    def plotSingleFluidCurrentSheetAgainstExact(self):
+        """
+        The current sheet has an analytical solution for the y-direction magnetic
+        field. This is plotted against the given B-field.
+        """
+        By = self.cons[6]
+        c = self.c
+        plt.figure()
+        ny = self.c['Ny'] // 2
+        xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
+        exact = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
+        initial = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 ))
+        plt.plot(xs, By[c['Ng']:-c['Ng'], ny, 0], label='Numerical')
+        plt.plot(xs, exact, 'k--', label='Exact')
+        plt.plot(xs, initial, label='Initial')
+        plt.xlim([c['xmin'], c['xmax']])
+        plt.ylim([-1.2, 1.2])
+        plt.xlabel(r'$x$')
+        plt.ylabel(r'$B_y$')
+        plt.title(r'Comparison of exact and numerical $B_y$ at $t={:.4f}$'.format(c['t']+1))
+        plt.legend(loc='upper left')
+        plt.show()
 
     def plotTwoFluidCPAlfvenWaveAgainstExact(self):
         """
@@ -602,4 +626,4 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotHeatMaps()
+    Plot.plotSingleFluidCurrentSheetAgainstExact()

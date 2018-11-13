@@ -4,6 +4,9 @@
 #include "simulation.h"
 #include "fluxVectorSplitting.h"
 #include "resistiveSGM.h"
+#include "rkSplit.h"
+#include "initFunc.h"
+#include "boundaryConds.h"
 
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
@@ -42,20 +45,24 @@ TEST(RSGM, Reset)
       for (int k(0); k<d.Nz; k++) {
 
         // Set K as non-zero
-        subgridModel.K[ID(0, i, j, k)] = 4.0;
-        EXPECT_NEAR(subgridModel.K[ID(0, i, j, k)], 4.0, 1e-15);
+        for (int var(0); var<3; var++) {
+          subgridModel.K[ID(var, i, j, k)] = 4.0;
+          EXPECT_NEAR(subgridModel.K[ID(var, i, j, k)], 4.0, 1e-15);
+        }
         // Set source as nonzero
         for (int var(0); var<d.Ncons; var++) {
           d.source[ID(var, i, j, k)] = 4.0;
+          EXPECT_NEAR(d.source[ID(var, i, j, k)], 4.0, 1e-15);
+        }
+        for (int var(0); var<8; var++) {
           subgridModel.diffuX[ID(var, i, j, k)] = 4.0;
           subgridModel.diffuY[ID(var, i, j, k)] = 4.0;
           subgridModel.diffuZ[ID(var, i, j, k)] = 4.0;
-          EXPECT_NEAR(d.source[ID(var, i, j, k)], 4.0, 1e-15);
           EXPECT_NEAR(subgridModel.diffuX[ID(var, i, j, k)], 4.0, 1e-15);
           EXPECT_NEAR(subgridModel.diffuY[ID(var, i, j, k)], 4.0, 1e-15);
           EXPECT_NEAR(subgridModel.diffuZ[ID(var, i, j, k)], 4.0, 1e-15);
         }
-        for (int l(0); l<9; l++) {
+        for (int l(0); l<8; l++) {
           for (int m(0); m<3; m++) {
             subgridModel.Mx[IDM(l, m, i, j, k)] = 4.0;
             subgridModel.My[IDM(l, m, i, j, k)] = 4.0;
@@ -75,16 +82,18 @@ TEST(RSGM, Reset)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        // Set K as non-zero
-        EXPECT_NEAR(subgridModel.K[ID(0, i, j, k)], 0.0, 1e-15);
-        // Set source as nonzero
+        for (int var(0); var<3; var++) {
+          EXPECT_NEAR(subgridModel.K[ID(var, i, j, k)], 0.0, 1e-15);
+        }
         for (int var(0); var<d.Ncons; var++) {
           EXPECT_NEAR(d.source[ID(var, i, j, k)], 0.0, 1e-15);
+        }
+        for (int var(0); var<8; var++) {
           EXPECT_NEAR(subgridModel.diffuX[ID(var, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.diffuY[ID(var, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.diffuZ[ID(var, i, j, k)], 0.0, 1e-15);
         }
-        for (int l(0); l<9; l++) {
+        for (int l(0); l<8; l++) {
           for (int m(0); m<3; m++) {
             EXPECT_NEAR(subgridModel.Mx[IDM(l, m, i, j, k)], 0.0, 1e-15);
             EXPECT_NEAR(subgridModel.My[IDM(l, m, i, j, k)], 0.0, 1e-15);
@@ -569,18 +578,18 @@ TEST(RSGM, DataAssignment3D)
           EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.dfxdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
           // Row 8
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 1, i, j, k)], 0.23, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 2, i, j, k)], 50*0.44, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 3, i, j, k)], -50*0.33, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 6, i, j, k)], -50*0.61, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 7, i, j, k)], 50*0.51, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 8, i, j, k)], 50, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 11, i, j, k)], 0.41, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 1, i, j, k)], 0.23, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 2, i, j, k)], 50*0.44, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 3, i, j, k)], -50*0.33, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 5, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 6, i, j, k)], -50*0.61, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 7, i, j, k)], 50*0.51, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 8, i, j, k)], 50, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfxdw[IDFW(8, 11, i, j, k)], 0.41, 1e-15);
         }
       }
     }
@@ -698,18 +707,18 @@ TEST(RSGM, DataAssignment3D)
           EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.dfydw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
           // Row 8
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 1, i, j, k)], -50*0.44, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 2, i, j, k)], 0.23, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 3, i, j, k)], 50*0.22, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 5, i, j, k)], 50*0.61, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 6, i, j, k)], 0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 7, i, j, k)], -50*0.41, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 9, i, j, k)], 50, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 11, i, j, k)], 0.51, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 1, i, j, k)], -50*0.44, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 2, i, j, k)], 0.23, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 3, i, j, k)], 50*0.22, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 5, i, j, k)], 50*0.61, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 6, i, j, k)], 0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 7, i, j, k)], -50*0.41, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 9, i, j, k)], 50, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
+          // EXPECT_NEAR(subgridModel.dfydw[IDFW(8, 11, i, j, k)], 0.51, 1e-15);
         }
       }
     }
@@ -827,19 +836,6 @@ TEST(RSGM, DataAssignment3D)
           EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 9, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
           EXPECT_NEAR(subgridModel.dfzdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
-          // Row 8
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 1, i, j, k)], 50*0.33, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 2, i, j, k)], -50*0.22, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 3, i, j, k)], 0.23, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 5, i, j, k)], -50*0.51, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 6, i, j, k)], 50*0.41, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 10, i, j, k)], 50, 1e-15);
-          EXPECT_NEAR(subgridModel.dfzdw[IDFW(8, 11, i, j, k)], 0.61, 1e-15);
         }
       }
     }
