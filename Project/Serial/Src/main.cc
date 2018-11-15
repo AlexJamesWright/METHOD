@@ -19,7 +19,6 @@
 
 #define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
 
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -28,16 +27,16 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(128);
+  int nx(10);
   int ny(10);
-  int nz(0);
+  int nz(10);
   double xmin(-1.5);
   double xmax(1.5);
-  double ymin(-1.0);
-  double ymax(1.0);
-  double zmin(0.0);
-  double zmax(1.0);
-  double endTime(7.0);
+  double ymin(-1.5);
+  double ymax(1.5);
+  double zmin(-1.5);
+  double zmax(1.5);
+  double endTime(0.1);
   double cfl(0.4);
   double gamma(2.0);
   double sigma(100);
@@ -70,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  CurrentSheetSingleFluid init(&data);
+  CurrentSheetSingleFluid init(&data, 0);
 
   Outflow bcs(&data);
 

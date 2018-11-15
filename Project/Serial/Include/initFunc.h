@@ -101,9 +101,10 @@ class CurrentSheetSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
+      @oaram[in] direction the axis the magnetic field is along (default is x)
       @sa InitialFunc
     */
-    CurrentSheetSingleFluid(Data * data);
+    CurrentSheetSingleFluid(Data * data, int direction=0);
 };
 
 

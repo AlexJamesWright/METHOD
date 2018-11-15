@@ -279,5 +279,5 @@ test_resistiveSGM.o : $(TEST_DIR)/test_resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
 										$(GTEST_HEADERS)
 		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_resistiveSGM.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_resistiveSGM : srmhd.o test_resistiveSGM.o resistiveSGM.o simData.o saveData.o fluxVectorSplitting.o simulation.o $(RTFIND_OBJS) weno.o gtest_main.a
+test_resistiveSGM : srmhd.o test_resistiveSGM.o resistiveSGM.o initFunc.o  RK2.o rkSplit.o boundaryConds.o simData.o saveData.o fluxVectorSplitting.o simulation.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@

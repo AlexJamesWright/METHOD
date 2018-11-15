@@ -167,7 +167,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
 }
 
 
-CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data)
+CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data, int direction) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
@@ -184,7 +184,12 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data
       for (int k(0); k < d->Nz; k++) {
         d->prims[ID(0, i, j, k)] = rho;
         d->prims[ID(4, i, j, k)] = p;
-        d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
+        if (direction == 0)
+          d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
+        if (direction == 1)
+          d->prims[ID(7, i, j, k)] = B0 * erf(0.5 * d->y[j] * sqrt(d->sigma));
+        if (direction == 2)
+          d->prims[ID(5, i, j, k)] = B0 * erf(0.5 * d->z[k] * sqrt(d->sigma));
       }
     }
   }

@@ -7,6 +7,7 @@
 #include "rkSplit.h"
 #include "initFunc.h"
 #include "boundaryConds.h"
+#include <cstdio>
 
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
@@ -1022,6 +1023,140 @@ TEST(RSGM, RotationallyInvariant)
             EXPECT_NEAR(d2.source[ID(6, i, j, k)], d3.source[ID(7, i, k, j)], 1e-15);
             EXPECT_NEAR(d2.source[ID(7, i, j, k)], d3.source[ID(5, i, k, j)], 1e-15);
           }
+        }
+      }
+    }
+  }
+
+  TEST(RSGM, YAxisSymmetries)
+  {
+    Data d(10, 10, 0, -1.5, 1.5, -1, 1, -1, 1, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    // Choose particulars of simulation
+    SRMHD model(&d);
+    FVS fluxMethod(&d, &model);
+    ResistiveSGM subgridModel(&d, &fluxMethod);
+    Simulation sim(&d);
+    CurrentSheetSingleFluid init(&d);
+    Outflow bcs(&d);
+    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &subgridModel);
+    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+    sim.evolve();
+
+    for (int var(0); var<d.Nprims; var++) {
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny-1; j++) {
+          for (int k(0); k<d.Nz; k++) {
+            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j+1, k)], 1e-15);
+          }
+        }
+      }
+    }
+  }
+
+  TEST(RSGM, ZAxisSymmetries)
+  {
+    Data d(10, 10, 10, -1.5, 1.5, -1, 1, -1, 1, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    // Choose particulars of simulation
+    SRMHD model(&d);
+    FVS fluxMethod(&d, &model);
+    ResistiveSGM subgridModel(&d, &fluxMethod);
+    Simulation sim(&d);
+    CurrentSheetSingleFluid init(&d);
+    Outflow bcs(&d);
+    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &subgridModel);
+    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+    sim.evolve();
+
+    for (int var(0); var<d.Nprims; var++) {
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny; j++) {
+          for (int k(0); k<d.Nz-1; k++) {
+            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j, k+1)], 1e-15);
+          }
+        }
+      }
+    }
+  }
+
+  TEST(RSGM, YZAxisSymmetries)
+  {
+    Data d(10, 10, 10, -1.5, 1.5, -1, 1, -1, 1, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    // Choose particulars of simulation
+    SRMHD model(&d);
+    FVS fluxMethod(&d, &model);
+    ResistiveSGM subgridModel(&d, &fluxMethod);
+    Simulation sim(&d);
+    CurrentSheetSingleFluid init(&d);
+    Outflow bcs(&d);
+    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &subgridModel);
+    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+    sim.evolve();
+
+    for (int var(0); var<d.Nprims; var++) {
+      for (int i(0); i<d.Nx; i++) {
+        for (int j(0); j<d.Ny-1; j++) {
+          for (int k(0); k<d.Nz-1; k++) {
+            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j+1, k+1)], 1e-15);
+          }
+        }
+      }
+    }
+  }
+
+
+  TEST(RSGM, RotSymmetries)
+  {
+    Data d(10, 10, 10, -1.5, 1.5, -1.5, 1.5, -1.5, 1.5, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    Data dA(10, 10, 10, -1.5, 1.5, -1.5, 1.5, -1.5, 1.5, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    SRMHD modelA(&dA);
+    FVS fluxMethodA(&dA, &modelA);
+    ResistiveSGM subgridModelA(&dA, &fluxMethodA);
+    Simulation simA(&dA);
+    CurrentSheetSingleFluid initA(&dA, 0);
+    Outflow bcsA(&dA);
+    RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &subgridModelA);
+    simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
+
+    Data dB(10, 10, 10, -1.5, 1.5, -1.5, 1.5, -1.5, 1.5, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    SRMHD modelB(&dB);
+    FVS fluxMethodB(&dB, &modelB);
+    ResistiveSGM subgridModelB(&dB, &fluxMethodB);
+    Simulation simB(&dB);
+    CurrentSheetSingleFluid initB(&dB, 1);
+    Outflow bcsB(&dB);
+    RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &subgridModelB);
+    simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
+
+    Data dC(10, 10, 10, -1.5, 1.5, -1.5, 1.5, -1.5, 1.5, 0.1,
+              0.4, 4, 2.0, 100.0, 0.1);
+    SRMHD modelC(&dC);
+    FVS fluxMethodC(&dC, &modelC);
+    ResistiveSGM subgridModelC(&dC, &fluxMethodC);
+    Simulation simC(&dC);
+    CurrentSheetSingleFluid initC(&dC, 2);
+    Outflow bcsC(&dC);
+    RKSplit timeIntC(&dC, &modelC, &bcsC, &fluxMethodC, &subgridModelC);
+    simC.set(&initC, &modelC, &timeIntC, &bcsC, &fluxMethodC, NULL);
+
+    simA.evolve();
+    simB.evolve();
+    simC.evolve();
+
+    for (int i(0); i<dA.Nx; i++) {
+      for (int j(0); j<dA.Ny; j++) {
+        for (int k(0); k<dA.Nz; k++) {
+          EXPECT_NEAR(dA.cons[ID(6, i, j, k)], dB.cons[ID(7, k, i, j)], 1e-15);
+          EXPECT_NEAR(dA.cons[ID(6, i, j, k)], dC.cons[ID(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(dB.cons[ID(7, k, i, j)], dC.cons[ID(5, j, k, i)], 1e-15);
         }
       }
     }

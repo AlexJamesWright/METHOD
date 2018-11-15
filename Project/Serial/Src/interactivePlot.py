@@ -460,21 +460,32 @@ class InteractivePlot(object):
         #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
 
         
-    def plotSingleFluidCurrentSheetAgainstExact(self):
+    def plotSingleFluidCurrentSheetAgainstExact(self, direction=0):
         """
         The current sheet has an analytical solution for the y-direction magnetic
         field. This is plotted against the given B-field.
         """
-        By = self.cons[6]
         c = self.c
         plt.figure()
+        nx = self.c['Nx'] // 2
         ny = self.c['Ny'] // 2
-        xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
-        exact = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
-        initial = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 ))
-        plt.plot(xs, By[c['Ng']:-c['Ng'], ny, 0], label='Numerical')
-        plt.plot(xs, exact, 'k--', label='Exact')
-        plt.plot(xs, initial, label='Initial')
+        nz = self.c['Nz'] // 2
+        
+        if direction == 0:
+            B = self.cons[6, c['Ng']:-c['Ng'], ny, nz]
+            x = np.linspace(c['xmin'], c['xmax'], c['nx'])
+        elif direction == 1:
+            B = self.cons[7, nx, c['Ng']:-c['Ng'], nz]
+            x = np.linspace(c['ymin'], c['ymax'], c['ny'])
+        else:
+            B = self.cons[5, nx, ny, c['Ng']:-c['Ng']]
+            x = np.linspace(c['zmin'], c['zmax'], c['nz'])
+            
+        exact = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 / (c['t']+1)))
+        initial = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 ))
+        plt.plot(x, B, label='Numerical')
+        plt.plot(x, exact, 'k--', label='Exact')
+        plt.plot(x, initial, label='Initial')
         plt.xlim([c['xmin'], c['xmax']])
         plt.ylim([-1.2, 1.2])
         plt.xlabel(r'$x$')
