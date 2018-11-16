@@ -331,7 +331,6 @@ class InteractivePlot(object):
             plt.xlabel(axisLabel2)
             plt.ylabel(axisLabel1)
             fig.colorbar(surf, shrink=0.5, aspect=5)
-            plt.legend()
             plt.show()
 
 
@@ -637,4 +636,15 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotSingleFluidCurrentSheetAgainstExact()
+    Plot.plotHeatMaps()
+    
+    
+    fig = plt.figure(figsize=(18,6))
+    axs = fig.subplots(1, 3)
+    lab = ['ideal', 'resistive', 'rsgm']
+    for i, model in enumerate([ideal, resistive, rsgm]):
+        axs[i].imshow(model.prims[4, 4:-4, 4:-4, 0].T, interpolation='bicubic', aspect='auto')
+        axs[i].plot(0, 0, label=lab[i])
+    plt.legend()
+    fig.tight_layout()
+    plt.show()

@@ -146,7 +146,8 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("rho", 1);
+    this->save->saveVar("p", 2);
+    this->save->saveVar("Jz", 2);
   }
 
   while (d->t < d->endTime) {
@@ -156,7 +157,8 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveVar("rho", 1);
+      this->save->saveVar("p", 2);
+      this->save->saveVar("Jz", 2);
 
     }
 
@@ -170,7 +172,8 @@ void Simulation::evolve(bool output, int safety)
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("rho", 1);
+    this->save->saveVar("p", 2);
+    this->save->saveVar("Jz", 2);
 
     }
 

@@ -143,7 +143,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   Data * d(data);
 
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
-  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
@@ -489,8 +489,8 @@ FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : Init
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-5, 5]\n");
-  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [-5, 5]\n");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
+  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.-5, 0.5]\n");
 
 
   double R(0.3);
@@ -509,3 +509,40 @@ FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : Init
     }
   }
 }
+
+ResistiveReconnectionSingleFluid::ResistiveReconnectionSingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -12.8 || d->xmax != 12.8) throw std::invalid_argument("Domain has incorrect values. Expected x E [-12.8, 12.8]\n");
+  if (d->ymin != -6.4 || d->ymax != 6.4) throw std::invalid_argument("Domain has incorrect values. Expected y E [-6.4, 6.4]\n");
+
+  double Lx{25.6};
+  double Ly{12.8};
+  double lambda{0.5};
+  double rho0{1};
+  double rhoInf{0.2};
+  double P{0.5};
+  double B0{1.0};
+  double psi0{0.1};
+  double pi{3.141592653589793};
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        d->prims[ID(0, i, j, k)] = rho0 / cosh(d->y[j]/lambda) / cosh(d->y[j]/lambda) + rhoInf;
+        d->prims[ID(4, i, j, k)] = P;
+        d->prims[ID(5, i, j, k)] = B0 * tanh(d->y[j] / lambda);
+
+        // Perturb
+        d->prims[ID(5, i, j, k)] -= psi0 * (pi / Ly) * sin(pi * d->y[j] / Ly) * cos(2*pi*d->x[i] / Lx);
+        d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*d->y[j] / Ly);
+
+      }
+    }
+  }
+
+};

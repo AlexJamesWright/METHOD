@@ -166,4 +166,37 @@ class Flow : public Bcs
 
 };
 
+//
+// //! <b> Conducting channel boundary conditions </b>
+// /*!
+//     Boundary conditions used for the resistive reconnection problem  The
+//   x-direction is periodic and y- and z-directions are outflow and perfectly
+//   conducting (i.e. electric field vanishes).
+// */
+// class ConductingChannel : public Bcs
+// {
+//
+//   public:
+//     //! Constructor
+//     /*!
+//         Calls constructor of base class to store the pointer to the Data class.
+//
+//       @param[in] *data pointer to Data class
+//       @sa Bcs::Bcs
+//     */
+//     ConductingChannel(Data * data) : Bcs(data) { }
+//
+//     //! Application function
+//     /*!
+//         Applies the ConductingChannel boundary conditions to the ghost cells.
+//
+//       @param[in, out] *cons pointer to the conservative (sized) vector
+//       @param[in, out] *prims optional pointer to the primitive vector
+//       @param[in, out] *aux optional pointer to the primitive vector
+//       @sa Bcs::apply
+//     */
+//     void apply(double * cons, double * prims = NULL, double * aux = NULL);
+//
+// };
+
 #endif

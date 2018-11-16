@@ -225,6 +225,24 @@ class FieldLoopAdvectionSingleFluid : public InitialFunc
 };
 
 
+//! <b> Resistive Magnetic Reconnection initial data, single fluid
+/*!
+    Set up is lifted from the PLUTO code, see Mignone et al 2011. This is a
+  two-dimensional resistive problem, in which magnetic field lines with opposing
+  directions reconnect, releasing energy in the form of kinetic motion and
+  temperature. The rate of the reconnection should scale with the root of the
+  resistivity.
+*/
+class ResistiveReconnectionSingleFluid : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    ResistiveReconnectionSingleFluid(Data * data);
+
+};
 
 
 
