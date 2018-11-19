@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
   double ymax(6.4);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(50.0);
-  double cfl(0.6);
+  double endTime(0.0);
+  double cfl(0.4);
   double gamma(2.0);
   double sigma(1000);
   double cp(1.0);
@@ -48,10 +48,9 @@ int main(int argc, char *argv[]) {
 
 
   char * ptr(0);
-  double tmp(0);
   //! Overwrite any variables that have been passed in as main() arguments
   for (int i(0); i < argc; i++) {
-    if (strcmp(argv[i], "sigma") == 0 && tmp!=0) {
+    if (strcmp(argv[i], "sigma") == 0) {
       sigma = (double)strtol(argv[i+1], &ptr, 10);
     }
   }
