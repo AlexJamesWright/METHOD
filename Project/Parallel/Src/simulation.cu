@@ -125,7 +125,8 @@ void Simulation::updateTime()
   d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
 
   // Slow start
-  if (d->iters < 5) d->dt *= 0.1;
+  if (d->iters < 15) d->dt *= 0.1;
+  if (d->iters >= 15 && d->iters < 30) d->dt *= 0.25
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
