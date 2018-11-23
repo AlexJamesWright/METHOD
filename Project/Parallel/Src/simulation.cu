@@ -126,7 +126,7 @@ void Simulation::updateTime()
 
   // Slow start
   if (d->iters < 15) d->dt *= 0.1;
-  if (d->iters >= 15 && d->iters < 30) d->dt *= 0.25
+  if (d->iters >= 15 && d->iters < 30) d->dt *= 0.25;
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
