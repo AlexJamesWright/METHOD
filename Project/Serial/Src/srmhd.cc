@@ -402,7 +402,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   double sol[2];                      // Guess and solution vector
   double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
-  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.49011612e-7;   // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
