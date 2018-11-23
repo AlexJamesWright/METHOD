@@ -146,15 +146,18 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("rho", 8);
-    this->save->saveVar("vx", 8);
-    this->save->saveVar("vy", 8);
-    this->save->saveVar("vz", 8);
-    this->save->saveVar("p", 8);
-    this->save->saveVar("Bx", 8);
-    this->save->saveVar("By", 8);
-    this->save->saveVar("Bz", 8);
-  }
+
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);  }
 
   while (d->t < d->endTime) {
 
@@ -163,15 +166,18 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveVar("rho", 8);
-      this->save->saveVar("vx", 8);
-      this->save->saveVar("vy", 8);
-      this->save->saveVar("vz", 8);
-      this->save->saveVar("p", 8);
-      this->save->saveVar("Bx", 8);
-      this->save->saveVar("By", 8);
-      this->save->saveVar("Bz", 8);
 
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);
     }
 
     if (safety>0 && d->iters%safety==0) {
@@ -184,15 +190,18 @@ void Simulation::evolve(bool output, int safety)
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("rho", 8);
-    this->save->saveVar("vx", 8);
-    this->save->saveVar("vy", 8);
-    this->save->saveVar("vz", 8);
-    this->save->saveVar("p", 8);
-    this->save->saveVar("Bx", 8);
-    this->save->saveVar("By", 8);
-    this->save->saveVar("Bz", 8);
 
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);
     }
 
   printf("\n");

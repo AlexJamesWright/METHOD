@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  // ResistiveSGM subgridModel(&data, &fluxMethod);
+  ResistiveSGM subgridModel(&data, &fluxMethod);
 
   Simulation sim(&data);
 
@@ -73,8 +73,8 @@ int main(int argc, char *argv[]) {
 
   Flow bcs(&data);
 
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
