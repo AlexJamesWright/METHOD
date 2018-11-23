@@ -146,8 +146,14 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("p", 2);
-    this->save->saveVar("Jz", 2);
+    this->save->saveVar("rho", 8);
+    this->save->saveVar("vx", 8);
+    this->save->saveVar("vy", 8);
+    this->save->saveVar("vz", 8);
+    this->save->saveVar("p", 8);
+    this->save->saveVar("Bx", 8);
+    this->save->saveVar("By", 8);
+    this->save->saveVar("Bz", 8);
   }
 
   while (d->t < d->endTime) {
@@ -157,8 +163,14 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveVar("p", 2);
-      this->save->saveVar("Jz", 2);
+      this->save->saveVar("rho", 8);
+      this->save->saveVar("vx", 8);
+      this->save->saveVar("vy", 8);
+      this->save->saveVar("vz", 8);
+      this->save->saveVar("p", 8);
+      this->save->saveVar("Bx", 8);
+      this->save->saveVar("By", 8);
+      this->save->saveVar("Bz", 8);
 
     }
 
@@ -172,8 +184,14 @@ void Simulation::evolve(bool output, int safety)
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("p", 2);
-    this->save->saveVar("Jz", 2);
+    this->save->saveVar("rho", 8);
+    this->save->saveVar("vx", 8);
+    this->save->saveVar("vy", 8);
+    this->save->saveVar("vz", 8);
+    this->save->saveVar("p", 8);
+    this->save->saveVar("Bx", 8);
+    this->save->saveVar("By", 8);
+    this->save->saveVar("Bz", 8);
 
     }
 

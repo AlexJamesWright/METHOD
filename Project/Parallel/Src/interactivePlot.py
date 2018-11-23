@@ -326,7 +326,8 @@ class InteractivePlot(object):
 
             if color==None:
                 color = cm.afmhot
-            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
+            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto',
+                              extent=[c['xmin'], c['xmax'], c['ymin'], c['ymax']])
             plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
             plt.xlabel(axisLabel2)
             plt.ylabel(axisLabel1)
