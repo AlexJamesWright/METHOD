@@ -27,25 +27,25 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(1024);
+  int nx(256);
   int ny(512);
   int nz(0);
-  double xmin(-12.8);
-  double xmax(12.8);
-  double ymin(-6.4);
-  double ymax(6.4);
+  double xmin(-0.5);
+  double xmax(0.5);
+  double ymin(-1.0);
+  double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(100.0);
-  double cfl(0.4);
-  double gamma(2.0);
-  double sigma(100);
+  double endTime(3.0);
+  double cfl(0.0125);
+  double gamma(4.0/3.0);
+  double sigma(300);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(320);
+  int frameSkip(133);
   bool output(true);
-  int safety(320);
+  int safety(133);
 
 
   char * ptr(0);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  ResistiveReconnectionSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   Flow bcs(&data);
 
@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
 
   // Run until end time and save results
   sim.evolve(output, safety);
-
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
