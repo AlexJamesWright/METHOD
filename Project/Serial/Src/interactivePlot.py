@@ -636,15 +636,5 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotHeatMaps()
+    Plot.plotSlice()
     
-    
-    fig = plt.figure(figsize=(18,6))
-    axs = fig.subplots(1, 3)
-    lab = ['ideal', 'resistive', 'rsgm']
-    for i, model in enumerate([ideal, resistive, rsgm]):
-        axs[i].imshow(model.prims[4, 4:-4, 4:-4, 0].T, interpolation='bicubic', aspect='auto')
-        axs[i].plot(0, 0, label=lab[i])
-    plt.legend()
-    fig.tight_layout()
-    plt.show()
