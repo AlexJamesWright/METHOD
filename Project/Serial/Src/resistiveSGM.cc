@@ -77,7 +77,7 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   {
     // Determine the diffusion vectors
     this->set_Dx(cons, prims, aux);
-    for (int var(0); var<Nv; var++) {
+    for (int var(0); var<8; var++) {
       for (int i(0); i<d->Nx-1; i++) {
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
@@ -89,7 +89,7 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
     if (d->dims>1)
     {
       this->set_Dy(cons, prims, aux);
-      for (int var(0); var<Nv; var++) {
+      for (int var(0); var<8; var++) {
         for (int i(0); i<d->Nx; i++) {
           for (int j(0); j<d->Ny-1; j++) {
             for (int k(0);k<d->Nz; k++) {
@@ -102,7 +102,7 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
     if (d->dims==3)
     {
       this->set_Dz(cons, prims, aux);
-      for (int var(0); var<Nv; var++) {
+      for (int var(0); var<8; var++) {
         for (int i(0); i<d->Nx; i++) {
           for (int j(0); j<d->Ny; j++) {
             for (int k(0);k<d->Nz-1; k++) {
