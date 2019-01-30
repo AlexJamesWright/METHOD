@@ -11,8 +11,6 @@
 // Mx, My, and Mz matrix
 #define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void minmod(double * array, double * ahead, double * source, double delta, int Nv, int Nx, int Ny, int Nz, int dir, Data * d);
-
 ResistiveSGM::ResistiveSGM(Data * data, FluxMethod * fluxMethod) : SubGridModel(data), fluxMethod(fluxMethod)
 {
   //  Syntax
@@ -74,25 +72,45 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   this->set_K(cons, prims, aux);
   this->set_dwdsb(cons, prims, aux);
 
-  // MINMOD
-  // For this, I will use data->f as the ahead difference
-  // arrays, but will rename, saving on memory.
-  double * ahead(d->f);
 
-  // Do minmod on Da to get gradient and add to source
+  // Get Da, determine it's gradient and add to source
   {
     // Determine the diffusion vectors
     this->set_Dx(cons, prims, aux);
-    minmod(diffuX, ahead, source, d->dx, 8, d->Nx, d->Ny, d->Nz, 0, d);
+    for (int var(0); var<Nv; var++) {
+      for (int i(0); i<d->Nx-1; i++) {
+        for (int j(0); j<d->Ny; j++) {
+          for (int k(0);k<d->Nz; k++) {
+            source[ID(var, i, j, k)] += (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / d->dx;
+          }
+        }
+      }
+    }
     if (d->dims>1)
     {
       this->set_Dy(cons, prims, aux);
-      minmod(diffuY, ahead, source, d->dy, 8, d->Nx, d->Ny, d->Nz, 1, d);
+      for (int var(0); var<Nv; var++) {
+        for (int i(0); i<d->Nx; i++) {
+          for (int j(0); j<d->Ny-1; j++) {
+            for (int k(0);k<d->Nz; k++) {
+              source[ID(var, i, j, k)] += (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / d->dy;
+            }
+          }
+        }
+      }
     }
     if (d->dims==3)
     {
       this->set_Dz(cons, prims, aux);
-      minmod(diffuZ, ahead, source, d->dz, 8, d->Nx, d->Ny, d->Nz, 2, d);
+      for (int var(0); var<Nv; var++) {
+        for (int i(0); i<d->Nx; i++) {
+          for (int j(0); j<d->Ny; j++) {
+            for (int k(0);k<d->Nz-1; k++) {
+              source[ID(var, i, j, k)] += (diffuZ[ID(var, i, j, k+1)] - diffuZ[ID(var, i, j, k)]) / d->dz;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -589,88 +607,6 @@ void ResistiveSGM::set_dfzdw(double * cons, double * prims, double * aux)
         dfzdw[IDFW(5, 9, i, j, k)] = -1;
         // Row 7
         dfzdw[IDFW(6, 8, i, j, k)] = 1;
-      }
-    }
-  }
-}
-
-
-void minmod(double * array, double * ahead, double * source, double delta, int Nv, int Nx, int Ny, int Nz, int dir, Data * d)
-{
-
-  if (dir == 0)
-  {
-    for (int var(0); var<Nv; var++) {
-      for (int i(0); i<d->Nx-1; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0);k<d->Nz; k++) {
-            ahead[ID(var, i, j, k)] = (array[ID(var, i+1, j, k)] - array[ID(var, i, j, k)]) / delta;
-          }
-        }
-      }
-      for (int i(0); i<d->Nx-1; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0);k<d->Nz; k++) {
-            if (ahead[ID(var, i, j, k)]*ahead[ID(var, i-1, j, k)] > 0) {
-              if (fabs(ahead[ID(var, i, j, k)]) < fabs(ahead[ID(var, i-1, j, k)]))
-                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
-              else
-                source[ID(var, i, j, k)] += ahead[ID(var, i-1, j, k)];
-            }
-          }
-        }
-      }
-    }
-  }
-
-
-  else if (dir == 1)
-  {
-    for (int var(0); var<Nv; var++) {
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny-1; j++) {
-          for (int k(0);k<d->Nz; k++) {
-            ahead[ID(var, i, j, k)] = (array[ID(var, i, j+1, k)] - array[ID(var, i, j, k)]) / delta;
-          }
-        }
-      }
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny-1; j++) {
-          for (int k(0);k<d->Nz; k++) {
-            if (ahead[ID(var, i, j, k)]*ahead[ID(var, i, j-1, k)] > 0) {
-              if (fabs(ahead[ID(var, i, j, k)]) < fabs(ahead[ID(var, i, j-1, k)]))
-                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
-              else
-                source[ID(var, i, j, k)] += ahead[ID(var, i, j-1, k)];
-            }
-          }
-        }
-      }
-    }
-  }
-
-
-  else
-  {
-    for (int var(0); var<Nv; var++) {
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0); k<d->Nz-1; k++) {
-            ahead[ID(var, i, j, k)] = (array[ID(var, i, j, k+1)] - array[ID(var, i, j, k)]) / delta;
-          }
-        }
-      }
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0);k<d->Nz-1; k++) {
-            if (ahead[ID(var, i, j, k)]*ahead[ID(var, i, j, k-1)] > 0) {
-              if (fabs(ahead[ID(var, i, j, k)]) < fabs(ahead[ID(var, i, j, k-1)]))
-                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k)];
-              else
-                source[ID(var, i, j, k)] += ahead[ID(var, i, j, k-1)];
-            }
-          }
-        }
       }
     }
   }

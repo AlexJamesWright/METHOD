@@ -71,8 +71,8 @@ if __name__ == '__main__':
     animClass = Anim()
     
     # Animate density
-    var = 0
-    N = 4
+    var = animClass.variables.index('p\n')
+    N = animClass.final.c['Ng']
     ##### For some reason this doesnt work when inside a function. ########
     ##### Not a disaster atm so will leave it like this            ########
     
