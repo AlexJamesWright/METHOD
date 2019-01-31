@@ -73,15 +73,15 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   this->set_dwdsb(cons, prims, aux);
 
 
-  // Get Da, determine it's gradient and add to source
+  // Get Da, determine its gradient and add to source
   {
     // Determine the diffusion vectors
     this->set_Dx(cons, prims, aux);
     for (int var(0); var<8; var++) {
-      for (int i(0); i<d->Nx-1; i++) {
+      for (int i(1); i<d->Nx-1; i++) {
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
-            source[ID(var, i, j, k)] += (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / d->dx;
+            source[ID(var, i, j, k)] += (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
           }
         }
       }
@@ -91,9 +91,9 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
       this->set_Dy(cons, prims, aux);
       for (int var(0); var<8; var++) {
         for (int i(0); i<d->Nx; i++) {
-          for (int j(0); j<d->Ny-1; j++) {
+          for (int j(1); j<d->Ny-1; j++) {
             for (int k(0);k<d->Nz; k++) {
-              source[ID(var, i, j, k)] += (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / d->dy;
+              source[ID(var, i, j, k)] += (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
             }
           }
         }
@@ -105,8 +105,8 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
       for (int var(0); var<8; var++) {
         for (int i(0); i<d->Nx; i++) {
           for (int j(0); j<d->Ny; j++) {
-            for (int k(0);k<d->Nz-1; k++) {
-              source[ID(var, i, j, k)] += (diffuZ[ID(var, i, j, k+1)] - diffuZ[ID(var, i, j, k)]) / d->dz;
+            for (int k(1);k<d->Nz-1; k++) {
+              source[ID(var, i, j, k)] += (diffuZ[ID(var, i, j, k+1)] - diffuZ[ID(var, i, j, k-1)]) / (2*d->dz);
             }
           }
         }
