@@ -1,6 +1,7 @@
 #include "resistiveSGM.h"
 #include <cstdio>
 #include <cmath>
+#include <ctime>
 
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
@@ -39,7 +40,7 @@ ResistiveSGM::ResistiveSGM(Data * data, FluxMethod * fluxMethod) : SubGridModel(
 
 ResistiveSGM::~ResistiveSGM()
 {
-  // Clean up your mess
+
   delete[] dfxdw;
   delete[] dfydw;
   delete[] dfzdw;
@@ -64,14 +65,11 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
   // Syntax
   Data * d(this->data);
 
-  // Zero arrays and set vars
-  this->reset(source);
+  // Set vars
   this->set_vars(cons, prims, aux);
-
   // Ensure K and dwdsb are set
   this->set_K(cons, prims, aux);
   this->set_dwdsb(cons, prims, aux);
-
 
   // Get Da, determine its gradient and add to source
   {
@@ -81,7 +79,7 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
       for (int i(1); i<d->Nx-1; i++) {
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
-            source[ID(var, i, j, k)] += (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
+            source[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
           }
         }
       }
@@ -117,28 +115,30 @@ void ResistiveSGM::subgridSource(double * cons, double * prims, double * aux, do
 
 }
 
-void ResistiveSGM::reset(double * source)
+void ResistiveSGM::set_vars(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
-  // Reset the arrays in which we use the += operator
+
+  // First set E = - v cross B, zero the K and diffuXYZ vectors, the Mxyz matrices, and set the prefactor
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
-        // Source vector, and Da
-        for (int var(0); var<d->Ncons; var++) {
-          source[ID(var, i, j, k)] = 0.0;
-        }
-        for (int var(0); var<8; var++) {
-          diffuX[ID(var, i, j, k)] = 0.0;
-          diffuY[ID(var, i, j, k)] = 0.0;
-          diffuZ[ID(var, i, j, k)] = 0.0;
-        }
-        // partial_a f^a
+        E[ID(0, i, j, k)] = - (prims[ID(2, i, j, k)] * prims[ID(7, i, j, k)] - prims[ID(3, i, j, k)] * prims[ID(6, i, j, k)]);
+        E[ID(1, i, j, k)] = - (prims[ID(3, i, j, k)] * prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)] * prims[ID(7, i, j, k)]);
+        E[ID(2, i, j, k)] = - (prims[ID(1, i, j, k)] * prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)] * prims[ID(5, i, j, k)]);
+
         K[ID(0, i, j, k)] = 0.0;
         K[ID(1, i, j, k)] = 0.0;
         K[ID(2, i, j, k)] = 0.0;
-        // Mx, My, Mz
+
+        diffuX[ID(0, i, j, k)] = diffuX[ID(1, i, j, k)] = diffuX[ID(2, i, j, k)] = diffuX[ID(3, i, j, k)] = diffuX[ID(4, i, j, k)] = diffuX[ID(5, i, j, k)] =
+        diffuX[ID(6, i, j, k)] = diffuX[ID(7, i, j, k)] = 0.0;
+        diffuY[ID(0, i, j, k)] = diffuY[ID(1, i, j, k)] = diffuY[ID(2, i, j, k)] = diffuY[ID(3, i, j, k)] = diffuY[ID(4, i, j, k)] = diffuY[ID(5, i, j, k)] =
+        diffuY[ID(6, i, j, k)] = diffuY[ID(7, i, j, k)] = 0.0;
+        diffuZ[ID(0, i, j, k)] = diffuZ[ID(1, i, j, k)] = diffuZ[ID(2, i, j, k)] = diffuZ[ID(3, i, j, k)] = diffuZ[ID(4, i, j, k)] = diffuZ[ID(5, i, j, k)] =
+        diffuZ[ID(6, i, j, k)] = diffuZ[ID(7, i, j, k)] = 0.0;
+
         for (int l(0); l<8; l++) {
           for (int m(0); m<3; m++) {
             Mx[IDM(l, m, i, j, k)] = 0.0;
@@ -146,23 +146,9 @@ void ResistiveSGM::reset(double * source)
             Mz[IDM(l, m, i, j, k)] = 0.0;
           }
         }
-      }
-    }
-  }
-}
 
-void ResistiveSGM::set_vars(double * cons, double * prims, double * aux)
-{
-  // Syntax
-  Data * d(this->data);
-
-  // First set E = - v cross B
-  for (int i(0); i<d->Nx; i++) {
-    for (int j(0); j<d->Ny; j++) {
-      for (int k(0); k<d->Nz; k++) {
-        E[ID(0, i, j, k)] = - (prims[ID(2, i, j, k)] * prims[ID(7, i, j, k)] - prims[ID(3, i, j, k)] * prims[ID(6, i, j, k)]);
-        E[ID(1, i, j, k)] = - (prims[ID(3, i, j, k)] * prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)] * prims[ID(7, i, j, k)]);
-        E[ID(2, i, j, k)] = - (prims[ID(1, i, j, k)] * prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)] * prims[ID(5, i, j, k)]);
+        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma) + d->sigma*d->sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
+                   prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)] + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)])));
       }
     }
   }
@@ -190,20 +176,6 @@ void ResistiveSGM::set_vars(double * cons, double * prims, double * aux)
   else {
     for (int i(2); i<d->Nx-2; i++) {
       q[ID(0, i, 0, 0)] = (-E[ID(0, i+2, 0, 0)] + 8*E[ID(0, i+1, 0, 0)] - 8*E[ID(0, i-1, 0, 0)] + E[ID(0, i-2, 0, 0)]) / (12*d->dx);
-    }
-  }
-
-
-  // Set prefactor for dwdsb
-  for (int i(0); i<d->Nx; i++) {
-    for (int j(0); j<d->Ny; j++) {
-      for (int k(0); k<d->Nz; k++) {
-        double qsigsq(q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma);
-        double Bsq(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
-                   prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)] +
-                   prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)]);
-        alpha[ID(0, i, j, k)] = 1 / (qsigsq*(qsigsq + d->sigma*d->sigma*Bsq));
-      }
     }
   }
 
@@ -268,11 +240,11 @@ void ResistiveSGM::set_dwdsb(double * cons, double * prims, double * aux)
         }
 
         // Finally, D
-        {
-          dwdsb[IDWS(11, 0, i, j, k)] = -prims[ID(1, i, j, k)]*qsigsq - sig*sig*prims[ID(5, i, j, k)]*vdotB;
-          dwdsb[IDWS(11, 1, i, j, k)] = -prims[ID(2, i, j, k)]*qsigsq - sig*sig*prims[ID(6, i, j, k)]*vdotB;
-          dwdsb[IDWS(11, 2, i, j, k)] = -prims[ID(3, i, j, k)]*qsigsq - sig*sig*prims[ID(7, i, j, k)]*vdotB;
-        }
+        // {
+        //   dwdsb[IDWS(11, 0, i, j, k)] = -prims[ID(1, i, j, k)]*qsigsq - sig*sig*prims[ID(5, i, j, k)]*vdotB;
+        //   dwdsb[IDWS(11, 1, i, j, k)] = -prims[ID(2, i, j, k)]*qsigsq - sig*sig*prims[ID(6, i, j, k)]*vdotB;
+        //   dwdsb[IDWS(11, 2, i, j, k)] = -prims[ID(3, i, j, k)]*qsigsq - sig*sig*prims[ID(7, i, j, k)]*vdotB;
+        // }
 
         // Dont forget to multiply by the prefactor!
         for (int l(0); l<12; l++) {
@@ -285,110 +257,110 @@ void ResistiveSGM::set_dwdsb(double * cons, double * prims, double * aux)
   }
 }
 
-void ResistiveSGM::set_Dx(double * cons, double * prims, double * aux)
-{
-  // Syntax
-  Data * d(this->data);
-
-  this->set_dfxdw(cons, prims, aux);
-  // Mx = -1 * DOT(dfxdw, dwdsb)
-  for (int l(0); l<8; l++) {
-    for (int m(0); m<3; m++) {
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0); k<d->Nz; k++) {
-            for (int n(0); n<12; n++) {
-              Mx[IDM(l, m, i, j, k)] -= dfxdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-            }
-          }
-        }
-      }
-    }
-  }
-  // Dx = DOT(Mx, K)
-  for (int l(0); l<8; l++) {
-    for (int i(0); i<d->Nx; i++) {
-      for (int j(0); j<d->Ny; j++) {
-        for (int k(0); k<d->Nz; k++) {
-          for (int m(0); m<3; m++) {
-            diffuX[ID(l, i, j, k)] += Mx[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-          }
-        }
-      }
-    }
-  }
-}
-
-void ResistiveSGM::set_Dy(double * cons, double * prims, double * aux)
-{
-  // Syntax
-  Data * d(this->data);
-
-  this->set_dfydw(cons, prims, aux);
-
-
-  // My = -1 * DOT(dfydw, dwdsb)
-  for (int l(0); l<8; l++) {
-    for (int m(0); m<3; m++) {
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0); k<d->Nz; k++) {
-            for (int n(0); n<12; n++) {
-              My[IDM(l, m, i, j, k)] -= dfydw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-            }
-          }
-        }
-      }
-    }
-  }
-  // Dy = DOT(My, K)
-  for (int l(0); l<8; l++) {
-    for (int i(0); i<d->Nx; i++) {
-      for (int j(0); j<d->Ny; j++) {
-        for (int k(0); k<d->Nz; k++) {
-          for (int m(0); m<3; m++) {
-            diffuY[ID(l, i, j, k)] += My[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-          }
-        }
-      }
-    }
-  }
-}
-
-
-void ResistiveSGM::set_Dz(double * cons, double * prims, double * aux)
-{
-  // Syntax
-  Data * d(this->data);
-
-  this->set_dfzdw(cons, prims, aux);
-  // Mz = -1 * DOT(dfzdw, dwdsb)
-  for (int l(0); l<8; l++) {
-    for (int m(0); m<3; m++) {
-      for (int i(0); i<d->Nx; i++) {
-        for (int j(0); j<d->Ny; j++) {
-          for (int k(0); k<d->Nz; k++) {
-            for (int n(0); n<12; n++) {
-              Mz[IDM(l, m, i, j, k)] -= dfzdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-            }
-          }
-        }
-      }
-    }
-  }
-  // Dz = DOT(Mz, K)
-  for (int l(0); l<8; l++) {
-    for (int i(0); i<d->Nx; i++) {
-      for (int j(0); j<d->Ny; j++) {
-        for (int k(0); k<d->Nz; k++) {
-          for (int m(0); m<3; m++) {
-            diffuZ[ID(l, i, j, k)] += Mz[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-          }
-        }
-      }
-    }
-  }
-}
+// void ResistiveSGM::set_Dx(double * cons, double * prims, double * aux)
+// {
+//   // Syntax
+//   Data * d(this->data);
+//
+//   this->set_dfxdw(cons, prims, aux);
+//   // Mx = -1 * DOT(dfxdw, dwdsb)
+//   for (int l(0); l<8; l++) {
+//     for (int m(0); m<3; m++) {
+//       for (int i(0); i<d->Nx; i++) {
+//         for (int j(0); j<d->Ny; j++) {
+//           for (int k(0); k<d->Nz; k++) {
+//             for (int n(0); n<12; n++) {
+//               Mx[IDM(l, m, i, j, k)] -= dfxdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+//   // Dx = DOT(Mx, K)
+//   for (int l(0); l<8; l++) {
+//     for (int i(0); i<d->Nx; i++) {
+//       for (int j(0); j<d->Ny; j++) {
+//         for (int k(0); k<d->Nz; k++) {
+//           for (int m(0); m<3; m++) {
+//             diffuX[ID(l, i, j, k)] += Mx[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+//
+// void ResistiveSGM::set_Dy(double * cons, double * prims, double * aux)
+// {
+//   // Syntax
+//   Data * d(this->data);
+//
+//   this->set_dfydw(cons, prims, aux);
+//
+//
+//   // My = -1 * DOT(dfydw, dwdsb)
+//   for (int l(0); l<8; l++) {
+//     for (int m(0); m<3; m++) {
+//       for (int i(0); i<d->Nx; i++) {
+//         for (int j(0); j<d->Ny; j++) {
+//           for (int k(0); k<d->Nz; k++) {
+//             for (int n(0); n<12; n++) {
+//               My[IDM(l, m, i, j, k)] -= dfydw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+//   // Dy = DOT(My, K)
+//   for (int l(0); l<8; l++) {
+//     for (int i(0); i<d->Nx; i++) {
+//       for (int j(0); j<d->Ny; j++) {
+//         for (int k(0); k<d->Nz; k++) {
+//           for (int m(0); m<3; m++) {
+//             diffuY[ID(l, i, j, k)] += My[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+//
+//
+// void ResistiveSGM::set_Dz(double * cons, double * prims, double * aux)
+// {
+//   // Syntax
+//   Data * d(this->data);
+//
+//   this->set_dfzdw(cons, prims, aux);
+//   // Mz = -1 * DOT(dfzdw, dwdsb)
+//   for (int l(0); l<8; l++) {
+//     for (int m(0); m<3; m++) {
+//       for (int i(0); i<d->Nx; i++) {
+//         for (int j(0); j<d->Ny; j++) {
+//           for (int k(0); k<d->Nz; k++) {
+//             for (int n(0); n<12; n++) {
+//               Mz[IDM(l, m, i, j, k)] -= dfzdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+//   // Dz = DOT(Mz, K)
+//   for (int l(0); l<8; l++) {
+//     for (int i(0); i<d->Nx; i++) {
+//       for (int j(0); j<d->Ny; j++) {
+//         for (int k(0); k<d->Nz; k++) {
+//           for (int m(0); m<3; m++) {
+//             diffuZ[ID(l, i, j, k)] += Mz[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
 
 
 void ResistiveSGM::set_K(double * cons, double * prims, double * aux)
@@ -607,6 +579,281 @@ void ResistiveSGM::set_dfzdw(double * cons, double * prims, double * aux)
         dfzdw[IDFW(5, 9, i, j, k)] = -1;
         // Row 7
         dfzdw[IDFW(6, 8, i, j, k)] = 1;
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+void ResistiveSGM::set_Dx(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // We have moved the set_dfxdw function in to this loop ---> saves ~few percent on execution
+  // this->set_dfxdw(cons, prims, aux);
+
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+        // First set dfxdw
+        // Row 0
+        dfxdw[IDFW(0, 0, i, j, k)] = prims[ID(1, i, j, k)];
+        dfxdw[IDFW(0, 1, i, j, k)] = prims[ID(0, i, j, k)];
+        // Row 1
+        dfxdw[IDFW(1, 4, i, j, k)] = 1;
+        dfxdw[IDFW(1, 5, i, j, k)] = -prims[ID(5, i, j, k)];
+        dfxdw[IDFW(1, 6, i, j, k)] = prims[ID(6, i, j, k)];
+        dfxdw[IDFW(1, 7, i, j, k)] = prims[ID(7, i, j, k)];
+        dfxdw[IDFW(1, 8, i, j, k)] = -E[ID(0, i, j, k)];
+        dfxdw[IDFW(1, 9, i, j, k)] = E[ID(1, i, j, k)];
+        dfxdw[IDFW(1, 10, i, j, k)] = E[ID(2, i, j, k)];
+        // Row 2
+        dfxdw[IDFW(2, 5, i, j, k)] = -prims[ID(6, i, j, k)];
+        dfxdw[IDFW(2, 6, i, j, k)] = -prims[ID(5, i, j, k)];
+        dfxdw[IDFW(2, 8, i, j, k)] = -E[ID(1, i, j, k)];
+        dfxdw[IDFW(2, 9, i, j, k)] = -E[ID(0, i, j, k)];
+        // Row 3
+        dfxdw[IDFW(3, 5, i, j, k)] = -prims[ID(7, i, j, k)];
+        dfxdw[IDFW(3, 7, i, j, k)] = -prims[ID(5, i, j, k)];
+        dfxdw[IDFW(3, 8, i, j, k)] = -E[ID(2, i, j, k)];
+        dfxdw[IDFW(3, 10, i, j, k)] = -E[ID(0, i, j, k)];
+        // Row 4
+        dfxdw[IDFW(4, 1, i, j, k)] = d->gamma*prims[ID(4, i, j, k)] / (d->gamma - 1);
+        dfxdw[IDFW(4, 4, i, j, k)] = d->gamma*prims[ID(1, i, j, k)] / (d->gamma - 1);
+        dfxdw[IDFW(4, 6, i, j, k)] = -E[ID(2, i, j, k)];
+        dfxdw[IDFW(4, 7, i, j, k)] = E[ID(1, i, j, k)];
+        dfxdw[IDFW(4, 9, i, j, k)] = prims[ID(7, i, j, k)];
+        dfxdw[IDFW(4, 10, i, j, k)] = -prims[ID(6, i, j, k)];
+        // Row 6
+        dfxdw[IDFW(6, 10, i, j, k)] = -1;
+        // Row 7
+        dfxdw[IDFW(7, 9, i, j, k)] = 1;
+
+        // Now compute Mx: Mx = -1 * DOT(dfxdw, dwdsb)
+        // Optimised version: many entries of dfxdw are zero so explicitly do these
+        // Note: element (0, 0) of dfxdw multiplies a zero in dwdsb so ignore, same for [:, 4]
+        Mx[IDM(0, 0, i, j, k)] -= (dfxdw[IDFW(0, 1, i, j, k)] * dwdsb[IDWS(1, 0, i, j, k)]);
+        Mx[IDM(0, 1, i, j, k)] -= (dfxdw[IDFW(0, 1, i, j, k)] * dwdsb[IDWS(1, 1, i, j, k)]);
+        Mx[IDM(0, 2, i, j, k)] -= (dfxdw[IDFW(0, 1, i, j, k)] * dwdsb[IDWS(1, 2, i, j, k)]);
+
+        Mx[IDM(4, 0, i, j, k)] -= (dfxdw[IDFW(4, 1, i, j, k)] * dwdsb[IDWS(1, 0, i, j, k)]);
+        Mx[IDM(4, 1, i, j, k)] -= (dfxdw[IDFW(4, 1, i, j, k)] * dwdsb[IDWS(1, 1, i, j, k)]);
+        Mx[IDM(4, 2, i, j, k)] -= (dfxdw[IDFW(4, 1, i, j, k)] * dwdsb[IDWS(1, 2, i, j, k)]);
+
+        Mx[IDM(6, 0, i, j, k)] -= (- dwdsb[IDWS(10, 0, i, j, k)]);
+        Mx[IDM(6, 1, i, j, k)] -= (- dwdsb[IDWS(10, 1, i, j, k)]);
+        Mx[IDM(6, 2, i, j, k)] -= (- dwdsb[IDWS(10, 2, i, j, k)]);
+
+        Mx[IDM(7, 0, i, j, k)] -= (dwdsb[IDWS(9, 0, i, j, k)]);
+        Mx[IDM(7, 1, i, j, k)] -= (dwdsb[IDWS(9, 1, i, j, k)]);
+        Mx[IDM(7, 2, i, j, k)] -= (dwdsb[IDWS(9, 2, i, j, k)]);
+
+        for (int l(1); l<5; l++) {
+          for (int m(0); m<3; m++) {
+            for (int n(5); n<11; n++) {
+              Mx[IDM(l, m, i, j, k)] -= dfxdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+            }
+          }
+        }
+
+        // Now can get the diffusion vector
+        // Dx = DOT(Mx, K)
+        for (int l(0); l<8; l++) {
+          for (int m(0); m<3; m++) {
+            diffuX[ID(l, i, j, k)] += Mx[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+void ResistiveSGM::set_Dy(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // We have moved the set_dfydw function in to this loop ---> saves ~few percent on execution
+  // this->set_dfydw(cons, prims, aux);
+
+
+  // My = -1 * DOT(dfydw, dwdsb)
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+
+          // First set dfydw
+          // Row 0
+          dfydw[IDFW(0, 0, i, j, k)] = prims[ID(2, i, j, k)];
+          dfydw[IDFW(0, 2, i, j, k)] = prims[ID(0, i, j, k)];
+          // Row 1
+          dfydw[IDFW(1, 5, i, j, k)] = -prims[ID(6, i, j, k)];
+          dfydw[IDFW(1, 6, i, j, k)] = -prims[ID(5, i, j, k)];
+          dfydw[IDFW(1, 8, i, j, k)] = -E[ID(1, i, j, k)];
+          dfydw[IDFW(1, 9, i, j, k)] = -E[ID(0, i, j, k)];
+          // Row 2
+          dfydw[IDFW(2, 4, i, j, k)] = 1;
+          dfydw[IDFW(2, 5, i, j, k)] = prims[ID(5, i, j, k)];
+          dfydw[IDFW(2, 6, i, j, k)] = -prims[ID(6, i, j, k)];
+          dfydw[IDFW(2, 7, i, j, k)] = prims[ID(7, i, j, k)];
+          dfydw[IDFW(2, 8, i, j, k)] = E[ID(0, i, j, k)];
+          dfydw[IDFW(2, 9, i, j, k)] = -E[ID(1, i, j, k)];
+          dfydw[IDFW(2, 10, i, j, k)] = E[ID(2, i, j, k)];
+          // Row 3
+          dfydw[IDFW(3, 6, i, j, k)] = -prims[ID(7, i, j, k)];
+          dfydw[IDFW(3, 7, i, j, k)] = -prims[ID(6, i, j, k)];
+          dfydw[IDFW(3, 9, i, j, k)] = -E[ID(2, i, j, k)];
+          dfydw[IDFW(3, 10, i, j, k)] = -E[ID(1, i, j, k)];
+          // Row 4
+          dfydw[IDFW(4, 2, i, j, k)] = d->gamma*prims[ID(4, i, j, k)] / (d->gamma - 1);
+          dfydw[IDFW(4, 4, i, j, k)] = d->gamma*prims[ID(2, i, j, k)] / (d->gamma - 1);
+          dfydw[IDFW(4, 5, i, j, k)] = E[ID(2, i, j, k)];
+          dfydw[IDFW(4, 7, i, j, k)] = -E[ID(0, i, j, k)];
+          dfydw[IDFW(4, 8, i, j, k)] = -prims[ID(7, i, j, k)];
+          dfydw[IDFW(4, 10, i, j, k)] = prims[ID(5, i, j, k)];
+          // Row 6
+          dfydw[IDFW(5, 10, i, j, k)] = 1;
+          // Row 7
+          dfydw[IDFW(7, 8, i, j, k)] = -1;
+
+
+          // Now compute My: My = -1 * DOT(dfydw, dwdsb)
+          // Optimised version: many entries of dfxdw are zero so explicitly do these
+          // Note: element (0, 0) of dfydw multiplies a zero in dwdsb so ignore, same for [:, 4]
+          My[IDM(0, 0, i, j, k)] -= (dfydw[IDFW(0, 2, i, j, k)] * dwdsb[IDWS(2, 0, i, j, k)]);
+          My[IDM(0, 1, i, j, k)] -= (dfydw[IDFW(0, 2, i, j, k)] * dwdsb[IDWS(2, 1, i, j, k)]);
+          My[IDM(0, 2, i, j, k)] -= (dfydw[IDFW(0, 2, i, j, k)] * dwdsb[IDWS(2, 2, i, j, k)]);
+
+          My[IDM(4, 0, i, j, k)] -= (dfydw[IDFW(4, 2, i, j, k)] * dwdsb[IDWS(2, 0, i, j, k)]);
+          My[IDM(4, 1, i, j, k)] -= (dfydw[IDFW(4, 2, i, j, k)] * dwdsb[IDWS(2, 1, i, j, k)]);
+          My[IDM(4, 2, i, j, k)] -= (dfydw[IDFW(4, 2, i, j, k)] * dwdsb[IDWS(2, 2, i, j, k)]);
+
+          My[IDM(5, 0, i, j, k)] -= (dwdsb[IDWS(10, 0, i, j, k)]);
+          My[IDM(5, 1, i, j, k)] -= (dwdsb[IDWS(10, 1, i, j, k)]);
+          My[IDM(5, 2, i, j, k)] -= (dwdsb[IDWS(10, 2, i, j, k)]);
+
+          My[IDM(7, 0, i, j, k)] -= (- dwdsb[IDWS(8, 0, i, j, k)]);
+          My[IDM(7, 1, i, j, k)] -= (- dwdsb[IDWS(8, 1, i, j, k)]);
+          My[IDM(7, 2, i, j, k)] -= (- dwdsb[IDWS(8, 2, i, j, k)]);
+
+          for (int l(1); l<5; l++) {
+            for (int m(0); m<3; m++) {
+              for (int n(5); n<11; n++) {
+                My[IDM(l, m, i, j, k)] -= dfydw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+              }
+            }
+          }
+
+        // Now can get the diffusion vector
+        // Dy = DOT(My, K)
+        for (int l(0); l<8; l++) {
+          for (int m(0); m<3; m++) {
+            diffuY[ID(l, i, j, k)] += My[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+void ResistiveSGM::set_Dz(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // We have moved the set_dfzdw function in to this loop ---> saves ~few percent on execution
+  // this->set_dfzdw(cons, prims, aux);
+
+
+  // Mz = -1 * DOT(dfzdw, dwdsb)
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+
+        // First set dfzdw
+
+        // Row 0
+        dfzdw[IDFW(0, 0, i, j, k)] = prims[ID(3, i, j, k)];
+        dfzdw[IDFW(0, 3, i, j, k)] = prims[ID(0, i, j, k)];
+        // Row 1
+        dfzdw[IDFW(1, 5, i, j, k)] = -prims[ID(7, i, j, k)];
+        dfzdw[IDFW(1, 7, i, j, k)] = -prims[ID(5, i, j, k)];
+        dfzdw[IDFW(1, 8, i, j, k)] = -E[ID(2, i, j, k)];
+        dfzdw[IDFW(1, 10, i, j, k)] = -E[ID(0, i, j, k)];
+        // Row 2
+        dfzdw[IDFW(2, 6, i, j, k)] = -prims[ID(7, i, j, k)];
+        dfzdw[IDFW(2, 7, i, j, k)] = -prims[ID(6, i, j, k)];
+        dfzdw[IDFW(2, 9, i, j, k)] = -E[ID(2, i, j, k)];
+        dfzdw[IDFW(2, 10, i, j, k)] = -E[ID(1, i, j, k)];
+        // Row 3
+        dfzdw[IDFW(3, 4, i, j, k)] = 1;
+        dfzdw[IDFW(3, 5, i, j, k)] = prims[ID(5, i, j, k)];
+        dfzdw[IDFW(3, 6, i, j, k)] = prims[ID(6, i, j, k)];
+        dfzdw[IDFW(3, 7, i, j, k)] = -prims[ID(7, i, j, k)];
+        dfzdw[IDFW(3, 8, i, j, k)] = E[ID(0, i, j, k)];
+        dfzdw[IDFW(3, 9, i, j, k)] = E[ID(1, i, j, k)];
+        dfzdw[IDFW(3, 10, i, j, k)] = -E[ID(2, i, j, k)];
+        // Row 4
+        dfzdw[IDFW(4, 3, i, j, k)] = d->gamma*prims[ID(4, i, j, k)] / (d->gamma - 1);
+        dfzdw[IDFW(4, 4, i, j, k)] = d->gamma*prims[ID(3, i, j, k)] / (d->gamma - 1);
+        dfzdw[IDFW(4, 5, i, j, k)] = -E[ID(1, i, j, k)];
+        dfzdw[IDFW(4, 6, i, j, k)] = E[ID(0, i, j, k)];
+        dfzdw[IDFW(4, 8, i, j, k)] = prims[ID(6, i, j, k)];
+        dfzdw[IDFW(4, 9, i, j, k)] = -prims[ID(5, i, j, k)];
+        // Row 6
+        dfzdw[IDFW(5, 9, i, j, k)] = -1;
+        // Row 7
+        dfzdw[IDFW(6, 8, i, j, k)] = 1;
+
+        // Now compute My: My = -1 * DOT(dfzdw, dwdsb)
+        // Optimised version: many entries of dfxdw are zero so explicitly do these
+        // Note: element (0, 0) of dfzdw multiplies a zero in dwdsb so ignore, same for [:, 4]
+        Mz[IDM(0, 0, i, j, k)] -= (dfzdw[IDFW(0, 3, i, j, k)] * dwdsb[IDWS(3, 0, i, j, k)]);
+        Mz[IDM(0, 1, i, j, k)] -= (dfzdw[IDFW(0, 3, i, j, k)] * dwdsb[IDWS(3, 1, i, j, k)]);
+        Mz[IDM(0, 2, i, j, k)] -= (dfzdw[IDFW(0, 3, i, j, k)] * dwdsb[IDWS(3, 2, i, j, k)]);
+
+        Mz[IDM(4, 0, i, j, k)] -= (dfzdw[IDFW(4, 3, i, j, k)] * dwdsb[IDWS(3, 0, i, j, k)]);
+        Mz[IDM(4, 1, i, j, k)] -= (dfzdw[IDFW(4, 3, i, j, k)] * dwdsb[IDWS(3, 1, i, j, k)]);
+        Mz[IDM(4, 2, i, j, k)] -= (dfzdw[IDFW(4, 3, i, j, k)] * dwdsb[IDWS(3, 2, i, j, k)]);
+
+        Mz[IDM(5, 0, i, j, k)] -= (- dwdsb[IDWS(9, 0, i, j, k)]);
+        Mz[IDM(5, 1, i, j, k)] -= (- dwdsb[IDWS(9, 1, i, j, k)]);
+        Mz[IDM(5, 2, i, j, k)] -= (- dwdsb[IDWS(9, 2, i, j, k)]);
+
+        Mz[IDM(6, 0, i, j, k)] -= (dwdsb[IDWS(8, 0, i, j, k)]);
+        Mz[IDM(6, 1, i, j, k)] -= (dwdsb[IDWS(8, 1, i, j, k)]);
+        Mz[IDM(6, 2, i, j, k)] -= (dwdsb[IDWS(8, 2, i, j, k)]);
+        for (int l(1); l<5; l++) {
+          for (int m(0); m<3; m++) {
+            for (int n(5); n<11; n++) {
+              Mz[IDM(l, m, i, j, k)] -= dfzdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
+            }
+          }
+        }
+
+        // Dz = DOT(Mz, K)
+        for (int l(0); l<8; l++) {
+          for (int m(0); m<3; m++) {
+            diffuZ[ID(l, i, j, k)] += Mz[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
+          }
+        }
       }
     }
   }
