@@ -38,8 +38,6 @@ class ResistiveSGM : public SubGridModel
     //! Main user function.
     void subgridSource(double * cons, double * prims, double * aux, double * source);
 
-    //! Need to ensure that all work arrays are zero before calculating
-    void reset(double * source);
 
     //! Sets up variables including the electric field and charge density
     void set_vars(double * cons, double * prims, double * aux);
