@@ -54,7 +54,7 @@ TESTS = test_simulation \
 				test_fvs \
 				test_rk2 \
 				test_imex \
-				test_resistiveSGM
+				test_REGIME
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -272,12 +272,12 @@ test_imex : IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o 
 
 
 # Resistive subgrid model
-resistiveSGM.o : $(MODULE_DIR)/resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/resistiveSGM.cc -I$(INC_DIR)   -I$(RTFIND_INC_DIR)
+REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/REGIME.cc -I$(INC_DIR)   -I$(RTFIND_INC_DIR)
 
-test_resistiveSGM.o : $(TEST_DIR)/test_resistiveSGM.cc $(INC_DIR)/resistiveSGM.h \
+test_REGIME.o : $(TEST_DIR)/test_REGIME.cc $(INC_DIR)/REGIME.h \
 										$(GTEST_HEADERS)
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_resistiveSGM.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_REGIME.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_resistiveSGM : srmhd.o test_resistiveSGM.o resistiveSGM.o initFunc.o  RK2.o rkSplit.o boundaryConds.o simData.o saveData.o fluxVectorSplitting.o simulation.o $(RTFIND_OBJS) weno.o gtest_main.a
+test_REGIME : srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkSplit.o boundaryConds.o simData.o saveData.o fluxVectorSplitting.o simulation.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@

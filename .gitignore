@@ -12,7 +12,7 @@ test_fvs
 test_id
 test_rk2
 test_imex
-test_resistiveSGM
+test_REGIME
 gtest_main.a
 
 *.dat
