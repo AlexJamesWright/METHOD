@@ -1,7 +1,7 @@
 #ifndef RKSPLIT_H
 #define RKSPLIT_H
 #include "RK2.h"
-#include "subgridModel.h"
+#include "modelExtension.h"
 
 
 //! <b> Operator splitting RK2 integrator </b>
@@ -37,8 +37,8 @@ class RKSplit : public RK2
 {
 
   public:
-    
-    SubGridModel * subgridModel;      //!< Pointer to subgrid model class
+
+    ModelExtension * modelExtension;      //!< Pointer to model extension class
 
     //! Constructor
     /*!
@@ -52,8 +52,8 @@ class RKSplit : public RK2
       @sa TimeIntegrator::TimeIntegrator
       @sa RK2::RK2
     */
-    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, SubGridModel *subgridModel = NULL) :
-            RK2(data, model, bcs, fluxMethod), subgridModel(subgridModel) { }
+    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension *modelExtension = NULL) :
+            RK2(data, model, bcs, fluxMethod), modelExtension(modelExtension) { }
 
     //! Performs a single time step
     /*!
