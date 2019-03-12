@@ -60,16 +60,57 @@ NOTE: this final test will only pass if the `MATCH_SERIAL` defined constant in `
 
 It is a good idea to check that the examples run successfully next.
 
-### Example Simulations
+### Example Simulations == Best way to understand functionality!
+
 Example simulations have been provided that illustrate how to use the
-various classes. By typing `make run` in one of the example directories, the
-relevant object files will be built and executed. Data is saved in the *Examples/Data*
-directory and is easily viewed using the interactivePlot script, run from the
-root Example directory with something like `spyder interactivePlot.py`. For the
-Kelvin-Helmholtz simulation, running the `animation.py` script will create an
+various classes. By typing
+
+  make run
+
+in one of the example directories, the relevant object files will be built and
+executed. Data is saved in the *Examples/Data* directory and is easily viewed
+using the interactivePlot script. We suggest that the spyder environment from
+Anaconda is the best way to use this tool.
+
+InteractivePlot
+---------------
+To use the plotting tools, run from the root Example directory something like
+
+    spyder interactivePlot.py
+
+Running this script as main will load any simulation data into the `Plot` object.
+
+This object has a number of pre-made plotting routines, all of which begin with
+
+  Plot.plot
+
+If you wish to create your own plot, you can access the simulation data using the
+
+  Plot.prims
+
+  Plot.cons
+
+arrays, etc. The first index is the variable, followed by `x`, `y`, and `z` index.
+
+To view the available primitive variables, use `Plot.cleanPrimLabels`.
+
+In addition, the Plot object contains a dictionary linking to all the system
+constants. For example, to get the value for the adiabatic index used in the
+simulation use `Plot.c['gamma']`.
+
+Animation
+---------
+
+For the Kelvin-Helmholtz simulation, running the `animation.py` script will create an
 animatation called `Output.gif` in the root Example directory to view (may take up
 to ten minutes to run the simulation and make the animation).
-NOTE: When generating animations, besure to delete all TimeSeries data after each run.
+
+Make sure you clean any timeseries data before running the simulation by running
+
+  bash cleanData.sh
+
+from the root Examples/ directory. The variable being animated can be changed
+manually.
 
 
 ### Builds
