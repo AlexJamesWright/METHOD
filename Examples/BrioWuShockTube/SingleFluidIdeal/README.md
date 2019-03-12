@@ -6,7 +6,7 @@ Model
 
 Initial data
 ------------
-  - Brio-Wu shoick tube
+  - Brio-Wu shock tube
 
 
 
@@ -15,6 +15,6 @@ InteractivePlot help
   - This is a 1D problem, so we want to plot slices. After running
   interactivePlot.py, use
 
-      Plot.plotSlice()
+      `Plot.plotSlice()`
 
   to plot the primitive variables.
