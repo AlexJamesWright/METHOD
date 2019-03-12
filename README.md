@@ -21,8 +21,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 [![DOI](https://zenodo.org/badge/105871037.svg)](http://doi.org/10.5281/zenodo.1404697)
 
 
-## Multifluid Electromagneto-HydroDynamics
----------------------------------------------
+# Multifluid Electromagneto-HydroDynamics
 
 This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic
 solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)
@@ -32,7 +31,11 @@ with multi-fluid models of MHD. As a result, ideal and resistive single fluid mo
 that are more conventional for astrophysical models, and a relatively new two-fluid
 model adapted from Amano 2016.
 
-### Getting started
+
+---------------------------------------------
+---------------------------------------------
+
+## Getting started
 To begin using METHOD, first clone the repository
 
     git clone https://github.com/AlexJamesWright/METHOD.git
@@ -43,7 +46,11 @@ To set up the correct directories for storing data, run the provided shell scrip
 
 Next, you will need to ensure the Makefiles are valid for your system, changing any compilers to your preferred ones and setting the GoogleTest home directory to its location on you machine. That should be it. Should be.
 
-### Testing
+---------------------------------------------
+---------------------------------------------
+
+
+## Testing
 Once METHOD is installed, check the latest build is working by running the unittests.
 
 We use the Google Test framework for unit testing---any tests are saved in the `Tests/Serial/Src` or `Tests/Parallel/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/Parallel/Src` and `Tests/Serial/Src`) to point to the GoogleTest root directory.
@@ -60,7 +67,11 @@ NOTE: this final test will only pass if the `MATCH_SERIAL` defined constant in `
 
 It is a good idea to check that the examples run successfully next.
 
-### Example Simulations == Best way to understand functionality!
+---------------------------------------------
+---------------------------------------------
+
+
+## Example Simulations == Best way to understand functionality!
 
 Example simulations have been provided that illustrate how to use the
 various classes. By typing
@@ -72,8 +83,8 @@ executed. Data is saved in the *Examples/Data* directory and is easily viewed
 using the interactivePlot script. We suggest that the spyder environment from
 Anaconda is the best way to use this tool.
 
-InteractivePlot
----------------
+### InteractivePlot
+-------------------
 To use the plotting tools, run from the root Example directory something like
 
     spyder interactivePlot.py
@@ -98,8 +109,8 @@ In addition, the Plot object contains a dictionary linking to all the system
 constants. For example, to get the value for the adiabatic index used in the
 simulation use `Plot.c['gamma']`.
 
-Animation
----------
+### Animation
+-------------
 
 For the Kelvin-Helmholtz simulation, running the `animation.py` script will create an
 animatation called `Output.gif` in the root Example directory to view (may take up
@@ -112,15 +123,22 @@ Make sure you clean any timeseries data before running the simulation by running
 from the root Examples/ directory. The variable being animated can be changed
 manually.
 
+---------------------------------------------
+---------------------------------------------
 
-### Builds
+
+## Builds
 To build all the elements of the programme at once go from the Project directory, to either Serial (if you dont have CUDA capable hardware) or Parallel (if you do) and use
 
     make build
 
 to build each element of the programme.
 
-### Documentation
+---------------------------------------------
+---------------------------------------------
+
+
+## Documentation
 I have tried to maintain good documentation standards, but cant guarantee that everything you want will be here. If you are unsure of any functionality, first look in the respective header file, source code, and you are still unsure contact the authors.
 
 The documentation is built automatically using [ReadTheDocs](https://method.readthedocs.io/en/latest/index.html) and can be viewed there.
@@ -130,7 +148,7 @@ To build the documentation locally simply go the the `Doxumentation` folder and 
 
     doxygen
 
-### Rootfinder
+## Rootfinder
 Some simulations will require the use of an N-dimensional footfinder, either for a (semi-) implicit time integrator or
 for the conservative to primitive transformation. We have elected to use the [CMINPACK library](https://github.com/devernay/cminpack)\*, and to use or implement any changes in the library, *cd* into the Cminpack directory and hit
 
@@ -138,8 +156,11 @@ for the conservative to primitive transformation. We have elected to use the [CM
 
 to compile all the object files. Then, if the build was successful, don't touch/look at this library again.
 
+---------------------------------------------
+---------------------------------------------
 
-### Simulations
+## Simulations
+
 Simulations are run from the *main.cc/cu* scripts. Simply use
 
     make run
@@ -151,8 +172,11 @@ to compile and run the simulation from within `Project/Serial` or `Project/Paral
 
 will also work.
 
+---------------------------------------------
+---------------------------------------------
 
-### Saving and Plotting Tools
+
+## Saving and Plotting Tools
 The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
 folder. This is done using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. Then, simply include
 
@@ -166,11 +190,19 @@ There is also the functionality to save time series data. In order to reduce mem
 
 NOTE: The second variable must be included and be the number of variables you wish to save at each output.
 
-### Authors
+---------------------------------------------
+---------------------------------------------
+
+
+## Authors
 
 [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk
 
-### Side notes
+---------------------------------------------
+---------------------------------------------
+
+
+## Side notes
 I realise that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). This is of minor importance, but feel free to change it yourself!
 
 
