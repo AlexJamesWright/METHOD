@@ -31,9 +31,10 @@ with multi-fluid models of MHD. As a result, ideal and resistive single fluid mo
 that are more conventional for astrophysical models, and a relatively new two-fluid
 model adapted from Amano 2016.
 
+---------------------------------------------
+---------------------------------------------
+<br> <br>
 
----------------------------------------------
----------------------------------------------
 
 ## Getting started
 To begin using METHOD, first clone the repository
@@ -48,6 +49,7 @@ Next, you will need to ensure the Makefiles are valid for your system, changing 
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Testing
@@ -69,6 +71,7 @@ It is a good idea to check that the examples run successfully next.
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Example Simulations == Best way to understand functionality!
@@ -125,6 +128,7 @@ manually.
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Builds
@@ -136,6 +140,7 @@ to build each element of the programme.
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Documentation
@@ -158,6 +163,7 @@ to compile all the object files. Then, if the build was successful, don't touch/
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 ## Simulations
 
@@ -173,11 +179,12 @@ to compile and run the simulation from within `Project/Serial` or `Project/Paral
 will also work.
 
 ---------------------------------------------
-_________________________
 ---------------------------------------------
 
+<br> <br>
 
-## Saving and Plotting Tools
+## Saving simulation data
+
 The *Src* directory has a tool for interactively plotting the end state of a simulation. The `interactivePlot.py` script requires data to be saved after the simulation in the *Data*
 folder. This is done using the SaveData class---call the class constructor with a pointer to the SimData class whose data you wish to save. Then, simply include
 
@@ -193,6 +200,7 @@ NOTE: The second variable must be included and be the number of variables you wi
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Authors
@@ -201,6 +209,7 @@ NOTE: The second variable must be included and be the number of variables you wi
 
 ---------------------------------------------
 ---------------------------------------------
+<br> <br>
 
 
 ## Side notes
