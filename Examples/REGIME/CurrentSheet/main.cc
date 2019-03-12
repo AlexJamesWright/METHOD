@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   double endTime(7.0);
   double cfl(0.2);
   double gamma(2.0);
-  double sigma(25);
+  double sigma(10000);
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
