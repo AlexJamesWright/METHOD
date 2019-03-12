@@ -28,4 +28,4 @@ Notes
   - This simulation demonstrates the effectiveness of REGIME at capturing
   resistive effects. Feel free to change the conductivity (sigma) to see how
   this changes the result. It can be instructive to run this as an ideal
-  simulation also, by using a conductivity of 9999999999, for example.
+  simulation also, by using a conductivity of 10000, for example.
