@@ -28,7 +28,7 @@ solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e
 under the guidance of [Dr Ian Hawke](https://www.southampton.ac.uk/maths/about/staff/ih3.page).
 METHOD is being developed as a result of a PhD project investigating the models of
 MHD used to model neutron star mergers. As a result, ideal and resistive single
-fluid models exist that are more conventional for astrophysics, and a two-fluid
+fluid models exist that are conventional in numerical astrophysics, and a two-fluid
 model adapted from Amano 2016.
 
 It also includes the REGIME extension (Wright & Hawke 2019) to ideal MHD. REGIME
