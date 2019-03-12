@@ -2,9 +2,9 @@
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "srrmhd.h"
+#include "twoFluidEMHD.h"
 #include "boundaryConds.h"
-#include "SSP2.h"
+#include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(100);
+  int nx(400);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -28,26 +28,29 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  double cfl(0.4);
   double gamma(2.0);
-  double sigma(10);
+  double cfl(0.03);
+  double sigma(10000);
+  double cp(1.0);
+  double mu1(-2000);
+  double mu2(2000);
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  TwoFluidEMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  BrioWuTwoFluid init(&data);
 
   Outflow bcs(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data, 1);
 

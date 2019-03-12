@@ -1,6 +1,6 @@
 Model
 -----
-  - Ideal MHD
+  - Resistive MHD
 
 
 
