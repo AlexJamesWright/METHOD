@@ -26,10 +26,14 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 This is METHOD, a relativistic multi-dimensional, multi-fluid ElectroMagnetoHydroDynamic
 solver built and maintained by [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)
 under the guidance of [Dr Ian Hawke](https://www.southampton.ac.uk/maths/about/staff/ih3.page).
-METHOD is being developed as a result of a PhD project to model neutron star mergers
-with multi-fluid models of MHD. As a result, ideal and resistive single fluid models exist
-that are more conventional for astrophysical models, and a relatively new two-fluid
+METHOD is being developed as a result of a PhD project investigating the models of
+MHD used to model neutron star mergers. As a result, ideal and resistive single
+fluid models exist that are more conventional for astrophysics, and a two-fluid
 model adapted from Amano 2016.
+
+It also includes the REGIME extension (Wright & Hawke 2019) to ideal MHD. REGIME
+allow ideal MHD simulations to capture resistive phenomena by including an
+additional source term into the equations of motion.
 
 ---------------------------------------------
 ---------------------------------------------
