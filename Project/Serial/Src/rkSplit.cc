@@ -31,7 +31,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   }
 
   // If there is a subgrid model, add that contribution
-  if (modelExtension != NULL) {
+  if (modelExtension->sourceExists) {
     modelExtension->sourceExtension(cons, prims, aux, d->source);
     for (int var(0); var < d->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {

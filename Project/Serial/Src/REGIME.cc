@@ -3,6 +3,14 @@
 #include <cmath>
 #include <ctime>
 
+/*
+    This script defines the functions for REGIME. More information can be found
+  in the documentation for the REGIME class. Alternatively, you can look in the
+  REGIME.h header file.
+    Please see Wright & Hawke 2019 - A resistive extension of ideal MHD for
+  more.
+*/
+
 #define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 // dwdsb
@@ -17,6 +25,8 @@ REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), flu
   //  Syntax
   Data * d(this->data);
 
+  sourceExists = true;
+
   // Allocate arrays
   dfxdw = new double[d->Nx*d->Ny*d->Nz*8*12] ();
   dfydw = new double[d->Nx*d->Ny*d->Nz*8*12] ();
@@ -28,9 +38,9 @@ REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), flu
   Mx = new double[d->Nx*d->Ny*d->Nz*8*3] ();
   My = new double[d->Nx*d->Ny*d->Nz*8*3] ();
   Mz = new double[d->Nx*d->Ny*d->Nz*8*3] ();
-  fx = new double[d->Nx*d->Ny*d->Nz*3] ();
-  fy = new double[d->Nx*d->Ny*d->Nz*3] ();
-  fz = new double[d->Nx*d->Ny*d->Nz*3] ();
+  fbx = new double[d->Nx*d->Ny*d->Nz*3] ();
+  fby = new double[d->Nx*d->Ny*d->Nz*3] ();
+  fbz = new double[d->Nx*d->Ny*d->Nz*3] ();
   diffuX = new double[d->Nx*d->Ny*d->Nz*8] ();
   diffuY = new double[d->Nx*d->Ny*d->Nz*8] ();
   diffuZ = new double[d->Nx*d->Ny*d->Nz*8] ();
@@ -51,9 +61,9 @@ REGIME::~REGIME()
   delete[] Mx;
   delete[] My;
   delete[] Mz;
-  delete[] fx;
-  delete[] fy;
-  delete[] fz;
+  delete[] fbx;
+  delete[] fby;
+  delete[] fbz;
   delete[] diffuX;
   delete[] diffuY;
   delete[] diffuZ;
@@ -239,12 +249,7 @@ void REGIME::set_dwdsb(double * cons, double * prims, double * aux)
           dwdsb[IDWS(10, 2, i, j, k)] = -prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] * sigcu - sig*qsigsq;
         }
 
-        // Finally, D
-        // {
-        //   dwdsb[IDWS(11, 0, i, j, k)] = -prims[ID(1, i, j, k)]*qsigsq - sig*sig*prims[ID(5, i, j, k)]*vdotB;
-        //   dwdsb[IDWS(11, 1, i, j, k)] = -prims[ID(2, i, j, k)]*qsigsq - sig*sig*prims[ID(6, i, j, k)]*vdotB;
-        //   dwdsb[IDWS(11, 2, i, j, k)] = -prims[ID(3, i, j, k)]*qsigsq - sig*sig*prims[ID(7, i, j, k)]*vdotB;
-        // }
+        // Dont bother with D, it is always multiplied by zero.
 
         // Dont forget to multiply by the prefactor!
         for (int l(0); l<12; l++) {
@@ -257,112 +262,6 @@ void REGIME::set_dwdsb(double * cons, double * prims, double * aux)
   }
 }
 
-// void REGIME::set_Dx(double * cons, double * prims, double * aux)
-// {
-//   // Syntax
-//   Data * d(this->data);
-//
-//   this->set_dfxdw(cons, prims, aux);
-//   // Mx = -1 * DOT(dfxdw, dwdsb)
-//   for (int l(0); l<8; l++) {
-//     for (int m(0); m<3; m++) {
-//       for (int i(0); i<d->Nx; i++) {
-//         for (int j(0); j<d->Ny; j++) {
-//           for (int k(0); k<d->Nz; k++) {
-//             for (int n(0); n<12; n++) {
-//               Mx[IDM(l, m, i, j, k)] -= dfxdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-//   // Dx = DOT(Mx, K)
-//   for (int l(0); l<8; l++) {
-//     for (int i(0); i<d->Nx; i++) {
-//       for (int j(0); j<d->Ny; j++) {
-//         for (int k(0); k<d->Nz; k++) {
-//           for (int m(0); m<3; m++) {
-//             diffuX[ID(l, i, j, k)] += Mx[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-//
-// void REGIME::set_Dy(double * cons, double * prims, double * aux)
-// {
-//   // Syntax
-//   Data * d(this->data);
-//
-//   this->set_dfydw(cons, prims, aux);
-//
-//
-//   // My = -1 * DOT(dfydw, dwdsb)
-//   for (int l(0); l<8; l++) {
-//     for (int m(0); m<3; m++) {
-//       for (int i(0); i<d->Nx; i++) {
-//         for (int j(0); j<d->Ny; j++) {
-//           for (int k(0); k<d->Nz; k++) {
-//             for (int n(0); n<12; n++) {
-//               My[IDM(l, m, i, j, k)] -= dfydw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-//   // Dy = DOT(My, K)
-//   for (int l(0); l<8; l++) {
-//     for (int i(0); i<d->Nx; i++) {
-//       for (int j(0); j<d->Ny; j++) {
-//         for (int k(0); k<d->Nz; k++) {
-//           for (int m(0); m<3; m++) {
-//             diffuY[ID(l, i, j, k)] += My[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-//
-//
-// void REGIME::set_Dz(double * cons, double * prims, double * aux)
-// {
-//   // Syntax
-//   Data * d(this->data);
-//
-//   this->set_dfzdw(cons, prims, aux);
-//   // Mz = -1 * DOT(dfzdw, dwdsb)
-//   for (int l(0); l<8; l++) {
-//     for (int m(0); m<3; m++) {
-//       for (int i(0); i<d->Nx; i++) {
-//         for (int j(0); j<d->Ny; j++) {
-//           for (int k(0); k<d->Nz; k++) {
-//             for (int n(0); n<12; n++) {
-//               Mz[IDM(l, m, i, j, k)] -= dfzdw[IDFW(l, n, i, j, k)] * dwdsb[IDWS(n, m, i, j, k)];
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-//   // Dz = DOT(Mz, K)
-//   for (int l(0); l<8; l++) {
-//     for (int i(0); i<d->Nx; i++) {
-//       for (int j(0); j<d->Ny; j++) {
-//         for (int k(0); k<d->Nz; k++) {
-//           for (int m(0); m<3; m++) {
-//             diffuZ[ID(l, i, j, k)] += Mz[IDM(l, m, i, j, k)] * K[ID(m, i, j, k)];
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-
-
 void REGIME::set_K(double * cons, double * prims, double * aux)
 {
   // Syntax
@@ -372,14 +271,14 @@ void REGIME::set_K(double * cons, double * prims, double * aux)
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
-        fx[ID(0, i, j, k)] = 0;
-        fx[ID(1, i, j, k)] = prims[ID(7, i, j, k)];
-        fx[ID(2, i, j, k)] = -prims[ID(6, i, j, k)];
+        fbx[ID(0, i, j, k)] = 0;
+        fbx[ID(1, i, j, k)] = prims[ID(7, i, j, k)];
+        fbx[ID(2, i, j, k)] = -prims[ID(6, i, j, k)];
       }
     }
   }
   // Reconstruct stiff fluxes
-  this->fluxMethod->fluxReconstruction(E, NULL, NULL, fx, d->fnet, 0, 3);
+  this->fluxMethod->fluxReconstruction(E, NULL, NULL, fbx, d->fnet, 0, 3);
   // Add flux differencing to K
   for (int var(0); var<3; var++) {
     for (int i(1); i<d->Nx-1; i++) {
@@ -397,14 +296,14 @@ void REGIME::set_K(double * cons, double * prims, double * aux)
     for (int i(0); i<d->Nx; i++) {
       for (int j(0); j<d->Ny; j++) {
         for (int k(0); k<d->Nz; k++) {
-          fy[ID(0, i, j, k)] = -prims[ID(7, i, j, k)];
-          fy[ID(1, i, j, k)] = 0;
-          fy[ID(2, i, j, k)] = prims[ID(5, i, j, k)];
+          fby[ID(0, i, j, k)] = -prims[ID(7, i, j, k)];
+          fby[ID(1, i, j, k)] = 0;
+          fby[ID(2, i, j, k)] = prims[ID(5, i, j, k)];
         }
       }
     }
     // Reconstruct stiff fluxes
-    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fy, d->fnet, 1, 3);
+    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fby, d->fnet, 1, 3);
     // Add flux differencing to K
     for (int var(0); var<3; var++) {
       for (int i(0); i<d->Nx; i++) {
@@ -423,14 +322,14 @@ void REGIME::set_K(double * cons, double * prims, double * aux)
     for (int i(0); i<d->Nx; i++) {
       for (int j(0); j<d->Ny; j++) {
         for (int k(0); k<d->Nz; k++) {
-          fz[ID(0, i, j, k)] = prims[ID(6, i, j, k)];
-          fz[ID(1, i, j, k)] = -prims[ID(5, i, j, k)];
-          fz[ID(2, i, j, k)] = 0;
+          fbz[ID(0, i, j, k)] = prims[ID(6, i, j, k)];
+          fbz[ID(1, i, j, k)] = -prims[ID(5, i, j, k)];
+          fbz[ID(2, i, j, k)] = 0;
         }
       }
     }
     // Reconstruct stiff fluxes
-    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fz, d->fnet, 2, 3);
+    this->fluxMethod->fluxReconstruction(E, NULL, NULL, fbz, d->fnet, 2, 3);
     // Add flux differencing to K
     for (int var(0); var<3; var++) {
       for (int i(0); i<d->Nx; i++) {
@@ -586,12 +485,6 @@ void REGIME::set_dfzdw(double * cons, double * prims, double * aux)
 
 
 
-
-
-
-
-
-
 void REGIME::set_Dx(double * cons, double * prims, double * aux)
 {
   // Syntax
@@ -675,8 +568,6 @@ void REGIME::set_Dx(double * cons, double * prims, double * aux)
     }
   }
 }
-
-
 
 
 
@@ -768,9 +659,6 @@ void REGIME::set_Dy(double * cons, double * prims, double * aux)
     }
   }
 }
-
-
-
 
 
 void REGIME::set_Dz(double * cons, double * prims, double * aux)
