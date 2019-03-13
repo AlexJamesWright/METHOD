@@ -83,7 +83,7 @@ It is a good idea to check that the examples run successfully next.
 Example simulations have been provided that illustrate how to use the
 various classes. By typing
 
-  make run
+    make run
 
 in one of the example directories, the relevant object files will be built and
 executed. Data is saved in the *Examples/Data* directory and is easily viewed
@@ -100,13 +100,13 @@ Running this script as main will load any simulation data into the `Plot` object
 
 This object has a number of pre-made plotting routines, all of which begin with
 
-  Plot.plot
+    Plot.plot
 
 If you wish to create your own plot, you can access the simulation data using the
 
-  Plot.prims
+    Plot.prims
 
-  Plot.cons
+    Plot.cons
 
 arrays, etc. The first index is the variable, followed by `x`, `y`, and `z` index.
 
@@ -125,7 +125,7 @@ to ten minutes to run the simulation and make the animation).
 
 Make sure you clean any timeseries data before running the simulation by running
 
-  bash cleanData.sh
+    bash cleanData.sh
 
 from the root Examples/ directory. The variable being animated can be changed
 manually.
