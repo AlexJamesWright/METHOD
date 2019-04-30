@@ -308,9 +308,9 @@ class InteractivePlot(object):
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
-
+        
         for i in range(data.shape[0]):
-            fig = plt.figure()
+            fig, ax = plt.subplots(1)
             if (axis == 0):
                 plotVars = data[i, c['Nx']//2, c['Ng']:-c['Ng'], c['Ng']:-c['Ng']]
                 axisLabel1 = r'$y$'
@@ -326,13 +326,15 @@ class InteractivePlot(object):
 
             if color==None:
                 color = cm.afmhot
-            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
-            plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
-            plt.xlabel(axisLabel2)
-            plt.ylabel(axisLabel1)
+            surf = ax.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
+            ax.set_title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
+            ax.set_xlim([0, self.c['nx']])
+            ax.set_ylim([0, self.c['ny']])
+            ax.set_xlabel(axisLabel2)
+            ax.set_ylabel(axisLabel1)
             fig.colorbar(surf, shrink=0.5, aspect=5)
             plt.show()
-
+        return ax
 
     def plotSlice(self, data='prims', axis=0):
         """
@@ -629,12 +631,95 @@ class InteractivePlot(object):
         plt.title(r'Exact comparison for $v_z2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
-
+        
+        
+        
+    def plot2DBrioWu(self, diag=0):
+        """
+        Plots the main diagonal of the 2D Brio-Wu problem
+        
+        Parameters
+        ----------
+        diag : int
+            The diagonal to plot the slice
+        """
+        
+        nx = self.c['nx']
+#        Ny = self.c['Ny']
+        midZ = self.c['Nz'] // 2
+        Ng = self.c['Ng']
+        
+        if diag == 0:
+            LB = -Ng
+            RB = Ng
+            step = -1
+        else:
+            LB = Ng
+            RB = -Ng
+            step = 1
+            
+            
+        dens = self.prims[0, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        vx = self.prims[1, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        vy = self.prims[2, Ng:-Ng, LB:RB:step, midZ].diagonal() 
+           
+            
+        p = self.prims[4, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        B = self.prims[5, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) + \
+            self.prims[6, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) 
+        
+        # rho
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), dens)
+        plt.ylabel(r'$\rho$')
+        plt.xlim([0, 1])
+        plt.show()
+        # vx
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vx)
+        plt.ylabel(r'$vx$')
+        plt.xlim([0, 1])
+        plt.show()
+        # vy
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vy)
+        plt.ylabel(r'$vy$')
+        plt.xlim([0, 1])
+        plt.show()
+        # v rel
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx),(vx-vy)/(1-vx*vy))
+        plt.ylabel(r'$v (rel)$')
+        plt.xlim([0, 1])
+        plt.show()
+        # v non-rel
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vx/np.sqrt(2) - vy/np.sqrt(2))
+        plt.ylabel(r'$v (non-rel)$')
+        plt.xlim([0, 1])
+        plt.show()
+        # p
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), p)
+        plt.ylabel(r'$p$')
+        plt.xlim([0, 1])
+        plt.show()
+        # B
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), B)
+        plt.ylabel(r'$B$')
+        plt.xlim([0, 1])
+        plt.show()
+        
+        return B
 # Function declarations over, access data and plot!
+        
 
 if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotSlice()
+    Plot.plotHeatMaps()
+    
+
     
