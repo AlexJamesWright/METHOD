@@ -43,7 +43,7 @@ SRCS = main.cc \
 			 saveData.cc \
 			 fluxVectorSplitting.cc \
 			 srrmhd.cc \
-			 resistiveSGM.cc
+			 REGIME.cc
 
 
 # Headers
@@ -154,7 +154,7 @@ saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-resistiveSGM.o : $(MODULE_DIR)/resistiveSGM.cc $(INC_DIR)/resistiveSGM.h
+REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
