@@ -87,6 +87,38 @@ class Outflow : public Bcs
 };
 
 
+//! <b> Out flow boundary conditions for the rotated 2D Brio-Wu </b>
+/*!
+    Using the conventional outflow BCs for the diagonal BW problem results in
+  shocks entering from along the main diagonal. This class deals with these
+  shocks.
+    Using this.apply behaves as if the BW problem has been rotated, as required.
+*/
+class OutflowRotatedBW : public Bcs
+{
+public:
+  //! Constructor
+  /*!
+  Calls constructor of base class to store the pointer to the Data class.
+
+  @param[in] *data pointer to Data class
+  @sa Bcs::Bcs
+  */
+  OutflowRotatedBW(Data * data) : Bcs(data) { }
+
+  //! Application function
+  /*!
+  Applies the Outflow boundary conditions to the ghost cells.
+
+  @param[in, out] *cons pointer to the conservative (sized) vector
+  @param[in, out] *prims optional pointer to the primitive vector
+  @param[in, out] *aux optional pointer to the primitive vector
+  @sa Bcs::apply
+  */
+  void apply(double * cons, double * prims = NULL, double * aux = NULL);
+};
+
+
 //! <b> Periodic boundary conditions </b>
 /*!
     Flows that exit across one domain boundary re-enter at the opposing
