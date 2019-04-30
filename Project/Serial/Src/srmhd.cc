@@ -499,7 +499,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                         tol, wa, lwa);
       if (info != 1) {
         printf("Smart guessing did not work, exiting\n");
-        for (Failed fail : fails) printf("(%d, %d, %d) failed\n", fail.x, fail.y, fail.z);
+        printf("(%d, %d, %d) failed\n", fail.x, fail.y, fail.z);
         // std::exit(1);
       }
       // else {
