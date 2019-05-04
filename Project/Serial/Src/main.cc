@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(50);
+  double sigma(100);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
