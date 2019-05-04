@@ -45,11 +45,14 @@ REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), flu
   diffuY = new double[d->Nx*d->Ny*d->Nz*8] ();
   diffuZ = new double[d->Nx*d->Ny*d->Nz*8] ();
   alpha = new double[d->Nx*d->Ny*d->Nz] ();
+  d->sourceExtension = new double[d->Nx*d->Ny*d->Nz*d->Ncons] ();
 
 }
 
 REGIME::~REGIME()
 {
+  //  Syntax
+  Data * d(this->data);
 
   delete[] dfxdw;
   delete[] dfydw;
@@ -68,6 +71,7 @@ REGIME::~REGIME()
   delete[] diffuY;
   delete[] diffuZ;
   delete[] alpha;
+  delete[] d->sourceExtension;
 }
 
 void REGIME::sourceExtension(double * cons, double * prims, double * aux, double * source)

@@ -43,7 +43,7 @@ class RK2 : public TimeIntegrator
       @param[in] *fluxMethod pointer to FluxMethod object
       @sa TimeIntegrator::TimeIntegrator
     */
-    RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
+    RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
     ~RK2();
 

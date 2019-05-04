@@ -1,7 +1,6 @@
 #ifndef RKSPLIT_H
 #define RKSPLIT_H
 #include "RK2.h"
-#include "modelExtension.h"
 
 
 //! <b> Operator splitting RK2 integrator </b>
@@ -38,8 +37,6 @@ class RKSplit : public RK2
 
   public:
 
-    ModelExtension * modelExtension;      //!< Pointer to model extension class
-
     //! Constructor
     /*!
         Constructor requires simulation data and the flux and source functions
@@ -52,8 +49,8 @@ class RKSplit : public RK2
       @sa TimeIntegrator::TimeIntegrator
       @sa RK2::RK2
     */
-    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension *modelExtension = NULL) :
-            RK2(data, model, bcs, fluxMethod), modelExtension(modelExtension) { }
+    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
+            RK2(data, model, bcs, fluxMethod, modelExtension) { }
 
     //! Performs a single time step
     /*!

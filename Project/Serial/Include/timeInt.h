@@ -5,6 +5,7 @@
 #include "model.h"
 #include "boundaryConds.h"
 #include "flux.h"
+#include "modelExtension.h"
 
 //! <b> General form of the time integrator </b>
 /*!
@@ -25,6 +26,8 @@ class TimeIntegrator
 
     FluxMethod * fluxMethod;    //!< Pointer to FluxMethod object
 
+    ModelExtension * modelExtension;      //!< Pointer to model extension class
+
     //! Constructor
     /*!
       @par
@@ -36,8 +39,8 @@ class TimeIntegrator
       @param *fluxMethod pointer to FluxMethod object
 
     */
-    TimeIntegrator(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod) :
-                   data(data), model(model), bcs(bcs), fluxMethod(fluxMethod) { }
+    TimeIntegrator(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
+                   data(data), model(model), bcs(bcs), fluxMethod(fluxMethod), modelExtension(modelExtension) { }
 
     //! Step function
     /*!

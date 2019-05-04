@@ -76,6 +76,7 @@ class Data
     *cons, *prims, *aux,
     *f, *fnet,             //!< Pointer to specified work array
     *source,
+    *sourceExtension,
     //@}
     //@{
     *x, *y, *z;            //!< Specified coordinate location of the center of the compute cells (incl ghost cells)
