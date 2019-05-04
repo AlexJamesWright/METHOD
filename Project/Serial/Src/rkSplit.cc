@@ -12,7 +12,6 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) (dt=d->dt);
 
-
   // Perform standard RK2 step
   RK2::step(cons, prims, aux);
 

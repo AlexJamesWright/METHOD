@@ -28,6 +28,10 @@
 class RK2 : public TimeIntegrator
 {
   public:
+
+      // Need some work arrays
+      double *p1cons, *p1prims, *p1aux, *args1, *args2;
+
     //! Constructor
     /*!
         Constructor requires simulation data and the flux and source functions
@@ -39,8 +43,15 @@ class RK2 : public TimeIntegrator
       @param[in] *fluxMethod pointer to FluxMethod object
       @sa TimeIntegrator::TimeIntegrator
     */
-    RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod) :
-          TimeIntegrator(data, model, bcs, fluxMethod) { }
+    RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
+
+    ~RK2();
+
+    void finalise(double * cons, double * prims, double * aux);
+
+    void predictorStep(double * cons, double * prims, double * aux, double dt);
+
+    void correctorStep(double * cons, double * prims, double * aux, double dt);
 
     //! Performs a single time step
     /*!
