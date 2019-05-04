@@ -39,7 +39,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
 
   // Predictor + source
   RK2::predictorStep(cons, prims, aux, dt);
-
+  RK2::finalise(p1cons, p1prims, p1aux);
   // Set and add source
   this->setSource(cons, prims, aux);
   for (int var(0); var < d->Ncons; var++) {
@@ -55,7 +55,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
 
   // Corrector + source
   RK2::correctorStep(cons, prims, aux, dt);
-
+  RK2::finalise(cons, prims, aux);
   // Set and add source
   this->setSource(p1cons, p1prims, p1aux);
   for (int var(0); var < d->Ncons; var++) {
