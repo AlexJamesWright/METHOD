@@ -5,7 +5,7 @@
 
 
 import numpy as np
-import pylab as plt
+from matplotlib import pyplot as plt
 from scipy.special import erf
 from matplotlib import cm
 import warnings
@@ -719,7 +719,7 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotHeatMaps()
+    Plot.plotSlice()
     
 
     
