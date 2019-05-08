@@ -9,7 +9,7 @@
 #include "SSP2.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "resistiveSGM.h"
+#include "REGIME.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(998);
+  int nx(200);
   int ny(0);
   int nz(0);
   double xmin(-0.5);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(1000);
+  double sigma(50);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  ResistiveSGM subgridModel(&data, &fluxMethod);
+  REGIME subgridModel(&data, &fluxMethod);
 
   Simulation sim(&data);
 
