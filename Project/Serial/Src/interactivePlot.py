@@ -330,8 +330,8 @@ class InteractivePlot(object):
             ax.set_title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
             ax.set_xlim([0, self.c['nx']])
             ax.set_ylim([0, self.c['ny']])
-            ax.set_xlabel(axisLabel2)
-            ax.set_ylabel(axisLabel1)
+            ax.set_xlabel(axisLabel1)
+            ax.set_ylabel(axisLabel2)
             fig.colorbar(surf, shrink=0.5, aspect=5)
             plt.show()
         return ax
@@ -719,7 +719,7 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
     
-    Plot.plotHeatMaps()
+    Plot.plotSlice()
     
 
     
