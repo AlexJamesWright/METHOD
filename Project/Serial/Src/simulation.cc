@@ -86,8 +86,10 @@ void Simulation::set(InitialFunc * init, Model * model,
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
   // If source extension, determine
-  if (this->timeInt->modelExtension != NULL && this->timeInt->modelExtension->sourceExists) {
-    this->timeInt->modelExtension->sourceExtension(d->cons, d->prims, d->aux, d->sourceExtension);
+  if (this->timeInt->modelExtension != NULL) {
+    this->timeInt->modelExtension->init(d->prims);
+    if  (this->timeInt->modelExtension->sourceExists)
+      this->timeInt->modelExtension->sourceExtension(d->cons, d->prims, d->aux, d->sourceExtension);
   }
 }
 
