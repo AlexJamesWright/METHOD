@@ -689,9 +689,13 @@ PerturbedBrioWu2DSingleFluid::PerturbedBrioWu2DSingleFluid(Data * data) : Initia
   if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0.0, 1.0]\n");
   if (d->ymin != 0.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 1.0]\n");
 
+  double A0(0.05);
+  double l(0.1);
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
+        // Standard Brio data
         if (i < d->Nx/2) {
             d->prims[ID(0, i, j, k)] = 1.0;
             d->prims[ID(4, i, j, k)] = 1.0;
@@ -702,6 +706,10 @@ PerturbedBrioWu2DSingleFluid::PerturbedBrioWu2DSingleFluid(Data * data) : Initia
             d->prims[ID(4, i, j, k)] = 0.1;
             d->prims[ID(6, i, j, k)] = - 0.5;
         }
+        // ...add perturbation
+        d->prims[ID(0, i, j, k)] += A0 * sin(2*PI*(d->y[i])) * (exp(-pow((d->x[j] - 0.5), 2)/(l*l)));
+        d->prims[ID(4, i, j, k)] += A0 * sin(2*PI*(d->y[i])) * (exp(-pow((d->x[j] - 0.5), 2)/(l*l)));
+
       }
     }
   }
