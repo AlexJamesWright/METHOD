@@ -62,7 +62,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
+          cons[ID(var, i, j, k)] += 0.5 * dt * d->source[ID(var, i, j, k)];
         }
       }
     }
