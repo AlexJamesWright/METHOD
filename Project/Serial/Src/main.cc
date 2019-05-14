@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(128);
-  int ny(256);
+  int ny(0);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -36,16 +36,16 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(6.0);
+  double endTime(0.4);
   double cfl(0.4);
-  double gamma(4.0/3.0);
-  double sigma(50);
+  double gamma(2.0);
+  double sigma(100);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(45);
-  bool output(true);
-  int safety(133);
+  bool output(false);
+  int safety(-1);
 
 
   char * ptr(0);
@@ -68,9 +68,9 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  BrioWuSingleFluid init(&data);
 
-  Flow bcs(&data);
+  Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
   // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);

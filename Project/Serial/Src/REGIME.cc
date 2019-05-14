@@ -165,7 +165,7 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
     // Determine the diffusion vectors
     this->set_Dx(cons, prims, aux);
     for (int var(0); var<8; var++) {
-      for (int i(1); i<d->Nx-1; i++) {
+      for (int i(2); i<d->Nx-1; i++) {
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
 
@@ -180,7 +180,7 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
             //     source[ID(var, i, j, k)] = behind;
             // }
             // else
-            //   source[ID(var, i, j, k)] = 0;//
+            //   source[ID(var, i, j, k)] = 0;
 
             // Hybrid
             // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
@@ -197,8 +197,74 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
 
 
             // // Hybrid v2
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //     source[ID(var, i, j, k)] = ahead;
+            //   else
+            //     source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            //   source[ID(var, i, j, k)] = ahead;
+
+            // // Hybrid v3
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //     source[ID(var, i, j, k)] = ahead;
+            //   else
+            //     source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            //     source[ID(var, i, j, k)] = 0;
+
+            // // Hybrid v4
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //     source[ID(var, i, j, k)] = ahead;
+            //   else
+            //     source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            // {
+            //   ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
+            //   behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+            //
+            //   if (ahead * behind > 0){
+            //     if (fabs(ahead) < fabs(behind))
+            //       source[ID(var, i, j, k)] = ahead;
+            //     else
+            //       source[ID(var, i, j, k)] = behind;
+            //   }
+            //   else
+            //     source[ID(var, i, j, k)] = 0;
+            // }
+
+
+            // // // Hybrid v5
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //   source[ID(var, i, j, k)] = ahead;
+            //   else
+            //   source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            // source[ID(var, i, j, k)] = 0;
+
+
+            // // Hybrid v6
             ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
-            behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
+            behind = (3*diffuX[ID(var, i, j, k)] - 4*diffuX[ID(var, i-1, j, k)] + diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
 
             if (ahead * behind > 0){
               if (fabs(ahead) < fabs(behind))
@@ -207,20 +273,8 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
                 source[ID(var, i, j, k)] = behind;
             }
             else
-              source[ID(var, i, j, k)] = ahead;
+                source[ID(var, i, j, k)] = 0;
 
-              // // Hybrid v2
-              // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
-              // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
-              //
-              // if (ahead * behind > 0){
-              //   if (fabs(ahead) < fabs(behind))
-              //     source[ID(var, i, j, k)] = ahead;
-              //   else
-              //     source[ID(var, i, j, k)] = behind;
-              // }
-              // else
-              //   source[ID(var, i, j, k)] = 0;
 
           }
         }
@@ -231,7 +285,7 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
       this->set_Dy(cons, prims, aux);
       for (int var(0); var<8; var++) {
         for (int i(0); i<d->Nx; i++) {
-          for (int j(1); j<d->Ny-1; j++) {
+          for (int j(2); j<d->Ny-1; j++) {
             for (int k(0);k<d->Nz; k++) {
 
               // // Mindmod
@@ -261,8 +315,73 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
               //   source[ID(var, i, j, k)] += (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
 
               // // Hybrid v2
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] += ahead;
+              //   else
+              //     source[ID(var, i, j, k)] += behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] += ahead;
+
+              // // Hybrid v3
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] += ahead;
+              //   else
+              //     source[ID(var, i, j, k)] += behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] += 0;
+
+              // // Hybrid v4
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] += ahead;
+              //   else
+              //     source[ID(var, i, j, k)] += behind;
+              // }
+              // else
+              // {
+              //   ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
+              //   behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
+              //
+              //   if (ahead * behind > 0){
+              //     if (fabs(ahead) < fabs(behind))
+              //       source[ID(var, i, j, k)] += ahead;
+              //     else
+              //       source[ID(var, i, j, k)] += behind;
+              //   }
+              //   else
+              //     source[ID(var, i, j, k)] += 0;
+              // }
+
+
+              // // // Hybrid v5
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] += ahead;
+              //   else
+              //     source[ID(var, i, j, k)] += behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] += 0;
+
+              // // Hybrid v6
               ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
-              behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+              behind = (3*diffuY[ID(var, i, j, k)] - 4*diffuY[ID(var, i, j-1, k)] +  diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
 
               if (ahead * behind > 0){
                 if (fabs(ahead) < fabs(behind))
@@ -271,20 +390,9 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
                   source[ID(var, i, j, k)] += behind;
               }
               else
-                source[ID(var, i, j, k)] += ahead;
+                source[ID(var, i, j, k)] += 0;
 
-                // // Hybrid v3
-                // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
-                // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
-                //
-                // if (ahead * behind > 0){
-                //   if (fabs(ahead) < fabs(behind))
-                //     source[ID(var, i, j, k)] += ahead;
-                //   else
-                //     source[ID(var, i, j, k)] += behind;
-                // }
-                // else
-                //   source[ID(var, i, j, k)] += 0;
+
             }
           }
         }
