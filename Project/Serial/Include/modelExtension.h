@@ -51,7 +51,7 @@ class ModelExtension
     */
     virtual void fluxExtension(double * cons, double * prims, double * aux, double * flux) { } ;
 
-    virtual void init(double * prims) { }
+    // virtual void init(double * prims) { }
 
 };
 

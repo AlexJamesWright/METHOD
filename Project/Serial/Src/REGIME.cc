@@ -7,7 +7,7 @@
     This script defines the functions for REGIME. More information can be found
   in the documentation for the REGIME class. Alternatively, you can look in the
   REGIME.h header file.
-    Please see Wright & Hawke 2019 - A resistive extension of ideal MHD for
+    Please see Wright & Hawke 2019 - A resistive extension for ideal MHD for
   more.
 */
 
@@ -46,8 +46,8 @@ REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), flu
   diffuZ = new double[d->Nx*d->Ny*d->Nz*8] ();
   alpha = new double[d->Nx*d->Ny*d->Nz] ();
   d->sourceExtension = new double[d->Nx*d->Ny*d->Nz*d->Ncons] ();
-  vortX = new double[d->Nx*d->Ny*d->Nz] ();
-  vortY = new double[d->Nx*d->Ny*d->Nz] ();
+  // vortX = new double[d->Nx*d->Ny*d->Nz] ();
+  // vortY = new double[d->Nx*d->Ny*d->Nz] ();
 
 }
 
@@ -74,71 +74,71 @@ REGIME::~REGIME()
   delete[] diffuZ;
   delete[] alpha;
   delete[] d->sourceExtension;
-  delete[] vortX;
-  delete[] vortY;
+  // delete[] vortX;
+  // delete[] vortY;
 }
 
-void REGIME::init(double * prims)
-{
-  // Syntax
-  Data * d(this->data);
+// void REGIME::init(double * prims)
+// {
+//   // Syntax
+//   Data * d(this->data);
+//
+//   // X-direction vorticity
+//   maxCurVortX = -1;
+//   for (int i(1); i < d->Nx-1; i++) {
+//     for (int j(0); j < d->Ny; j++) {
+//       for (int k(0); k < d->Nz; k++) {
+//         vortX[ID(0, i, j, k)] = (prims[ID(2, i+1, j, k)] - prims[ID(2, i-1, j, k)]) / (2 * d->dx);
+//         if (fabs(vortX[ID(0, i, j, k)]) > maxCurVortX)
+//           maxCurVortX = fabs(vortX[ID(0, i, j, k)]);
+//       }
+//     }
+//   }
+//   // Y-direction vorticity
+//   maxCurVortY = -1;
+//   for (int i(0); i < d->Nx; i++) {
+//     for (int j(1); j < d->Ny-1; j++) {
+//       for (int k(0); k < d->Nz; k++) {
+//         vortY[ID(0, i, j, k)] = (prims[ID(1, i, j+1, k)] - prims[ID(1, i, j-1, k)]) / (2 * d->dy);
+//         if (fabs(vortY[ID(0, i, j, k)]) > maxCurVortY)
+//           maxCurVortY = fabs(vortY[ID(0, i, j, k)]);
+//       }
+//     }
+//   }
+// }
 
-  // X-direction vorticity
-  maxCurVortX = -1;
-  for (int i(1); i < d->Nx-1; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        vortX[ID(0, i, j, k)] = (prims[ID(2, i+1, j, k)] - prims[ID(2, i-1, j, k)]) / (2 * d->dx);
-        if (fabs(vortX[ID(0, i, j, k)]) > maxCurVortX)
-          maxCurVortX = fabs(vortX[ID(0, i, j, k)]);
-      }
-    }
-  }
-  // Y-direction vorticity
-  maxCurVortY = -1;
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(1); j < d->Ny-1; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        vortY[ID(0, i, j, k)] = (prims[ID(1, i, j+1, k)] - prims[ID(1, i, j-1, k)]) / (2 * d->dy);
-        if (fabs(vortY[ID(0, i, j, k)]) > maxCurVortY)
-          maxCurVortY = fabs(vortY[ID(0, i, j, k)]);
-      }
-    }
-  }
-}
-
-void REGIME::set_vorts(double * prims)
-{
-  // Syntax
-  Data * d(this->data);
-
-  // Update previous maximums
-  maxPrevVortX = maxCurVortX;
-  maxPrevVortY = maxCurVortY;
-
-  // X-direction vorticity
-  maxCurVortX = -1;
-  for (int i(1); i < d->Nx-1; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        vortX[ID(0, i, j, k)] = (prims[ID(2, i+1, j, k)] - prims[ID(2, i-1, j, k)]) / (2 * d->dx);
-        if (fabs(vortX[ID(0, i, j, k)]) > maxCurVortX)
-          maxCurVortX = fabs(vortX[ID(0, i, j, k)]);
-      }
-    }
-  }
-  // Y-direction vorticity
-  maxCurVortY = -1;
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(1); j < d->Ny-1; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        vortY[ID(0, i, j, k)] = (prims[ID(1, i, j+1, k)] - prims[ID(1, i, j-1, k)]) / (2 * d->dy);
-        if (fabs(vortY[ID(0, i, j, k)]) > maxCurVortY)
-          maxCurVortY = fabs(vortY[ID(0, i, j, k)]);
-      }
-    }
-  }
-}
+// void REGIME::set_vorts(double * prims)
+// {
+//   // Syntax
+//   Data * d(this->data);
+//
+//   // Update previous maximums
+//   maxPrevVortX = maxCurVortX;
+//   maxPrevVortY = maxCurVortY;
+//
+//   // X-direction vorticity
+//   maxCurVortX = -1;
+//   for (int i(1); i < d->Nx-1; i++) {
+//     for (int j(0); j < d->Ny; j++) {
+//       for (int k(0); k < d->Nz; k++) {
+//         vortX[ID(0, i, j, k)] = (prims[ID(2, i+1, j, k)] - prims[ID(2, i-1, j, k)]) / (2 * d->dx);
+//         if (fabs(vortX[ID(0, i, j, k)]) > maxCurVortX)
+//           maxCurVortX = fabs(vortX[ID(0, i, j, k)]);
+//       }
+//     }
+//   }
+//   // Y-direction vorticity
+//   maxCurVortY = -1;
+//   for (int i(0); i < d->Nx; i++) {
+//     for (int j(1); j < d->Ny-1; j++) {
+//       for (int k(0); k < d->Nz; k++) {
+//         vortY[ID(0, i, j, k)] = (prims[ID(1, i, j+1, k)] - prims[ID(1, i, j-1, k)]) / (2 * d->dy);
+//         if (fabs(vortY[ID(0, i, j, k)]) > maxCurVortY)
+//           maxCurVortY = fabs(vortY[ID(0, i, j, k)]);
+//       }
+//     }
+//   }
+// }
 
 void REGIME::sourceExtension(double * cons, double * prims, double * aux, double * source)
 {
@@ -149,7 +149,7 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
   double ahead(0);
   double behind(0);
   // Tolerance for MINMOD switch
-  double tol(0.001);
+  // double tol(0.001);
 
   // Set vars
   this->set_vars(cons, prims, aux);
@@ -157,8 +157,8 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
   this->set_K(cons, prims, aux);
   this->set_dwdsb(cons, prims, aux);
 
-  if (d->dims > 1)
-    this->set_vorts(prims);
+  // if (d->dims > 1)
+  //   this->set_vorts(prims);
 
   // Get Da, determine its gradient and add to source
   {
@@ -168,26 +168,48 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
       for (int i(1); i<d->Nx-1; i++) {
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
-            if (d->dims>1 && fabs(maxCurVortX-maxPrevVortX)/maxCurVortX > tol)
-            {
-              // Central differencing
-              source[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
+
+            // // Mindmod with central differencing v1
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2*d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //     source[ID(var, i, j, k)] = ahead;
+            //   else
+            //     source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            //   source[ID(var, i, j, k)] = 0;
+
+
+            // // Mindmod with central differencing v2
+            ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
+            behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+
+            if (ahead * behind > 0){
+              if (fabs(ahead) < fabs(behind))
+                source[ID(var, i, j, k)] = ahead;
+              else
+                source[ID(var, i, j, k)] = behind;
             }
             else
-            {
-              // MINMOD
-              ahead = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / d->dx;
-              behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / d->dx;
+              source[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
 
-              if (ahead * behind > 0){
-                if (fabs(ahead) < fabs(behind))
-                  source[ID(var, i, j, k)] = ahead;
-                else
-                  source[ID(var, i, j, k)] = behind;
-              }
-              else
-                source[ID(var, i, j, k)] = 0;
-            }
+
+              // Mindmod with central differencing v3
+              // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
+              // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] = ahead;
+              //   else
+              //     source[ID(var, i, j, k)] = behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] = 0;
+
           }
         }
       }
@@ -199,26 +221,46 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
         for (int i(0); i<d->Nx; i++) {
           for (int j(1); j<d->Ny-1; j++) {
             for (int k(0);k<d->Nz; k++) {
-              if (fabs(maxCurVortY-maxPrevVortY)/maxCurVortX > tol)
-              {
-                // Central differencing
-                source[ID(var, i, j, k)] = (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
+
+              // // Mindmod with central differencing v1
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2*d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] = ahead;
+              //   else
+              //     source[ID(var, i, j, k)] = behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] = 0;
+
+              // // Mindmod with central differencing v2
+              ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
+              behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
+
+              if (ahead * behind > 0){
+                if (fabs(ahead) < fabs(behind))
+                  source[ID(var, i, j, k)] = ahead;
+                else
+                  source[ID(var, i, j, k)] = behind;
               }
               else
-              {
-                // MINMOD
-                ahead = (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / d->dy;
-                behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / d->dy;
+                source[ID(var, i, j, k)] = (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
 
-                if (ahead * behind > 0){
-                  if (fabs(ahead) < fabs(behind))
-                    source[ID(var, i, j, k)] = ahead;
-                  else
-                    source[ID(var, i, j, k)] = behind;
-                }
-                else
-                  source[ID(var, i, j, k)] = 0;
-              }
+              // Mindmod with central differencing v3
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] = ahead;
+              //   else
+              //     source[ID(var, i, j, k)] = behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] = 0;
+
             }
           }
         }
@@ -322,9 +364,6 @@ void REGIME::set_dwdsb(double * cons, double * prims, double * aux)
         double sigcu(d->sigma*d->sigma*d->sigma);
         double sig(d->sigma);
         double qch(q[ID(0, i, j, k)]);
-        double vdotB(prims[ID(1, i, j, k)]*prims[ID(5, i, j, k)] +
-                     prims[ID(2, i, j, k)]*prims[ID(6, i, j, k)] +
-                     prims[ID(3, i, j, k)]*prims[ID(7, i, j, k)]);
 
 
         // First, do A
@@ -457,9 +496,7 @@ void REGIME::set_K(double * cons, double * prims, double * aux)
         }
       }
     }
-
   }
-
 }
 
 

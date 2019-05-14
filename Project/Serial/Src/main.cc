@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(200);
-  int ny(0);
+  int nx(128);
+  int ny(256);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -36,23 +36,22 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.4);
+  double endTime(6.0);
   double cfl(0.4);
-  double gamma(2.0);
-  double sigma(100);
+  double gamma(4.0/3.0);
+  double sigma(50);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
-  int frameSkip(133);
-  bool output(false);
+  int frameSkip(45);
+  bool output(true);
   int safety(133);
 
 
   char * ptr(0);
-  double tmp(0);
   //! Overwrite any variables that have been passed in as main() arguments
   for (int i(0); i < argc; i++) {
-    if (strcmp(argv[i], "sigma") == 0 && tmp!=0) {
+    if (strcmp(argv[i], "sigma") == 0) {
       sigma = (double)strtol(argv[i+1], &ptr, 10);
     }
   }
@@ -65,15 +64,15 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  REGIME subgridModel(&data, &fluxMethod);
+  REGIME modelExtension(&data, &fluxMethod);
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
-  Outflow bcs(&data);
+  Flow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &subgridModel);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
   // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
