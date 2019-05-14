@@ -169,9 +169,9 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
         for (int j(0); j<d->Ny; j++) {
           for (int k(0);k<d->Nz; k++) {
 
-            // // Mindmod with central differencing v1
-            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
-            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2*d->dx);
+            // // Mindmod
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
             //
             // if (ahead * behind > 0){
             //   if (fabs(ahead) < fabs(behind))
@@ -180,12 +180,25 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
             //     source[ID(var, i, j, k)] = behind;
             // }
             // else
-            //   source[ID(var, i, j, k)] = 0;
+            //   source[ID(var, i, j, k)] = 0;//
+
+            // Hybrid
+            // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
+            // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+            //
+            // if (ahead * behind > 0){
+            //   if (fabs(ahead) < fabs(behind))
+            //     source[ID(var, i, j, k)] = ahead;
+            //   else
+            //     source[ID(var, i, j, k)] = behind;
+            // }
+            // else
+            //   source[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
 
 
-            // // Mindmod with central differencing v2
-            ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
-            behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+            // // Hybrid v2
+            ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+            behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
 
             if (ahead * behind > 0){
               if (fabs(ahead) < fabs(behind))
@@ -194,12 +207,11 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
                 source[ID(var, i, j, k)] = behind;
             }
             else
-              source[ID(var, i, j, k)] = (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2*d->dx);
+              source[ID(var, i, j, k)] = ahead;
 
-
-              // Mindmod with central differencing v3
-              // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i, j, k)]) / (d->dx);
-              // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-1, j, k)]) / (d->dx);
+              // // Hybrid v2
+              // ahead =  (diffuX[ID(var, i+1, j, k)] - diffuX[ID(var, i-1, j, k)]) / (2 * d->dx);
+              // behind = (diffuX[ID(var, i, j, k)] - diffuX[ID(var, i-2, j, k)]) / (2 * d->dx);
               //
               // if (ahead * behind > 0){
               //   if (fabs(ahead) < fabs(behind))
@@ -222,45 +234,57 @@ void REGIME::sourceExtension(double * cons, double * prims, double * aux, double
           for (int j(1); j<d->Ny-1; j++) {
             for (int k(0);k<d->Nz; k++) {
 
-              // // Mindmod with central differencing v1
-              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
-              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2*d->dy);
-              //
-              // if (ahead * behind > 0){
-              //   if (fabs(ahead) < fabs(behind))
-              //     source[ID(var, i, j, k)] = ahead;
-              //   else
-              //     source[ID(var, i, j, k)] = behind;
-              // }
-              // else
-              //   source[ID(var, i, j, k)] = 0;
-
-              // // Mindmod with central differencing v2
-              ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
-              behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
-
-              if (ahead * behind > 0){
-                if (fabs(ahead) < fabs(behind))
-                  source[ID(var, i, j, k)] = ahead;
-                else
-                  source[ID(var, i, j, k)] = behind;
-              }
-              else
-                source[ID(var, i, j, k)] = (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2*d->dy);
-
-              // Mindmod with central differencing v3
+              // // Mindmod
               // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
               // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
               //
               // if (ahead * behind > 0){
               //   if (fabs(ahead) < fabs(behind))
-              //     source[ID(var, i, j, k)] = ahead;
+              //     source[ID(var, i, j, k)] += ahead;
               //   else
-              //     source[ID(var, i, j, k)] = behind;
+              //     source[ID(var, i, j, k)] += behind;
               // }
               // else
-              //   source[ID(var, i, j, k)] = 0;
+              //   source[ID(var, i, j, k)] += 0;
 
+              // // Hybrid
+              // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j, k)]) / (d->dy);
+              // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-1, k)]) / (d->dy);
+              //
+              // if (ahead * behind > 0){
+              //   if (fabs(ahead) < fabs(behind))
+              //     source[ID(var, i, j, k)] += ahead;
+              //   else
+              //     source[ID(var, i, j, k)] += behind;
+              // }
+              // else
+              //   source[ID(var, i, j, k)] += (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+
+              // // Hybrid v2
+              ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+              behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+
+              if (ahead * behind > 0){
+                if (fabs(ahead) < fabs(behind))
+                  source[ID(var, i, j, k)] += ahead;
+                else
+                  source[ID(var, i, j, k)] += behind;
+              }
+              else
+                source[ID(var, i, j, k)] += ahead;
+
+                // // Hybrid v3
+                // ahead =  (diffuY[ID(var, i, j+1, k)] - diffuY[ID(var, i, j-1, k)]) / (2 * d->dy);
+                // behind = (diffuY[ID(var, i, j, k)] - diffuY[ID(var, i, j-2, k)]) / (2 * d->dy);
+                //
+                // if (ahead * behind > 0){
+                //   if (fabs(ahead) < fabs(behind))
+                //     source[ID(var, i, j, k)] += ahead;
+                //   else
+                //     source[ID(var, i, j, k)] += behind;
+                // }
+                // else
+                //   source[ID(var, i, j, k)] += 0;
             }
           }
         }

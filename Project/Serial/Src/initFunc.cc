@@ -610,13 +610,6 @@ SphericalBlastWaveSingleFluid::SphericalBlastWaveSingleFluid(Data * data) : Init
   double rhoi(1.0); double rhoe(0.125);
   double pi(1.0); double pe(0.1);
 
-  double rho0 = pow(rhoi/ pow(rhoe, 0.25), -0.05);
-  double lambdaRho = log(rho0/rhoe);
-
-  double p0 = pow(pi/pow(pe, 0.25), -0.05);
-  double lambdaP = log(p0/pe);
-
-
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
