@@ -74,9 +74,6 @@ class REGIME : public ModelExtension
   public:
 
     double
-    // *vortX, *vortY,
-    // maxPrevVortX, maxCurVortX,
-    // maxPrevVortY, maxCurVortY,
     //{
     *dfxdw, *dfydw, *dfzdw,      //!< Derivative of flux vector wrt to primitive variables
     //}
@@ -116,12 +113,6 @@ class REGIME : public ModelExtension
       @sa ModelExtension
     */
     void sourceExtension(double * cons, double * prims, double * aux, double * source);
-
-    // Initialisation to be done on first step
-    // void init(double * prims);
-
-    // Set the vorticity for the current step
-    // void set_vorts(double * prims);
 
     //! Sets up variables including the electric field and charge density
     void set_vars(double * cons, double * prims, double * aux);
