@@ -96,7 +96,6 @@ class CompareParallelAndSerial(object):
 Compare = CompareParallelAndSerial()
 
 
-
 # Test functions
 
 # IMEX3
@@ -108,6 +107,7 @@ def test_ConsEquivalentForSSP3():
             for j in range(*Compare.ybounds[Obj]):
                 for k in range(*Compare.zbounds[Obj]):
                     try:
+                        print(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k])))
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
                     except AssertionError:
                         print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
@@ -243,7 +243,7 @@ def test_FxEquivalentForFVS():
                     try:
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
                     except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
 
 def test_FyEquivalentForFVS():
@@ -256,7 +256,7 @@ def test_FyEquivalentForFVS():
                     try:
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
                     except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
 
 def test_FzEquivalentForFVS():
@@ -269,5 +269,5 @@ def test_FzEquivalentForFVS():
                     try:
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
                     except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
                         assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))

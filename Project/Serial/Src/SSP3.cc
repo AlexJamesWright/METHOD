@@ -54,7 +54,7 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
   // Hybrd1 variables
   int info;
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
-  double tol(1.0e-8);
+  double tol(0.0000000149011612);
 
 
 
