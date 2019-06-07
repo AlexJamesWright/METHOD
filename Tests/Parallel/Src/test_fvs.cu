@@ -63,7 +63,7 @@ TEST(FVS, SameXReconstructionAsSerial)
   SaveData save(&d);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  model.fluxVector(d.cons, d.prims, d.aux, d.f, 0);
+
   fluxMethod.fluxReconstruction(d.cons, d.prims, d.aux, d.f, d.fnet, 0);
 
   for (int var(0); var < d.Ncons; var++)

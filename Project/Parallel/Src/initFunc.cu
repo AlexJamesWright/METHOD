@@ -217,13 +217,24 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
         d->prims[ID(0, i, j, k)] = 25.0 / 36.0 / PI;
         d->prims[ID(4, i, j, k)] = 5.0 / 12.0 / PI;
 
-        // x-velocity and x-Bfield
-        d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
+        // x-Bfield
         d->prims[ID(5, i, j, k)] = - sin(2.0 * PI * d->y[j]) / sqrt(4.0 * PI);
 
-        // y-velocity and y-Bfield
-        d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);
+        // y-Bfield
         d->prims[ID(6, i, j, k)] = sin(4.0 * PI * d->x[i]) / sqrt(4.0 * PI);
+
+
+        if (d->Nz == 1) // 2D simulation
+        {
+          d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
+          d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);
+        }
+        else // 3D simulation
+        {
+            d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]) * (1 + 0.2 * sin(2.0 * PI * d->z[j]));
+            d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]) * (1 + 0.2 * sin(2.0 * PI * d->z[j]));
+            d->prims[ID(3, i, j, k)] = 0.2 * sin(2.0 * PI * d->z[j]);
+        }
       }
     }
   }
