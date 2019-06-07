@@ -48,14 +48,6 @@ int main(int argc, char *argv[]) {
   int safety(-1);
 
 
-  char * ptr(0);
-  //! Overwrite any variables that have been passed in as main() arguments
-  for (int i(0); i < argc; i++) {
-    if (strcmp(argv[i], "sigma") == 0) {
-      sigma = (double)strtol(argv[i+1], &ptr, 10);
-    }
-  }
-
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
