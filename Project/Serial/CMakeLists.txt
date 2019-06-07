@@ -17,6 +17,7 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/simulation.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/srmhd.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/srrmhd.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/REGIME.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/SSP2.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/SSP3.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/SSP2322.cc
@@ -53,7 +54,8 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP2.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP3.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP2322.h
-    ${CMAKE_CURRENT_LIST_DIR}/Include/subgridModel.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/modelExtension.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/REGIME.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/timeInt.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/twoFluidEMHD.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/weno.h
