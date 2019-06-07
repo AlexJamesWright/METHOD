@@ -82,10 +82,14 @@ void Simulation::set(InitialFunc * init, Model * model,
   this->bcs = bcs;
   this->fluxMethod = fluxMethod;
   this->save = save;
+
   // Set primitive and auxilliary variables
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
-
+  
+  // If source extension, determine
+  if (this->timeInt->modelExtension != NULL && this->timeInt->modelExtension->sourceExists)
+      this->timeInt->modelExtension->sourceExtension(d->cons, d->prims, d->aux, d->sourceExtension);
 }
 
 //! Incrememt the system forward by a single timestep
@@ -103,7 +107,8 @@ void Simulation::updateTime()
   d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
 
   // Slow start
-  if (d->iters < 5) d->dt *= 0.1;
+  if (d->iters < 15) d->dt *= 0.1;
+  if (d->iters >= 15 && d->iters < 30) d->dt *= 0.25;
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
@@ -124,12 +129,14 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("rho", 6);
-    this->save->saveVar("vx", 6);
-    this->save->saveVar("vy", 6);
-    this->save->saveVar("Bx", 6);
-    this->save->saveVar("By", 6);
-    this->save->saveVar("Bz", 6);
+    this->save->saveVar("rho", 8);
+    this->save->saveVar("vx", 8);
+    this->save->saveVar("vy", 8);
+    this->save->saveVar("vz", 8);
+    this->save->saveVar("p", 8);
+    this->save->saveVar("Bx", 8);
+    this->save->saveVar("By", 8);
+    this->save->saveVar("Bz", 8);
   }
 
   while (d->t < d->endTime) {
@@ -139,12 +146,14 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveVar("rho", 6);
-      this->save->saveVar("vx", 6);
-      this->save->saveVar("vy", 6);
-      this->save->saveVar("Bx", 6);
-      this->save->saveVar("By", 6);
-      this->save->saveVar("Bz", 6);
+    this->save->saveVar("rho", 8);
+    this->save->saveVar("vx", 8);
+    this->save->saveVar("vy", 8);
+    this->save->saveVar("vz", 8);
+    this->save->saveVar("p", 8);
+    this->save->saveVar("Bx", 8);
+    this->save->saveVar("By", 8);
+    this->save->saveVar("Bz", 8);
     }
 
     if (safety>0 && d->iters%safety==0) {
@@ -157,12 +166,14 @@ void Simulation::evolve(bool output, int safety)
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("rho", 6);
-    this->save->saveVar("vx", 6);
-    this->save->saveVar("vy", 6);
-    this->save->saveVar("Bx", 6);
-    this->save->saveVar("By", 6);
-    this->save->saveVar("Bz", 6);
+    this->save->saveVar("rho", 8);
+    this->save->saveVar("vx", 8);
+    this->save->saveVar("vy", 8);
+    this->save->saveVar("vz", 8);
+    this->save->saveVar("p", 8);
+    this->save->saveVar("Bx", 8);
+    this->save->saveVar("By", 8);
+    this->save->saveVar("Bz", 8);
     }
 
   printf("\n");

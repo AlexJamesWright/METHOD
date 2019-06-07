@@ -125,7 +125,8 @@ void Simulation::updateTime()
   d->dt = (dtX <= dtY && dtX <= dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
 
   // Slow start
-  if (d->iters < 5) d->dt *= 0.1;
+  if (d->iters < 15) d->dt *= 0.1;
+  if (d->iters >= 15 && d->iters < 30) d->dt *= 0.25;
 
   // Ensure correct end time
   if (d->t + d->dt > d->endTime) d->dt = d->endTime - d->t;
@@ -146,8 +147,18 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("rho", 1);
-  }
+
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);  }
 
   while (d->t < d->endTime) {
 
@@ -156,8 +167,18 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-      this->save->saveVar("rho", 1);
 
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);
     }
 
     if (safety>0 && d->iters%safety==0) {
@@ -170,8 +191,18 @@ void Simulation::evolve(bool output, int safety)
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("rho", 1);
 
+      this->save->saveVar("rho", 11);
+      this->save->saveVar("vx", 11);
+      this->save->saveVar("vy", 11);
+      this->save->saveVar("vz", 11);
+      this->save->saveVar("p", 11);
+      this->save->saveVar("Bx", 11);
+      this->save->saveVar("By", 11);
+      this->save->saveVar("Bz", 11);
+      this->save->saveVar("Ex", 11);
+      this->save->saveVar("Ey", 11);
+      this->save->saveVar("Ez", 11);
     }
 
   printf("\n");

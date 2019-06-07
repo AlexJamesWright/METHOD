@@ -91,15 +91,17 @@ class FVS : public FluxMethod
       @param[in] *f pointer to a flux work array to store the initial flux vector
       @param[out] *frecon pointer to the array containing the reconstructed values
       of the fluxes at the cell faces
-      @param dir the direction in which to determine flux reconstruction with
+      @param[in] dir the direction in which to determine flux reconstruction with
       (0, 1, 2) = (x, y, z)
+      @param[in] vars size of the vector to reconstruct (saves time when using subgrid models).
+      Default values is -1, which autos to Ncons.
       @note This is an approximation of the net flux at the cell faces, not
       the cell centers, and so the final approximation of the flux through a cell
       required differencing the values obtained here at either end of the cell.
       This is performed in F
       @sa F
     */
-    void fluxReconstruction(double * cons, double * prims, double * aux, double * f, double * frecon, int dir);
+    void fluxReconstruction(double * cons, double * prims, double * aux, double * f, double * frecon, int dir, int vars=-1);
 
     //! Numerical flux function
     /*!

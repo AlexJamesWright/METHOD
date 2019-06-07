@@ -5,39 +5,68 @@
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void RKSplit::step(double * cons, double * prims, double * aux, double dt)
+void RKSplit::setSource(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
-
-  // Perform standard RK2 step
-  RK2::step(cons, prims, aux);
-
-  // Add source contribution
+  // Set source contribution
   this->model->sourceTerm(cons, prims, aux, d->source);
 
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
+  // If there is a subgrid model, set that contribution
+  if (modelExtension != NULL && modelExtension->sourceExists) {
+    modelExtension->sourceExtension(cons, prims, aux, d->sourceExtension);
+
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            d->source[ID(var, i, j, k)] += d->sourceExtension[ID(var, i, j, k)];
+          }
         }
       }
     }
   }
-  // Determine new prim and aux variables
-  try {
-    this->model->getPrimitiveVars(cons, prims, aux);
+
+}
+
+void RKSplit::step(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Predictor + source
+  RK2::predictorStep(cons, prims, aux, dt);
+  RK2::finalise(p1cons, p1prims, p1aux);
+  // Set and add source
+  this->setSource(cons, prims, aux);
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          p1cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
+        }
+      }
+    }
   }
-  catch (const std::exception& e) {
-    printf("RKSplit raises exception with following message:\n%s\n", e.what());
-    throw e;
+  RK2::finalise(p1cons, p1prims, p1aux);
+
+  // Corrector + source
+  RK2::correctorStep(cons, prims, aux, dt);
+  RK2::finalise(cons, prims, aux);
+  // Set and add source
+  this->setSource(p1cons, p1prims, p1aux);
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          cons[ID(var, i, j, k)] += 0.5 * dt * d->source[ID(var, i, j, k)];
+        }
+      }
+    }
   }
-  // Apply boundary conditions
-  this->bcs->apply(cons, prims, aux);
+  RK2::finalise(cons, prims, aux);
 
 }

@@ -50,7 +50,7 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
 TEST(SSP3, IMEX3BenchmarkForParallelCode)
 {
   /*
-    Run a resistive MHD problem to test the IMEX2 scheme. This test will run
+    Run a resistive MHD problem to test the IMEX3 scheme. This test will run
     the simulation and save the output data in the TestData directory, ready
     to be compared with the parallel output.
   */

@@ -5,16 +5,12 @@
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void RK2::step(double * cons, double * prims, double * aux, double dt)
+
+RK2::RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
+      TimeIntegrator(data, model, bcs, fluxMethod, modelExtension)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
-  // Need some work arrays
-  double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
   int Ntot(d->Nx * d->Ny * d->Nz);
 
@@ -23,6 +19,39 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
   p1aux = (double *) malloc(sizeof(double) * Ntot * d->Naux);
   args1 = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
   args2 = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+}
+
+RK2::~RK2()
+{
+  // Free arrays
+  free(p1cons);
+  free(p1prims);
+  free(p1aux);
+  free(args1);
+  free(args2);
+}
+
+void RK2::finalise(double * cons, double * prims, double * aux)
+{
+  // Apply boundary conditions and get primitive and aux vars for p1
+  try {
+    this->model->getPrimitiveVars(cons, prims, aux);
+  }
+  catch (const std::exception& e) {
+    printf("RK2 raises exception with following message:\n%s\n", e.what());
+    throw e;
+  }
+
+  this->bcs->apply(cons, prims, aux);
+}
+
+void RK2::predictorStep(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
@@ -52,48 +81,38 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
        }
      }
    }
+}
 
-   // Apply boundary conditions and get primitive and aux vars for p1
-   try {
-     this->model->getPrimitiveVars(p1cons, p1prims, p1aux);
-   }
-   catch (const std::exception& e) {
-     printf("RK2 (stage 1) raises exception with following message:\n%s\n", e.what());
-     throw e;
-   }
+void RK2::correctorStep(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
 
-   this->bcs->apply(p1cons, p1prims, p1aux);
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
 
-   // Get second approximation of flux contribution
-   this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
+  // Get second approximation of flux contribution
+  this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
 
-   // Construct solution
-   for (int var(0); var < d->Ncons; var++) {
-     for (int i(0); i < d->Nx; i++) {
-       for (int j(0); j < d->Ny; j++) {
-         for (int k(0); k < d->Nz; k++) {
-           cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] -
-                                       dt * args2[ID(var, i, j, k)]);
-         }
-       }
-     }
-   }
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] -
+                                      dt * args2[ID(var, i, j, k)]);
+        }
+      }
+    }
+  }
+}
 
-   // Determine new prim and aux variables
-   try {
-     this->model->getPrimitiveVars(cons, prims, aux);
-   }
-   catch (const std::exception& e) {
-     printf("RK2 (corrector) raises exception with following message:\n%s\n", e.what());
-     throw e;
-   }
-   // Apply boundary conditions
-   this->bcs->apply(cons, prims, aux);
+void RK2::step(double * cons, double * prims, double * aux, double dt)
+{
+  predictorStep(cons, prims, aux, dt);
+  finalise(p1cons, p1prims, p1aux);
 
-   // Free arrays
-   free(p1cons);
-   free(p1prims);
-   free(p1aux);
-   free(args1);
-   free(args2);
+  correctorStep(cons, prims, aux, dt);
+  finalise(cons, prims, aux);
+
 }

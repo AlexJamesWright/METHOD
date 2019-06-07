@@ -53,6 +53,7 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP2.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP3.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/SSP2322.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/subgridModel.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/timeInt.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/twoFluidEMHD.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/weno.h

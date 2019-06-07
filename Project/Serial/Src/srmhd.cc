@@ -402,7 +402,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   double sol[2];                      // Guess and solution vector
   double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
-  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.49011612e-7;   // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
@@ -499,15 +499,15 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                         tol, wa, lwa);
       if (info != 1) {
         printf("Smart guessing did not work, exiting\n");
-        for (Failed fail : fails) printf("(%d, %d, %d) failed\n", fail.x, fail.y, fail.z);
-        std::exit(1);
+        printf("(%d, %d, %d) failed\n", fail.x, fail.y, fail.z);
+        // std::exit(1);
       }
-      else {
-        smartGuesses++;
+      // else {
+      //   smartGuesses++;
         // printf("Smart guessing worked!\n");
         solution[ID(0, x, y, z)] = sol[0];
         solution[ID(1, x, y, z)] = sol[1];
-      }
+      // }
     }
   }
 

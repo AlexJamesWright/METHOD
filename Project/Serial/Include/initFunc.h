@@ -101,9 +101,10 @@ class CurrentSheetSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
+      @oaram[in] direction the axis the magnetic field is along (default is x)
       @sa InitialFunc
     */
-    CurrentSheetSingleFluid(Data * data);
+    CurrentSheetSingleFluid(Data * data, int direction=0);
 };
 
 
@@ -224,10 +225,72 @@ class FieldLoopAdvectionSingleFluid : public InitialFunc
 };
 
 
+//! <b> Resistive Magnetic Reconnection initial data, single fluid
+/*!
+    Set up is lifted from the PLUTO code, see Mignone et al 2012. This is a
+  two-dimensional resistive problem, in which magnetic field lines with opposing
+  directions reconnect, releasing energy in the form of kinetic motion and
+  temperature. The rate of the reconnection should scale with the root of the
+  resistivity.
+*/
+class ResistiveReconnectionSingleFluid : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    ResistiveReconnectionSingleFluid(Data * data);
+
+};
+
+//! <b> Magnetic rotor initial data, single fluid
+/*!
+    Taken from Keppens 2012, Parallel grid adaptive...
+    2D problem
+*/
+class MagneticRotorSingleFluid : public InitialFunc
+{
+  public:
+    MagneticRotorSingleFluid(Data * data);
+};
+
+//! <b> Spherical blast wave initial data. single fluid </b>
+/*!
+    Initial data taken from Dionysopoulou 2013, Formulation and tests.
+      3D problems/
+*/
+class SphericalBlastWaveSingleFluid : public InitialFunc
+{
+  public:
+    SphericalBlastWaveSingleFluid(Data * data);
+};
 
 
+//! <b> Rotated 2D Brio-Wu single fluid </b>
+/*!
+    This is the standard MHD Brio-Wu test, rotated about z=0 by pi/4. One must
+  use the diagonal outflow boundary conditions.
+  @sa OutflowDiagBW
+*/
+class RotatedBrioWu2DSingleFluid : public InitialFunc
+{
+  public:
+    RotatedBrioWu2DSingleFluid(Data * data);
+};
 
 
+//! <b> Perturbed 2D Brio-Wu single fluid </b>
+/*!
+    This is the standard MHD Brio-Wu test in 2D, but with perturbations along
+  the discontinuity. This introduces 2D fluxes and potentially cross derivative
+  terms in the REGIME source.
+*/
+class PerturbedBrioWu2DSingleFluid : public InitialFunc
+{
+  public:
+    PerturbedBrioWu2DSingleFluid(Data * data);
+};
 
 
 

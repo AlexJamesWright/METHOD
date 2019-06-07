@@ -143,7 +143,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
   Data * d(data);
 
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
-  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
@@ -167,30 +167,32 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
 }
 
 
-CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data) : InitialFunc(data)
+CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data, int direction) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  // if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
 
   double B0(1);
   const double rho(1.0);
   const double p(50.0);
-  // double tmp1, tmp2;
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         d->prims[ID(0, i, j, k)] = rho;
         d->prims[ID(4, i, j, k)] = p;
-        d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
+        if (direction == 0)
+          d->prims[ID(6, i, j, k)] = B0 * erf(0.5 * d->x[i] * sqrt(d->sigma));
+        if (direction == 1)
+          d->prims[ID(7, i, j, k)] = B0 * erf(0.5 * d->y[j] * sqrt(d->sigma));
+        if (direction == 2)
+          d->prims[ID(5, i, j, k)] = B0 * erf(0.5 * d->z[k] * sqrt(d->sigma));
       }
     }
   }
-  printf("By[14391] = %19.16f\n", d->prims[ID(6, 14391, 0, 0)]);
-  printf("x = %19.16f\n, B0 = %19.16f\nsigma = %19.16f\nsqrt = %19.16f\n", d->x[14391], B0, d->sigma, sqrt(d->sigma));
 }
 
 
@@ -215,13 +217,24 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
         d->prims[ID(0, i, j, k)] = 25.0 / 36.0 / PI;
         d->prims[ID(4, i, j, k)] = 5.0 / 12.0 / PI;
 
-        // x-velocity and x-Bfield
-        d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
+        // x-Bfield
         d->prims[ID(5, i, j, k)] = - sin(2.0 * PI * d->y[j]) / sqrt(4.0 * PI);
 
-        // y-velocity and y-Bfield
-        d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);
+        // y-Bfield
         d->prims[ID(6, i, j, k)] = sin(4.0 * PI * d->x[i]) / sqrt(4.0 * PI);
+
+
+        if (d->Nz == 1) // 2D simulation
+        {
+          d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
+          d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);
+        }
+        else // 3D simulation
+        {
+            d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]) * (1 + 0.2 * sin(2.0 * PI * d->z[j]));
+            d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]) * (1 + 0.2 * sin(2.0 * PI * d->z[j]));
+            d->prims[ID(3, i, j, k)] = 0.2 * sin(2.0 * PI * d->z[j]);
+        }
       }
     }
   }
@@ -487,8 +500,8 @@ FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : Init
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-5, 5]\n");
-  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [-5, 5]\n");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
+  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.-5, 0.5]\n");
 
 
   double R(0.3);
@@ -507,3 +520,40 @@ FieldLoopAdvectionSingleFluid::FieldLoopAdvectionSingleFluid(Data * data) : Init
     }
   }
 }
+
+ResistiveReconnectionSingleFluid::ResistiveReconnectionSingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -12.8 || d->xmax != 12.8) throw std::invalid_argument("Domain has incorrect values. Expected x E [-12.8, 12.8]\n");
+  if (d->ymin != -6.4 || d->ymax != 6.4) throw std::invalid_argument("Domain has incorrect values. Expected y E [-6.4, 6.4]\n");
+
+  double Lx{25.6};
+  double Ly{12.8};
+  double lambda{0.5};
+  double rho0{1};
+  double rhoInf{0.2};
+  double P{0.5};
+  double B0{1.0};
+  double psi0{0.1};
+  double pi{3.141592653589793};
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        d->prims[ID(0, i, j, k)] = rho0 / cosh(d->y[j]/lambda) / cosh(d->y[j]/lambda) + rhoInf;
+        d->prims[ID(4, i, j, k)] = P;
+        d->prims[ID(5, i, j, k)] = B0 * tanh(d->y[j] / lambda);
+
+        // Perturb
+        d->prims[ID(5, i, j, k)] -= psi0 * (pi / Ly) * sin(pi * d->y[j] / Ly) * cos(2*pi*d->x[i] / Lx);
+        d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*d->y[j] / Ly);
+
+      }
+    }
+  }
+
+};

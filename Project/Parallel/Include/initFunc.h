@@ -6,8 +6,8 @@
 //! <b> Abstract base class for any future initial data classes </b>
 /*!
   @par
-    All initial set ups are derived from the InitialFunc object. This class will
-  set all initial primitive data to zero.
+    All initial set ups are derived from the InitialFunc object. This class
+  sets all initial primitive data to zero.
 */
 class InitialFunc
 {
@@ -101,21 +101,20 @@ class CurrentSheetSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
+      @oaram[in] direction the axis the magnetic field is along (default is x)
       @sa InitialFunc
     */
-    CurrentSheetSingleFluid(Data * data);
+    CurrentSheetSingleFluid(Data * data, int direction=0);
 };
 
 
 //! <b> Single-fluid Orszag-Tang voretx </b>
 /*!
-    See Orszag and Tang 1979, 'Small scale structure of two dimensional...'
-  or visit http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
-  for explanation and see `Advanced Numerical Methods for Neutron Star Interfaces`,
-  John Muddle, for initial data, Table 5.8. Orignally from Section 4.4 of `A second
-  order Godunov Method for multidimentional relativistic magnetohydrodynamcis`,
-  Kirs Beckwith.
-    This is a two-dimensional problem that tests the quality of the divergence
+      See Orszag and Tang 1979 or visit
+    http://flash.uchicago.edu/site/flashcode/user_support/flash_ug_devel/node178.html
+    for explanation and see '\a Advanced \a Numerical \a Methods \a for \a Neutron \a Star \a Interfaces',
+    John Muddle, for initial data, Table 5.8. Orignally from Beckwith 2011.
+      This is a two-dimensional problem that tests the quality of the divergence
     cleaning.
 */
 class OTVortexSingleFluid : public InitialFunc
@@ -159,7 +158,7 @@ class BrioWuTwoFluid : public InitialFunc
 
 //! <b> Single-fluid Brio-Wu shock tube </b>
 /*!
-      Taken from Palenzuela 2009, `Beyond ideal...`. One-dimensional,
+      Taken from Palenzuela 2009, '\a Beyond \a ideal...'. One-dimensional,
     discontinuous initial data.
       This tests the high-resolution shock
     capturing at discontinuous data.
@@ -226,6 +225,24 @@ class FieldLoopAdvectionSingleFluid : public InitialFunc
 };
 
 
+//! <b> Resistive Magnetic Reconnection initial data, single fluid
+/*!
+    Set up is lifted from the PLUTO code, see Mignone et al 2011. This is a
+  two-dimensional resistive problem, in which magnetic field lines with opposing
+  directions reconnect, releasing energy in the form of kinetic motion and
+  temperature. The rate of the reconnection should scale with the root of the
+  resistivity.
+*/
+class ResistiveReconnectionSingleFluid : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    ResistiveReconnectionSingleFluid(Data * data);
+
+};
 
 
 

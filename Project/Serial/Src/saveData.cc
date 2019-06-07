@@ -10,10 +10,12 @@ using namespace std;
 
 void SaveData::saveAll(bool timeSeries)
 {
+  // Clean directory variable
+  dir[0] = '\0';
   // Determine the directory to write files to
   if (test)
     strcpy(dir, "../../");
-  if (!timeSeries) {
+  if (!timeSeries && strcmp(dir, "Data/Final")!=0) {
     strcat(dir, "Data/Final");
     app[0]=0;
   }
@@ -290,9 +292,9 @@ void SaveData::saveVar(string variable, int num)
     }
     else {
       ofstream info;
-      strcat(fname, dir);
-      strcat(fname, "info");
-      info.open(fname, ios::app);
+      // strcat(fname, dir);
+      // strcat(fname, "info");
+      info.open("Data/TimeSeries/UserDef/info", ios::app);
       info << variable << endl;
       info.close();
     }

@@ -74,4 +74,8 @@ TEST(CMINPACK, hybrd1)
   EXPECT_NEAR(res[1], 0.0, tol);
   EXPECT_EQ(info4, 1);
 
+  EXPECT_NEAR(res[0], 0.0, tol);
+  EXPECT_NEAR(res[1], 0.0, tol);
+  EXPECT_EQ(info4, 1);
+
 }

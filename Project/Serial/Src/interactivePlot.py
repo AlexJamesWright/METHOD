@@ -5,7 +5,7 @@
 
 
 import numpy as np
-import pylab as plt
+from matplotlib import pyplot as plt
 from scipy.special import erf
 from matplotlib import cm
 import warnings
@@ -308,9 +308,9 @@ class InteractivePlot(object):
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
-
+        
         for i in range(data.shape[0]):
-            fig = plt.figure()
+            fig, ax = plt.subplots(1)
             if (axis == 0):
                 plotVars = data[i, c['Nx']//2, c['Ng']:-c['Ng'], c['Ng']:-c['Ng']]
                 axisLabel1 = r'$y$'
@@ -326,14 +326,15 @@ class InteractivePlot(object):
 
             if color==None:
                 color = cm.afmhot
-            surf = plt.imshow(plotVars.T, cmap=color, interpolation='bicubic')
-            plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
-            plt.xlabel(axisLabel2)
-            plt.ylabel(axisLabel1)
+            surf = ax.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
+            ax.set_title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
+            ax.set_xlim([0, self.c['nx']])
+            ax.set_ylim([0, self.c['ny']])
+            ax.set_xlabel(axisLabel1)
+            ax.set_ylabel(axisLabel2)
             fig.colorbar(surf, shrink=0.5, aspect=5)
-            plt.legend()
             plt.show()
-
+        return ax
 
     def plotSlice(self, data='prims', axis=0):
         """
@@ -395,7 +396,7 @@ class InteractivePlot(object):
             ylower = ymin - 0.025 * rangeY
             yupper = ymax + 0.025 * rangeY
             xs = np.linspace(left + step/2, right - step/2, n)
-            plt.plot(xs, plotVars)
+            plt.plot(xs, plotVars, label='{}'.format(dataLabels[i]))
             plt.title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
             plt.xlabel(axisLabel)
             plt.ylabel(r'$q_{}(x)$'.format(i+1))
@@ -458,6 +459,41 @@ class InteractivePlot(object):
         plt.legend(loc='upper left')
         plt.show()
         #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
+
+        
+    def plotSingleFluidCurrentSheetAgainstExact(self, direction=0):
+        """
+        The current sheet has an analytical solution for the y-direction magnetic
+        field. This is plotted against the given B-field.
+        """
+        c = self.c
+        plt.figure()
+        nx = self.c['Nx'] // 2
+        ny = self.c['Ny'] // 2
+        nz = self.c['Nz'] // 2
+        
+        if direction == 0:
+            B = self.cons[6, c['Ng']:-c['Ng'], ny, nz]
+            x = np.linspace(c['xmin'], c['xmax'], c['nx'])
+        elif direction == 1:
+            B = self.cons[7, nx, c['Ng']:-c['Ng'], nz]
+            x = np.linspace(c['ymin'], c['ymax'], c['ny'])
+        else:
+            B = self.cons[5, nx, ny, c['Ng']:-c['Ng']]
+            x = np.linspace(c['zmin'], c['zmax'], c['nz'])
+            
+        exact = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 / (c['t']+1)))
+        initial = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 ))
+        plt.plot(x, B, label='Numerical')
+        plt.plot(x, exact, 'k--', label='Exact')
+        plt.plot(x, initial, label='Initial')
+        plt.xlim([c['xmin'], c['xmax']])
+        plt.ylim([-1.2, 1.2])
+        plt.xlabel(r'$x$')
+        plt.ylabel(r'$B_y$')
+        plt.title(r'Comparison of exact and numerical $B_y$ at $t={:.4f}$'.format(c['t']+1))
+        plt.legend(loc='upper left')
+        plt.show()
 
     def plotTwoFluidCPAlfvenWaveAgainstExact(self):
         """
@@ -595,9 +631,95 @@ class InteractivePlot(object):
         plt.title(r'Exact comparison for $v_z2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
-
+        
+        
+        
+    def plot2DBrioWu(self, diag=0):
+        """
+        Plots the main diagonal of the 2D Brio-Wu problem
+        
+        Parameters
+        ----------
+        diag : int
+            The diagonal to plot the slice
+        """
+        
+        nx = self.c['nx']
+#        Ny = self.c['Ny']
+        midZ = self.c['Nz'] // 2
+        Ng = self.c['Ng']
+        
+        if diag == 0:
+            LB = -Ng
+            RB = Ng
+            step = -1
+        else:
+            LB = Ng
+            RB = -Ng
+            step = 1
+            
+            
+        dens = self.prims[0, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        vx = self.prims[1, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        vy = self.prims[2, Ng:-Ng, LB:RB:step, midZ].diagonal() 
+           
+            
+        p = self.prims[4, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        B = self.prims[5, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) + \
+            self.prims[6, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) 
+        
+        # rho
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), dens)
+        plt.ylabel(r'$\rho$')
+        plt.xlim([0, 1])
+        plt.show()
+        # vx
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vx)
+        plt.ylabel(r'$vx$')
+        plt.xlim([0, 1])
+        plt.show()
+        # vy
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vy)
+        plt.ylabel(r'$vy$')
+        plt.xlim([0, 1])
+        plt.show()
+        # v rel
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx),(vx-vy)/(1-vx*vy))
+        plt.ylabel(r'$v (rel)$')
+        plt.xlim([0, 1])
+        plt.show()
+        # v non-rel
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), vx/np.sqrt(2) - vy/np.sqrt(2))
+        plt.ylabel(r'$v (non-rel)$')
+        plt.xlim([0, 1])
+        plt.show()
+        # p
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), p)
+        plt.ylabel(r'$p$')
+        plt.xlim([0, 1])
+        plt.show()
+        # B
+        plt.figure()
+        plt.plot(np.linspace(0, 1, nx), B)
+        plt.ylabel(r'$B$')
+        plt.xlim([0, 1])
+        plt.show()
+        
+        return B
 # Function declarations over, access data and plot!
+        
 
 if __name__ == '__main__':
 
     Plot = InteractivePlot()
+    
+    Plot.plotSlice()
+    
+
+    

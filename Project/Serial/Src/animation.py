@@ -71,8 +71,9 @@ if __name__ == '__main__':
     animClass = Anim()
     
     # Animate density
-    var = 0
-    N = 4
+    var = animClass.variables.index('vx\n')
+    N = animClass.final.c['Ng']
+    Nzo2 = animClass.final.c['Nz']//2
     ##### For some reason this doesnt work when inside a function. ########
     ##### Not a disaster atm so will leave it like this            ########
     
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     # each frame
     ims = []
     for i in range(animClass.Nframes):
-        im = plt.imshow(animClass.frame[i][var][N:-N, N:-N, 0], 
+        im = plt.imshow(animClass.frame[i][var][N:-N, N:-N, Nzo2], 
                         interpolation='bicubic', 
                         animated=True,
                         cmap=cm.afmhot)
@@ -93,8 +94,7 @@ if __name__ == '__main__':
                                     repeat_delay=10)
     
     plt.colorbar()
-    plt.show()
-#    ani.save('Output.gif', writer='imagemagick', fps=20)
+    ani.save('Output.gif', writer='imagemagick', fps=20)
     
     
     

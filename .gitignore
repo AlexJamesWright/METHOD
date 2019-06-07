@@ -12,6 +12,7 @@ test_fvs
 test_id
 test_rk2
 test_imex
+test_REGIME
 gtest_main.a
 
 *.dat
@@ -31,5 +32,7 @@ cleanData.sh
 ProfileParallel.nvvp
 
 slurm*
+
+Data
 
 build
