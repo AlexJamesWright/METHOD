@@ -262,7 +262,7 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, 1e-15);
         }
       }
     }
@@ -274,7 +274,7 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, 1e-15);
         }
       }
     }
@@ -286,7 +286,7 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
     for (int j(d.Ng); j < d.Ny-d.Ng; j++) {
       for (int k(d.Ng); k < d.Nz-d.Ng; k++) {
         for (int var(0); var < d.Ncons; var++) {
-          EXPECT_EQ(d.fnet[d.id(var, i, j, k)], 0.0);
+          EXPECT_NEAR(d.fnet[d.id(var, i, j, k)], 0.0, 1e-15);
         }
       }
     }
