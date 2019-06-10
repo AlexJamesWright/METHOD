@@ -1,6 +1,6 @@
 """
 This is the scipt used for the magetic reconnection problem analysis. More 
-details can be found on the arXiv *****.
+details can be found at arXiv:1906.03150 *****.
 """
 
 from interactivePlot import InteractivePlot as Plot

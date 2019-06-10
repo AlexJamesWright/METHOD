@@ -32,7 +32,7 @@ Chapman Enskog Expansion for Resistive MHD (Low-velocity limit)\
 
 Cell["\<\
 This is the notebook evaluating the matrices needed for REGIME. Full details \
-can be found on the arXiv ******.\
+can be found at arXiv:1906.03150.\
 \>", "Text",
  CellChangeTimes->{{3.768809554572502*^9, 
   3.76880960281958*^9}},ExpressionUUID->"ae4abda1-6f73-4b3f-a44c-\
