@@ -142,6 +142,7 @@ class Data
       @param cp time scale for divergence cleaning. cp = 1 / kappa
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
+      @param frameskip number of timesteps per file output
     */
     Data(int nx, int ny, int nz,
          double xmin, double xmax,

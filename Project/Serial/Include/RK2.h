@@ -41,6 +41,7 @@ class RK2 : public TimeIntegrator
       @param[in] *model pointer to Model object
       @param[in] *bcs pointer to Bcs object
       @param[in] *fluxMethod pointer to FluxMethod object
+      @param[in] *modelExtension pointer to the ModelExtension object
       @sa TimeIntegrator::TimeIntegrator
     */
     RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);

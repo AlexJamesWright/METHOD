@@ -101,7 +101,7 @@ class CurrentSheetSingleFluid : public InitialFunc
     /*!
         Stores a pointer to the Data class for reference in its methods
       @param[in] *data pointer to Data class containing global simulation data
-      @oaram[in] direction the axis the magnetic field is along (default is x)
+      @param[in] direction the axis the magnetic field is along (default is x)
       @sa InitialFunc
     */
     CurrentSheetSingleFluid(Data * data, int direction=0);
@@ -225,7 +225,7 @@ class FieldLoopAdvectionSingleFluid : public InitialFunc
 };
 
 
-//! <b> Resistive Magnetic Reconnection initial data, single fluid
+//! <b> Resistive Magnetic Reconnection initial data, single fluid </b>
 /*!
     Set up is lifted from the PLUTO code, see Mignone et al 2012. This is a
   two-dimensional resistive problem, in which magnetic field lines with opposing
@@ -244,7 +244,7 @@ class ResistiveReconnectionSingleFluid : public InitialFunc
 
 };
 
-//! <b> Magnetic rotor initial data, single fluid
+//! <b> Magnetic rotor initial data, single fluid </b>
 /*!
     Taken from Keppens 2012, Parallel grid adaptive...
     2D problem

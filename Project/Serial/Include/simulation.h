@@ -74,6 +74,7 @@ class Simulation
       @param[in] *timeInt pointer to TimeIntegrator object
       @param[in] *bcs pointer to Bcs object
       @param[in] *fluxMethod pointer to FluxMethod object
+      @param[in] *save pointer to the SaveData object
     */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,

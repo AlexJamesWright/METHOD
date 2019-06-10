@@ -46,6 +46,7 @@ class RKSplit : public RK2
       @param[in] *model pointer to Model object
       @param[in] *bcs pointer to Bcs object
       @param[in] *fluxMethod pointer to FluxMethod object
+      @param[in] *modelExtension pointer to the ModelExtension object
       @sa TimeIntegrator::TimeIntegrator
       @sa RK2::RK2
     */

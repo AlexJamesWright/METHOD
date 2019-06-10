@@ -89,7 +89,7 @@ class SaveData
       @par
         Function saves the data for the variable specified by the string `var`
 
-      @param[in] var Defines the variable the user wants to save. Should match a variable label
+      @param[in] variable Defines the variable the user wants to save. Should match a variable label
       @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
     */
     void saveVar(string variable, int num=1);
