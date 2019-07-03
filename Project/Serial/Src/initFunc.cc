@@ -548,8 +548,8 @@ KHRandomInstabilitySingleFluid::KHRandomInstabilitySingleFluid(Data * data, int 
     interface_y_lower = 0.25;
     interface_y_upper = 0.75;
     for (int n(0); n < 10; n++) {
-      interface_y_lower += epsilon * interface_a_lower[n] * cos(interface_b_lower[n] + 2*n*PI);
-      interface_y_upper += epsilon * interface_a_upper[n] * cos(interface_b_upper[n] + 2*n*PI);
+      interface_y_lower += epsilon * interface_a_lower[n] * cos(interface_b_lower[n] + 2*n*PI*d->x[i]);
+      interface_y_upper += epsilon * interface_a_upper[n] * cos(interface_b_upper[n] + 2*n*PI*d->x[i]);
     }
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
