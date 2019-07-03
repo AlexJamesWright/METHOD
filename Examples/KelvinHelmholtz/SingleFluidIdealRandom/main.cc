@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
   double mu2(100);
   int frameSkip(10);
   bool output(true);
+  if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
+  int seed(atoi(argv[1]));
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
@@ -46,10 +48,10 @@ int main(int argc, char *argv[]) {
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
+  printf("Seed: %d\n", seed);
+  KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  KHRandomInstabilitySingleFluid init(&data, 1, 1234);
-
-  Flow bcs(&data);
+  Periodic bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 

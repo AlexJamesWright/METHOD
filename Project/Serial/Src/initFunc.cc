@@ -540,6 +540,8 @@ KHRandomInstabilitySingleFluid::KHRandomInstabilitySingleFluid(Data * data, int 
   for (int i(0); i < 10; i++) {
     interface_a_lower[i] /= sum_a_lower;
     interface_a_upper[i] /= sum_a_upper;
+    printf("Random coeffs, %d: %g, %g, %g, %g\n", i, interface_a_lower[i],
+           interface_a_upper[i], interface_b_lower[i], interface_b_upper[i]);
   }
 
   for (int i(0); i < d->Nx; i++) {
