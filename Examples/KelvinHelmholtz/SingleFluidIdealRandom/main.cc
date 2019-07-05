@@ -8,7 +8,7 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
-//#include <omp.h>
+#include <omp.h>
 #include <cstring>
 
 using namespace std;
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
-  bool output(true);
+  bool output(false);
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
@@ -60,15 +60,15 @@ int main(int argc, char *argv[]) {
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   // Time execution of programme
-  // double startTime(omp_get_wtime());
+  double startTime(omp_get_wtime());
 
   // Run until end time and save results
   sim.evolve(output);
 
-  // double timeTaken(omp_get_wtime() - startTime);
+  double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();
-  // printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 

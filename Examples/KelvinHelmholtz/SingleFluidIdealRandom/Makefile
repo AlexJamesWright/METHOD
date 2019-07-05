@@ -20,7 +20,7 @@ RTFIND_INC_DIR = ./../../../Project/Serial/CminpackLibrary/Include
 RTFIND_SRC_DIR = ./../../../Project/Serial//CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -Wall -std=c++11 -O3
 
 # Sources
 SRCS = simulation.cc \
@@ -125,7 +125,7 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVect
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) #-fopenmp
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
