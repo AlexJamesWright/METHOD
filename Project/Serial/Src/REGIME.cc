@@ -1,3 +1,14 @@
+/**
+ * @Author: Alex James Wright <alex>
+ * @Date:   2019-09-30T15:33:00+01:00
+ * @Email:  alex.j.wright2@gmail.com
+ * @Last modified by:   alex
+ * @Last modified time: 2019-09-30T15:33:59+01:00
+ * @License: MIT
+ */
+
+
+
 #include "REGIME.h"
 #include <cstdio>
 #include <cmath>
@@ -193,6 +204,14 @@ void REGIME::set_vars(double * cons, double * prims, double * aux)
     }
   }
 
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma) + d->sigma*d->sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
+                   prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)] + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)])));
+      }
+    }
+  }
 }
 
 
