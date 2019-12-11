@@ -31,6 +31,11 @@
 // Mx, My, and Mz matrix
 #define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
+REGIME::REGIME()
+{
+  sourceExists = true;
+}
+
 REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), fluxMethod(fluxMethod)
 {
   //  Syntax

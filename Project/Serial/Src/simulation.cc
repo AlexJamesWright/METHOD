@@ -15,15 +15,15 @@ Simulation::Simulation(Data * data) : data(data)
 
   if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
 
-  d->cons = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
-  d->f = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
-  d->fnet = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->cons   = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->f      = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
+  d->fnet   = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
   d->source = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
-  d->prims = (double *) malloc(sizeof(double) * Ntot * d->Nprims);
-  d->aux = (double *) malloc(sizeof(double) * Ntot * d->Naux);
-  d->x = (double *) malloc(sizeof(double) * d->Nx);
-  d->y = (double *) malloc(sizeof(double) * d->Ny);
-  d->z = (double *) malloc(sizeof(double) * d->Nz);
+  d->prims  = (double *) malloc(sizeof(double) * Ntot * d->Nprims);
+  d->aux    = (double *) malloc(sizeof(double) * Ntot * d->Naux);
+  d->x      = (double *) malloc(sizeof(double) * d->Nx);
+  d->y      = (double *) malloc(sizeof(double) * d->Ny);
+  d->z      = (double *) malloc(sizeof(double) * d->Nz);
 
   // Initialise the data
   d->dx = (d->xmax - d->xmin) / d->nx;
@@ -86,7 +86,7 @@ void Simulation::set(InitialFunc * init, Model * model,
   // Set primitive and auxilliary variables
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
-  
+
   // If source extension, determine
   if (this->timeInt->modelExtension != NULL && this->timeInt->modelExtension->sourceExists)
       this->timeInt->modelExtension->sourceExtension(d->cons, d->prims, d->aux, d->sourceExtension);

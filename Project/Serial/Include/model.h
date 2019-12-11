@@ -33,7 +33,7 @@ class Model
     */
     Model(Data * data) : data(data) {}
 
-    ~Model() {}     //!< Destructor
+    ~Model() { }     //!< Destructor
 
     //! Single cell source term contribution
     /*!

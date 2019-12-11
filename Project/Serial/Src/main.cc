@@ -21,6 +21,7 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "REGIME.h"
+#include "hybrid.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -38,7 +39,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(1000);
+  int nx(200);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -50,14 +51,14 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(1e6);
+  double sigma(10000);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(45);
   bool output(false);
   int safety(-1);
-  bool functionalSigma(true);
+  bool functionalSigma(false);
   double gam(12);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
@@ -65,11 +66,13 @@ int main(int argc, char *argv[]) {
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  Hybrid model(&data);
 
   FVS fluxMethod(&data, &model);
 
-  REGIME modelExtension(&data, &fluxMethod);
+  // REGIME modelExtension(&data, &fluxMethod);
+  ModelExtension * modelExtension;
+  modelExtension = model.getSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
 
@@ -77,8 +80,8 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, NULL);
+  // SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 

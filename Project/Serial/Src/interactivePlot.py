@@ -721,11 +721,11 @@ if __name__ == '__main__':
     
     Plot.plotSlice()
     
-    plt.figure()
-    plt.semilogy(Plot.x[4:-4], Plot.cons[0, 4:-4, 0, 0]**12*10**6)
-    plt.ylabel(r'$\sigma$')
-    plt.xlabel(r'$x$')
-    plt.xlim((0, 1))
-    plt.show()    
+#    plt.figure()
+#    plt.semilogy(Plot.x[4:-4], Plot.cons[0, 4:-4, 0, 0]**12*10**6)
+#    plt.ylabel(r'$\sigma$')
+#    plt.xlabel(r'$x$')
+#    plt.xlim((0, 1))
+#    plt.show()    
 
     

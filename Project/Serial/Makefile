@@ -43,7 +43,8 @@ SRCS = main.cc \
 			 saveData.cc \
 			 fluxVectorSplitting.cc \
 			 srrmhd.cc \
-			 REGIME.cc
+			 REGIME.cc \
+			 hybrid.cc
 
 
 # Headers
@@ -155,6 +156,9 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVect
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
