@@ -71,6 +71,10 @@ class Data
     //@}
     int
     frameSkip;             //!< Number of timesteps per file output
+    bool
+    functionalSigma;       //!< Are we using a functional (vs homogeneous) conductivity?
+    double
+    gam;                   //!< Exponent in the functional conductivity
     double
     //@{
     *cons, *prims, *aux,
@@ -104,6 +108,7 @@ class Data
     int
     dims;                  //!< Number of dimensions of simulation
 
+
     //! Element ID function
     /*!
     @par
@@ -118,6 +123,27 @@ class Data
     int id(int var, int i, int j, int k) {
       return var * this->Nx * this->Ny * this->Nz + i * this->Ny * this->Nz + j * this->Nz + k;
     }
+
+
+    //! General form of conductivity
+    /*!
+    @par
+      In general, the conductivity may depend upon the environment (e.g. density,
+    magnetic field strength etc.). This is the interface for calculating the
+    conductivity. REALLY, this should be made as its own class and passed to the
+    physics model, but I'm being lazy this once because thesis+timeline=reasons.
+    Maybe a task for the interested reader...?
+
+    @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$ or \f$N_{cons}\f$ if any \f$i, j, k < 0\f$
+    @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$ or \f$N_{cons}\f$ if any \f$i, j, k < 0\f$
+    @param[in] *aux pointer to auxilliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$ or \f$N_{cons}\f$ if any \f$i, j, k < 0\f$
+    @param i cell number in the x-direction, default is -1. If \f$i < 0\f$, cons, prims, and are for a single cell.
+    @param j cell number in the y-direction, default is -1. If \f$j < 0\f$, cons, prims, and are for a single cell.
+    @param k cell number in the z-direction, default is -1. If \f$k < 0\f$, cons, prims, and are for a single cell.
+    @return sig the value of the conductivity
+    */
+    double sigmaFunc(double * cons, double * prims, double * aux, int i=-1, int j=-1, int k=-1);
+
 
     //! Constructor
     /*!
@@ -152,7 +178,8 @@ class Data
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10);
+         int frameskip=10,
+         bool funtionalSigma=false, double gam=12);
 
 };
 

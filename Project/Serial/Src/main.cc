@@ -1,3 +1,14 @@
+/**
+ * @Author: Alex James Wright <alex>
+ * @Date:   2019-09-30T15:33:00+01:00
+ * @Email:  alex.j.wright2@gmail.com
+ * @Last modified by:   alex
+ * @Last modified time: 2019-10-11T13:26:33+01:00
+ * @License: MIT
+ */
+
+
+
 // Serial main
 #include "simData.h"
 #include "simulation.h"
@@ -27,11 +38,11 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(128);
+  int nx(1000);
   int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(0.0);
+  double xmax(1.0);
   double ymin(-1.0);
   double ymax(1.0);
   double zmin(-1.5);
@@ -39,20 +50,22 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(100);
+  double sigma(1e6);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(45);
   bool output(false);
   int safety(-1);
-
+  bool functionalSigma(true);
+  double gam(12);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip,
+            functionalSigma, gam);
 
   // Choose particulars of simulation
-  SRMHD model(&data);
+  SRRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
@@ -64,8 +77,8 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
@@ -76,6 +89,7 @@ int main(int argc, char *argv[]) {
 
   // Run until end time and save results
   sim.evolve(output, safety);
+  // sim.updateTime();
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();

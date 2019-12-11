@@ -149,6 +149,10 @@ void REGIME::set_vars(double * cons, double * prims, double * aux)
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
+
+        // What is the conductivity
+        double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
+
         E[ID(0, i, j, k)] = - (prims[ID(2, i, j, k)] * prims[ID(7, i, j, k)] - prims[ID(3, i, j, k)] * prims[ID(6, i, j, k)]);
         E[ID(1, i, j, k)] = - (prims[ID(3, i, j, k)] * prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)] * prims[ID(7, i, j, k)]);
         E[ID(2, i, j, k)] = - (prims[ID(1, i, j, k)] * prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)] * prims[ID(5, i, j, k)]);
@@ -172,7 +176,7 @@ void REGIME::set_vars(double * cons, double * prims, double * aux)
           }
         }
 
-        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma) + d->sigma*d->sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
+        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + sigma*sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + sigma*sigma) + sigma*sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
                    prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)] + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)])));
       }
     }
@@ -207,7 +211,11 @@ void REGIME::set_vars(double * cons, double * prims, double * aux)
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
-        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma) + d->sigma*d->sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
+
+        // What is the conductivity
+        double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
+
+        alpha[ID(0, i, j, k)] = 1 / ((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + sigma*sigma)*((q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + sigma*sigma) + sigma*sigma*(prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)] +
                    prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)] + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)])));
       }
     }
@@ -223,50 +231,53 @@ void REGIME::set_dwdsb(double * cons, double * prims, double * aux)
   for (int i(0); i<d->Nx; i++) {
     for (int j(0); j<d->Ny; j++) {
       for (int k(0); k<d->Nz; k++) {
+
+        // What is the conductivity
+        double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
+
         // Save some typing
-        double qsigsq(q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + d->sigma*d->sigma);
-        double sigcu(d->sigma*d->sigma*d->sigma);
-        double sig(d->sigma);
+        double qsigsq(q[ID(0, i, j, k)]*q[ID(0, i, j, k)] + sigma*sigma);
+        double sigcu(sigma*sigma*sigma);
         double qch(q[ID(0, i, j, k)]);
 
 
         // First, do A
         {
-          dwdsb[IDWS(1, 0, i, j, k)] = -qch * (qch*qch + sig*sig * (1 + prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)]));
-          dwdsb[IDWS(1, 1, i, j, k)] = -sig * (prims[ID(5, i, j, k)] * prims[ID(6, i, j, k)]*qch*sig - prims[ID(7, i, j, k)]*qsigsq);
-          dwdsb[IDWS(1, 2, i, j, k)] = -sig * (prims[ID(5, i, j, k)] * prims[ID(7, i, j, k)]*qch*sig + prims[ID(6, i, j, k)]*qsigsq);
-          dwdsb[IDWS(2, 0, i, j, k)] = -sig * (prims[ID(5, i, j, k)] * prims[ID(6, i, j, k)]*qch*sig + prims[ID(7, i, j, k)]*qsigsq);
-          dwdsb[IDWS(2, 1, i, j, k)] = -qch * (qch*qch + sig*sig * (1 + prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)]));
-          dwdsb[IDWS(2, 2, i, j, k)] = -sig * (prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)]*qch*sig - prims[ID(5, i, j, k)]*qsigsq);
-          dwdsb[IDWS(3, 0, i, j, k)] = -sig * (prims[ID(5, i, j, k)] * prims[ID(7, i, j, k)]*qch*sig - prims[ID(6, i, j, k)]*qsigsq);
-          dwdsb[IDWS(3, 1, i, j, k)] = -sig * (prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)]*qch*sig + prims[ID(5, i, j, k)]*qsigsq);
-          dwdsb[IDWS(3, 2, i, j, k)] = -qch * (qch*qch + sig*sig * (1 + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)]));
+          dwdsb[IDWS(1, 0, i, j, k)] = -qch * (qch*qch + sigma*sigma * (1 + prims[ID(5, i, j, k)]*prims[ID(5, i, j, k)]));
+          dwdsb[IDWS(1, 1, i, j, k)] = -sigma * (prims[ID(5, i, j, k)] * prims[ID(6, i, j, k)]*qch*sigma - prims[ID(7, i, j, k)]*qsigsq);
+          dwdsb[IDWS(1, 2, i, j, k)] = -sigma * (prims[ID(5, i, j, k)] * prims[ID(7, i, j, k)]*qch*sigma + prims[ID(6, i, j, k)]*qsigsq);
+          dwdsb[IDWS(2, 0, i, j, k)] = -sigma * (prims[ID(5, i, j, k)] * prims[ID(6, i, j, k)]*qch*sigma + prims[ID(7, i, j, k)]*qsigsq);
+          dwdsb[IDWS(2, 1, i, j, k)] = -qch * (qch*qch + sigma*sigma * (1 + prims[ID(6, i, j, k)]*prims[ID(6, i, j, k)]));
+          dwdsb[IDWS(2, 2, i, j, k)] = -sigma * (prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)]*qch*sigma - prims[ID(5, i, j, k)]*qsigsq);
+          dwdsb[IDWS(3, 0, i, j, k)] = -sigma * (prims[ID(5, i, j, k)] * prims[ID(7, i, j, k)]*qch*sigma - prims[ID(6, i, j, k)]*qsigsq);
+          dwdsb[IDWS(3, 1, i, j, k)] = -sigma * (prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)]*qch*sigma + prims[ID(5, i, j, k)]*qsigsq);
+          dwdsb[IDWS(3, 2, i, j, k)] = -qch * (qch*qch + sigma*sigma * (1 + prims[ID(7, i, j, k)]*prims[ID(7, i, j, k)]));
         }
 
         // Now do B
         {
           dwdsb[IDWS(5, 0, i, j, k)] = -prims[ID(5, i, j, k)] * sigcu * E[ID(0, i, j, k)];
-          dwdsb[IDWS(5, 1, i, j, k)] = -prims[ID(6, i, j, k)] * sigcu * E[ID(0, i, j, k)] - sig*qsigsq*prims[ID(3, i, j, k)];
-          dwdsb[IDWS(5, 2, i, j, k)] = -prims[ID(7, i, j, k)] * sigcu * E[ID(0, i, j, k)] + sig*qsigsq*prims[ID(2, i, j, k)];
-          dwdsb[IDWS(6, 0, i, j, k)] = -prims[ID(5, i, j, k)] * sigcu * E[ID(1, i, j, k)] + sig*qsigsq*prims[ID(3, i, j, k)];
+          dwdsb[IDWS(5, 1, i, j, k)] = -prims[ID(6, i, j, k)] * sigcu * E[ID(0, i, j, k)] - sigma*qsigsq*prims[ID(3, i, j, k)];
+          dwdsb[IDWS(5, 2, i, j, k)] = -prims[ID(7, i, j, k)] * sigcu * E[ID(0, i, j, k)] + sigma*qsigsq*prims[ID(2, i, j, k)];
+          dwdsb[IDWS(6, 0, i, j, k)] = -prims[ID(5, i, j, k)] * sigcu * E[ID(1, i, j, k)] + sigma*qsigsq*prims[ID(3, i, j, k)];
           dwdsb[IDWS(6, 1, i, j, k)] = -prims[ID(6, i, j, k)] * sigcu * E[ID(1, i, j, k)];
-          dwdsb[IDWS(6, 2, i, j, k)] = -prims[ID(7, i, j, k)] * sigcu * E[ID(1, i, j, k)] - sig*qsigsq*prims[ID(1, i, j, k)];
-          dwdsb[IDWS(7, 0, i, j, k)] = -prims[ID(5, i, j, k)] * sigcu * E[ID(2, i, j, k)] - sig*qsigsq*prims[ID(2, i, j, k)];
-          dwdsb[IDWS(7, 1, i, j, k)] = -prims[ID(6, i, j, k)] * sigcu * E[ID(2, i, j, k)] + sig*qsigsq*prims[ID(1, i, j, k)];
+          dwdsb[IDWS(6, 2, i, j, k)] = -prims[ID(7, i, j, k)] * sigcu * E[ID(1, i, j, k)] - sigma*qsigsq*prims[ID(1, i, j, k)];
+          dwdsb[IDWS(7, 0, i, j, k)] = -prims[ID(5, i, j, k)] * sigcu * E[ID(2, i, j, k)] - sigma*qsigsq*prims[ID(2, i, j, k)];
+          dwdsb[IDWS(7, 1, i, j, k)] = -prims[ID(6, i, j, k)] * sigcu * E[ID(2, i, j, k)] + sigma*qsigsq*prims[ID(1, i, j, k)];
           dwdsb[IDWS(7, 2, i, j, k)] = -prims[ID(7, i, j, k)] * sigcu * E[ID(2, i, j, k)];
         }
 
         // Now, C
         {
-          dwdsb[IDWS(8, 0, i, j, k)] = -prims[ID(5, i, j, k)] * prims[ID(5, i, j, k)] * sigcu - sig*qsigsq;
+          dwdsb[IDWS(8, 0, i, j, k)] = -prims[ID(5, i, j, k)] * prims[ID(5, i, j, k)] * sigcu - sigma*qsigsq;
           dwdsb[IDWS(8, 1, i, j, k)] = -prims[ID(5, i, j, k)] * prims[ID(6, i, j, k)] * sigcu;
           dwdsb[IDWS(8, 2, i, j, k)] = -prims[ID(5, i, j, k)] * prims[ID(7, i, j, k)] * sigcu;
           dwdsb[IDWS(9, 0, i, j, k)] = -prims[ID(6, i, j, k)] * prims[ID(5, i, j, k)] * sigcu;
-          dwdsb[IDWS(9, 1, i, j, k)] = -prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] * sigcu - sig*qsigsq;
+          dwdsb[IDWS(9, 1, i, j, k)] = -prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] * sigcu - sigma*qsigsq;
           dwdsb[IDWS(9, 2, i, j, k)] = -prims[ID(6, i, j, k)] * prims[ID(7, i, j, k)] * sigcu;
           dwdsb[IDWS(10, 0, i, j, k)] = -prims[ID(7, i, j, k)] * prims[ID(5, i, j, k)] * sigcu;
           dwdsb[IDWS(10, 1, i, j, k)] = -prims[ID(7, i, j, k)] * prims[ID(6, i, j, k)] * sigcu;
-          dwdsb[IDWS(10, 2, i, j, k)] = -prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] * sigcu - sig*qsigsq;
+          dwdsb[IDWS(10, 2, i, j, k)] = -prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] * sigcu - sigma*qsigsq;
         }
 
         // Dont bother with D, it is always multiplied by zero.

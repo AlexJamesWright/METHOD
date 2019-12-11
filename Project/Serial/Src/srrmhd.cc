@@ -259,6 +259,9 @@ void SRRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
   // Syntax
   Data * d(this->data);
 
+  // What is the conductivity
+  double sigma(d->sigmaFunc(cons, prims, aux));
+
   // Set Bx/y/z and Ex/y/z field in prims
   prims[5] = cons[5]; prims[6] = cons[6]; prims[7] = cons[7];
   prims[8] = cons[8]; prims[9] = cons[9]; prims[10] = cons[10];
@@ -300,11 +303,11 @@ void SRRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
   // vE
   aux[11] = prims[1] * cons[8] + prims[2] * cons[9] + prims[3] * cons[10];
   // Jx, Jy, Jz
-  aux[4] = cons[13] * prims[1] + aux[1] * d->sigma * (cons[8] + (prims[2] * cons[7] -
+  aux[4] = cons[13] * prims[1] + aux[1] * sigma * (cons[8] + (prims[2] * cons[7] -
            prims[3] * cons[6]) - aux[11] * prims[1]);
-  aux[5] = cons[13] * prims[2] + aux[1] * d->sigma * (cons[9] + (prims[3] * cons[5] -
+  aux[5] = cons[13] * prims[2] + aux[1] * sigma * (cons[9] + (prims[3] * cons[5] -
            prims[1] * cons[7]) - aux[11] * prims[2]);
-  aux[6] = cons[13] * prims[3] + aux[1] * d->sigma * (cons[10] + (prims[1] * cons[6] -
+  aux[6] = cons[13] * prims[3] + aux[1] * sigma * (cons[10] + (prims[1] * cons[6] -
            prims[2] * cons[5]) - aux[11] * prims[3]);
 
 
@@ -362,6 +365,10 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
+
+          // What is the conductivity
+          double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
+
           // phi, psi
           cons[ID(11, i, j, k)] = cons[ID(12, i, j, k)] = 0.0;
           // Bx, By, Bz
@@ -411,17 +418,17 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
                                     (-prims[ID(10, i, j, k+2)] + 8 * prims[ID(10, i, j, k+1)] -
                                     8 * prims[ID(10, i, j, k-1)] + prims[ID(10, i, j, k-2)]) / (12*d->dz);
             aux[ID(4, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(1, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(8, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(8, i, j, k)] +
                                   prims[ID(2, i, j, k)] * cons[ID(7, i, j, k)] -
                                   prims[ID(3, i, j, k)] * cons[ID(6, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(1, i, j, k)]);
             aux[ID(5, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(2, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(9, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(9, i, j, k)] +
                                   prims[ID(3, i, j, k)] * cons[ID(5, i, j, k)] -
                                   prims[ID(1, i, j, k)] * cons[ID(7, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(2, i, j, k)]);
             aux[ID(6, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(3, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(10, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(10, i, j, k)] +
                                   prims[ID(1, i, j, k)] * cons[ID(6, i, j, k)] -
                                   prims[ID(2, i, j, k)] * cons[ID(5, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(3, i, j, k)]);
@@ -433,17 +440,17 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
                                     (-prims[ID(9, i, j+2, k)] + 8 * prims[ID(9, i, j+1, k)] -
                                     8 * prims[ID(9, i, j-1, k)] + prims[ID(9, i, j-2, k)]) / (12*d->dy);
             aux[ID(4, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(1, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(8, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(8, i, j, k)] +
                                   prims[ID(2, i, j, k)] * cons[ID(7, i, j, k)] -
                                   prims[ID(3, i, j, k)] * cons[ID(6, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(1, i, j, k)]);
             aux[ID(5, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(2, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(9, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(9, i, j, k)] +
                                   prims[ID(3, i, j, k)] * cons[ID(5, i, j, k)] -
                                   prims[ID(1, i, j, k)] * cons[ID(7, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(2, i, j, k)]);
             aux[ID(6, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(3, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(10, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(10, i, j, k)] +
                                   prims[ID(1, i, j, k)] * cons[ID(6, i, j, k)] -
                                   prims[ID(2, i, j, k)] * cons[ID(5, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(3, i, j, k)]);
@@ -452,17 +459,17 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
             cons[ID(13, i, j, k)] = (-prims[ID(8, i+2, j, k)] + 8 * prims[ID(8, i+1, j, k)] -
                                     8 * prims[ID(8, i-1, j, k)] + prims[ID(8, i-2, j, k)]) / (12*d->dx);
             aux[ID(4, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(1, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(8, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(8, i, j, k)] +
                                   prims[ID(2, i, j, k)] * cons[ID(7, i, j, k)] -
                                   prims[ID(3, i, j, k)] * cons[ID(6, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(1, i, j, k)]);
             aux[ID(5, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(2, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(9, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(9, i, j, k)] +
                                   prims[ID(3, i, j, k)] * cons[ID(5, i, j, k)] -
                                   prims[ID(1, i, j, k)] * cons[ID(7, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(2, i, j, k)]);
             aux[ID(6, i, j, k)] = cons[ID(13, i, j, k)] * prims[ID(3, i, j, k)] +
-                                  aux[ID(1, i, j, k)] * d->sigma * (cons[ID(10, i, j, k)] +
+                                  aux[ID(1, i, j, k)] * sigma * (cons[ID(10, i, j, k)] +
                                   prims[ID(1, i, j, k)] * cons[ID(6, i, j, k)] -
                                   prims[ID(2, i, j, k)] * cons[ID(5, i, j, k)] -
                                   aux[ID(11, i, j, k)] * prims[ID(3, i, j, k)]);
