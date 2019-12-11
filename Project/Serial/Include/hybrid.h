@@ -13,12 +13,15 @@ class Hybrid : public Model
   public:
 
     double
-    *icons, *iprims, *iaux,    // For every cell
-    *sicons, *siprims, *siaux, // For single cells
-    *iflux, *rflux,            // For every cell
-    *isource, *rsource,        // For every cell
+    *icons, *iprims, *iaux,                     // For every cell
+    *sicons, *siprims, *siaux,                  // For single cells
+    *iflux, *rflux,                             // For every cell
+    *isource, *rsource, *regimeSource,          // For every cell
     sigmaCrossOver,
     sigmaSpan;
+
+    bool
+    useREGIME;
 
     SRRMHD * resistiveModel;
 
@@ -26,16 +29,17 @@ class Hybrid : public Model
 
     REGIME * subgridModel = NULL;
 
+
     Hybrid(); //!< Default constructor
 
 
-    Hybrid(Data * data, double sigmaCrossOver=400, double sigmaSpan=300);
+    Hybrid(Data * data, double sigmaCrossOver=400, double sigmaSpan=300, bool useREGIME=true);
 
 
     ~Hybrid();  //!< Destructor
 
 
-    ModelExtension * getSubgridModel(FluxMethod * fluxMethod);
+    void setSubgridModel(FluxMethod * fluxMethod);
 
     // cons prims aux are all for a single cell!
     double idealWeight(double * cons, double * prims, double * aux);

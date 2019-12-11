@@ -51,15 +51,15 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(0000);
+  double sigma(500);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(45);
   bool output(false);
   int safety(-1);
-  bool functionalSigma(false);
-  double gam(12);
+  bool functionalSigma(true);
+  double gam(0.2);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip,
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
 
   // Choose particulars of simulation
   Hybrid model(&data);
+  // SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
   // REGIME modelExtension(&data, &fluxMethod);
-  ModelExtension * modelExtension;
-  modelExtension = model.getSubgridModel(&fluxMethod);
+  model.setSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
 

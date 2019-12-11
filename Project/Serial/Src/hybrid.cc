@@ -23,7 +23,7 @@ Hybrid::Hybrid() : Model()
 }
 
 
-Hybrid::Hybrid(Data * data, double sigmaCrossOver, double sigmaSpan) : Model(data), sigmaCrossOver(sigmaCrossOver), sigmaSpan(sigmaSpan)
+Hybrid::Hybrid(Data * data, double sigmaCrossOver, double sigmaSpan, bool useREGIME) : Model(data), sigmaCrossOver(sigmaCrossOver), sigmaSpan(sigmaSpan), useREGIME(useREGIME)
 {
   resistiveModel = new SRRMHD(data);
   idealModel = new SRMHD(data);
@@ -76,8 +76,11 @@ Hybrid::~Hybrid()
 {
   delete resistiveModel;
   delete idealModel;
-  if (subgridModel)
+  if (useREGIME)
+  {
     delete subgridModel;
+    delete[] regimeSource;
+  }
   delete[] icons;
   delete[] iprims;
   delete[] iaux;
@@ -90,10 +93,13 @@ Hybrid::~Hybrid()
   delete[] rsource;
 }
 
-ModelExtension * Hybrid::getSubgridModel(FluxMethod * fluxMethod)
+void Hybrid::setSubgridModel(FluxMethod * fluxMethod)
 {
-  subgridModel = new REGIME(data, fluxMethod);
-  return subgridModel;
+  if (useREGIME)
+  {
+    subgridModel = new REGIME(data, fluxMethod);
+    regimeSource = new double[data->Nx*data->Ny*data->Nz*idealModel->Ncons];
+  }
 }
 
 double Hybrid::idealWeight(double * cons, double * prims, double * aux)
@@ -270,6 +276,30 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
     }
   }
 
+  // Now add REGIME source
+  if (useREGIME)
+  {
+    setIdealCPAsAll(cons, prims, aux);
+    subgridModel->sourceExtension(icons, iprims, iaux, regimeSource);
+    for (int var(0); var < idealModel->Ncons-1; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            double iW = idealWeightID(cons, prims, aux, i, j, k);
+            bool use(false);
+            if (d->sigmaFunc(icons, iprims, iaux, i, j, k) < sigmaCrossOver+sigmaSpan &&
+                d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
+              use = true;
+
+            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW;
+
+          }
+        }
+      }
+    }
+
+  }
+
   // Free up
   free(singleCons);
   free(singlePrims);
@@ -287,7 +317,6 @@ void Hybrid::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
   else
   {
     // Ideal cons2prims
-
     setIdealCPAs(cons, prims, aux);
     idealModel->getPrimitiveVarsSingleCell(sicons, siprims, siaux, i, j, k);
 
@@ -326,6 +355,7 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
   singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
   singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -334,7 +364,13 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
         for (int var(0); var < d->Ncons; var++) {
           singleCons[var] = cons[ID(var, i, j, k)];
         }
-        singleAux[10] = aux[ID(10, i, j, k)];
+        for (int var(0); var < d->Nprims; var++) {
+          singlePrims[var] = prims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          singleAux[var] = aux[ID(var, i, j, k)];
+        }
+        // singleAux[10] = aux[ID(10, i, j, k)];
 
         // Get primitive and auxilliary vars
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
