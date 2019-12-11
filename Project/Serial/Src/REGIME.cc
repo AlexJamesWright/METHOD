@@ -61,7 +61,7 @@ REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), flu
   diffuY = new double[d->Nx*d->Ny*d->Nz*8] ();
   diffuZ = new double[d->Nx*d->Ny*d->Nz*8] ();
   alpha = new double[d->Nx*d->Ny*d->Nz] ();
-  d->sourceExtension = new double[d->Nx*d->Ny*d->Nz*d->Ncons] ();
+  d->sourceExtension = new double[d->Nx*d->Ny*d->Nz*9] ();
 }
 
 REGIME::~REGIME()

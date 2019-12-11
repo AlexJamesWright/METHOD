@@ -370,21 +370,21 @@ void Hybrid::primsToAll(double *cons, double *prims, double *aux)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
         double iW = idealWeightID(cons, prims, aux, i, j, k);
-        // for (int var(0); var < resistiveModel->Ncons; var++) {
-        //   cons[ID(var, i, j, k)] *= (1-iW);
-        //   if (var < idealModel->Ncons)
-        //     cons[ID(var, i, j, k)] += iW*icons[ID(var, i, j, k)];
-        // }
-        // for (int var(0); var < resistiveModel->Nprims; var++) {
-        //   prims[ID(var, i, j, k)] *= (1-iW);
-        //   if (var < idealModel->Nprims)
-        //     prims[ID(var, i, j, k)] += iW*iprims[ID(var, i, j, k)];
-        // }
-        // for (int var(0); var < resistiveModel->Naux; var++) {
-        //   aux[ID(var, i, j, k)] *= (1-iW);
-        //   if (var < idealModel->Naux)
-        //     aux[ID(var, i, j, k)] += iW*iaux[ID(var, i, j, k)];
-        // }
+        for (int var(0); var < resistiveModel->Ncons; var++) {
+          cons[ID(var, i, j, k)] *= (1-iW);
+          if (var < idealModel->Ncons)
+            cons[ID(var, i, j, k)] += iW*icons[ID(var, i, j, k)];
+        }
+        for (int var(0); var < resistiveModel->Nprims; var++) {
+          prims[ID(var, i, j, k)] *= (1-iW);
+          if (var < idealModel->Nprims)
+            prims[ID(var, i, j, k)] += iW*iprims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < resistiveModel->Naux; var++) {
+          aux[ID(var, i, j, k)] *= (1-iW);
+          if (var < idealModel->Naux)
+            aux[ID(var, i, j, k)] += iW*iaux[ID(var, i, j, k)];
+        }
       }
     }
   }
