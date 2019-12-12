@@ -58,11 +58,6 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   RK2::correctorStep(cons, prims, aux, dt);
   RK2::finalise(cons, prims, aux);
 
-  printf("RKS:\n");
-  for (int var(0); var < d->Ncons; var++) {
-    printf("%10.8f, ", cons[ID(var, 53, 0, 0)]);
-  }printf("\n");
-  
   // Set and add source
   this->setSource(p1cons, p1prims, p1aux);
   for (int var(0); var < d->Ncons; var++) {
@@ -74,6 +69,29 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+
+
   RK2::finalise(cons, prims, aux);
 
+  // Set ideal electric fields
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        double iW = model->idealWeightID(cons, prims, aux, i, j, k);
+        double iEx = -(prims[ID(2, i, j, k)]*prims[ID(7, i, j, k)] - prims[ID(3, i, j, k)]*prims[ID(6, i, j, k)]);
+        double iEy = -(prims[ID(3, i, j, k)]*prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)]*prims[ID(7, i, j, k)]);
+        double iEz = -(prims[ID(1, i, j, k)]*prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)]*prims[ID(5, i, j, k)]);
+
+        cons[ID(8, i, j, k)]  *= (1-iW);
+        cons[ID(9, i, j, k)]  *= (1-iW);
+        cons[ID(10, i, j, k)] *= (1-iW);
+
+        cons[ID(8, i, j, k)]  += iW*iEx;
+        cons[ID(9, i, j, k)]  += iW*iEy;
+        cons[ID(10, i, j, k)] += iW*iEz;
+
+      }
+    }
+  }
+  RK2::finalise(cons, prims, aux);
 }

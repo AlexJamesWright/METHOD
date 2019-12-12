@@ -6,7 +6,7 @@
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 
-RK2::RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
+RK2::RK2(Data * data, Hybrid * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
       TimeIntegrator(data, model, bcs, fluxMethod, modelExtension)
 {
   // Syntax

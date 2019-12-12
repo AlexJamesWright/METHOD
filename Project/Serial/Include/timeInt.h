@@ -6,6 +6,7 @@
 #include "boundaryConds.h"
 #include "flux.h"
 #include "modelExtension.h"
+#include "hybrid.h"
 
 //! <b> General form of the time integrator </b>
 /*!
@@ -20,7 +21,7 @@ class TimeIntegrator
 
     Data * data;                //!< Pointer to Data class containing global simulation data
 
-    Model * model;              //!< Pointer to Model object, contains governing equations and spectral decomposition
+    Hybrid * model;              //!< Pointer to Model object, contains governing equations and spectral decomposition
 
     Bcs * bcs;                  //!< Pointer to boundary conditions, Bcs, object
 
@@ -40,7 +41,7 @@ class TimeIntegrator
       @param[in] *modelExtension pointer to the ModelExtension object
 
     */
-    TimeIntegrator(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
+    TimeIntegrator(Data * data, Hybrid * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
                    data(data), model(model), bcs(bcs), fluxMethod(fluxMethod), modelExtension(modelExtension) { }
 
     //! Step function

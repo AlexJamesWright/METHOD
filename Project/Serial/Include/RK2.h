@@ -2,6 +2,7 @@
 #define RK2_H
 
 #include "timeInt.h"
+#include "hybrid.h"
 
 //! <b> TVD Runge-Kutta 2nd order time integrator </b>
 /*!
@@ -44,7 +45,7 @@ class RK2 : public TimeIntegrator
       @param[in] *modelExtension pointer to the ModelExtension object
       @sa TimeIntegrator::TimeIntegrator
     */
-    RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
+    RK2(Data * data, Hybrid * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
     ~RK2();
 

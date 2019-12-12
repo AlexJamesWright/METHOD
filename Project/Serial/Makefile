@@ -32,13 +32,6 @@ SRCS = main.cc \
 			 weno.cc \
 			 RK2.cc \
 			 rkSplit.cc \
-			 backwardsRK.cc \
-			 backRKArgs.cc \
-			 SSP2.cc \
-			 SSP2322.cc \
-			 IMEX2Args.cc \
-			 SSP3.cc \
-			 IMEX3Args.cc \
 			 boundaryConds.cc \
 			 saveData.cc \
 			 fluxVectorSplitting.cc \

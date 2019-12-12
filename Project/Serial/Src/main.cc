@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  Hybrid model(&data);
+  Hybrid model(&data, 400, 300, true);
   // SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
   clock_t startTime(clock());
 
   // Run until end time and save results
-  // sim.evolve(output, safety);
-  sim.updateTime();
+  sim.evolve(output, safety);
+  // sim.updateTime();
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();

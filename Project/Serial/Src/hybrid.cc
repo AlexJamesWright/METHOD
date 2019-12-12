@@ -282,11 +282,13 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
   {
     setIdealCPAsAll(cons, prims, aux);
     subgridModel->sourceExtension(icons, iprims, iaux, regimeSource);
-    for (int var(0); var < idealModel->Ncons-1; var++) {
+
+
+    for (int var(0); var < idealModel->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
-            double iW = idealWeightID(cons, prims, aux, i, j, k);
+            double iW = idealWeightID(icons, iprims, iaux, i, j, k);
             bool use(false);
             if (d->sigmaFunc(icons, iprims, iaux, i, j, k) < sigmaCrossOver+sigmaSpan &&
                 d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
@@ -298,7 +300,6 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
         }
       }
     }
-
   }
 
   // Free up
@@ -325,16 +326,6 @@ void Hybrid::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
     prims[0] = siprims[0]; prims[1] = siprims[1]; prims[2] = siprims[2];
     prims[3] = siprims[3]; prims[4] = siprims[4]; prims[5] = siprims[5];
     prims[6] = siprims[6]; prims[7] = siprims[7];
-    //
-    // cons[8]  = prims[8]  = -(prims[2]*prims[7] - prims[3]*prims[6]);
-    // cons[9]  = prims[9]  = -(prims[3]*prims[5] - prims[1]*prims[7]);
-    // cons[10] = prims[10] = -(prims[1]*prims[6] - prims[2]*prims[5]);
-
-    // if (i==53)
-    // {
-    //   printf("C2P prebrac = %19.16f\n", -(prims[1]*prims[6] - prims[2]*prims[5]));
-    //   printf("C2P preprims[10] = %19.16f\n", prims[10]);
-    // }
 
     aux[0] = siaux[0]; aux[1] = siaux[1]; aux[2] = siaux[2]; aux[3] = siaux[3];
     aux[4] = 0; aux[5] = 0; aux[6] = 0; aux[7] = siaux[11];
@@ -347,18 +338,6 @@ void Hybrid::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
     aux[15] = aux[12] * aux[12] + aux[13] * aux[13] + aux[14] * aux[14];
     aux[16] = aux[10] - prims[4] - cons[0];
 
-    // if (i==53)
-    // {
-    //   printf("C2P p1aux[8] = %19.16f\n", aux[8]);
-    //   printf("C2P cons[10] = %19.16f\n", cons[10]);
-    //   printf("C2P prims[10] = %19.16f\n", prims[10]);
-    //   printf("C2P vx = %19.16f\n", prims[1]);
-    //   printf("C2P By = %19.16f\n", prims[6]);
-    //   printf("C2P vy = %19.16f\n", prims[2]);
-    //   printf("C2P Bx = %19.16f\n", prims[5]);
-    //   printf("C2P brac = %19.16f\n", -(prims[1]*cons[6] - prims[2]*cons[5]));
-    //   printf("\n\n\n");
-    // }
   }
 }
 
@@ -398,8 +377,6 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
 
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
 
-        // if (i==53)
-        //   printf("C2P singleAux[8] = %19.16f\n", singleAux[8]);
         // Copy cell's prim and aux back to data class
         // Store this cell's cons data
         for (int var(0); var < resistiveModel->Nprims; var++) {
