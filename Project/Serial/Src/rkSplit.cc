@@ -39,10 +39,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
 
   // Predictor + source
   RK2::predictorStep(cons, prims, aux, dt);
-  printf("Finalising\n");
   RK2::finalise(p1cons, p1prims, p1aux);
-  printf("Finalised\n");
-  printf("RKS: p1aux[8] = %19.16f\n", p1aux[ID(8, 53, 0, 0)]);
   // Set and add source
   // this->setSource(cons, prims, aux);
   // for (int var(0); var < d->Ncons; var++) {
@@ -61,6 +58,11 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   RK2::correctorStep(cons, prims, aux, dt);
   RK2::finalise(cons, prims, aux);
 
+  printf("RKS:\n");
+  for (int var(0); var < d->Ncons; var++) {
+    printf("%10.8f, ", cons[ID(var, 53, 0, 0)]);
+  }printf("\n");
+  
   // Set and add source
   this->setSource(p1cons, p1prims, p1aux);
   for (int var(0); var < d->Ncons; var++) {
