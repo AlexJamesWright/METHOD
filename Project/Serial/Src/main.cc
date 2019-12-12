@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double cfl(0.4);
   double gamma(2.0);
-  double sigma(500);
+  double sigma(1e6);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
@@ -59,19 +59,21 @@ int main(int argc, char *argv[]) {
   bool output(false);
   int safety(-1);
   bool functionalSigma(true);
-  double gam(0.2);
+  double gam(12);
+  double sigmaCrossOver(400);
+  double sigmaSpan(300);
+  bool useREGIME(true);
+
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip,
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  Hybrid model(&data, 400, 300, true);
-  // SRMHD model(&data);
+  Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
   FVS fluxMethod(&data, &model);
 
-  // REGIME modelExtension(&data, &fluxMethod);
   model.setSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
@@ -81,7 +83,6 @@ int main(int argc, char *argv[]) {
   Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod, NULL);
-  // SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 

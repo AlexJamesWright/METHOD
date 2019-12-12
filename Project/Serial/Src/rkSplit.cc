@@ -40,20 +40,7 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   // Predictor + source
   RK2::predictorStep(cons, prims, aux, dt);
   RK2::finalise(p1cons, p1prims, p1aux);
-  // Set and add source
-  // this->setSource(cons, prims, aux);
-  // for (int var(0); var < d->Ncons; var++) {
-  //   for (int i(0); i < d->Nx; i++) {
-  //     for (int j(0); j < d->Ny; j++) {
-  //       for (int k(0); k < d->Nz; k++) {
-  //         p1cons[ID(var, i, j, k)] += dt * d->source[ID(var, i, j, k)];
-  //       }
-  //     }
-  //   }
-  // }
-  // RK2::finalise(p1cons, p1prims, p1aux);
-
-
+  
   // Corrector + source
   RK2::correctorStep(cons, prims, aux, dt);
   RK2::finalise(cons, prims, aux);
