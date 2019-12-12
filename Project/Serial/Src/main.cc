@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(200);
+  int nx(100);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]) {
   clock_t startTime(clock());
 
   // Run until end time and save results
-  sim.evolve(output, safety);
-  // sim.updateTime();
+  // sim.evolve(output, safety);
+  sim.updateTime();
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
