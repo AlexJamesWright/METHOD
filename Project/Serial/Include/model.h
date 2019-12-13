@@ -120,6 +120,14 @@ class Model
     */
     virtual void fluxVector(double *cons, double *prims, double *aux, double *f, int dir) = 0;
 
+    //! Finalise the simulation variables
+    /*!
+      @par
+        Mostly, this probably wont be needed, but if there is any final steps to finish
+      off a timestep, this can be done here.
+    */
+    virtual void finalise(double *cons, double *prims, double *aux) { };
+
 };
 
 

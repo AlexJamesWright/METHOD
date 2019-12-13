@@ -426,6 +426,31 @@ void Hybrid::primsToAll(double *cons, double *prims, double *aux)
       }
     }
   }
+}
 
+void Hybrid::finalise(double *cons, double *prims, double *aux)
+{
+  // Syntax
+  Data * d(this->data);
 
+  // Set ideal electric fields
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        double iW = idealWeightID(cons, prims, aux, i, j, k);
+        double iEx = -(prims[ID(2, i, j, k)]*prims[ID(7, i, j, k)] - prims[ID(3, i, j, k)]*prims[ID(6, i, j, k)]);
+        double iEy = -(prims[ID(3, i, j, k)]*prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)]*prims[ID(7, i, j, k)]);
+        double iEz = -(prims[ID(1, i, j, k)]*prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)]*prims[ID(5, i, j, k)]);
+
+        cons[ID(8, i, j, k)]  *= (1-iW);
+        cons[ID(9, i, j, k)]  *= (1-iW);
+        cons[ID(10, i, j, k)] *= (1-iW);
+
+        cons[ID(8, i, j, k)]  += iW*iEx;
+        cons[ID(9, i, j, k)]  += iW*iEy;
+        cons[ID(10, i, j, k)] += iW*iEz;
+
+      }
+    }
+  }
 }

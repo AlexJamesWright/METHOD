@@ -221,6 +221,14 @@ class SRMHD : public Model
     */
     void fluxVector(double *cons, double *prims, double *aux, double *f, const int dir);
 
+    //! Finalise the simulation variables
+    /*!
+      @par
+        Mostly, this probably wont be needed, but if there is any final steps to finish
+      off a timestep, this can be done here.
+    */
+    void finalise(double *cons, double *prims, double *aux) { };
+
 };
 
 

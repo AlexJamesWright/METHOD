@@ -127,11 +127,11 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  this->model->getPrimitiveVars(U1, prims, aux);
-  this->model->sourceTerm(U1, prims, aux, source1);
-  this->fluxMethod->F(U1, prims, aux, d->f, flux1);
-  this->bcs->apply(U1);
-  this->bcs->apply(flux1);
+  model->getPrimitiveVars(U1, prims, aux);
+  model->sourceTerm(U1, prims, aux, source1);
+  fluxMethod->F(U1, prims, aux, d->f, flux1);
+  bcs->apply(U1);
+  bcs->apply(flux1);
 
 
     //########################### STAGE TWO #############################//
@@ -176,11 +176,11 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  this->bcs->apply(U2, prims, aux);
-  this->model->getPrimitiveVars(U2, prims, aux);
-  this->model->sourceTerm(U2, prims, aux, source2);
-  this->fluxMethod->F(U2, prims, aux, d->f, flux2);
-  this->bcs->apply(flux2);
+  bcs->apply(U2, prims, aux);
+  model->getPrimitiveVars(U2, prims, aux);
+  model->sourceTerm(U2, prims, aux, source2);
+  fluxMethod->F(U2, prims, aux, d->f, flux2);
+  bcs->apply(flux2);
 
 
   // Prediction correction
@@ -195,8 +195,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  this->model->getPrimitiveVars(cons, prims, aux);
-  this->bcs->apply(cons, prims, aux);
+  model->getPrimitiveVars(cons, prims, aux);
+  model->finalise(cons, prims, aux);
+  bcs->apply(cons, prims, aux);
 
 }
 

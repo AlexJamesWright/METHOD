@@ -51,7 +51,7 @@ class RKSplit : public RK2
       @sa TimeIntegrator::TimeIntegrator
       @sa RK2::RK2
     */
-    RKSplit(Data * data, Hybrid * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
+    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
             RK2(data, model, bcs, fluxMethod, modelExtension) { }
 
     void setSource(double * cons, double * prims, double * aux);

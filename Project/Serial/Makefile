@@ -32,6 +32,13 @@ SRCS = main.cc \
 			 weno.cc \
 			 RK2.cc \
 			 rkSplit.cc \
+			 backwardsRK.cc \
+			 backRKArgs.cc \
+			 SSP2.cc \
+			 SSP2322.cc \
+			 IMEX2Args.cc \
+			 SSP3.cc \
+			 IMEX3Args.cc \
 			 boundaryConds.cc \
 			 saveData.cc \
 			 fluxVectorSplitting.cc \
@@ -151,12 +158,12 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVect
 REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
-
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
 	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS)
+
+hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

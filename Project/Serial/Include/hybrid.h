@@ -75,6 +75,7 @@ class Hybrid : public Model
     void fluxVector(double *cons, double *prims, double *aux, double *f, const int dir);
 
 
+    void finalise(double *cons, double *prims, double *aux);
 };
 
 #endif
