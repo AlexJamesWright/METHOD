@@ -20,8 +20,7 @@ class Hybrid : public Model
     sigmaCrossOver,
     sigmaSpan;
 
-    bool
-    useREGIME;
+    bool useREGIME;
 
     SRRMHD * resistiveModel;
 
@@ -33,7 +32,7 @@ class Hybrid : public Model
     Hybrid(); //!< Default constructor
 
 
-    Hybrid(Data * data, double sigmaCrossOver=400, double sigmaSpan=300, bool useREGIME=true);
+    Hybrid(Data * data, double sigmaCrossOver=600, double sigmaSpan=500, bool useREGIME=true);
 
 
     ~Hybrid();  //!< Destructor

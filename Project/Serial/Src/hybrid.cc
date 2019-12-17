@@ -290,8 +290,7 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
           for (int k(0); k < d->Nz; k++) {
             double iW = idealWeightID(icons, iprims, iaux, i, j, k);
             bool use(false);
-            if (d->sigmaFunc(icons, iprims, iaux, i, j, k) < sigmaCrossOver+sigmaSpan &&
-                d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
+            if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
               use = true;
 
             source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW;

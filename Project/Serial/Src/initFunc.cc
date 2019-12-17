@@ -144,6 +144,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
 
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
   if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->gamma != 2.0) throw std::invalid_argument("Expected the index gamma = 2\n");
 
   double B0(1);
   const double rho(1.0);
@@ -174,6 +175,7 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data, int direction) : I
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
   if (d->xmin != -3.0 || d->xmax != 3.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [-3, 3]\n");
+  if (d->gamma != 2.0) throw std::invalid_argument("Expected the index gamma = 2\n");
 
   double B0(1);
   const double rho(1.0);
@@ -418,7 +420,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  // if (d->gamma != 4.0/3.0) throw std::invalid_argument("Expected the index gamma = 4/3\n");
+  if (d->gamma != 4.0/3.0) throw std::invalid_argument("Expected the index gamma = 4/3\n");
   if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
   if (d->ymin != -1.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [-1.0, 1.0]\n");
 
@@ -463,7 +465,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
             d->prims[ID(5, i, j, k)] += psi0 * (pi / Ly) * sin(pi * (d->y[j]+0.5) / Ly) * cos(2*pi*d->x[i] / Lx);
             d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*(d->y[j]+0.5) / Ly);
           }
-          
+
           // If we have electric fields, set to the ideal values
           if (d->Ncons > 9)
           {
