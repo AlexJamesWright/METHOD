@@ -38,7 +38,7 @@ class FluxMethod
 
       @param[in] *cons pointer to conserved vector
       @param[in] *prims pointer to primitive vector
-      @param[in] *aux pointer to auxilliary vector
+      @param[in] *aux pointer to auxiliary vector
       @param[in] *f pointer to a flux work array to store the initial flux vector
       @param[in, out] *fnet pointer to the array containing the net flux through every cell
     */
@@ -53,7 +53,7 @@ class FluxMethod
 
       @param[in] *cons pointer to conserved vector
       @param[in] *prims pointer to primitive vector
-      @param[in] *aux pointer to auxilliary vector
+      @param[in] *aux pointer to auxiliary vector
       @param[in] *f pointer to a flux work array to store the initial flux vector
       @param[in, out] *frecon pointer to the array containing the reconstructed values
       of the fluxes at the cell faces

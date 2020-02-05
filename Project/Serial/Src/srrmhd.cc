@@ -331,7 +331,7 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         }
         singleAux[10] = aux[ID(10, i, j, k)];
 
-        // Get primitive and auxilliary vars
+        // Get primitive and auxiliary vars
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
 
         // Copy cell's prim and aux back to data class

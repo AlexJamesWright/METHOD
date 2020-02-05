@@ -219,9 +219,4 @@ NOTE: The second variable must be included and be the number of variables you wi
 ---------------------------------------------
 <br> <br>
 
-
-## Side notes
-I realise that throughout this project I have misspelt 'auxiliary' as 'auxilliary' (additional 'l'). This is of minor importance, but feel free to change it yourself!
-
-
 \* *due to this cryptic package we have moved bits about and re-ordered various headers and includes. Most of the preprocessor stuff has been deleted (using NVIDIA hardware will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the CUDA scripts directly).*

@@ -12,7 +12,7 @@ This is the human readable description of this models variables.
     D, Sx, Sy, Sz, tau, Bx, By, Bz, phi
   Eight primitive variables:
     rho, vx, vy, vz, p, Bx, By, Bz
-  Thirteen auxilliary variables:
+  Thirteen auxiliary variables:
     h, W, e, c, b0, bx, by, bz, bsq, vsq, BS, Bsq, Ssq
 */
 
@@ -30,7 +30,7 @@ This is the human readable description of this models variables.
    \f$\ \ \ D\f$, \f$S_x\f$, \f$S_y\f$, \f$S_z\f$, \f$\tau\f$, \f$B_x\f$, \f$B_y\f$, \f$B_z\f$, \f$\phi\f$ <br>
   Eight primitive variables: <br>
     \f$\ \ \ \rho\f$, \f$v_x\f$, \f$v_y\f$, \f$v_z\f$, \f$p\f$, \f$B_x\f$, \f$B_y\f$, \f$B_z\f$ <br>
-  Thirteen auxilliary variables:<br>
+  Thirteen auxiliary variables:<br>
     \f$\ \ \ h\f$, \f$W\f$, \f$e\f$, \f$c\f$, \f$b_0\f$, \f$b_x\f$, \f$b_y\f$, \f$b_z\f$, \f$b^2\f$, \f$v^2\f$, \f$B \cdot S\f$, \f$B^2\f$, \f$S^2\f$ <br>
 
   @par
@@ -127,7 +127,7 @@ class SRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
       @param *source pointer to source vector work array. Size is \f$N_{cons}\f$
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
@@ -144,7 +144,7 @@ class SRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}*N_x*N_y*N_z\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
       @param *source pointer to source vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @sa Model::sourceTerm
     */
@@ -161,7 +161,7 @@ class SRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
       @param k cell number in z-direction (optional)
@@ -182,7 +182,7 @@ class SRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}*N_x*N_y*N_z\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
       @sa Model::getPrimitiveVars
     */
     void getPrimitiveVars(double *cons, double *prims, double *aux);
@@ -196,7 +196,7 @@ class SRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}*N_x*N_y*N_z\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
       @sa Model::primsToAll
     */
     void primsToAll(double *cons, double *prims, double *aux);
@@ -210,12 +210,12 @@ class SRMHD : public Model
       cleaning from Dedner et al. 2002.
       interfaces, John Muddle.
 
-      @note We are assuming that all primitive and auxilliary variables are up-to-date
+      @note We are assuming that all primitive and auxiliary variables are up-to-date
       at the time of this function execution.
 
       @param *cons pointer to conserved vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @param *prims pointer to primitive vector work array. Size is \f$N_{prims}*N_x*N_y*N_z\f$
-      @param *aux pointer to auxilliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
+      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
       @param *f pointer to flux vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
       @param dir direction in which to generate flux vector. \f$(x, y, z) = (0, 1, 2)\f$
       @sa Model::fluxVector

@@ -54,9 +54,9 @@ class InteractivePlot(object):
             primLabels : array of string
                 (Nprims,) The labels of the primitive elements
             aux : array of float
-                (Naux, Nx, Ny, Nz) Array containing the auxilliary vector
+                (Naux, Nx, Ny, Nz) Array containing the auxiliary vector
             auxLabels : array of string
-                (Naux,) The labels of the auxilliary elements
+                (Naux,) The labels of the auxiliary elements
             c : dictionary
                 Dictionary containing all constant data saved in simData. Access
                 elements by typing as an argument the constant you want as a string.
@@ -103,7 +103,7 @@ class InteractivePlot(object):
 
         print("{} conserved vectors".format(c['Ncons']))
         print("{} primitive vectors".format(c['Nprims']))
-        print("{} auxilliary vectors".format(c['Naux']))
+        print("{} auxiliary vectors".format(c['Naux']))
 
 
 
@@ -153,8 +153,8 @@ class InteractivePlot(object):
         with suppress(FileNotFoundError):
             # And finally the aux vars if available
             self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
-            print("Fetching auxilliary variables...")
-            with open(self.DatDir + 'Auxilliary/aux' + self.appendix +'.dat', 'r') as f:
+            print("Fetching auxiliary variables...")
+            with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
                 for i, line in enumerate(f):
                     # Get cons var labels
                     if i==0:
@@ -287,7 +287,7 @@ class InteractivePlot(object):
         ----------
             data: string
                 Describes which variables the user wants to plot. Choose from
-                'prims', 'cons', 'aux' or 'primitive', 'conserved' and 'auxilliary'
+                'prims', 'cons', 'aux' or 'primitive', 'conserved' and 'auxiliary'
             color: matplotlib color map
                 The colour theme to be plotting in. This can take string arguments
                 but best to stick to variants of cm.somecolourscheme
@@ -302,7 +302,7 @@ class InteractivePlot(object):
         elif data=='cons' or data=='conserved':
             data = self.cons
             dataLabels = self.cleanConsLabels
-        elif data=='aux' or data=='auxilliary':
+        elif data=='aux' or data=='auxiliary':
             data = self.aux
             dataLabels = self.cleanAuxLabels
         else:
@@ -343,7 +343,7 @@ class InteractivePlot(object):
         ----------
             data: string
                 Describes which variables the user wants to plot. Choose from
-                'prims', 'cons', 'aux' or 'primitive', 'conserved' and 'auxilliary'
+                'prims', 'cons', 'aux' or 'primitive', 'conserved' and 'auxiliary'
             color: matplotlib color map
                 The colour theme to be plotting in. This can take string arguments
                 but best to stick to variants of cm.somecolourscheme
@@ -359,7 +359,7 @@ class InteractivePlot(object):
         elif data=='cons' or data=='conserved':
             data = self.cons
             dataLabels = self.cleanConsLabels
-        elif data=='aux' or data=='auxilliary':
+        elif data=='aux' or data=='auxiliary':
             data = self.aux
             dataLabels = self.cleanAuxLabels
         else:

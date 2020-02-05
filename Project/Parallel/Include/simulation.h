@@ -46,7 +46,7 @@ class Simulation
         Stores data and allocates memory for working arrays.
       @note
         This constructor must be called after the model has be initiated such that
-      it knows how many conserved, primitive and auxilliary to allocate memory for,
+      it knows how many conserved, primitive and auxiliary to allocate memory for,
       and once this has been completed, the initial function class may be implemented.
 
       @param[in] *data pointer to Data class containing global simulation data
@@ -62,7 +62,7 @@ class Simulation
     /*!
       @par
         This stores the model type and general simulation form and finds the
-      conserved and auxilliary variables that correspond to the initial primitive
+      conserved and auxiliary variables that correspond to the initial primitive
       data.
       @note
         This function must be called before calling either evolve() or updateTime(),
@@ -84,11 +84,11 @@ class Simulation
 
     //! Incrememt the system forward by a single timestep
     /*!
-        When calling updateTime(), all primitive and auxilliary variables must be
+        When calling updateTime(), all primitive and auxiliary variables must be
       set. I.e. they must correspond to the values of the conserved vector at that
       time step.
         Given this, the conserved variables are evolved using the given
-      time integrator according to the selected model. All primitive and auxilliary
+      time integrator according to the selected model. All primitive and auxiliary
       variables are then found and the updated values are saved in the Data class.
     */
     void updateTime();

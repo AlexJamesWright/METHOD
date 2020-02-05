@@ -17,7 +17,7 @@
 (5)   rho2, vx2, vy2, vz2, p2,                                                                        <br>
 (10)  Bx, By, Bz,                                                                                     <br>
 (13)  Ex, Ey, Ez                                                                                      <br>
-  Thirty-five auxilliary variables:                                                                   <br>
+  Thirty-five auxiliary variables:                                                                   <br>
 (0)   h1, W1, e1, vsq1, Z1, D1, Stildex1, Stildey1, Stildez1, tauTilde1,                              <br>
 (10)  h2, W2, e2, vsq2, Z2, D2, Stildex2, Stildey2, Stildez2, tauTilde2,                              <br>
 (20)  Jx, Jy, Jz,                                                                                     <br>
@@ -52,7 +52,7 @@
   \ \ \ \rho_2, v_{x2}, v_{y2}, v_{z2}, p_2, \\
   \ \ \ B_x, B_y, B_z, \\
   \ \ \ E_x, E_y, E_z \f$ <br>
-  Thirty-five auxilliary variables: <br>
+  Thirty-five auxiliary variables: <br>
   \f$
   \ \ \ h_1, W_1, e_1, v^2_1, Z_1, D_1, \tilde{S}_{x1}, \tilde{S}_{y1}, \tilde{S}_{z1}, \tilde{\tau}_1, \\
   \ \ \ h_2, W_2, e_2, v^2_2, Z_2, D_2, \tilde{S}_{x2}, \tilde{S}_{y2}, \tilde{S}_{z2}, \tilde{\tau}_2, \\
@@ -115,7 +115,7 @@ class TwoFluidEMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons
       @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
+      @param *aux pointer to auxiliary vector work array. Size is Naux
       @param *source pointer to source vector work array. Size is Ncons
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
@@ -134,7 +134,7 @@ class TwoFluidEMHD : public Model
 
     @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
     @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-    @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+    @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
     @param *source pointer to source vector work array. Size is Ncons*Nx*Ny*Nz
     @sa Model::sourceTerm
     */
@@ -152,7 +152,7 @@ class TwoFluidEMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons
       @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
+      @param *aux pointer to auxiliary vector work array. Size is Naux
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
       @param k cell number in z-direction (optional)
@@ -162,7 +162,7 @@ class TwoFluidEMHD : public Model
 
     //! Spectral decomposition
     /*!
-    Generates the values of the primitive and auxilliary variables consistent
+    Generates the values of the primitive and auxiliary variables consistent
     with the conservative vector given. Method first separates the fluids, then
     subtracts the EM fields implementing a resistive MHD single fluid proceedure
     to each species.
@@ -170,7 +170,7 @@ class TwoFluidEMHD : public Model
 
     @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
     @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-    @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+    @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
     @sa Model::getPrimitiveVars
     */
     void getPrimitiveVars(double *cons, double *prims, double *aux);
@@ -182,7 +182,7 @@ class TwoFluidEMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
       @sa Model::primsToAll
     */
     void primsToAll(double *cons, double *prims, double *aux);
@@ -193,12 +193,12 @@ class TwoFluidEMHD : public Model
       For the form of the fluxes see Anton 2010, with the inclusion of
       divergence cleaning from Muddle 2016.
 
-      @note We are assuming that all primitive and auxilliary variables are up-to-date
+      @note We are assuming that all primitive and auxiliary variables are up-to-date
       at the time of this function execution.
 
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
       @param *f pointer to flux vector work array. Size is Ncons*Nx*Ny*Nz
       @param dir direction in which to generate flux vector. (x, y, z) = (0, 1, 2)
       @sa Model::fluxVector

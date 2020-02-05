@@ -35,13 +35,13 @@ class RK2 : public TimeIntegrator
     //! Performs a single time step
     /*!
         The timestep will use the current values of the conserved, primitive and
-      auxilliary variables at t=t0 and compute the values of all of them at time
+      auxiliary variables at t=t0 and compute the values of all of them at time
       \f$t=t_0 + dt\f$. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in] *aux pointer to auxilliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
     */
