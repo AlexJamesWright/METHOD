@@ -32,7 +32,7 @@ class Hybrid : public Model
     Hybrid(); //!< Default constructor
 
 
-    Hybrid(Data * data, double sigmaCrossOver=600, double sigmaSpan=500, bool useREGIME=true);
+    Hybrid(Data * data, double sigmaCrossOver=400, double sigmaSpan=350, bool useREGIME=true);
 
 
     ~Hybrid();  //!< Destructor

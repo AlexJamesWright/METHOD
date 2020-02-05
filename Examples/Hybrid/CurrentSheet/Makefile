@@ -5,46 +5,36 @@
 CC = g++
 
 # Module directory
-MODULE_DIR = ./Src
+MODULE_DIR = ./../../../Project/Serial/Src
 
 # Rootfinder directory
-RTFIND_DIR = ./CminpackLibrary
+RTFIND_DIR = ./../../../Project/Serial/CminpackLibrary
 
 # Include directory
-INC_DIR = ./Include
+INC_DIR = ./../../../Project/Serial/Include
 
 # Cminpack include directory
-RTFIND_INC_DIR = ./CminpackLibrary/Include
+RTFIND_INC_DIR = ./../../../Project/Serial/CminpackLibrary/Include
 
 # Cminpack source directory
-RTFIND_SRC_DIR = ./CminpackLibrary/Src
+RTFIND_SRC_DIR = ./../../../Project/Serial//CminpackLibrary/Src
 
 # C++ compiler flags
 CXXFLAGS = -Wall -std=c++11
 
 # Sources
-SRCS = main.cc 								\
-			 simulation.cc 					\
-			 srmhd.cc						  	\
-			 twoFluidEMHD.cc 				\
+SRCS = simulation.cc 					\
+			 srmhd.cc 							\
+			 srrmhd.cc 							\
 			 initFunc.cc 						\
 			 simData.cc 						\
 			 weno.cc 								\
 			 RK2.cc 								\
 			 rkSplit.cc 						\
-			 rkSplit2ndOrder.cc			\
-			 backwardsRK.cc 				\
-			 backRKArgs.cc 					\
-			 SSP2.cc 								\
-			 SSP2322.cc 						\
-			 IMEX2Args.cc 					\
-			 SSP3.cc 								\
-			 IMEX3Args.cc 					\
 			 boundaryConds.cc 			\
 			 saveData.cc 						\
+			 REGIME.cc						 	\
 			 fluxVectorSplitting.cc \
-			 srrmhd.cc 							\
-			 REGIME.cc 							\
 			 hybrid.cc
 
 
@@ -55,15 +45,15 @@ HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
 OBJS = ${SRCS:.cc=.o}
 
 # Rootfinder objects
-RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o 	\
-							$(RTFIND_SRC_DIR)/dpmpar.o 	\
-							$(RTFIND_SRC_DIR)/enorm.o 	\
-							$(RTFIND_SRC_DIR)/fdjac1.o 	\
-							$(RTFIND_SRC_DIR)/hybrd.o 	\
-							$(RTFIND_SRC_DIR)/hybrd1.o 	\
-							$(RTFIND_SRC_DIR)/qform.o 	\
-							$(RTFIND_SRC_DIR)/qrfac.o 	\
-							$(RTFIND_SRC_DIR)/r1mpyq.o 	\
+RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
+							$(RTFIND_SRC_DIR)/dpmpar.o \
+							$(RTFIND_SRC_DIR)/enorm.o \
+							$(RTFIND_SRC_DIR)/fdjac1.o \
+							$(RTFIND_SRC_DIR)/hybrd.o \
+							$(RTFIND_SRC_DIR)/hybrd1.o \
+							$(RTFIND_SRC_DIR)/qform.o \
+							$(RTFIND_SRC_DIR)/qrfac.o \
+							$(RTFIND_SRC_DIR)/r1mpyq.o \
 							$(RTFIND_SRC_DIR)/r1updt.o
 
 # Programmes
@@ -75,8 +65,14 @@ EXEC = main
 # Rootfinder executables
 RTFIND = buildRootfinder
 
+
 # Build everything
 build : $(RTFIND) $(EXEC)
+
+# Make and run all tests on simulation scripts and run main
+all : $(RTFIND) $(EXEC)
+	cd $(TEST_DIR) && $(MAKE) test
+	@$(MAKE) run
 
 # Build and run main (does not run any tests if called explicitly)
 run : $(RTFIND) $(EXEC)
@@ -89,7 +85,7 @@ run : $(RTFIND) $(EXEC)
 	@./$(EXEC)
 
 clean :
-	rm	-f	$(EXEC)	$(OBJS)	*.gch
+	rm	-f	$(EXEC)	*.o	*.gch
 
 
 #################
@@ -102,9 +98,6 @@ simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
 initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
-
 srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
@@ -114,7 +107,7 @@ srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h
 simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-main.o : $(MODULE_DIR)/main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
+main.o : ./main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
 weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
@@ -126,30 +119,6 @@ RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-rkSplit2ndOrder.o : $(MODULE_DIR)/rkSplit2ndOrder.cc $(INC_DIR)/rkSplit2ndOrder.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
-
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cc $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-backRKArgs.o : $(MODULE_DIR)/backRKArgs.cc $(INC_DIR)/backRKArgs.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-SSP2322.o : $(MODULE_DIR)/SSP2322.cc $(INC_DIR)/SSP2322.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-SSP3.o : $(MODULE_DIR)/SSP3.cc $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
-IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
-
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
@@ -159,6 +128,7 @@ saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
+# Resistive subgrid model
 REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
@@ -166,11 +136,8 @@ hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
-main : $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS)
+main : main.o $(OBJS) $(RTFIND_OBJS)
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
-
-# Tidy up and re-do
-rebuild : clean build
