@@ -78,13 +78,13 @@ class SSP2 : public TimeIntegrator
     /*!
       @par
         The timestep will use the current values of the conserved, primitive and
-      auxilliary variables at t=t0 and compute the values of all of them at time
+      auxiliary variables at t=t0 and compute the values of all of them at time
       t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
 
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
       @param *source pointer to source vector for solution. Size is Naux*Nx*Ny*Nz
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step

@@ -4,7 +4,6 @@
   accompanied by the divergence cleaning method to enforce the contraints set by
   Maxwell's equations.
 */
-int counter(0);
 
 #include "twoFluidEMHD.h"
 #include <cmath>
@@ -13,9 +12,6 @@ int counter(0);
 #include <iostream>
 #include <stdexcept>
 
-
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);
@@ -394,7 +390,7 @@ void TwoFluidEMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         singleAux[4] = aux[ID(4, i, j, k)];
         singleAux[14] = aux[ID(14, i, j, k)];
 
-        // Get primitive and auxilliary vars
+        // Get primitive and auxiliary vars
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
 
         // Copy cell's prim and aux back to data class
@@ -547,7 +543,7 @@ void TwoFluidEMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, doubl
 
 //! Prims2cons&aux conversion
 /*!
-    Convert primitive vector to conservative and auxilliary vectors at start
+    Convert primitive vector to conservative and auxiliary vectors at start
   of simulation.
 */
 void TwoFluidEMHD::primsToAll(double *cons, double *prims, double *aux)

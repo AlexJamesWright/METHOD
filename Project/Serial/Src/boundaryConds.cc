@@ -1,9 +1,6 @@
 #include "boundaryConds.h"
 #include <stdio.h>
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
 void Outflow::apply(double * cons, double * prims, double * aux)
 {
 

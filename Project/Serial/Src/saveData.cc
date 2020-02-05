@@ -5,9 +5,6 @@
 
 using namespace std;
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
 void SaveData::saveAll(bool timeSeries)
 {
   // Clean directory variable
@@ -39,7 +36,7 @@ void SaveData::saveCons()
   strcpy(fname, dir);
   strcat(fname, "/Conserved/cons");
   strcat(fname, app);
-  strcat(fname, ".dat");
+  strcat(fname, ".dat\0");
 
   f = fopen(fname, "w");
   // Ensure file is open
@@ -78,7 +75,7 @@ void SaveData::savePrims()
   strcpy(fname, dir);
   strcat(fname, "/Primitive/prims");
   strcat(fname, app);
-  strcat(fname, ".dat");  f = fopen(fname, "w");
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -110,9 +107,9 @@ void SaveData::saveAux()
   FILE * f;
   char fname[60];
   strcpy(fname, dir);
-  strcat(fname, "/Auxilliary/aux");
+  strcat(fname, "/Auxiliary/aux");
   strcat(fname, app);
-  strcat(fname, ".dat");  f = fopen(fname, "w");
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -147,7 +144,7 @@ void SaveData::saveDomain()
   strcpy(fname, dir);
   strcat(fname, "/Domain/domain");
   strcat(fname, app);
-  strcat(fname, ".dat");  f = fopen(fname, "w");
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -179,7 +176,7 @@ void SaveData::saveConsts()
   strcpy(fname, dir);
   strcat(fname, "/Constants/constants");
   strcat(fname, app);
-  strcat(fname, ".dat");  f = fopen(fname, "w");
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
   // Ensure file is open
   if (f == NULL) {
@@ -248,7 +245,7 @@ void SaveData::saveVar(string variable, int num)
   // Location of output file
   strcat(fname, variable.c_str());
   strcat(fname, app);
-  strcat(fname, ".dat");
+  strcat(fname, ".dat\0");
   f = fopen(fname, "w");
 
   // Ensure file is open
@@ -292,8 +289,6 @@ void SaveData::saveVar(string variable, int num)
     }
     else {
       ofstream info;
-      // strcat(fname, dir);
-      // strcat(fname, "info");
       info.open("Data/TimeSeries/UserDef/info", ios::app);
       info << variable << endl;
       info.close();

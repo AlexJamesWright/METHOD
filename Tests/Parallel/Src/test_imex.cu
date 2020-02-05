@@ -1,6 +1,3 @@
-//! Need to insure that serial and parallel match
-#define MATCH_SERIAL 1
-
 #include "gtest/gtest.h"
 #include "simData.h"
 #include "simulation.h"

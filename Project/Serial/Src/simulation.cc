@@ -83,7 +83,7 @@ void Simulation::set(InitialFunc * init, Model * model,
   this->fluxMethod = fluxMethod;
   this->save = save;
 
-  // Set primitive and auxilliary variables
+  // Set primitive and auxiliary variables
   this->model->primsToAll(d->cons, d->prims, d->aux);
   this->bcs->apply(d->cons, d->prims, d->aux);
   

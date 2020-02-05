@@ -256,7 +256,7 @@ TEST(SRMHD, PrimsToAll)
         for (int var(0); var < d.Ncons; var++) {
           EXPECT_NEAR(d.cons[d.id(var, i, j, k)], 0.0, 1e-15);
         }
-        // Auxilliary
+        // Auxiliary
         for (int var(0); var < d.Naux; var++) {
           if (var == 0) EXPECT_EQ(d.aux[d.id(var, i, j, k)], 3.5);
           else if (var == 1) EXPECT_NEAR(d.aux[d.id(var, i, j, k)], 1.0, 1e-15);

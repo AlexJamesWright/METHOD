@@ -22,14 +22,6 @@
   more.
 */
 
-#define ID(variable, idx, jdx, kdx)  ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
-// dwdsb
-#define IDWS(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-// dfxdw, dfydw, dfzdw
-#define IDFW(ldx, mdx, idx, jdx, kdx)  ((ldx)*(12)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-// Mx, My, and Mz matrix
-#define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d->Nx)*(d->Ny)*(d->Nz) + (mdx)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 REGIME::REGIME(Data * data, FluxMethod * fluxMethod) : ModelExtension(data), fluxMethod(fluxMethod)
 {
