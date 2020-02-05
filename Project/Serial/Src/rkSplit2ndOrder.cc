@@ -34,6 +34,7 @@ void RKSplit2::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
+
   // Get timestep
   if (dt <= 0) (dt=d->dt);
 
@@ -48,17 +49,16 @@ void RKSplit2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+  RK2::finalise(cons, prims, aux);
 
-  // Predictor + source
   RK2::predictorStep(cons, prims, aux, dt);
   RK2::finalise(p1cons, p1prims, p1aux);
 
-  // Corrector + source
-  RK2::correctorStep(cons, prims, aux, dt);
+  correctorStep(cons, prims, aux, dt);
   RK2::finalise(cons, prims, aux);
 
-  // Set and add source
-  this->setSource(p1cons, p1prims, p1aux);
+  // Set and add source half a timestep
+  this->setSource(cons, prims, aux);
   for (int var(0); var < d->Ncons; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
@@ -68,7 +68,6 @@ void RKSplit2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  // RK2::finalise(cons, prims, aux);
   model->finalise(cons, prims, aux);
   RK2::finalise(cons, prims, aux);
 }

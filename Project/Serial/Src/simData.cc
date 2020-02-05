@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <cmath>
 
-#define ID(variable, idx, jdx, kdx) ((variable)*(this->Nx)*(this->Ny)*(this->Nz) + (idx)*(this->Ny)*(this->Nz) + (jdx)*(this->Nz) + (kdx))
+#define IDn(variable, idx, jdx, kdx) ((variable)*(this->Nx)*(this->Ny)*(this->Nz) + (idx)*(this->Ny)*(this->Nz) + (jdx)*(this->Nz) + (kdx))
 
 Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
@@ -67,6 +67,6 @@ double Data::sigmaFunc(double * cons, double * prims, double * aux, int i, int j
     if (i < 0 || j < 0 || k < 0)
       return sigma * pow(cons[0], gam);
     else
-      return sigma * pow(cons[ID(0, i, j, k)], gam);
+      return sigma * pow(cons[IDn(0, i, j, k)], gam);
   }
 }

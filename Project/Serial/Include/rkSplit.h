@@ -4,7 +4,7 @@
 #include "hybrid.h"
 
 
-//! <b> Operator splitting RK2 integrator </b>
+//! <b> Operator splitting RK2 integrator, first order accurate in time </b>
 /*!
   @par
     Integrator deals with the flux and source contributions separately, first
@@ -31,6 +31,7 @@
       U^{n+1} = U^* + \Delta t \Psi(U^*),
     \f}
     where \f$\Psi(U)\f$ is the source vector due to the state \f$U\f$.
+  @sa RKSplit2
   @sa RK2
 */
 class RKSplit : public RK2
