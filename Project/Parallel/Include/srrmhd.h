@@ -19,7 +19,7 @@ This is the human readable description of this models variables.
 [0]  rho, vx, vy, vz, p,
 [5]  Bx, By, Bz,
 [8]  Ex, Ey, Ez
-  Seventeen auxilliary variables:
+  Seventeen auxiliary variables:
 [0]  h, W, e, c,
 [4]  Jx, Jy, Jz,
 [7]  Bsq, Esq, vsq,
@@ -68,7 +68,7 @@ class SRRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons
       @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
+      @param *aux pointer to auxiliary vector work array. Size is Naux
       @param *source pointer to source vector work array. Size is Ncons
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
@@ -87,7 +87,7 @@ class SRRMHD : public Model
 
     @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
     @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-    @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+    @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
     @param *source pointer to source vector work array. Size is Ncons*Nx*Ny*Nz
     @sa Model::sourceTerm
     */
@@ -105,7 +105,7 @@ class SRRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons
       @param *prims pointer to primitive vector work array. Size is Nprims
-      @param *aux pointer to auxilliary vector work array. Size is Naux
+      @param *aux pointer to auxiliary vector work array. Size is Naux
       @param i cell number in x-direction (optional)
       @param j cell number in y-direction (optional)
       @param k cell number in z-direction (optional)
@@ -115,7 +115,7 @@ class SRRMHD : public Model
 
     //! Spectral decomposition
     /*!
-    Generates the values of the primitive and auxilliary variables consistent
+    Generates the values of the primitive and auxiliary variables consistent
     with the conservative vector given. Method first subtracts the EM fields
     from the conserved quantities, reducing the problem to the hydrodynamic
     properties only before determining their values via a newton method.
@@ -123,7 +123,7 @@ class SRRMHD : public Model
 
     @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
     @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-    @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+    @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
     @sa Model::getPrimitiveVars
     */
     void getPrimitiveVars(double *cons, double *prims, double *aux);
@@ -135,7 +135,7 @@ class SRRMHD : public Model
 
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
       @sa Model::primsToAll
     */
     void primsToAll(double *cons, double *prims, double *aux);
@@ -146,12 +146,12 @@ class SRRMHD : public Model
       For the form of the fluxes see Dionysopoulou 2016 with the inclusion of
       divergence cleaning from Muddle 2015.
 
-      @note We are assuming that all primitive and auxilliary variables are up-to-date
+      @note We are assuming that all primitive and auxiliary variables are up-to-date
       at the time of this function execution.
 
       @param *cons pointer to conserved vector work array. Size is Ncons*Nx*Ny*Nz
       @param *prims pointer to primitive vector work array. Size is Nprims*Nx*Ny*Nz
-      @param *aux pointer to auxilliary vector work array. Size is Naux*Nx*Ny*Nz
+      @param *aux pointer to auxiliary vector work array. Size is Naux*Nx*Ny*Nz
       @param *f pointer to flux vector work array. Size is Ncons*Nx*Ny*Nz
       @param dir direction in which to generate flux vector. (x, y, z) = (0, 1, 2)
       @sa Model::fluxVector

@@ -51,7 +51,7 @@ class Model
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
       @param[out] *source pointer to source vector work array. Size is \f$N_{cons}\f$
       @param i optional cell number in x-direction
       @param j optional cell number in y-direction
@@ -67,7 +67,7 @@ class Model
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param[out] *source pointer to source vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @sa sourceTermSingleCell
     */
@@ -82,7 +82,7 @@ class Model
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
       @param[in, out] *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param[in, out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux}\f$
+      @param[in, out] *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
       @param i optional cell number in x-direction
       @param j optional cell number in y-direction
       @param k optional cell number in z-direction
@@ -92,24 +92,24 @@ class Model
 
     //! Spectral analysis
     /*!
-        Determines the values of the primitive and auxilliary vectors given some
+        Determines the values of the primitive and auxiliary vectors given some
       conserved vector, for use in the source and flux contributions to the
       conserved vector.
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in, out] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in, out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in, out] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
     */
     virtual void getPrimitiveVars(double *cons, double *prims, double *aux) = 0;
 
     //! Primitive-to-all transformation
     /*!
-        Generates conserved and auxilliary vector from primitive vector, reqiored
+        Generates conserved and auxiliary vector from primitive vector, reqiored
       to get simulation started---initial data is given in primitive form.
 
       @param[out] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[out] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
     */
     virtual void primsToAll(double *cons, double *prims, double *aux) = 0;
 
@@ -120,7 +120,7 @@ class Model
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param[out] *f pointer to flux vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param dir direction in which to generate flux vector. (x, y, z) = (0, 1, 2)
     */

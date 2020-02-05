@@ -50,13 +50,13 @@ class BackwardsRK2 : public RKSplit
     //! Performs a single time step
     /*!
         The timestep will use the current values of the conserved, primitive and
-      auxilliary variables at t=t0 and compute the values of all of them at time
+      auxiliary variables at t=t0 and compute the values of all of them at time
       \f$t=t0 + dt\f$. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
 
       @param[in, out] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in, out] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in, out] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in, out] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param[in] dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
       @sa RK2::step

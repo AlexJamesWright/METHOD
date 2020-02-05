@@ -26,7 +26,7 @@ class TimeIntAndModelArgs
     * sol,      //!< Solution and initial guess array
     * cons,     //!< Current value of conserved vector
     * prims,    //!< Primitive vector for guessed conserved vector
-    * aux,      //!< Auxilliary vector for guessed conserved vector
+    * aux,      //!< Auxiliary vector for guessed conserved vector
     * source,   //!< Source vector for guessed conserved vector
     * cons1,    //!< Solution to stage1
     * source1,  //!< Source vector for solution of stage 1

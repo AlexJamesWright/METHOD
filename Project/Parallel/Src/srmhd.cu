@@ -80,7 +80,7 @@ SRMHD::~SRMHD()
   Conservation Laws`. For the form of the fluxes see Relativistic Magneto..., Anton '10
   with the inclusion of divergence cleaning from Advanced numerical methods for Neutron star
   interfaces, John Muddle.
-    Note: We are assuming that all primitive and auxilliary variables are up-to-date
+    Note: We are assuming that all primitive and auxiliary variables are up-to-date
   at the time of this function execution.
 */
 void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, const int dir)
@@ -407,7 +407,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
 }
 
 
-//! Solve for the primitive and auxilliary variables
+//! Solve for the primitive and auxiliary variables
 /*!
     Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
   Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver`. Requires
@@ -606,7 +606,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
 
 
-//! Generate to the conserved and auxilliary variables
+//! Generate to the conserved and auxiliary variables
 /*!
     Relations have been taken from Anton 2010, `Relativistic Magnetohydrodynamcis:
   Renormalized Eignevectors and Full Wave Decompostiion Riemann Solver`

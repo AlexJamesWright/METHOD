@@ -39,7 +39,7 @@ class SaveData
     //! Saves the primitive vector state
     void savePrims();
 
-    //! Saves the auxilliary vector state
+    //! Saves the auxiliary vector state
     void saveAux();
 
     //! Saves the domain coordinates

@@ -25,12 +25,12 @@ class C2PArgs
     double
     //@{
     ** cons_d,
-    ** prims_d,         //!< Conservative, primitive and auxilliary device arrays
+    ** prims_d,         //!< Conservative, primitive and auxiliary device arrays
     ** aux_d,
     //@}
     //@{
     * cons_h,
-    * prims_h,          //!< Conservative, primitive and auxilliary host arrays
+    * prims_h,          //!< Conservative, primitive and auxiliary host arrays
     * aux_h,
     //@}
     ** guess_d,         //!< Device array containing guess to start of C2P rootfind
