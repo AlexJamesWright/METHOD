@@ -103,6 +103,8 @@ class REGIME : public ModelExtension
 
     FluxMethod * fluxMethod;     //!< Pointer to the flux method class
 
+    REGIME();
+
     //! Constructor
     REGIME(Data * data, FluxMethod * fluxMethod);
 

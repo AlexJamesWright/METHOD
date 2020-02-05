@@ -142,6 +142,7 @@ CurrentSheetTwoFluid::CurrentSheetTwoFluid(Data * data) : InitialFunc(data)
 
   if (d->Nprims != 16) throw std::invalid_argument("Trying to implement a two fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be two fluid model.");
   if (d->xmin != -1.5 || d->xmax != 1.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.5, 1.5]\n");
+  if (d->gamma != 2.0) throw std::invalid_argument("Expected the index gamma = 2\n");
 
   double B0(1);
   const double rho(1.0);
@@ -172,6 +173,7 @@ CurrentSheetSingleFluid::CurrentSheetSingleFluid(Data * data, int direction) : I
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
   if (d->xmin != -3.0 || d->xmax != 3.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [-3, 3]\n");
+  if (d->gamma != 2.0) throw std::invalid_argument("Expected the index gamma = 2\n");
 
   double B0(1);
   const double rho(1.0);
@@ -427,6 +429,13 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
   double rho0(0.55);
   double rho1(0.45);
 
+  double B0{0.4};
+  double psi0{0.1};
+  double pi{3.141592653589793};
+  double lambda{0.5};
+  double Lx{1.0};
+  double Ly{2.0};
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -434,8 +443,36 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
         d->prims[ID(4, i, j, k)] = 1.0;
 
         // Magnetic Fields
-        if (mag) d->prims[ID(7, i, j, k)] = 0.1;
+        if (mag) {
 
+          // d->prims[ID(7, i, j, k)] = B0;
+
+          if (d->y[j] > 0)
+          {
+            // Constant Bz and reconnection type Bx, By
+            d->prims[ID(5, i, j, k)] = B0 * tanh((d->y[j]-0.5) / lambda);
+            // Perturb
+            d->prims[ID(5, i, j, k)] -= psi0 * (pi / Ly) * sin(pi * (d->y[j]-0.5) / Ly) * cos(2*pi*d->x[i] / Lx);
+            d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*(d->y[j]-0.5) / Ly);
+          }
+          else
+          {
+            // Constant Bz and reconnection type Bx, By
+            d->prims[ID(5, i, j, k)] = -B0 * tanh((d->y[j]+0.5) / lambda);
+            // Perturb
+            d->prims[ID(5, i, j, k)] += psi0 * (pi / Ly) * sin(pi * (d->y[j]+0.5) / Ly) * cos(2*pi*d->x[i] / Lx);
+            d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*(d->y[j]+0.5) / Ly);
+          }
+
+          // If we have electric fields, set to the ideal values
+          if (d->Ncons > 9)
+          {
+            d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
+            d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
+            d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
+          }
+
+        }
         if (d->y[j] > 0) {
           d->prims[ID(0, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
           d->prims[ID(1, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);

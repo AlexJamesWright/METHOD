@@ -1,15 +1,16 @@
-#ifndef RKSPLIT_H
-#define RKSPLIT_H
+#ifndef RKSPLIT2ndORDER_H
+#define RKSPLIT2ndORDER_H
 #include "RK2.h"
 #include "hybrid.h"
 
 
-//! <b> Operator splitting RK2 integrator, first order accurate in time </b>
+//! <b> Operator splitting RK2 integrator, second order accurate in time </b>
 /*!
   @par
-    Integrator deals with the flux and source contributions separately, first
-  performing the two stages as a result of the flux integration, and the adds
-  the contribution of the source with the new values of the fields.
+    Integrator deals with the flux and source using Strang splitting, first
+  adding have a source term, then performing the two stages as a result of the
+  flux integration, and the finally adding the dsecond half of the contribution
+  of the source. See Font 2008 Section 4.1
 
   @note
     This is a fully explicit method at dealing with the source contributions,
@@ -18,27 +19,30 @@
   hyperbolic systems, we need to solve the sources implicitly to ensure stability.
 
   @par
-    The step function performs the RK2 step:
+    First, add half a source,
     \f{align}{
-      U^{*} = \frac{1}{2} U^n + \frac{1}{2} U^{(1)} + \frac{1}{2} \Delta t \mathcal{F}(U^{(1)})
+      U^{*} = U^n + \frac{1}{2} \Delta t \Psi(U^n)
+    \f}
+    then perform the RK2 step,
+    \f{align}{
+      U^{**} = \frac{1}{2} U^* + \frac{1}{2} U^{(1)} + \frac{1}{2} \Delta t \mathcal{F}(U^{(1)})
     \f}
     where the first stage result is
     \f{align}{
-      U^{(1)} = U^n + \Delta t \mathcal{F}(U^n),
+      U^{(1)} = U^* + \Delta t \mathcal{F}(U^*),
     \f}
     and then adds the source due to this stage,
     \f{align}{
-      U^{n+1} = U^* + \Delta t \Psi(U^*),
+      U^{n+1} = U^** + \Delta t \Psi(U^**),
     \f}
     where \f$\Psi(U)\f$ is the source vector due to the state \f$U\f$.
-  @sa RKSplit2
+  @sa RKSplit
   @sa RK2
 */
-class RKSplit : public RK2
+class RKSplit2 : public RK2
 {
 
   public:
-
     //! Constructor
     /*!
         Constructor requires simulation data and the flux and source functions
@@ -52,7 +56,7 @@ class RKSplit : public RK2
       @sa TimeIntegrator::TimeIntegrator
       @sa RK2::RK2
     */
-    RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
+    RKSplit2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
             RK2(data, model, bcs, fluxMethod, modelExtension) { }
 
     void setSource(double * cons, double * prims, double * aux);
@@ -60,13 +64,13 @@ class RKSplit : public RK2
     //! Performs a single time step
     /*!
         The timestep will use the current values of the conserved, primitive and
-      auxiliary variables at t=t0 and compute the values of all of them at time
+      auxilliary variables at t=t0 and compute the values of all of them at time
       t=t0 + dt. I.e. the conserved vector is evolved forward, and the corresponding
       prims and aux vars are found.
 
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
-      @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxilliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$
       @param dt the step size desired to move by. Defaults to the value in the Data class
       @sa TimeIntegrator::step
       @sa RK2::step

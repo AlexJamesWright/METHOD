@@ -214,7 +214,7 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 */
 void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
-  for (int var(0); var < this->data->Ncons; var++) {
+  for (int var(0); var < Ncons; var++) {
     if (var == 8) {
       // phi
       source[var] = -cons[8] / (this->data->cp*this->data->cp);
@@ -235,7 +235,7 @@ void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
   for (int i(0); i < this->data->Nx; i++) {
     for (int j(0); j < this->data->Ny; j++) {
       for (int k(0); k < this->data->Nz; k++) {
-        for (int var(0); var < this->data->Ncons; var++) {
+        for (int var(0); var < Ncons; var++) {
           if (var == 8) {
             // phi
             source[this->data->id(var, i, j, k)] = -cons[this->data->id(8, i, j, k)] / (this->data->cp*this->data->cp);

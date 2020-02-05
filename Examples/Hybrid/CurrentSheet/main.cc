@@ -3,11 +3,9 @@
  * @Date:   2019-09-30T15:33:00+01:00
  * @Email:  alex.j.wright2@gmail.com
  * @Last modified by:   alex
- * @Last modified time: 2019-10-11T13:26:33+01:00
+ * @Last modified time: 2020-02-05T15:48:38+00:00
  * @License: MIT
  */
-
-
 
 // Serial main
 #include "simData.h"
@@ -17,8 +15,6 @@
 #include "srrmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "rkSplit2ndOrder.h"
-#include "SSP2.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "REGIME.h"
@@ -38,7 +34,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(100);
+  int nx(400);
   int ny(0);
   int nz(0);
   double xmin(-3);
@@ -48,9 +44,9 @@ int main(int argc, char *argv[]) {
   double zmin(-1.0);
   double zmax(1.0);
   double endTime(7.0);
-  double cfl(0.5);
+  double cfl(0.2);
   double gamma(2.0);
-  double sigma(50);
+  double sigma(800);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
@@ -61,7 +57,7 @@ int main(int argc, char *argv[]) {
   double gam(1.3);
   double sigmaCrossOver(400);
   double sigmaSpan(350);
-  bool useREGIME(false);
+  bool useREGIME(true);
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
@@ -69,9 +65,11 @@ int main(int argc, char *argv[]) {
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
   FVS fluxMethod(&data, &model);
+
+  model.setSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
 
@@ -79,13 +77,12 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data);
+  SaveData save(&data, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-
   // Time execution of programme
   clock_t startTime(clock());
 

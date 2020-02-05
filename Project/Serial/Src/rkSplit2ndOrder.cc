@@ -1,9 +1,11 @@
-#include "rkSplit.h"
+#include "rkSplit2ndOrder.h"
 #include <cstdio>
 #include <iostream>
 
+// Macro for getting array index
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void RKSplit::setSource(double * cons, double * prims, double * aux)
+void RKSplit2::setSource(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
@@ -28,15 +30,13 @@ void RKSplit::setSource(double * cons, double * prims, double * aux)
 
 }
 
-void RKSplit::step(double * cons, double * prims, double * aux, double dt)
+void RKSplit2::step(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
+
   // Get timestep
   if (dt <= 0) (dt=d->dt);
-
-  // Predictor + source
-  RK2::step(cons, prims, aux, dt);
 
   // Set and add source
   this->setSource(cons, prims, aux);
@@ -44,12 +44,30 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
-          cons[ID(var, i, j, k)] +=  dt * d->source[ID(var, i, j, k)];
+          cons[ID(var, i, j, k)] +=  0.5 * dt * d->source[ID(var, i, j, k)];
         }
       }
     }
   }
-  // RK2::finalise(cons, prims, aux);
+  RK2::finalise(cons, prims, aux);
+
+  RK2::predictorStep(cons, prims, aux, dt);
+  RK2::finalise(p1cons, p1prims, p1aux);
+
+  correctorStep(cons, prims, aux, dt);
+  RK2::finalise(cons, prims, aux);
+
+  // Set and add source half a timestep
+  this->setSource(cons, prims, aux);
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          cons[ID(var, i, j, k)] +=  0.5 * dt * d->source[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
   model->finalise(cons, prims, aux);
   RK2::finalise(cons, prims, aux);
 }

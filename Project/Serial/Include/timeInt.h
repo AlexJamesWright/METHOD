@@ -6,6 +6,7 @@
 #include "boundaryConds.h"
 #include "flux.h"
 #include "modelExtension.h"
+#include "hybrid.h"
 
 //! <b> General form of the time integrator </b>
 /*!

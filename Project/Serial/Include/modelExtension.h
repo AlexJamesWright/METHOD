@@ -20,6 +20,8 @@ class ModelExtension
 
     bool fluxExists;     //!< Indicated whether the flux is modified. Default is false.
 
+    ModelExtension() : sourceExists(false), fluxExists(false) { };
+
     //!< Constructor
     /*!
         Stores a pointer to the Data class and sets the sourceExists and fluxExists
@@ -28,6 +30,8 @@ class ModelExtension
       @param[in] *data pointer to the Data class
     */
     ModelExtension(Data * data) : data(data), sourceExists(false), fluxExists(false) { }
+
+     ~ModelExtension() { };
 
     //!< Modified source term
     /*!

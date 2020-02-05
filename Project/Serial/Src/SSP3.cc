@@ -92,11 +92,11 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  this->model->getPrimitiveVars(U1, tempprims, tempaux);
-  this->model->sourceTerm(U1, tempprims, tempaux, source1);
-  this->fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
-  this->bcs->apply(U1);
-  this->bcs->apply(flux1);
+  model->getPrimitiveVars(U1, tempprims, tempaux);
+  model->sourceTerm(U1, tempprims, tempaux, source1);
+  fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
+  bcs->apply(U1);
+  bcs->apply(flux1);
 
   //########################### STAGE TWO ##############################//
 
@@ -135,11 +135,11 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  this->bcs->apply(U2, tempprims, tempaux);
-  this->model->getPrimitiveVars(U2, tempprims, tempaux);
-  this->model->sourceTerm(U2, tempprims, tempaux, source2);
-  this->fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
-  this->bcs->apply(flux2);
+  bcs->apply(U2, tempprims, tempaux);
+  model->getPrimitiveVars(U2, tempprims, tempaux);
+  model->sourceTerm(U2, tempprims, tempaux, source2);
+  fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
+  bcs->apply(flux2);
 
   //########################### STAGE THREE ##############################//
   for (int i(0); i < d->Nx; i++) {
@@ -193,11 +193,11 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  this->bcs->apply(U3, tempprims, tempaux);
-  this->model->getPrimitiveVars(U3, tempprims, tempaux);
-  this->model->sourceTerm(U3, tempprims, tempaux, source3);
-  this->fluxMethod->F(U3, tempprims, tempaux, d->f, flux3);
-  this->bcs->apply(flux3);
+  bcs->apply(U3, tempprims, tempaux);
+  model->getPrimitiveVars(U3, tempprims, tempaux);
+  model->sourceTerm(U3, tempprims, tempaux, source3);
+  fluxMethod->F(U3, tempprims, tempaux, d->f, flux3);
+  bcs->apply(flux3);
 
 
   // Prediction correction
@@ -212,8 +212,9 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  this->model->getPrimitiveVars(cons, prims, aux);
-  this->bcs->apply(cons, prims, aux);
+  model->getPrimitiveVars(cons, prims, aux);
+  model->finalise(cons, prims, aux);
+  bcs->apply(cons, prims, aux);
 }
 
 //! Residual function to minimize for stage one of IMEX SSP3(332)

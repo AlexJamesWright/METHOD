@@ -68,15 +68,15 @@ void RK2::predictorStep(double * cons, double * prims, double * aux, double dt)
   this->fluxMethod->F(cons, prims, aux, d->f, args1);
 
   // First stage approximation
-   for (int var(0); var < d->Ncons; var++) {
-     for (int i(0); i < d->Nx; i++) {
-       for (int j(0); j < d->Ny; j++) {
-         for (int k(0); k < d->Nz; k++) {
-           p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * args1[ID(var, i, j, k)];
-         }
-       }
-     }
-   }
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * args1[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
 }
 
 void RK2::correctorStep(double * cons, double * prims, double * aux, double dt)
@@ -110,5 +110,7 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
 
   correctorStep(cons, prims, aux, dt);
   finalise(cons, prims, aux);
+
+  model->finalise(cons, prims, aux);
 
 }

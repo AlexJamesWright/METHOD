@@ -33,7 +33,7 @@ class Model
     */
     Model(Data * data) : data(data) {}
 
-    ~Model() {}     //!< Destructor
+    ~Model() { }     //!< Destructor
 
     //! Single cell source term contribution
     /*!
@@ -119,6 +119,14 @@ class Model
       @param dir direction in which to generate flux vector. (x, y, z) = (0, 1, 2)
     */
     virtual void fluxVector(double *cons, double *prims, double *aux, double *f, int dir) = 0;
+
+    //! Finalise the simulation variables
+    /*!
+      @par
+        Mostly, this probably wont be needed, but if there is any final steps to finish
+      off a timestep, this can be done here.
+    */
+    virtual void finalise(double *cons, double *prims, double *aux) { };
 
 };
 

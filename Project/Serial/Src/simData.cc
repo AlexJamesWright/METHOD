@@ -1,5 +1,8 @@
 #include "simData.h"
 #include <stdexcept>
+#include <cmath>
+
+#define IDn(variable, idx, jdx, kdx) ((variable)*(this->Nx)*(this->Ny)*(this->Nz) + (idx)*(this->Ny)*(this->Nz) + (jdx)*(this->Nz) + (kdx))
 
 Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
@@ -8,7 +11,8 @@ Data::Data(int nx, int ny, int nz,
            double endTime, double cfl, int Ng,
            double gamma, double sigma,
            double cp,
-           double mu1, double mu2, int frameSkip)
+           double mu1, double mu2, int frameSkip,
+           bool functionalSigma, double gam)
            :
            nx(nx), ny(ny), nz(nz),
            xmin(xmin), xmax(xmax),
@@ -19,7 +23,8 @@ Data::Data(int nx, int ny, int nz,
            memSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
-           mu1(mu1), mu2(mu2), frameSkip(frameSkip)
+           mu1(mu1), mu2(mu2), frameSkip(frameSkip),
+           functionalSigma(functionalSigma), gam(gam)
 {
 
   this->Nx = nx + 2 * Ng;
@@ -48,5 +53,20 @@ Data::Data(int nx, int ny, int nz,
   // Ensure charges are correct way round
   if (this->mu1 > 0.0 or this->mu2 < 0.0) {
     throw std::invalid_argument("Species 1 must have negative charge, mu1 < 0, and species 2 must have positive charge, mu2 > 0.\n");
+  }
+}
+
+double Data::sigmaFunc(double * cons, double * prims, double * aux, int i, int j, int k)
+{
+  if (!functionalSigma)
+  {
+    return sigma;
+  }
+  else
+  {
+    if (i < 0 || j < 0 || k < 0)
+      return sigma * pow(cons[0], gam);
+    else
+      return sigma * pow(cons[IDn(0, i, j, k)], gam);
   }
 }
