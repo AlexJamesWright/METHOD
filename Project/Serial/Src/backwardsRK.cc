@@ -3,9 +3,6 @@
 #include <iostream>
 #include <cstdlib>
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
 //! Residual function for implicit source
 int backwardsRKresidual(void *p, int n, const double *x, double *fvec, int iflag);
 

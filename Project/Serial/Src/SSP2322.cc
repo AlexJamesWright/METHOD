@@ -4,9 +4,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
-
 //! Residual function for each stage of SSP2(322)
 int IMEX2322Residual1(void *p, int n, const double *x, double *fvec, int iflag);
 // int IMEX2322Residual2a(void *p, int n, const double *x, double *fvec, int iflag);

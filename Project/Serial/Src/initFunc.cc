@@ -5,8 +5,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 #define PI 3.14159265358979323
 InitialFunc::InitialFunc(Data * data) : data(data)
 {

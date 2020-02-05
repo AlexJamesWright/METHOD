@@ -4,7 +4,6 @@
   accompanied by the divergence cleaning method to enforce the contraints set by
   Maxwell's equations.
 */
-int counter(0);
 
 #include "twoFluidEMHD.h"
 #include <cmath>
@@ -13,9 +12,6 @@ int counter(0);
 #include <iostream>
 #include <stdexcept>
 
-
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 // Declare cons2prims residual function and Newton Solver
 static double residual(const double, const double, const double, const double, double);

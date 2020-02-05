@@ -9,8 +9,6 @@
 #include <cmath>
 #include <cstdio>
 
-#define ID(variable, idx, jdx, kdx)  ((variable)*(dx.Nx)*(dx.Ny)*(dx.Nz) + (idx)*(dx.Ny)*(dx.Nz) + (jdx)*(dx.Nz) + (kdx))
-
   /* ######################### Test model constructor ########################*/
 
 TEST(TwoFluidEMHD, Constructor)

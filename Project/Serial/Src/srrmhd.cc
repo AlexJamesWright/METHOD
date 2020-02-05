@@ -18,8 +18,6 @@
 #define EPS 1.0e-4
 #define MAXITER 50
 
-// Macro for getting array index
-#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 static double residual(const double, const double, const double, const double, double);
 static int newton(double *Z, const double StildeSq, const double D, const double tauTilde, double gamma, int i, int j, int k);
 

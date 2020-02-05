@@ -10,9 +10,6 @@
 #include <cmath>
 #include <cstdio>
 
-#define ID(variable, idx, jdx, kdx)  ((variable)*(dx.Nx)*(dx.Ny)*(dx.Nz) + (idx)*(dx.Ny)*(dx.Nz) + (jdx)*(dx.Nz) + (kdx))
-
-
 TEST(FVS, SameFnetAsSerial)
 /*!
   Determine the flux for the first step of the OTvortex, check it is the same

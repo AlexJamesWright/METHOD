@@ -9,15 +9,16 @@
 #include "boundaryConds.h"
 #include <cstdio>
 
-#define ID(variable, idx, jdx, kdx)  ((variable)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
+// Redefine macros as objects are not pointers now
+#define IDn(variable, idx, jdx, kdx)  ((variable)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
 // ID for the SGM matrices
 // Mx, My, and Mz matrix
-#define IDM(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
+#define IDMn(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 // dfxdw, dfydw, dfzdw
-#define IDFW(ldx, mdx, idx, jdx, kdx)  ((ldx)*(12)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
+#define IDFWn(ldx, mdx, idx, jdx, kdx)  ((ldx)*(12)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 // dwdsb
-#define IDWS(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
+#define IDWSn(ldx, mdx, idx, jdx, kdx)  ((ldx)*(3)*(d.Nx)*(d.Ny)*(d.Nz) + (mdx)*(d.Nx)*(d.Ny)*(d.Nz) + (idx)*(d.Ny)*(d.Nz) + (jdx)*(d.Nz) + (kdx))
 
 
 
@@ -49,21 +50,21 @@ TEST(RSGM, DataAssignment1D)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        d.prims[ID(0, i, j, k)] = 0.1;
-        d.prims[ID(1, i, j, k)] = 0.0;
-        d.prims[ID(2, i, j, k)] = 0.41 * d.x[i];
-        d.prims[ID(3, i, j, k)] = 0.51;
-        d.prims[ID(4, i, j, k)] = 0.66;
-        d.prims[ID(5, i, j, k)] = 0.0;
-        d.prims[ID(6, i, j, k)] = 0.22 * d.x[i];
-        d.prims[ID(7, i, j, k)] = 0.33;
+        d.prims[IDn(0, i, j, k)] = 0.1;
+        d.prims[IDn(1, i, j, k)] = 0.0;
+        d.prims[IDn(2, i, j, k)] = 0.41 * d.x[i];
+        d.prims[IDn(3, i, j, k)] = 0.51;
+        d.prims[IDn(4, i, j, k)] = 0.66;
+        d.prims[IDn(5, i, j, k)] = 0.0;
+        d.prims[IDn(6, i, j, k)] = 0.22 * d.x[i];
+        d.prims[IDn(7, i, j, k)] = 0.33;
       }
     }
   }
 
   // Check element 54 is unchanged by d.x
-  EXPECT_NEAR(d.prims[ID(2, mid, 0, 0)], 0.41, 1e-15);
-  EXPECT_NEAR(d.prims[ID(6, mid, 0, 0)], 0.22, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(2, mid, 0, 0)], 0.41, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(6, mid, 0, 0)], 0.22, 1e-15);
 
   // Set global variables and direction-free matrices (testing so set factor=false)
   modelExtension.set_vars(NULL, d.prims, NULL);
@@ -77,52 +78,52 @@ TEST(RSGM, DataAssignment1D)
 
   // Check values of E, q and alpha
   {
-    EXPECT_NEAR(modelExtension.E[ID(0, mid, 0, 0)], Ex, 1e-15);
-    EXPECT_NEAR(modelExtension.q[ID(0, mid, 0, 0)], q, 1e-15);
-    EXPECT_NEAR(modelExtension.alpha[ID(0, mid, 0, 0)], 1.3825277485504367e-07, 1e-13);
+    EXPECT_NEAR(modelExtension.E[IDn(0, mid, 0, 0)], Ex, 1e-15);
+    EXPECT_NEAR(modelExtension.q[IDn(0, mid, 0, 0)], q, 1e-15);
+    EXPECT_NEAR(modelExtension.alpha[IDn(0, mid, 0, 0)], 1.3825277485504367e-07, 1e-13);
   }
   // Check that dwdsb has been set correctly
   {
     // First, check values of A
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 0, mid, 0, 0)], 57.750012326390994*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 1, mid, 0, 0)], 41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 2, mid, 0, 0)], -27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 0, mid, 0, 0)], -41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 1, mid, 0, 0)], 60.54511232639099*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 2, mid, 0, 0)], 4.19265*0.0000001382527749, 1e-12);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 0, mid, 0, 0)], 27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 1, mid, 0, 0)], 4.19265*0.0000001382527749, 1e-12);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 2, mid, 0, 0)], 64.038987326391*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 0, mid, 0, 0)], 57.750012326390994*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 1, mid, 0, 0)], 41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 2, mid, 0, 0)], -27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 0, mid, 0, 0)], -41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 1, mid, 0, 0)], 60.54511232639099*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 2, mid, 0, 0)], 4.19265*0.0000001382527749, 1e-12);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 0, mid, 0, 0)], 27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 1, mid, 0, 0)], 4.19265*0.0000001382527749, 1e-12);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 2, mid, 0, 0)], 64.038987326391*0.0000001382527749, 1e-11);
     // Second, check values of B
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 1, mid, 0, 0)], -63114.76360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 2, mid, 0, 0)], 52202.88593900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 0, mid, 0, 0)], 63750.01360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 2, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 0, mid, 0, 0)], -51250.01093900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 1, mid, 0, 0)], -63114.76360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 2, mid, 0, 0)], 52202.88593900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 0, mid, 0, 0)], 63750.01360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 0, mid, 0, 0)], -51250.01093900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 2, mid, 0, 0)], 0.0, 1e-15);
     // Third, check values of C
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 0, mid, 0, 0)], -125000.02668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 2, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 1, mid, 0, 0)], -131050.02668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 2, mid, 0, 0)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 1, mid, 0, 0)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 2, mid, 0, 0)], -138612.52668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 0, mid, 0, 0)], -125000.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 1, mid, 0, 0)], -131050.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 2, mid, 0, 0)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 1, mid, 0, 0)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 2, mid, 0, 0)], -138612.52668049998*0.0000001382527749, 1e-8);
     // Just in case, check the rest is zero
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 2, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 2, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 0, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 1, mid, 0, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 2, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 0, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 1, mid, 0, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 2, mid, 0, 0)], 0.0, 1e-15);
   }
 }
 
@@ -151,21 +152,21 @@ TEST(RSGM, DataAssignment2D)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        d.prims[ID(0, i, j, k)] = 0.1;
-        d.prims[ID(1, i, j, k)] = 0.51;
-        d.prims[ID(2, i, j, k)] = 0.0;
-        d.prims[ID(3, i, j, k)] = 0.41 * d.y[j];
-        d.prims[ID(4, i, j, k)] = 0.66;
-        d.prims[ID(5, i, j, k)] = 0.33;
-        d.prims[ID(6, i, j, k)] = 0.0;
-        d.prims[ID(7, i, j, k)] = 0.22 * d.y[j];
+        d.prims[IDn(0, i, j, k)] = 0.1;
+        d.prims[IDn(1, i, j, k)] = 0.51;
+        d.prims[IDn(2, i, j, k)] = 0.0;
+        d.prims[IDn(3, i, j, k)] = 0.41 * d.y[j];
+        d.prims[IDn(4, i, j, k)] = 0.66;
+        d.prims[IDn(5, i, j, k)] = 0.33;
+        d.prims[IDn(6, i, j, k)] = 0.0;
+        d.prims[IDn(7, i, j, k)] = 0.22 * d.y[j];
       }
     }
   }
 
   // Check element 54 is unchanged by d.x
-  EXPECT_NEAR(d.prims[ID(3, 0, mid, 0)], 0.41, 1e-15);
-  EXPECT_NEAR(d.prims[ID(7, 0, mid, 0)], 0.22, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(3, 0, mid, 0)], 0.41, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(7, 0, mid, 0)], 0.22, 1e-15);
 
   // Set global variables and direction-free matrices (testing so set factor=false)
   modelExtension.set_vars(NULL, d.prims, NULL);
@@ -179,53 +180,53 @@ TEST(RSGM, DataAssignment2D)
 
   // Check values of E, q and alpha
   {
-    EXPECT_NEAR(modelExtension.E[ID(1, mid, mid, 0)], Ey, 1e-15);
-    EXPECT_NEAR(modelExtension.q[ID(0, mid, mid, 0)], q, 1e-15);
-    EXPECT_NEAR(modelExtension.alpha[ID(0, mid, mid, 0)], 1.3825277485504367e-07, 1e-13);
+    EXPECT_NEAR(modelExtension.E[IDn(1, mid, mid, 0)], Ey, 1e-15);
+    EXPECT_NEAR(modelExtension.q[IDn(0, mid, mid, 0)], q, 1e-15);
+    EXPECT_NEAR(modelExtension.alpha[IDn(0, mid, mid, 0)], 1.3825277485504367e-07, 1e-13);
   }
 
   // Check that dwdsb has been set correctly
   {
     // First, check values of A
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 0, mid, mid, 0)], 64.03898732639098*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 1, mid, mid, 0)], 27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 2, mid, mid, 0)], 4.1926499999999995*0.0000001382527749, 1e-12);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 0, mid, mid, 0)], -27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 1, mid, mid, 0)], 57.75001232639099*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 2, mid, mid, 0)], 41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 0, mid, mid, 0)], 4.192649999999999*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 1, mid, mid, 0)], -41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 2, mid, mid, 0)], 60.545112326390985*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 0, mid, mid, 0)], 64.03898732639098*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 1, mid, mid, 0)], 27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 2, mid, mid, 0)], 4.1926499999999995*0.0000001382527749, 1e-12);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 0, mid, mid, 0)], -27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 1, mid, mid, 0)], 57.75001232639099*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 2, mid, mid, 0)], 41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 0, mid, mid, 0)], 4.192649999999999*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 1, mid, mid, 0)], -41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 2, mid, mid, 0)], 60.545112326390985*0.0000001382527749, 1e-11);
     // Second, check values of B
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 1, mid, mid, 0)],-51250.01093900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 2, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 0, mid, mid, 0)], 52202.88593900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 1, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 2, mid, mid, 0)], -63114.76360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 1, mid, mid, 0)], 63750.01360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 2, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 1, mid, mid, 0)],-51250.01093900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 2, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 0, mid, mid, 0)], 52202.88593900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 1, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 2, mid, mid, 0)], -63114.76360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 1, mid, mid, 0)], 63750.01360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 2, mid, mid, 0)], 0.0, 1e-15);
     // Third, check values of C
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 0, mid, mid, 0)], -138612.52668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 1, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 2, mid, mid, 0)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 1, mid, mid, 0)], -125000.02668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 2, mid, mid, 0)], 0.0, 1e-10);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 0, mid, mid, 0)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 1, mid, mid, 0)], 0.0, 1e-10);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 2, mid, mid, 0)], -131050.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 0, mid, mid, 0)], -138612.52668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 1, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 2, mid, mid, 0)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 1, mid, mid, 0)], -125000.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 2, mid, mid, 0)], 0.0, 1e-10);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 0, mid, mid, 0)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 1, mid, mid, 0)], 0.0, 1e-10);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 2, mid, mid, 0)], -131050.02668049998*0.0000001382527749, 1e-8);
     // Just in case, check the rest is zero
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 1, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 2, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 1, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 2, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 0, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 1, mid, mid, 0)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 2, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 1, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 2, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 1, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 2, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 0, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 1, mid, mid, 0)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 2, mid, mid, 0)], 0.0, 1e-15);
   }
 }
 
@@ -254,21 +255,21 @@ TEST(RSGM, DataAssignment3D)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        d.prims[ID(0, i, j, k)] = 0.1;
-        d.prims[ID(1, i, j, k)] = 0.41 * d.z[k];
-        d.prims[ID(2, i, j, k)] = 0.51;
-        d.prims[ID(3, i, j, k)] = 0.0;
-        d.prims[ID(4, i, j, k)] = 0.66;
-        d.prims[ID(5, i, j, k)] = 0.22 * d.z[k];
-        d.prims[ID(6, i, j, k)] = 0.33;
-        d.prims[ID(7, i, j, k)] = 0.0;
+        d.prims[IDn(0, i, j, k)] = 0.1;
+        d.prims[IDn(1, i, j, k)] = 0.41 * d.z[k];
+        d.prims[IDn(2, i, j, k)] = 0.51;
+        d.prims[IDn(3, i, j, k)] = 0.0;
+        d.prims[IDn(4, i, j, k)] = 0.66;
+        d.prims[IDn(5, i, j, k)] = 0.22 * d.z[k];
+        d.prims[IDn(6, i, j, k)] = 0.33;
+        d.prims[IDn(7, i, j, k)] = 0.0;
       }
     }
   }
 
   // Check element 54 is unchanged by d.x
-  EXPECT_NEAR(d.prims[ID(1, 0, 0, mid)], 0.41, 1e-15);
-  EXPECT_NEAR(d.prims[ID(5, 0, 0, mid)], 0.22, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(1, 0, 0, mid)], 0.41, 1e-15);
+  EXPECT_NEAR(d.prims[IDn(5, 0, 0, mid)], 0.22, 1e-15);
 
   // Set global variables and direction-free matrices (testing so set factor=false)
   modelExtension.set_vars(NULL, d.prims, NULL);
@@ -282,53 +283,53 @@ TEST(RSGM, DataAssignment3D)
 
   // Check values of E, q and alpha
   {
-    EXPECT_NEAR(modelExtension.E[ID(2, mid, mid, mid)], Ez, 1e-15);
-    EXPECT_NEAR(modelExtension.q[ID(0, mid, mid, mid)], q, 1e-15);
-    EXPECT_NEAR(modelExtension.alpha[ID(0, mid, mid, mid)], 1.3825277485504367e-07, 1e-13);
+    EXPECT_NEAR(modelExtension.E[IDn(2, mid, mid, mid)], Ez, 1e-15);
+    EXPECT_NEAR(modelExtension.q[IDn(0, mid, mid, mid)], q, 1e-15);
+    EXPECT_NEAR(modelExtension.alpha[IDn(0, mid, mid, mid)], 1.3825277485504367e-07, 1e-13);
   }
 
   // Check that dwdsb has been set correctly
   {
     // First, check values of A
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 0, mid, mid, mid)], 60.545112326390985*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 1, mid, mid, mid)], 4.192649999999999*0.0000001382527749, 1e-12);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(1, 2, mid, mid, mid)], -41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 0, mid, mid, mid)], 4.1926499999999995*0.0000001382527749, 1e-12);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 1, mid, mid, mid)], 64.03898732639098*0.0000001382527749, 1e-11);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(2, 2, mid, mid, mid)], 27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 0, mid, mid, mid)], 41250.008804565*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 1, mid, mid, mid)], -27500.005869709996*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(3, 2, mid, mid, mid)], 57.75001232639099*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 0, mid, mid, mid)], 60.545112326390985*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 1, mid, mid, mid)], 4.192649999999999*0.0000001382527749, 1e-12);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(1, 2, mid, mid, mid)], -41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 0, mid, mid, mid)], 4.1926499999999995*0.0000001382527749, 1e-12);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 1, mid, mid, mid)], 64.03898732639098*0.0000001382527749, 1e-11);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(2, 2, mid, mid, mid)], 27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 0, mid, mid, mid)], 41250.008804565*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 1, mid, mid, mid)], -27500.005869709996*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(3, 2, mid, mid, mid)], 57.75001232639099*0.0000001382527749, 1e-11);
     // Second, check values of B
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 0, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 1, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(5, 2, mid, mid, mid)], 63750.01360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 0, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 1, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(6, 2, mid, mid, mid)],-51250.01093900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 0, mid, mid, mid)], -63114.76360705499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 1, mid, mid, mid)], 52202.88593900499*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(7, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 0, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 1, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(5, 2, mid, mid, mid)], 63750.01360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 0, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 1, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(6, 2, mid, mid, mid)],-51250.01093900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 0, mid, mid, mid)], -63114.76360705499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 1, mid, mid, mid)], 52202.88593900499*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(7, 2, mid, mid, mid)], 0.0, 1e-15);
     // Third, check values of C
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 0, mid, mid, mid)], -131050.02668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 1, mid, mid, mid)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(8, 2, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 0, mid, mid, mid)], -9075.0*0.0000001382527749, 1e-9);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 1, mid, mid, mid)], -138612.52668049998*0.0000001382527749, 1e-8);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(9, 2, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 0, mid, mid, mid)], 0.0, 1e-10);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 1, mid, mid, mid)], 0.0, 1e-10);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(10, 2, mid, mid, mid)], -125000.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 0, mid, mid, mid)], -131050.02668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 1, mid, mid, mid)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(8, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 0, mid, mid, mid)], -9075.0*0.0000001382527749, 1e-9);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 1, mid, mid, mid)], -138612.52668049998*0.0000001382527749, 1e-8);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(9, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 0, mid, mid, mid)], 0.0, 1e-10);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 1, mid, mid, mid)], 0.0, 1e-10);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(10, 2, mid, mid, mid)], -125000.02668049998*0.0000001382527749, 1e-8);
     // Just in case, check the rest is zero
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 0, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 1, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(0, 2, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 0, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 1, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(4, 2, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 0, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 1, mid, mid, mid)], 0.0, 1e-15);
-    EXPECT_NEAR(modelExtension.dwdsb[IDWS(11, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 0, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 1, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(0, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 0, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 1, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(4, 2, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 0, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 1, mid, mid, mid)], 0.0, 1e-15);
+    EXPECT_NEAR(modelExtension.dwdsb[IDWSn(11, 2, mid, mid, mid)], 0.0, 1e-15);
   }
 
 }
@@ -355,14 +356,14 @@ TEST(RSGM, DataAssignment3D)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        d.prims[ID(0, i, j, k)] = 0.1;
-        d.prims[ID(1, i, j, k)] = 0.41;
-        d.prims[ID(2, i, j, k)] = 0.51;
-        d.prims[ID(3, i, j, k)] = 0.61;
-        d.prims[ID(4, i, j, k)] = 0.66;
-        d.prims[ID(5, i, j, k)] = 0.22;
-        d.prims[ID(6, i, j, k)] = 0.33;
-        d.prims[ID(7, i, j, k)] = 0.44;
+        d.prims[IDn(0, i, j, k)] = 0.1;
+        d.prims[IDn(1, i, j, k)] = 0.41;
+        d.prims[IDn(2, i, j, k)] = 0.51;
+        d.prims[IDn(3, i, j, k)] = 0.61;
+        d.prims[IDn(4, i, j, k)] = 0.66;
+        d.prims[IDn(5, i, j, k)] = 0.22;
+        d.prims[IDn(6, i, j, k)] = 0.33;
+        d.prims[IDn(7, i, j, k)] = 0.44;
       }
     }
   }
@@ -374,10 +375,10 @@ TEST(RSGM, DataAssignment3D)
   for (int i(0); i<d.Nx; i++) {
     for (int j(0); j<d.Ny; j++) {
       for (int k(0); k<d.Nz; k++) {
-        modelExtension.E[ID(0, i, j, k)] = 0.13;
-        modelExtension.E[ID(1, i, j, k)] = 0.17;
-        modelExtension.E[ID(2, i, j, k)] = 0.21;
-        modelExtension.q[ID(0, i, j, k)] = 0.23;
+        modelExtension.E[IDn(0, i, j, k)] = 0.13;
+        modelExtension.E[IDn(1, i, j, k)] = 0.17;
+        modelExtension.E[IDn(2, i, j, k)] = 0.21;
+        modelExtension.q[IDn(0, i, j, k)] = 0.23;
       }
     }
   }
@@ -389,122 +390,109 @@ TEST(RSGM, DataAssignment3D)
       for (int j(0); j<d.Ny; j++) {
         for (int k(0); k<d.Nz; k++) {
           // Row 0
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 0, i, j, k)], 0.41, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 1, i, j, k)], 0.1, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 0, i, j, k)], 0.41, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 1, i, j, k)], 0.1, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(0, 11, i, j, k)], 0.0, 1e-15);
           // Row 1
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 4, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 5, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 6, i, j, k)], 0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 7, i, j, k)], 0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 8, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 9, i, j, k)], 0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 10, i, j, k)], 0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 4, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 5, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 6, i, j, k)], 0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 7, i, j, k)], 0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 8, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 9, i, j, k)], 0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 10, i, j, k)], 0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(1, 11, i, j, k)], 0.0, 1e-15);
           // Row 2
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 5, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 6, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 8, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 9, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 5, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 6, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 8, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 9, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(2, 11, i, j, k)], 0.0, 1e-15);
           // Row 3
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 5, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 7, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 8, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 10, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 5, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 7, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 8, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 10, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(3, 11, i, j, k)], 0.0, 1e-15);
           // Row 4
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 1, i, j, k)], 2*0.66, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 4, i, j, k)], 2*0.41, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 6, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 7, i, j, k)], 0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 9, i, j, k)], 0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 10, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 1, i, j, k)], 2*0.66, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 4, i, j, k)], 2*0.41, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 6, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 7, i, j, k)], 0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 9, i, j, k)], 0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 10, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(4, 11, i, j, k)], 0.0, 1e-15);
           // Row 5
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(5, 11, i, j, k)], 0.0, 1e-15);
           // Row 6
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 10, i, j, k)], -1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 10, i, j, k)], -1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(6, 11, i, j, k)], 0.0, 1e-15);
           // Row 7
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 8, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 9, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfxdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
-          // Row 8
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 1, i, j, k)], 0.23, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 2, i, j, k)], 50*0.44, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 3, i, j, k)], -50*0.33, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 5, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 6, i, j, k)], -50*0.61, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 7, i, j, k)], 50*0.51, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 8, i, j, k)], 50, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 9, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfxdw[IDFW(8, 11, i, j, k)], 0.41, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 0, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 1, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 2, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 3, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 4, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 5, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 6, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 7, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 8, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 9, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfxdw[IDFWn(7, 11, i, j, k)], 0.0, 1e-15);
         }
       }
     }
@@ -518,122 +506,109 @@ TEST(RSGM, DataAssignment3D)
       for (int j(0); j<d.Ny; j++) {
         for (int k(0); k<d.Nz; k++) {
           // Row 0
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 0, i, j, k)], 0.51, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 2, i, j, k)], 0.1, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 0, i, j, k)], 0.51, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 2, i, j, k)], 0.1, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(0, 11, i, j, k)], 0.0, 1e-15);
           // Row 1
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 5, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 6, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 8, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 9, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 5, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 6, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 8, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 9, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(1, 11, i, j, k)], 0.0, 1e-15);
           // Row 2
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 4, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 5, i, j, k)], 0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 6, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 7, i, j, k)], 0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 8, i, j, k)], 0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 9, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 10, i, j, k)], 0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 4, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 5, i, j, k)], 0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 6, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 7, i, j, k)], 0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 8, i, j, k)], 0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 9, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 10, i, j, k)], 0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(2, 11, i, j, k)], 0.0, 1e-15);
           // Row 3
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 6, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 7, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 9, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 10, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 6, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 7, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 9, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 10, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(3, 11, i, j, k)], 0.0, 1e-15);
           // Row 4
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 2, i, j, k)], 2*0.66, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 4, i, j, k)], 2*0.51, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 5, i, j, k)], 0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 7, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 8, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 10, i, j, k)], 0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 2, i, j, k)], 2*0.66, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 4, i, j, k)], 2*0.51, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 5, i, j, k)], 0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 7, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 8, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 10, i, j, k)], 0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(4, 11, i, j, k)], 0.0, 1e-15);
           // Row 5
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 10, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 10, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(5, 11, i, j, k)], 0.0, 1e-15);
           // Row 6
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(6, 11, i, j, k)], 0.0, 1e-15);
           // Row 7
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 8, i, j, k)], -1.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfydw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
-          // Row 8
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 0, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 1, i, j, k)], -50*0.44, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 2, i, j, k)], 0.23, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 3, i, j, k)], 50*0.22, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 4, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 5, i, j, k)], 50*0.61, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 6, i, j, k)], 0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 7, i, j, k)], -50*0.41, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 8, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 9, i, j, k)], 50, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 10, i, j, k)], 0.0, 1e-15);
-          // EXPECT_NEAR(modelExtension.dfydw[IDFW(8, 11, i, j, k)], 0.51, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 0, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 1, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 2, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 3, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 4, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 5, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 6, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 7, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 8, i, j, k)], -1.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfydw[IDFWn(7, 11, i, j, k)], 0.0, 1e-15);
         }
       }
     }
@@ -648,109 +623,109 @@ TEST(RSGM, DataAssignment3D)
       for (int j(0); j<d.Ny; j++) {
         for (int k(0); k<d.Nz; k++) {
           // Row 0
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 0, i, j, k)], 0.61, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 3, i, j, k)], 0.1, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(0, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 0, i, j, k)], 0.61, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 3, i, j, k)], 0.1, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(0, 11, i, j, k)], 0.0, 1e-15);
           // Row 1
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 5, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 7, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 8, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 10, i, j, k)], -0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(1, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 5, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 7, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 8, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 10, i, j, k)], -0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(1, 11, i, j, k)], 0.0, 1e-15);
           // Row 2
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 6, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 7, i, j, k)], -0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 9, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 10, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(2, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 6, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 7, i, j, k)], -0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 9, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 10, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(2, 11, i, j, k)], 0.0, 1e-15);
           // Row 3
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 4, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 5, i, j, k)], 0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 6, i, j, k)], 0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 7, i, j, k)], -0.44, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 8, i, j, k)], 0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 9, i, j, k)], 0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 10, i, j, k)], -0.21, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(3, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 4, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 5, i, j, k)], 0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 6, i, j, k)], 0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 7, i, j, k)], -0.44, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 8, i, j, k)], 0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 9, i, j, k)], 0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 10, i, j, k)], -0.21, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(3, 11, i, j, k)], 0.0, 1e-15);
           // Row 4
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 3, i, j, k)], 2*0.66, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 4, i, j, k)], 2*0.61, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 5, i, j, k)], -0.17, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 6, i, j, k)], 0.13, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 8, i, j, k)], 0.33, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 9, i, j, k)], -0.22, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(4, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 3, i, j, k)], 2*0.66, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 4, i, j, k)], 2*0.61, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 5, i, j, k)], -0.17, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 6, i, j, k)], 0.13, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 8, i, j, k)], 0.33, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 9, i, j, k)], -0.22, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(4, 11, i, j, k)], 0.0, 1e-15);
           // Row 5
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 8, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 9, i, j, k)], -1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(5, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 8, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 9, i, j, k)], -1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(5, 11, i, j, k)], 0.0, 1e-15);
           // Row 6
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 0, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 1, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 2, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 3, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 4, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 5, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 6, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 7, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 8, i, j, k)], 1.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(6, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 0, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 1, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 2, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 3, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 4, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 5, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 6, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 7, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 8, i, j, k)], 1.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(6, 11, i, j, k)], 0.0, 1e-15);
           // Row 7
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 0, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 1, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 2, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 3, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 4, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 5, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 6, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 7, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 8, i, j, k)], 0.0, 1e-16);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 9, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 10, i, j, k)], 0.0, 1e-15);
-          EXPECT_NEAR(modelExtension.dfzdw[IDFW(7, 11, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 0, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 1, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 2, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 3, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 4, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 5, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 6, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 7, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 8, i, j, k)], 0.0, 1e-16);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 9, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 10, i, j, k)], 0.0, 1e-15);
+          EXPECT_NEAR(modelExtension.dfzdw[IDFWn(7, 11, i, j, k)], 0.0, 1e-15);
         }
       }
     }
@@ -793,32 +768,32 @@ TEST(RSGM, RotationallyInvariant)
       for (int j(0); j<d.Ny; j++) {
         for (int k(0); k<d.Nz; k++) {
           // Sim 1
-          d1.prims[ID(0, i, j, k)] = 0.1;
-          d1.prims[ID(1, i, j, k)] = 0.0;
-          d1.prims[ID(2, i, j, k)] = 0.41 * d1.x[i];
-          d1.prims[ID(3, i, j, k)] = 0.51;
-          d1.prims[ID(4, i, j, k)] = 0.66;
-          d1.prims[ID(5, i, j, k)] = 0.0;
-          d1.prims[ID(6, i, j, k)] = 0.22 * d1.x[i];
-          d1.prims[ID(7, i, j, k)] = 0.33;
+          d1.prims[IDn(0, i, j, k)] = 0.1;
+          d1.prims[IDn(1, i, j, k)] = 0.0;
+          d1.prims[IDn(2, i, j, k)] = 0.41 * d1.x[i];
+          d1.prims[IDn(3, i, j, k)] = 0.51;
+          d1.prims[IDn(4, i, j, k)] = 0.66;
+          d1.prims[IDn(5, i, j, k)] = 0.0;
+          d1.prims[IDn(6, i, j, k)] = 0.22 * d1.x[i];
+          d1.prims[IDn(7, i, j, k)] = 0.33;
           // Sim 2
-          d2.prims[ID(0, i, j, k)] = 0.1;
-          d2.prims[ID(1, i, j, k)] = 0.51;
-          d2.prims[ID(2, i, j, k)] = 0.0;
-          d2.prims[ID(3, i, j, k)] = 0.41 * d2.y[j];
-          d2.prims[ID(4, i, j, k)] = 0.66;
-          d2.prims[ID(5, i, j, k)] = 0.33;
-          d2.prims[ID(6, i, j, k)] = 0.0;
-          d2.prims[ID(7, i, j, k)] = 0.22 * d2.y[j];
+          d2.prims[IDn(0, i, j, k)] = 0.1;
+          d2.prims[IDn(1, i, j, k)] = 0.51;
+          d2.prims[IDn(2, i, j, k)] = 0.0;
+          d2.prims[IDn(3, i, j, k)] = 0.41 * d2.y[j];
+          d2.prims[IDn(4, i, j, k)] = 0.66;
+          d2.prims[IDn(5, i, j, k)] = 0.33;
+          d2.prims[IDn(6, i, j, k)] = 0.0;
+          d2.prims[IDn(7, i, j, k)] = 0.22 * d2.y[j];
           // Sim 3
-          d3.prims[ID(0, i, j, k)] = 0.1;
-          d3.prims[ID(1, i, j, k)] = 0.41 * d3.z[k];
-          d3.prims[ID(2, i, j, k)] = 0.51;
-          d3.prims[ID(3, i, j, k)] = 0.0;
-          d3.prims[ID(4, i, j, k)] = 0.66;
-          d3.prims[ID(5, i, j, k)] = 0.22 * d3.z[k];
-          d3.prims[ID(6, i, j, k)] = 0.33;
-          d3.prims[ID(7, i, j, k)] = 0.0;
+          d3.prims[IDn(0, i, j, k)] = 0.1;
+          d3.prims[IDn(1, i, j, k)] = 0.41 * d3.z[k];
+          d3.prims[IDn(2, i, j, k)] = 0.51;
+          d3.prims[IDn(3, i, j, k)] = 0.0;
+          d3.prims[IDn(4, i, j, k)] = 0.66;
+          d3.prims[IDn(5, i, j, k)] = 0.22 * d3.z[k];
+          d3.prims[IDn(6, i, j, k)] = 0.33;
+          d3.prims[IDn(7, i, j, k)] = 0.0;
         }
       }
     }
@@ -829,32 +804,32 @@ TEST(RSGM, RotationallyInvariant)
         for (int j(0); j<d1.Ny; j++) {
           for (int k(0); k<d1.Nz; k++) {
             // y->x
-            EXPECT_NEAR(d1.prims[ID(0, i, j, k)], d2.prims[ID(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(1, i, j, k)], d2.prims[ID(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(2, i, j, k)], d2.prims[ID(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(3, i, j, k)], d2.prims[ID(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(4, i, j, k)], d2.prims[ID(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(5, i, j, k)], d2.prims[ID(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(6, i, j, k)], d2.prims[ID(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(7, i, j, k)], d2.prims[ID(5, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d2.prims[IDn(0, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d2.prims[IDn(2, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d2.prims[IDn(3, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d2.prims[IDn(1, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d2.prims[IDn(4, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d2.prims[IDn(6, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d2.prims[IDn(7, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d2.prims[IDn(5, k, i, j)], 1e-15);
             //z->x
-            EXPECT_NEAR(d1.prims[ID(0, i, j, k)], d3.prims[ID(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(1, i, j, k)], d3.prims[ID(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(2, i, j, k)], d3.prims[ID(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(3, i, j, k)], d3.prims[ID(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(4, i, j, k)], d3.prims[ID(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(5, i, j, k)], d3.prims[ID(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(6, i, j, k)], d3.prims[ID(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[ID(7, i, j, k)], d3.prims[ID(6, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d3.prims[IDn(0, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d3.prims[IDn(3, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d3.prims[IDn(1, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d3.prims[IDn(2, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d3.prims[IDn(4, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d3.prims[IDn(7, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d3.prims[IDn(5, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d3.prims[IDn(6, j, k, i)], 1e-15);
             // z->y
-            EXPECT_NEAR(d2.prims[ID(0, i, j, k)], d3.prims[ID(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(1, i, j, k)], d3.prims[ID(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(2, i, j, k)], d3.prims[ID(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(3, i, j, k)], d3.prims[ID(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(4, i, j, k)], d3.prims[ID(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(5, i, j, k)], d3.prims[ID(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(6, i, j, k)], d3.prims[ID(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[ID(7, i, j, k)], d3.prims[ID(5, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(0, i, j, k)], d3.prims[IDn(0, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(1, i, j, k)], d3.prims[IDn(2, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(2, i, j, k)], d3.prims[IDn(3, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(3, i, j, k)], d3.prims[IDn(1, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(4, i, j, k)], d3.prims[IDn(4, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(5, i, j, k)], d3.prims[IDn(6, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(6, i, j, k)], d3.prims[IDn(7, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.prims[IDn(7, i, j, k)], d3.prims[IDn(5, i, k, j)], 1e-15);
           }
         }
       }
@@ -871,32 +846,32 @@ TEST(RSGM, RotationallyInvariant)
         for (int j(4); j<d1.Ny-4; j++) {
           for (int k(4); k<d1.Nz-4; k++) {
             // y->x
-            EXPECT_NEAR(modelExtension1.diffuX[ID(0, i, j, k)], modelExtension2.diffuY[ID(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(1, i, j, k)], modelExtension2.diffuY[ID(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(2, i, j, k)], modelExtension2.diffuY[ID(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(3, i, j, k)], modelExtension2.diffuY[ID(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(4, i, j, k)], modelExtension2.diffuY[ID(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(5, i, j, k)], modelExtension2.diffuY[ID(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(6, i, j, k)], modelExtension2.diffuY[ID(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(7, i, j, k)], modelExtension2.diffuY[ID(5, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension2.diffuY[IDn(0, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension2.diffuY[IDn(2, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension2.diffuY[IDn(3, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension2.diffuY[IDn(1, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension2.diffuY[IDn(4, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension2.diffuY[IDn(6, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension2.diffuY[IDn(7, k, i, j)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension2.diffuY[IDn(5, k, i, j)], 1e-15);
             // z->x
-            EXPECT_NEAR(modelExtension1.diffuX[ID(0, i, j, k)], modelExtension3.diffuZ[ID(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(1, i, j, k)], modelExtension3.diffuZ[ID(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(2, i, j, k)], modelExtension3.diffuZ[ID(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(3, i, j, k)], modelExtension3.diffuZ[ID(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(4, i, j, k)], modelExtension3.diffuZ[ID(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(5, i, j, k)], modelExtension3.diffuZ[ID(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(6, i, j, k)], modelExtension3.diffuZ[ID(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[ID(7, i, j, k)], modelExtension3.diffuZ[ID(6, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(3, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(1, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(2, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(7, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(5, j, k, i)], 1e-15);
+            EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(6, j, k, i)], 1e-15);
             // // z->y
-            EXPECT_NEAR(modelExtension2.diffuY[ID(0, i, j, k)], modelExtension3.diffuZ[ID(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(1, i, j, k)], modelExtension3.diffuZ[ID(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(2, i, j, k)], modelExtension3.diffuZ[ID(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(3, i, j, k)], modelExtension3.diffuZ[ID(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(4, i, j, k)], modelExtension3.diffuZ[ID(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(5, i, j, k)], modelExtension3.diffuZ[ID(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(6, i, j, k)], modelExtension3.diffuZ[ID(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[ID(7, i, j, k)], modelExtension3.diffuZ[ID(5, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(2, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(3, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(1, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(6, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(7, i, k, j)], 1e-15);
+            EXPECT_NEAR(modelExtension2.diffuY[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(5, i, k, j)], 1e-15);
           }
         }
       }
@@ -908,32 +883,32 @@ TEST(RSGM, RotationallyInvariant)
         for (int j(4); j<d1.Ny-4; j++) {
           for (int k(4); k<d1.Nz-4; k++) {
             // y->x
-            EXPECT_NEAR(d1.source[ID(0, i, j, k)], d2.source[ID(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(1, i, j, k)], d2.source[ID(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(2, i, j, k)], d2.source[ID(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(3, i, j, k)], d2.source[ID(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(4, i, j, k)], d2.source[ID(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(5, i, j, k)], d2.source[ID(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(6, i, j, k)], d2.source[ID(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(7, i, j, k)], d2.source[ID(5, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d2.source[IDn(0, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d2.source[IDn(2, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d2.source[IDn(3, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d2.source[IDn(1, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d2.source[IDn(4, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d2.source[IDn(6, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d2.source[IDn(7, k, i, j)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d2.source[IDn(5, k, i, j)], 1e-15);
             //z->x
-            EXPECT_NEAR(d1.source[ID(0, i, j, k)], d3.source[ID(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(1, i, j, k)], d3.source[ID(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(2, i, j, k)], d3.source[ID(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(3, i, j, k)], d3.source[ID(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(4, i, j, k)], d3.source[ID(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(5, i, j, k)], d3.source[ID(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(6, i, j, k)], d3.source[ID(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[ID(7, i, j, k)], d3.source[ID(6, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d3.source[IDn(0, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d3.source[IDn(3, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d3.source[IDn(1, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d3.source[IDn(2, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d3.source[IDn(4, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d3.source[IDn(7, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d3.source[IDn(5, j, k, i)], 1e-15);
+            EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d3.source[IDn(6, j, k, i)], 1e-15);
             // z->y
-            EXPECT_NEAR(d2.source[ID(0, i, j, k)], d3.source[ID(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(1, i, j, k)], d3.source[ID(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(2, i, j, k)], d3.source[ID(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(3, i, j, k)], d3.source[ID(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(4, i, j, k)], d3.source[ID(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(5, i, j, k)], d3.source[ID(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(6, i, j, k)], d3.source[ID(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[ID(7, i, j, k)], d3.source[ID(5, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(0, i, j, k)], d3.source[IDn(0, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(1, i, j, k)], d3.source[IDn(2, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(2, i, j, k)], d3.source[IDn(3, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(3, i, j, k)], d3.source[IDn(1, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(4, i, j, k)], d3.source[IDn(4, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(5, i, j, k)], d3.source[IDn(6, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(6, i, j, k)], d3.source[IDn(7, i, k, j)], 1e-15);
+            EXPECT_NEAR(d2.source[IDn(7, i, j, k)], d3.source[IDn(5, i, k, j)], 1e-15);
           }
         }
       }
@@ -960,7 +935,7 @@ TEST(RSGM, RotationallyInvariant)
       for (int i(0); i<d.Nx; i++) {
         for (int j(0); j<d.Ny-1; j++) {
           for (int k(0); k<d.Nz; k++) {
-            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j+1, k)], 1e-15);
+            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k)], 1e-15);
           }
         }
       }
@@ -987,7 +962,7 @@ TEST(RSGM, RotationallyInvariant)
       for (int i(0); i<d.Nx; i++) {
         for (int j(0); j<d.Ny; j++) {
           for (int k(0); k<d.Nz-1; k++) {
-            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j, k+1)], 1e-15);
+            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j, k+1)], 1e-15);
           }
         }
       }
@@ -1014,7 +989,7 @@ TEST(RSGM, RotationallyInvariant)
       for (int i(0); i<d.Nx; i++) {
         for (int j(0); j<d.Ny-1; j++) {
           for (int k(0); k<d.Nz-1; k++) {
-            EXPECT_NEAR(d.prims[ID(var, i, j, k)], d.prims[ID(var, i, j+1, k+1)], 1e-15);
+            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k+1)], 1e-15);
           }
         }
       }
@@ -1066,9 +1041,9 @@ TEST(RSGM, RotationallyInvariant)
     for (int i(0); i<dA.Nx; i++) {
       for (int j(0); j<dA.Ny; j++) {
         for (int k(0); k<dA.Nz; k++) {
-          EXPECT_NEAR(dA.cons[ID(6, i, j, k)], dB.cons[ID(7, k, i, j)], 1e-15);
-          EXPECT_NEAR(dA.cons[ID(6, i, j, k)], dC.cons[ID(5, j, k, i)], 1e-15);
-          EXPECT_NEAR(dB.cons[ID(7, k, i, j)], dC.cons[ID(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dB.cons[IDn(7, k, i, j)], 1e-15);
+          EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dC.cons[IDn(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(dB.cons[IDn(7, k, i, j)], dC.cons[IDn(5, j, k, i)], 1e-15);
         }
       }
     }
