@@ -23,27 +23,28 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 CXXFLAGS = -Wall -std=c++11
 
 # Sources
-SRCS = main.cc \
-			 simulation.cc \
-			 srmhd.cc \
-			 twoFluidEMHD.cc \
-			 initFunc.cc \
-			 simData.cc \
-			 weno.cc \
-			 RK2.cc \
-			 rkSplit.cc \
-			 backwardsRK.cc \
-			 backRKArgs.cc \
-			 SSP2.cc \
-			 SSP2322.cc \
-			 IMEX2Args.cc \
-			 SSP3.cc \
-			 IMEX3Args.cc \
-			 boundaryConds.cc \
-			 saveData.cc \
+SRCS = main.cc 								\
+			 simulation.cc 					\
+			 srmhd.cc						  	\
+			 twoFluidEMHD.cc 				\
+			 initFunc.cc 						\
+			 simData.cc 						\
+			 weno.cc 								\
+			 RK2.cc 								\
+			 rkSplit.cc 						\
+			 rkSplit2ndOrder.cc			\
+			 backwardsRK.cc 				\
+			 backRKArgs.cc 					\
+			 SSP2.cc 								\
+			 SSP2322.cc 						\
+			 IMEX2Args.cc 					\
+			 SSP3.cc 								\
+			 IMEX3Args.cc 					\
+			 boundaryConds.cc 			\
+			 saveData.cc 						\
 			 fluxVectorSplitting.cc \
-			 srrmhd.cc \
-			 REGIME.cc \
+			 srrmhd.cc 							\
+			 REGIME.cc 							\
 			 hybrid.cc
 
 
@@ -54,15 +55,15 @@ HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
 OBJS = ${SRCS:.cc=.o}
 
 # Rootfinder objects
-RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
-							$(RTFIND_SRC_DIR)/dpmpar.o \
-							$(RTFIND_SRC_DIR)/enorm.o \
-							$(RTFIND_SRC_DIR)/fdjac1.o \
-							$(RTFIND_SRC_DIR)/hybrd.o \
-							$(RTFIND_SRC_DIR)/hybrd1.o \
-							$(RTFIND_SRC_DIR)/qform.o \
-							$(RTFIND_SRC_DIR)/qrfac.o \
-							$(RTFIND_SRC_DIR)/r1mpyq.o \
+RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o 	\
+							$(RTFIND_SRC_DIR)/dpmpar.o 	\
+							$(RTFIND_SRC_DIR)/enorm.o 	\
+							$(RTFIND_SRC_DIR)/fdjac1.o 	\
+							$(RTFIND_SRC_DIR)/hybrd.o 	\
+							$(RTFIND_SRC_DIR)/hybrd1.o 	\
+							$(RTFIND_SRC_DIR)/qform.o 	\
+							$(RTFIND_SRC_DIR)/qrfac.o 	\
+							$(RTFIND_SRC_DIR)/r1mpyq.o 	\
 							$(RTFIND_SRC_DIR)/r1updt.o
 
 # Programmes
@@ -123,6 +124,9 @@ RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
 		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+rkSplit2ndOrder.o : $(MODULE_DIR)/rkSplit2ndOrder.cc $(INC_DIR)/rkSplit2ndOrder.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 backwardsRK.o : $(MODULE_DIR)/backwardsRK.cc $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h

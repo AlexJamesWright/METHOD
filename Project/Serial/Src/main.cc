@@ -48,10 +48,10 @@ int main(int argc, char *argv[]) {
   double ymax(1);
   double zmin(-1.0);
   double zmax(1.0);
-  double endTime(25.0);
+  double endTime(7.0);
   double cfl(0.2);
   double gamma(2.0);
-  double sigma(12800);
+  double sigma(0);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
@@ -71,11 +71,8 @@ int main(int argc, char *argv[]) {
 
   // Choose particulars of simulation
   SRRMHD model(&data);
-  // Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
   FVS fluxMethod(&data, &model);
-
-  // model.setSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
 
@@ -83,19 +80,19 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
   // Time execution of programme
   clock_t startTime(clock());
 
   // Run until end time and save results
   sim.evolve(output, safety);
-  // sim.updateTime();
+
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
