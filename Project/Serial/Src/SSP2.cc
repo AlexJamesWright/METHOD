@@ -66,7 +66,8 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   // Hybrd1 variables
   int info;
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
-  double tol(0.0000000149011612);
+  // double tol(0.0000000149011612);
+  double tol(0.000000149011612);
 
 
   // We only need to implement the integrator on the physical cells provided

@@ -39,29 +39,29 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(256);
-  int ny(256);
+  int nx(400);
+  int ny(0);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
+  double xmin(-3);
+  double xmax(3);
   double ymin(-1);
   double ymax(1);
   double zmin(-1.0);
   double zmax(1.0);
-  double endTime(3.0);
-  double cfl(0.4);
-  double gamma(4.0/3.0);
-  double sigma(500);
+  double endTime(25.0);
+  double cfl(0.2);
+  double gamma(2.0);
+  double sigma(12800);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(40);
-  bool output(true);
-  int safety(frameSkip);
-  bool functionalSigma(true);
-  double gam(0.2);
-  double sigmaCrossOver(600);
-  double sigmaSpan(500);
+  bool output(false);
+  int safety(-1);
+  bool functionalSigma(false);
+  double gam(1.3);
+  double sigmaCrossOver(400);
+  double sigmaSpan(350);
   bool useREGIME(false);
 
 
@@ -70,20 +70,21 @@ int main(int argc, char *argv[]) {
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  // SRRMHD model(&data);
-  Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
+  SRRMHD model(&data);
+  // Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
   FVS fluxMethod(&data, &model);
 
-  model.setSubgridModel(&fluxMethod);
+  // model.setSubgridModel(&fluxMethod);
 
   Simulation sim(&data);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  CurrentSheetSingleFluid init(&data);
 
-  Flow bcs(&data);
+  Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, NULL);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data);
 
