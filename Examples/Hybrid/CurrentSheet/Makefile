@@ -137,7 +137,7 @@ hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

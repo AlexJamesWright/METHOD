@@ -131,7 +131,7 @@ IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

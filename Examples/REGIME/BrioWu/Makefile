@@ -129,7 +129,7 @@ REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -fopenmp
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

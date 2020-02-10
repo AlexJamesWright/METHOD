@@ -8,8 +8,8 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
-#include <omp.h>
 #include <cstring>
+#include <ctime>
 
 #define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
 
@@ -60,13 +60,14 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
   // Time execution of programme
-  double startTime(omp_get_wtime());
+  clock_t startTime(clock());
 
   // Run until end time and save results
   sim.evolve(output);
 
-  double timeTaken(omp_get_wtime() - startTime);
+  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
   printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
