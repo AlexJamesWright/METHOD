@@ -548,8 +548,6 @@ KHRandomInstabilitySingleFluid::KHRandomInstabilitySingleFluid(Data * data, int 
   if (d->ymin != 0.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 1.0]\n");
 
   double vShear(0.5);
-  double A0(0.1);
-  double a(0.01);
   double rho0(1.0);
   double rho1(0.1);
   double epsilon(0.01);

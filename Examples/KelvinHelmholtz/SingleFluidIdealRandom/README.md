@@ -41,3 +41,6 @@ Notes
 
   - If you have the time, I recommend running a higher resolution simulation of
   this. It is aesthetically pleasing!
+
+  - This simulation should be run using `make main` and then `./main seed` where
+  `seed` is some integar seed for the random perturbation on the layer.

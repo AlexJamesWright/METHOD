@@ -203,6 +203,7 @@ class KHRandomInstabilitySingleFluid : public InitialFunc
       @param[in] *data Pointer to Data class containing global simulation data
       @param[in] mag Flag for seed magnetic field of B_z = 0.1. Switch 0 for
       off, or 1 for on.
+      @param[in] seed Seed for random number generator
       @sa InitialFunc
     */
     KHRandomInstabilitySingleFluid(Data * data, int mag=0, int seed=1234);
