@@ -8,7 +8,6 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
-#include <omp.h>
 #include <cstring>
 
 using namespace std;
@@ -48,7 +47,9 @@ int main(int argc, char *argv[]) {
   FVS fluxMethod(&data, &model);
 
   Simulation sim(&data);
+
   printf("Seed: %d\n", seed);
+
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
   Periodic bcs(&data);
@@ -59,6 +60,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+  
   // Time execution of programme
   double startTime(omp_get_wtime());
 
