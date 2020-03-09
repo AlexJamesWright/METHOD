@@ -13,12 +13,11 @@ before_install:
 
 script:
   - cmake -H. -Bbuild
-  - cd build
-  - cmake --build .
-  - ./bin/unit_tests
+  - cmake --build build
+  - ./build/bin/unit_tests
 
 after_success:
-  - coveralls --root .. #-E ".*external.*" -E ".*CMakeFiles.*" -E ".*build*" -E ".*Doxumentation*" -E ".*Examples*" -E ".*cmake*" -E ".*Tests*" -E ".*gtest*"
+  - coveralls --root . --exclude "Examples" #-E ".*external.*" -E ".*CMakeFiles.*" -E ".*build*" -E ".*Doxumentation*" -E ".*Examples*" -E ".*cmake*" -E ".*Tests*" -E ".*gtest*"
 
 notifications:
   email: true
