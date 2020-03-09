@@ -17,7 +17,7 @@ script:
   - ./build/bin/unit_tests
 
 after_success:
-  - coveralls --root . --exclude "*Examples*" --exclude "*Parallel*" --exclude "*build*" --exclude "*googletest*" --exclude "*CMakeFiles*"
+  - coveralls --root . -e "Examples" -e "Project/Parallel" -e "build" --exclude
 
 notifications:
   email: true
