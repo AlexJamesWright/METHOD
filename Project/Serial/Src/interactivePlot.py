@@ -185,11 +185,6 @@ class InteractivePlot(object):
                     for k, val in enumerate(temp):
                         coord[k] = float(val)
 
-            # Clean up labels (remove the commas)
-            self.cleanAuxLabels = []
-            for i in range(len(auxLabels)-1):
-                self.cleanAuxLabels.append(auxLabels[i][:-1])
-            self.cleanAuxLabels.append(auxLabels[-1])
 
 
     def _getVarFromLine(self, line, Nx, Ny):
@@ -308,7 +303,7 @@ class InteractivePlot(object):
         else:
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
-        
+
         for i in range(data.shape[0]):
             fig, ax = plt.subplots(1)
             if (axis == 0):
@@ -460,7 +455,7 @@ class InteractivePlot(object):
         plt.show()
         #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
 
-        
+
     def plotSingleFluidCurrentSheetAgainstExact(self, direction=0):
         """
         The current sheet has an analytical solution for the y-direction magnetic
@@ -471,7 +466,7 @@ class InteractivePlot(object):
         nx = self.c['Nx'] // 2
         ny = self.c['Ny'] // 2
         nz = self.c['Nz'] // 2
-        
+
         if direction == 0:
             B = self.cons[6, c['Ng']:-c['Ng'], ny, nz]
             x = np.linspace(c['xmin'], c['xmax'], c['nx'])
@@ -481,7 +476,7 @@ class InteractivePlot(object):
         else:
             B = self.cons[5, nx, ny, c['Ng']:-c['Ng']]
             x = np.linspace(c['zmin'], c['zmax'], c['nz'])
-            
+
         exact = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 / (c['t']+1)))
         initial = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 ))
         plt.plot(x, B, label='Numerical')
@@ -631,24 +626,24 @@ class InteractivePlot(object):
         plt.title(r'Exact comparison for $v_z2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
-        
-        
-        
+
+
+
     def plot2DBrioWu(self, diag=0):
         """
         Plots the main diagonal of the 2D Brio-Wu problem
-        
+
         Parameters
         ----------
         diag : int
             The diagonal to plot the slice
         """
-        
+
         nx = self.c['nx']
 #        Ny = self.c['Ny']
         midZ = self.c['Nz'] // 2
         Ng = self.c['Ng']
-        
+
         if diag == 0:
             LB = -Ng
             RB = Ng
@@ -657,17 +652,17 @@ class InteractivePlot(object):
             LB = Ng
             RB = -Ng
             step = 1
-            
-            
+
+
         dens = self.prims[0, Ng:-Ng, LB:RB:step, midZ].diagonal()
         vx = self.prims[1, Ng:-Ng, LB:RB:step, midZ].diagonal()
-        vy = self.prims[2, Ng:-Ng, LB:RB:step, midZ].diagonal() 
-           
-            
+        vy = self.prims[2, Ng:-Ng, LB:RB:step, midZ].diagonal()
+
+
         p = self.prims[4, Ng:-Ng, LB:RB:step, midZ].diagonal()
         B = self.prims[5, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) + \
-            self.prims[6, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) 
-        
+            self.prims[6, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2)
+
         # rho
         plt.figure()
         plt.plot(np.linspace(0, 1, nx), dens)
@@ -710,14 +705,13 @@ class InteractivePlot(object):
         plt.ylabel(r'$B$')
         plt.xlim([0, 1])
         plt.show()
-        
+
         return B
 # Function declarations over, access data and plot!
-        
+
 
 if __name__ == '__main__':
 
     Plot = InteractivePlot()
-    
-    Plot.plotSingleFluidCurrentSheetAgainstExact()
 
+    Plot.plotSlice()

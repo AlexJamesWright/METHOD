@@ -18,7 +18,7 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "rkSplit2ndOrder.h"
-#include "SSP2.h"
+#include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "REGIME.h"
@@ -41,13 +41,13 @@ int main(int argc, char *argv[]) {
   int nx(100);
   int ny(0);
   int nz(0);
-  double xmin(-3);
-  double xmax(3);
+  double xmin(-1);
+  double xmax(1);
   double ymin(-1);
   double ymax(1);
   double zmin(-1.0);
   double zmax(1.0);
-  double endTime(7.0);
+  double endTime(0.8);
   double cfl(0.5);
   double gamma(2.0);
   double sigma(50);
@@ -57,11 +57,6 @@ int main(int argc, char *argv[]) {
   int frameSkip(40);
   bool output(false);
   int safety(-1);
-  bool functionalSigma(false);
-  double gam(1.3);
-  double sigmaCrossOver(400);
-  double sigmaSpan(350);
-  bool useREGIME(false);
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
@@ -69,17 +64,19 @@ int main(int argc, char *argv[]) {
             functionalSigma, gam);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
+  REGIME modelExtension(&data, &fluxMethod);
+
   Simulation sim(&data);
 
-  CurrentSheetSingleFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 
-  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
 
   SaveData save(&data);
 
