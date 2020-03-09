@@ -17,7 +17,7 @@ script:
   - ./build/bin/unit_tests
 
 after_success:
-  - coveralls --root . -e "Examples" -e "Project/Parallel" -e "build"
+  - coveralls --root . -E "*Examples*" -E "*Parallel*" -E "*build*"
 
 notifications:
   email: true
