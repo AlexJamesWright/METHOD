@@ -17,9 +17,7 @@ script:
   - ./build/bin/unit_tests
 
 after_success:
-  - coveralls --root . -e "Examples" -e "Project/Parallel" -E ".*Doxumentation*" -E ".*Tests*" -E ".*gtest*"
-
-# --exclude ".*build.*"
+  - coveralls --root . -e "Examples" -e "Project/Parallel" -e ".*build.*"
 
 notifications:
   email: true
