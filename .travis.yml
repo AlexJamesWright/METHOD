@@ -12,14 +12,13 @@ before_install:
   - pip install --user cpp-coveralls
 
 script:
-  - ./configure --enable-gcov
   - cmake -H. -Bbuild
   - cd build
   - cmake --build .
   - ./bin/unit_tests
 
 after_success:
-  - coveralls --root .. --exclude ".*external.*" --exclude ".*CMakeFiles.*" --exclude "*build*" --exclude "*Doxumentation*" --exclude "*Examples*" --exclude "*cmake/*" --exclude "*Tests*"
+  - coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*build.*" -E ".*Doxumentation.*" -E ".*Examples.*" -E ".*cmake.*" -E ".*Tests.*" -E ".*gtest.*"
 
 notifications:
   email: true
