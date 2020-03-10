@@ -16,8 +16,8 @@
 #include "srmhd.h"
 #include "srrmhd.h"
 #include "boundaryConds.h"
-#include "rkSplit.h"
 #include "rkSplit2ndOrder.h"
+#include "rkSplit.h"
 #include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
@@ -38,17 +38,17 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(100);
+  int nx(30);
   int ny(0);
   int nz(0);
-  double xmin(-1);
-  double xmax(1);
+  double xmin(-3);
+  double xmax(3);
   double ymin(-1);
   double ymax(1);
   double zmin(-1.0);
   double zmax(1.0);
-  double endTime(0.8);
-  double cfl(0.5);
+  double endTime(7);
+  double cfl(0.8);
   double gamma(2.0);
   double sigma(50);
   double cp(1.0);
@@ -71,11 +71,11 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  BrioWuSingleFluid init(&data);
+  CurrentSheetSingleFluid init(&data);
 
   Outflow bcs(&data);
 
-  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
 
   SaveData save(&data);
 

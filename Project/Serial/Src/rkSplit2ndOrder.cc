@@ -51,11 +51,7 @@ void RKSplit2::step(double * cons, double * prims, double * aux, double dt)
   }
   RK2::finalise(cons, prims, aux);
 
-  RK2::predictorStep(cons, prims, aux, dt);
-  RK2::finalise(p1cons, p1prims, p1aux);
-
-  correctorStep(cons, prims, aux, dt);
-  RK2::finalise(cons, prims, aux);
+  RK2::step(cons, prims, aux, dt);
 
   // Set and add source half a timestep
   this->setSource(cons, prims, aux);
