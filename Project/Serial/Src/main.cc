@@ -60,8 +60,7 @@ int main(int argc, char *argv[]) {
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip,
-            functionalSigma, gam);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
   SRMHD model(&data);
