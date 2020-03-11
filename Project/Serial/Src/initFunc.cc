@@ -430,12 +430,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
   double rho0(0.55);
   double rho1(0.45);
 
-  double B0{0.4};
-  double psi0{0.1};
-  double pi{3.141592653589793};
-  double lambda{0.5};
-  double Lx{1.0};
-  double Ly{2.0};
+  double B0{0.1};
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -444,36 +439,8 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
         d->prims[ID(4, i, j, k)] = 1.0;
 
         // Magnetic Fields
-        if (mag) {
+        if (mag) d->prims[ID(7, i, j, k)] = B0;
 
-          // d->prims[ID(7, i, j, k)] = B0;
-
-          if (d->y[j] > 0)
-          {
-            // Constant Bz and reconnection type Bx, By
-            d->prims[ID(5, i, j, k)] = B0 * tanh((d->y[j]-0.5) / lambda);
-            // Perturb
-            d->prims[ID(5, i, j, k)] -= psi0 * (pi / Ly) * sin(pi * (d->y[j]-0.5) / Ly) * cos(2*pi*d->x[i] / Lx);
-            d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*(d->y[j]-0.5) / Ly);
-          }
-          else
-          {
-            // Constant Bz and reconnection type Bx, By
-            d->prims[ID(5, i, j, k)] = -B0 * tanh((d->y[j]+0.5) / lambda);
-            // Perturb
-            d->prims[ID(5, i, j, k)] += psi0 * (pi / Ly) * sin(pi * (d->y[j]+0.5) / Ly) * cos(2*pi*d->x[i] / Lx);
-            d->prims[ID(6, i, j, k)] += psi0 * (2*pi / Lx) * sin(2*pi * d->x[i] / Lx) * cos(pi*(d->y[j]+0.5) / Ly);
-          }
-
-          // If we have electric fields, set to the ideal values
-          if (d->Ncons > 9)
-          {
-            d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
-            d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
-            d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
-          }
-
-        }
         if (d->y[j] > 0) {
           d->prims[ID(0, i, j, k)] = rho0 + rho1 * tanh((d->y[j] - 0.5)/a);
           d->prims[ID(1, i, j, k)] = vShear * tanh((d->y[j] - 0.5)/a);
@@ -485,6 +452,15 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
           d->prims[ID(1, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
           d->prims[ID(2, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
         }
+
+        // If we have electric fields, set to the ideal values
+        if (d->Ncons > 9)
+        {
+          d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
+          d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
+          d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
+        }
+        
       }
     }
   }
