@@ -1,4 +1,5 @@
 // Serial main
+#include "platformEnv.h"
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(3.0);
+  double endTime(0.5);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -37,6 +38,8 @@ int main(int argc, char *argv[]) {
   bool output(false);
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
+
+  PlatformEnv env(&argc, &argv);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);

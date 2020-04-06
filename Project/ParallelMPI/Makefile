@@ -2,7 +2,8 @@
 # and links for main.cc
 
 # Compiler
-CC = g++
+#CC = g++
+CC = mpic++
 
 # Module directory
 MODULE_DIR = ./Src
@@ -45,7 +46,8 @@ SRCS = main.cc 								\
 			 fluxVectorSplitting.cc \
 			 srrmhd.cc 							\
 			 REGIME.cc 							\
-			 hybrid.cc
+			 hybrid.cc		\
+			 platformEnv.cc
 
 
 # Headers
@@ -163,6 +165,9 @@ REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+platformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
