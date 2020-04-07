@@ -56,10 +56,12 @@ int main(int argc, char *argv[]) {
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
   Periodic bcs(&data);
+  env.setParallelDecomposition(data, &bcs, 2, 2, 1);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SaveData save(&data, 0);
+
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
