@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "platformEnv.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -173,12 +174,15 @@ class Data
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
       @param frameskip number of timesteps per file output
+      @param env environment object containing platform details eg MPI ranks
     */
     Data(int nx, int ny, int nz,
          double xmin, double xmax,
          double ymin, double ymax,
          double zmin, double zmax,
-         double endTime, double cfl=0.5, int Ng=4,
+         double endTime, 
+ 	 PlatformEnv env,
+         double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,

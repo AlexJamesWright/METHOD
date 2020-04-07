@@ -2,8 +2,6 @@
 #define PLATFORM_ENV_H
 
 #include <mpi.h>
-#include "simData.h"
-#include "boundaryConds.h"
 
 class PlatformEnv
 {
@@ -14,13 +12,13 @@ class PlatformEnv
 		int xRankId, yRankId, zRankId;
 		MPI_Comm mpi_cartesian_comm; 
 
-		PlatformEnv(int *argcP, char **argvP[]);
+		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks);
 
 		~PlatformEnv();
 
 		int isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int zNeighbourDir);
 
-		void setParallelDecomposition(Data data, Bcs *bcs, int nxRanks, int nyRanks, int nzRanks);
+		void setParallelDecomposition(void);
 };
 
 #endif

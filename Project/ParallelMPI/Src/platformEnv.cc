@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <mpi.h>
 
-PlatformEnv::PlatformEnv(int *argcP, char **argvP[])
+PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
 {
 	MPI_Init(argcP, argvP);
 
@@ -15,6 +15,12 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	
 	printf("Initialised MPI. nProc %d, rankId %d\n", nProc, rank);
+
+	this->nxRanks = nxRanks;
+	this->nyRanks = nyRanks;
+	this->nzRanks = nzRanks;
+
+	setParallelDecomposition();
 
 }
 
@@ -28,7 +34,7 @@ int PlatformEnv::isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int z
 	
 }
 
-void PlatformEnv::setParallelDecomposition(Data data, Bcs *bcs, int nxRanks, int nyRanks, int nzRanks)
+void PlatformEnv::setParallelDecomposition(void)
 {
 	// number of dimensions in process grid
 	int ndims=1;
@@ -41,14 +47,16 @@ void PlatformEnv::setParallelDecomposition(Data data, Bcs *bcs, int nxRanks, int
 
 	// TODO -- Could choose best nxRanks, nyRanks, nzRanks proportionate to nx, ny, nz, with errors if nRanks is prime
 
+	// TODO -- Could use properties on bcs to set whether grid is periodic
+
 	dims[0] = nxRanks;
 	periods[0] = 1;
-	if (data.Ny > 1){
+	if (nyRanks > 1){
 		dims[1] = nyRanks;
 		periods[1] = 1;
 		ndims += 1;
 	}
-	if (data.Nz > 1){
+	if (nzRanks > 1){
 		dims[2] = nzRanks;
 		periods[2] = 1;
 		ndims += 1;

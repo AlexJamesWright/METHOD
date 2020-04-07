@@ -1,4 +1,5 @@
 #include "simData.h"
+#include "platformEnv.h"
 #include <stdexcept>
 #include <cmath>
 
@@ -8,7 +9,8 @@ Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
            double ymin, double ymax,
            double zmin, double zmax,
-           double endTime, double cfl, int Ng,
+           double endTime, PlatformEnv env,
+	   double cfl, int Ng,
            double gamma, double sigma,
            double cp,
            double mu1, double mu2, int frameSkip,

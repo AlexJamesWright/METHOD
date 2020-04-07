@@ -39,9 +39,13 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  PlatformEnv env(&argc, &argv);
+  double nxRanks(2);
+  double nyRanks(2);
+  double nzRanks(1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, env,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
@@ -56,7 +60,6 @@ int main(int argc, char *argv[]) {
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
   Periodic bcs(&data);
-  env.setParallelDecomposition(data, &bcs, 2, 2, 1);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
