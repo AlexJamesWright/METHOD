@@ -29,9 +29,14 @@ Data::Data(int nx, int ny, int nz,
            functionalSigma(functionalSigma), gam(gam)
 {
 
-  this->Nx = nx + 2 * Ng;
-  this->Ny = ny + 2 * Ng;
-  this->Nz = nz + 2 * Ng;
+  // TODO -- handle nx not dividing perfectly into nxRanks
+
+  // Set Nx to be nx per MPI process + ghost cells
+  this->Nx = nx/env.nxRanks + 2 * Ng;
+  this->Ny = ny/env.nyRanks + 2 * Ng;
+  this->Nz = nz/env.nzRanks + 2 * Ng;
+
+  printf("proc %d (%d) initialized with %d nx\n", env.rank, env.xRankId, this->Nx);
   dims = 3;
 
   // Catch 2D case

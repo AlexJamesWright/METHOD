@@ -8,6 +8,7 @@
 #include "boundaryConds.h"
 #include "flux.h"
 #include "saveData.h"
+#include "platformEnv.h"
 
 
 //! <b> The Simulation interface for the programme </b>
@@ -51,7 +52,7 @@ class Simulation
 
       @param[in] *data pointer to Data class containing global simulation data
     */
-    Simulation(Data * data);
+    Simulation(Data * data, PlatformEnv env);
 
     //! Destructor frees alloc'd memory
     ~Simulation();

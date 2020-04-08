@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data);
+  Simulation sim(&data, env);
 
   printf("Seed: %d\n", seed);
 
