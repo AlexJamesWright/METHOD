@@ -65,7 +65,14 @@ void PlatformEnv::setParallelDecomposition(void)
 	// Create MPI communicator in a cartesian grid that matches the domain
 	MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpi_cartesian_comm);
 
+	int coords[3];
+
 	// TODO -- get coords of rank in grid and set on object
+	MPI_Cart_coords(mpi_cartesian_comm, rank, ndims, coords);
+	xRankId = coords[0]; 
+	printf("!!! x rank id: %d in %d\n\n", xRankId, rank);
+	if (nyRanks > 1) yRankId = coords[1];
+	if (nzRanks > 1) zRankId = coords[2];	
 }
 
 
