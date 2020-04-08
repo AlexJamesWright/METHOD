@@ -52,7 +52,7 @@ class Simulation
 
       @param[in] *data pointer to Data class containing global simulation data
     */
-    Simulation(Data * data, PlatformEnv env);
+    Simulation(Data * data, PlatformEnv *env);
 
     //! Destructor frees alloc'd memory
     ~Simulation();

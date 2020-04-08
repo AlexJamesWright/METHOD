@@ -181,7 +181,7 @@ class Data
          double ymin, double ymax,
          double zmin, double zmax,
          double endTime, 
- 	 PlatformEnv env,
+ 	 PlatformEnv *env,
          double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,

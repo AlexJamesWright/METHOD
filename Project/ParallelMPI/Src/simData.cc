@@ -9,7 +9,7 @@ Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
            double ymin, double ymax,
            double zmin, double zmax,
-           double endTime, PlatformEnv env,
+           double endTime, PlatformEnv *env,
 	   double cfl, int Ng,
            double gamma, double sigma,
            double cp,
@@ -32,11 +32,11 @@ Data::Data(int nx, int ny, int nz,
   // TODO -- handle nx not dividing perfectly into nxRanks
 
   // Set Nx to be nx per MPI process + ghost cells
-  this->Nx = nx/env.nxRanks + 2 * Ng;
-  this->Ny = ny/env.nyRanks + 2 * Ng;
-  this->Nz = nz/env.nzRanks + 2 * Ng;
+  this->Nx = nx/env->nxRanks + 2 * Ng;
+  this->Ny = ny/env->nyRanks + 2 * Ng;
+  this->Nz = nz/env->nzRanks + 2 * Ng;
 
-  printf("proc %d (%d) initialized with %d nx\n", env.rank, env.xRankId, this->Nx);
+  printf("proc %d (%d) initialized with %d nx\n", env->rank, env->xRankId, this->Nx);
   dims = 3;
 
   // Catch 2D case

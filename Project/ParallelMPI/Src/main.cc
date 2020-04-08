@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
   PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, env,
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data, env);
+  Simulation sim(&data, &env);
 
   printf("Seed: %d\n", seed);
 

@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-Simulation::Simulation(Data * data, PlatformEnv env) : data(data)
+Simulation::Simulation(Data * data, PlatformEnv *env) : data(data)
 {
   // Simplify syntax
   Data * d;
@@ -29,9 +29,9 @@ Simulation::Simulation(Data * data, PlatformEnv env) : data(data)
   // Initialise the data
 
   // TODO -- this won't work if nx doesn't divide into nxRanks perfectly
-  d->dx = (d->xmax - d->xmin) / (d->nx * env.nxRanks);
-  d->dy = (d->ymax - d->ymin) / (d->ny * env.nyRanks);
-  d->dz = (d->zmax - d->zmin) / (d->nz * env.nzRanks);
+  d->dx = (d->xmax - d->xmin) / (d->nx * env->nxRanks);
+  d->dy = (d->ymax - d->ymin) / (d->ny * env->nyRanks);
+  d->dz = (d->zmax - d->zmin) / (d->nz * env->nzRanks);
 
   d->iters = 0;
   d->t = 0;
@@ -46,9 +46,9 @@ Simulation::Simulation(Data * data, PlatformEnv env) : data(data)
 
   // Calculate the coord of the first physical cell on each process
   // TODO -- Fix -- there should be a less messy way to do this
-  double xminLocal = d->xmin + d->dx * (d->Nx - 2*d->Ng) * env.xRankId;
-  double yminLocal = d->ymin + d->dy * (d->Ny - 2*d->Ng) * env.yRankId;
-  double zminLocal = d->zmin + d->dz * (d->Nz - 2*d->Ng) * env.zRankId;
+  double xminLocal = d->xmin + d->dx * (d->Nx - 2*d->Ng) * env->xRankId;
+  double yminLocal = d->ymin + d->dy * (d->Ny - 2*d->Ng) * env->yRankId;
+  double zminLocal = d->zmin + d->dz * (d->Nz - 2*d->Ng) * env->zRankId;
 
   // Set axes
   for (int i(0); i < d->Nx; i++) {
