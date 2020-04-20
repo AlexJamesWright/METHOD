@@ -241,6 +241,10 @@ class ParallelPeriodic : public Bcs
     void swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
         double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent);
 
+    void packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+
+    void unpackXBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+
 };
 
 //! <b> Flow boundary conditions </b>

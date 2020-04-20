@@ -473,6 +473,37 @@ void ParallelPeriodic::swapGhostBuffers(double *sendToLeftBuf, double *sendToRig
 	env->mpiCartesianComm, &status);
 }
 
+void ParallelPeriodic::packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
+  Data * d(this->data);
+  for (int var(0); var < nVars; var++) {
+    for (int i(0); i < d->Ng; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+	  // Prepare buffer to send left
+          sendToLeftBuf[ID_XBUFF(var, i, j, k)] = stateVector[ID(var, d->Ng + i, j, k)];
+	  // Prepare buffer to send right
+          sendToRightBuf[ID_XBUFF(var, i, j, k)] = stateVector[ID(var, d->nx + i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void ParallelPeriodic::unpackXBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
+  Data * d(this->data);
+  for (int var(0); var < nVars; var++) {
+    for (int i(0); i < d->Ng; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+	  // Unpack buffer from right neighbour
+          stateVector[ID(var, d->nx + d->Ng + i, j, k)] = recvFromRightBuf[ID_XBUFF(var, i, j, k)];
+	  // Unpack buffer from left neighbour
+          stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_XBUFF(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
 
 void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 {
@@ -497,40 +528,17 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   double *sendToRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
   double *recvFromRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
   double *recvFromLeftBuf = (double *) malloc(maxSendBufSize*sizeof(double));
-  
-  // Cons
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Ng; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-	  // Prepare buffer to send left
-          sendToLeftBuf[ID_XBUFF(var, i, j, k)] = cons[ID(var, d->Ng + i, j, k)];
-	  // Prepare buffer to send right
-          sendToRightBuf[ID_XBUFF(var, i, j, k)] = cons[ID(var, d->nx + i, j, k)];
-        }
-      }
-    }
-  }
 
+  int numCellsSent;
 
-  int numCellsSent = d->Ng * d->Ny * d->Nz;
+  packXBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+
+  numCellsSent = d->Ng * d->Ny * d->Nz;
   swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
 	env->rightXNeighbourRank, numCellsSent);
 
-  // Cons
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Ng; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-	  // Unpack buffer from right neighbour
-          cons[ID(var, d->nx + d->Ng + i, j, k)] = recvFromRightBuf[ID_XBUFF(var, i, j, k)];
-	  // Unpack buffer from left neighbour
-          cons[ID(var, i, j, k)] = recvFromLeftBuf[ID_XBUFF(var, i, j, k)];
-        }
-      }
-    }
-  }
-
+  unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+  
   // Prims
   if (prims) {
     for (int var(0); var < d->Nprims; var++) {
