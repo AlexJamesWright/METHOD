@@ -2,6 +2,7 @@
 #define BOUNDARYCONDS_H
 
 #include "simData.h"
+#include "platformEnv.h"
 
 //! <b> Boundary Conditions </b>
 /*!
@@ -15,13 +16,26 @@ class Bcs
   protected:
 
     Data * data; //!< Pointer to Data class containing global simulation data
+    
+    PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
     //! Constructor store data about simulation (needed for domain)
     /*!
         Constructor simply stores the pointer to the Data class.
 
       @param[in] *data pointer to the Data class
+      @param[in] *env pointer to the PlatformEnv class
     */
+    Bcs(Data * data, PlatformEnv * env) : data(data), env(env) { }
+
+    //TODO -- We may not want to allow creation of Bcs object without env in future 
+    //! Constructor store data about simulation (needed for domain)
+    /*!
+        Constructor simply stores the pointer to the Data class.
+
+      @param[in] *data pointer to the Data class
+    */
+   
     Bcs(Data * data) : data(data) { }
 
   public:
@@ -166,6 +180,64 @@ class Periodic : public Bcs
 
 };
 
+//! <b> Periodic boundary conditions for a data structure that has been distributed across ranks</b>
+/*!
+    Flows that exit across one domain boundary re-enter at the opposing
+  end. I.e. the N ghost cells at one edge of the domain are set to the values
+  of the N physical cells before the ghost cells at the opposing edge.
+
+  For left-right reconstruction:<br>
+  (Note that the lower and upper halves of each row will lie on different ranks) <br>
+  Before...<br>
+  ____________________________<br>
+  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
+  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
+<br>
+  After....<br>
+  ____________________________<br>
+  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
+  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
+  <br>
+  ..and similar in other directions.
+
+*/
+class ParallelPeriodic : public Bcs
+{
+
+  public:
+
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class.
+
+      @param[in] *data pointer to Data class
+      @sa Bcs::Bcs
+    */
+    ParallelPeriodic(Data * data) : Bcs(data) { }
+
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class and PlatformEnv class.
+
+      @param[in] *data pointer to Data class
+      @param[in] *env pointer to PlatformEnv class
+      @sa Bcs::Bcs
+    */
+    ParallelPeriodic(Data * data, PlatformEnv * env) : Bcs(data, env) { } 
+
+
+    //! Application function
+    /*!
+        Applies the Periodic boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
+    void apply(double * cons, double * prims = NULL, double * aux = NULL);
+
+};
 
 //! <b> Flow boundary conditions </b>
 /*!

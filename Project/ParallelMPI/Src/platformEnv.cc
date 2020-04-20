@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <mpi.h>
 
+// TODO -- rename setParallelDecomposition and split it out into more functions
+
 PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
 {
 	MPI_Init(argcP, argvP);

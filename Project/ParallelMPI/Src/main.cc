@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  Periodic bcs(&data);
+  Periodic bcs(&data, &env);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
