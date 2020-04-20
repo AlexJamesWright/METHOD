@@ -69,12 +69,24 @@ void PlatformEnv::setParallelDecomposition(void)
 
 	int coords[3];
 
-	// TODO -- get coords of rank in grid and set on object
+	// Get (x,y,z) coords of rank in grid and set on object
 	MPI_Cart_coords(mpi_cartesian_comm, rank, ndims, coords);
 	xRankId = coords[0]; 
 	printf("!!! x rank id: %d in %d\n\n", xRankId, rank);
 	if (nyRanks > 1) yRankId = coords[1];
 	if (nzRanks > 1) zRankId = coords[2];	
+
+	// Get neighbour rank  
+	int direction = 0;
+ 	int displacement = 1;
+	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+		&(leftXNeighbourRank), &(rightXNeighbourRank));
+	direction = 1;
+	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+		&(leftYNeighbourRank), &(rightYNeighbourRank));
+	direction = 2;
+	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+		&(leftZNeighbourRank), &(rightZNeighbourRank));
 }
 
 

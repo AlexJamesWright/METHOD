@@ -10,6 +10,9 @@ class PlatformEnv
 		int nxTot, nyTot, nzTot;
 		int nxRanks, nyRanks, nzRanks;
 		int xRankId, yRankId, zRankId;
+		int leftXNeighbourRank, rightXNeighbourRank;
+		int leftYNeighbourRank, rightYNeighbourRank;
+		int leftZNeighbourRank, rightZNeighbourRank;
 		MPI_Comm mpi_cartesian_comm; 
 
 		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks);

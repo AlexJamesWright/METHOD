@@ -493,27 +493,20 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   }
 
   MPI_Status status;
-  int direction;
-  int displacement = 1;
-  int neighbour_rank_left, neighbour_rank_right;
-
-  // Get left and right neighbours
-  direction = 0;
-  MPI_Cart_shift(env->mpi_cartesian_comm, direction, displacement, &neighbour_rank_left, &neighbour_rank_right);
 
   int numCellsSent = d->Ng * d->Ny * d->Nz;
 
   // Send to left and receive from right neighbour process
   MPI_Sendrecv(sendToLeftBuf, numCellsSent, MPI_DOUBLE,
-	neighbour_rank_left, tag,
+	env->leftXNeighbourRank, tag,
 	recvFromRightBuf, numCellsSent, MPI_DOUBLE,
-	neighbour_rank_right, tag,
+	env->rightXNeighbourRank, tag,
 	env->mpi_cartesian_comm, &status);
   // Send to right and receive from left neighbour process
   MPI_Sendrecv(sendToRightBuf, numCellsSent, MPI_DOUBLE,
-	neighbour_rank_right, tag,
+	env->rightXNeighbourRank, tag,
 	recvFromLeftBuf, numCellsSent, MPI_DOUBLE,
-	neighbour_rank_left, tag,
+	env->leftXNeighbourRank, tag,
 	env->mpi_cartesian_comm, &status);
 
   // Cons
