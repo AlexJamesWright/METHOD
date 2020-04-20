@@ -452,10 +452,30 @@ void OutflowRotatedBW::apply(double * cons, double * prims, double * aux)
   }
 }
 
+void ParallelPeriodic::swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
+	double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent){
+
+  // MPI message vars
+  int tag = 100;
+  MPI_Status status;
+
+  // Send to left and receive from right neighbour process
+  MPI_Sendrecv(sendToLeftBuf, numCellsSent, MPI_DOUBLE,
+	leftNeighbour, tag,
+	recvFromRightBuf, numCellsSent, MPI_DOUBLE,
+	rightNeighbour, tag,
+	env->mpiCartesianComm, &status);
+  // Send to right and receive from left neighbour process
+  MPI_Sendrecv(sendToRightBuf, numCellsSent, MPI_DOUBLE,
+	rightNeighbour, tag,
+	recvFromLeftBuf, numCellsSent, MPI_DOUBLE,
+	leftNeighbour, tag,
+	env->mpiCartesianComm, &status);
+}
+
+
 void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 {
-  // MPI message tag
-  int tag = 100;
 
   // Syntax
   Data * d(this->data);
@@ -492,22 +512,10 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
     }
   }
 
-  MPI_Status status;
 
   int numCellsSent = d->Ng * d->Ny * d->Nz;
-
-  // Send to left and receive from right neighbour process
-  MPI_Sendrecv(sendToLeftBuf, numCellsSent, MPI_DOUBLE,
-	env->leftXNeighbourRank, tag,
-	recvFromRightBuf, numCellsSent, MPI_DOUBLE,
-	env->rightXNeighbourRank, tag,
-	env->mpiCartesianComm, &status);
-  // Send to right and receive from left neighbour process
-  MPI_Sendrecv(sendToRightBuf, numCellsSent, MPI_DOUBLE,
-	env->rightXNeighbourRank, tag,
-	recvFromLeftBuf, numCellsSent, MPI_DOUBLE,
-	env->leftXNeighbourRank, tag,
-	env->mpiCartesianComm, &status);
+  swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+	env->rightXNeighbourRank, numCellsSent);
 
   // Cons
   for (int var(0); var < d->Ncons; var++) {

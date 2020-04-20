@@ -237,6 +237,10 @@ class ParallelPeriodic : public Bcs
     */
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
+    // TODO -- Docstring
+    void swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
+        double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent);
+
 };
 
 //! <b> Flow boundary conditions </b>
