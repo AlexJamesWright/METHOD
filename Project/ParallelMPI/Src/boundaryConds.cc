@@ -528,9 +528,9 @@ void ParallelPeriodic::unpackYBuffer(double *recvFromLeftBuf, double *recvFromRi
       for (int j(0); j < d->Ng; j++) {
         for (int k(0); k < d->Nz; k++) {
 	  // Unpack buffer from right neighbour
-          stateVector[ID(var, i, d->ny + d->Ng + j, k)] = recvFromRightBuf[ID_ZBUFF(var, i, j, k)];
+          stateVector[ID(var, i, d->ny + d->Ng + j, k)] = recvFromRightBuf[ID_YBUFF(var, i, j, k)];
 	  // Unpack buffer from left neighbour
-          stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_ZBUFF(var, i, j, k)];
+          stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_YBUFF(var, i, j, k)];
         }
       }
     }
@@ -576,7 +576,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   Data * d(this->data);
 
   // Allocate one ghost region buffer array the size of the largest ghost region
-  int maxSendBufSize = d->Ncons * d->Ng;
+  int maxSendBufSize = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * d->Ng;
   if (d->Ny > 1) {
       maxSendBufSize *= std::max(d->Nx, d->Ny);
   }
