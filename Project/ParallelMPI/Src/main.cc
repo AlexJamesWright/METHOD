@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  double nxRanks(2);
-  double nyRanks(2);
+  double nxRanks(1);
+  double nyRanks(1);
   double nzRanks(1);
 
   PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
   ParallelPeriodic bcs(&data, &env);
+  //Periodic bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 

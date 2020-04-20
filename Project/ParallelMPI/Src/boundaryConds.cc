@@ -6,7 +6,7 @@
 // TODO -- Using three arrays here means we can keep the same (i,j,k) order for each neighbour direction. Decide if this is worth it.
 #define ID_XBUFF(variable, gdx, jdx, kdx) ((variable)*(d->Ng)*(d->Ny)*(d->Nz) + (gdx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 #define ID_YBUFF(variable, idx, gdx, kdx) ((variable)*(d->Nx)*(d->Ng)*(d->Nz) + (idx)*(d->Ng)*(d->Nz) + (gdx)*(d->Nz) + (kdx))
-#define ID_ZBUFF(variable, idx, jdx, gdx) ((variable)*(d->Nx)*(d->Ny)*(d->Ng) + (idx)*(d->Ny)*(d->Ng) + (jdx)*(d->Nz) + (gdx))
+#define ID_ZBUFF(variable, idx, jdx, gdx) ((variable)*(d->Nx)*(d->Ny)*(d->Ng) + (idx)*(d->Ny)*(d->Ng) + (jdx)*(d->Ng) + (gdx))
 
 void Outflow::apply(double * cons, double * prims, double * aux)
 {
@@ -598,8 +598,8 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 
   // x dimension
 
-  numCellsSent = d->Ng * d->Ny * d->Nz;
   // Cons
+  numCellsSent = d->Ncons * d->Ng * d->Ny * d->Nz;
   packXBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
 
   swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
@@ -609,6 +609,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   
   // Prims
   if (prims) {
+    numCellsSent = d->Nprims * d->Ng * d->Ny * d->Nz;
     packXBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
 
     swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
@@ -619,6 +620,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 
   // Aux
   if (aux) {
+    numCellsSent = d->Naux * d->Ng * d->Ny * d->Nz;
     packXBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
 
     swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
@@ -631,8 +633,8 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   if (d->Ny > 1) {
     // y dimension
   
-    numCellsSent = d->Nx * d->Ng * d->Nz;
     // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ng * d->Nz;
     packYBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
   
     swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
@@ -642,6 +644,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
     
     // Prims
     if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ng * d->Nz;
       packYBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
   
       swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
@@ -652,6 +655,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   
     // Aux
     if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ng * d->Nz;
       packYBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
   
       swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
@@ -665,8 +669,8 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   if (d->Nz > 1) {
     // y dimension
   
-    numCellsSent = d->Nx * d->Ny * d->Ng;
     // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ny * d->Ng;
     packZBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
   
     swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
@@ -676,6 +680,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
     
     // Prims
     if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ny * d->Ng;
       packZBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
   
       swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
@@ -686,6 +691,7 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
   
     // Aux
     if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ny * d->Ng;
       packZBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
   
       swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,

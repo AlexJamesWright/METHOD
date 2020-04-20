@@ -170,7 +170,6 @@ void Simulation::evolve(bool output, int safety)
       this->save->saveAll();
       printf("Data saved...\n");
     }
-
   }
 
   // Save final state
