@@ -516,6 +516,20 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 	neighbour_rank_left, tag,
 	env->mpi_cartesian_comm, &status);
 
+  // Cons
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Ng; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+	  // Unpack buffer from right neighbour
+          cons[ID(var, d->nx + d->Ng + i, j, k)] = recvFromRightBuf[ID_XBUFF(var, i, j, k)];
+	  // Unpack buffer from left neighbour
+          cons[ID(var, i, j, k)] = recvFromLeftBuf[ID_XBUFF(var, i, j, k)];
+        }
+      }
+    }
+  }
+
   // Prims
   if (prims) {
     for (int var(0); var < d->Nprims; var++) {
