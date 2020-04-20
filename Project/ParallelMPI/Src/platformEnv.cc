@@ -51,18 +51,17 @@ void PlatformEnv::setParallelDecomposition(void)
 
 	// TODO -- Could use properties on bcs to set whether grid is periodic
 
+	// TODO -- We are setting up a 3D topology even when nyRanks, nzRanks == 1, as we may want to find 
+	// neighbours in y even when there is only one process if ny>1 and boundary conditions are periodic.
+	// Does this introduce too much overhead? Could also send through nx, ny, nz from data.
+
 	dims[0] = nxRanks;
 	periods[0] = 1;
-	if (nyRanks > 1){
-		dims[1] = nyRanks;
-		periods[1] = 1;
-		ndims += 1;
-	}
-	if (nzRanks > 1){
-		dims[2] = nzRanks;
-		periods[2] = 1;
-		ndims += 1;
-	}
+	dims[1] = nyRanks;
+	periods[1] = 1;
+	dims[2] = nzRanks;
+	periods[2] = 1;
+	ndims = 3;
 
 	// Create MPI communicator in a cartesian grid that matches the domain
 	MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpiCartesianComm);
