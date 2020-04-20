@@ -21,7 +21,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -Wall -std=c++11 -g
 
 # Sources
 SRCS = main.cc 								\

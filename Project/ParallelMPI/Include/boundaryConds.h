@@ -242,8 +242,11 @@ class ParallelPeriodic : public Bcs
         double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent);
 
     void packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
-
     void unpackXBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+    void packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+    void unpackYBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+    void packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+    void unpackZBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
 
 };
 
