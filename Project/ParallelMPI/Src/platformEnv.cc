@@ -65,12 +65,12 @@ void PlatformEnv::setParallelDecomposition(void)
 	}
 
 	// Create MPI communicator in a cartesian grid that matches the domain
-	MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpi_cartesian_comm);
+	MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpiCartesianComm);
 
 	int coords[3];
 
 	// Get (x,y,z) coords of rank in grid and set on object
-	MPI_Cart_coords(mpi_cartesian_comm, rank, ndims, coords);
+	MPI_Cart_coords(mpiCartesianComm, rank, ndims, coords);
 	xRankId = coords[0]; 
 	printf("!!! x rank id: %d in %d\n\n", xRankId, rank);
 	if (nyRanks > 1) yRankId = coords[1];
@@ -79,13 +79,13 @@ void PlatformEnv::setParallelDecomposition(void)
 	// Get neighbour rank  
 	int direction = 0;
  	int displacement = 1;
-	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+	MPI_Cart_shift(mpiCartesianComm, direction, displacement, 
 		&(leftXNeighbourRank), &(rightXNeighbourRank));
 	direction = 1;
-	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+	MPI_Cart_shift(mpiCartesianComm, direction, displacement, 
 		&(leftYNeighbourRank), &(rightYNeighbourRank));
 	direction = 2;
-	MPI_Cart_shift(mpi_cartesian_comm, direction, displacement, 
+	MPI_Cart_shift(mpiCartesianComm, direction, displacement, 
 		&(leftZNeighbourRank), &(rightZNeighbourRank));
 }
 

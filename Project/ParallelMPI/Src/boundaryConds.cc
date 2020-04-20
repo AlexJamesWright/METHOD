@@ -501,13 +501,13 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 	env->leftXNeighbourRank, tag,
 	recvFromRightBuf, numCellsSent, MPI_DOUBLE,
 	env->rightXNeighbourRank, tag,
-	env->mpi_cartesian_comm, &status);
+	env->mpiCartesianComm, &status);
   // Send to right and receive from left neighbour process
   MPI_Sendrecv(sendToRightBuf, numCellsSent, MPI_DOUBLE,
 	env->rightXNeighbourRank, tag,
 	recvFromLeftBuf, numCellsSent, MPI_DOUBLE,
 	env->leftXNeighbourRank, tag,
-	env->mpi_cartesian_comm, &status);
+	env->mpiCartesianComm, &status);
 
   // Cons
   for (int var(0); var < d->Ncons; var++) {
