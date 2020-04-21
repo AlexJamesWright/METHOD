@@ -12,6 +12,21 @@ mkdir Project/Parallel/Data/TimeSeries/Constants
 mkdir Project/Parallel/Data/TimeSeries/Primitive
 mkdir Project/Parallel/Data/TimeSeries/UserDef
 
+mkdir Project/ParallelMPI/Data
+mkdir Project/ParallelMPI/Data/Final
+mkdir Project/ParallelMPI/Data/Final/Auxiliary
+mkdir Project/ParallelMPI/Data/Final/Conserved
+mkdir Project/ParallelMPI/Data/Final/Primitive
+mkdir Project/ParallelMPI/Data/Final/Constants
+mkdir Project/ParallelMPI/Data/Final/Domain
+mkdir Project/ParallelMPI/Data/TimeSeries
+mkdir Project/ParallelMPI/Data/TimeSeries/Auxiliary
+mkdir Project/ParallelMPI/Data/TimeSeries/Conserved
+mkdir Project/ParallelMPI/Data/TimeSeries/Constants
+mkdir Project/ParallelMPI/Data/TimeSeries/Primitive
+mkdir Project/ParallelMPI/Data/TimeSeries/UserDef
+
+
 mkdir Project/Serial/Data
 mkdir Project/Serial/Data/Final
 mkdir Project/Serial/Data/Final/Auxiliary

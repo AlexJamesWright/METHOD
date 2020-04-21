@@ -5,6 +5,11 @@
 
 using namespace std;
 
+// Id in a state vector that does not include ghost cells
+#define ID_PHYS(variable, idx, jdx, kdx) ((variable)*(d->Nx-(d->Ng*2))*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (idx)*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (jdx)*(d->Nz-(d->Ng*2)) + (kdx))
+
+#define ID_FULL(variable, idx, jdx, kdx) ((variable)*(d->nx)*(d->ny)*(d->nz) + (idx)*(d->ny)*(d->nz) + (jdx)*(d->nz) + (kdx))
+
 void SaveData::saveAll(bool timeSeries)
 {
   // Clean directory variable
@@ -21,11 +26,136 @@ void SaveData::saveAll(bool timeSeries)
     sprintf(app, "%d", Nouts++);
   }
 
+  // allocate buffers for gathering distributed state vectors onto master process
+  int numCellsInBuffer = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * (d->Nx-(2*d->Ng));
+  if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
+  if (d->dims > 2) numCellsInBuffer *= (d->Nz - (2*d->Ng));
+  double *buffer = (double*) malloc(numCellsInBuffer * sizeof(double));
+  int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
+  double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
+
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->cons, d->Ncons);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->cons, d->Ncons);
+
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Ncons * (d->Nx-(2*d->Ng)) * (d->Ny-(2*d->Ng)) * (d->Nz-(2*d->Ng)); 
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons);
+  }
+
+  this->parallelSaveCons(fullStateVector);
+/*
   this->saveCons();
   this->savePrims();
   this->saveAux();
   this->saveDomain();
   this->saveConsts();
+*/
+  free(buffer);
+  free(fullStateVector);
+}
+
+void SaveData::packStateVectorBuffer(double *buffer, double *stateVector, int nVars){
+  // Prepare send buffer, which doesn't include ghost cells, by copying from local state vectors
+  if (d->dims==3){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          for (int k(0); k < d->Nz-(d->Ng*2); k++) {
+            buffer[ID_PHYS(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)];
+          }
+        }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          buffer[ID_PHYS(var, i, j, 0)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)];
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        buffer[ID_PHYS(var, i, 0, 0)] = stateVector[ID(var, i + d->Ng, 0, 0)];
+      }
+    }
+  }
+}
+
+void SaveData::copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars){
+  // This requires proc0 to have xRankId=yRankId=zRankId=0
+  if (d->dims==3){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          for (int k(0); k < d->Nz-(d->Ng*2); k++) {
+            fullStateVector[ID_FULL(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]; 
+          }
+        }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          fullStateVector[ID_FULL(var, i, j, 0)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)]; 
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        fullStateVector[ID_FULL(var, i, 0, 0)] = stateVector[ID(var, i + d->Ng, 0, 0)];
+      }
+    }
+  }
+}
+
+void SaveData::sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank){
+   // MPI message vars
+   int tag = 101;
+   MPI_Status status;
+
+   if (env->rank == rank){
+       MPI_Send(buffer, numCellsSent, MPI_DOUBLE, 0, tag, env->mpiCartesianComm);
+   } else if (env->rank == 0){
+       MPI_Recv(buffer, numCellsSent, MPI_DOUBLE, rank, tag, env->mpiCartesianComm, &status);
+   }
+}
+
+void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars){
+  // Unpack send buffer, which don't include ghost cells, into the global state vector
+  int iOffset = env->xRankId * (d->Nx - (d->Ng*2));
+  int jOffset = env->yRankId * (d->Ny - (d->Ng*2));
+  int kOffset = env->zRankId * (d->Nz - (d->Ng*2));
+
+  if (d->dims==3){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          for (int k(0); k < d->Nz-(d->Ng*2); k++) {
+            stateVector[ID(var, i + iOffset, j + jOffset, k + kOffset)] = buffer[ID_PHYS(var, i, j, k)]; 
+          }
+        }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        for (int j(0); j < d->Ny-(d->Ng*2); j++) {
+          stateVector[ID(var, i + iOffset, j + jOffset, 0)] = buffer[ID_PHYS(var, i, j, 0)]; 
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx-(d->Ng*2); i++) {
+        stateVector[ID(var, i + iOffset, 0, 0)] = buffer[ID_PHYS(var, i, 0, 0)];
+      }
+    }
+  }
 }
 
 void SaveData::saveCons()
@@ -58,6 +188,45 @@ void SaveData::saveCons()
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
           fprintf(f, "%.16f ", d->cons[ID(var, i, j, k)]);
+        }
+        fprintf(f, "\n");
+      }
+    }
+  }
+  fclose(f);
+
+}
+
+void SaveData::parallelSaveCons(double *fullStateVector)
+{
+  FILE * f;
+
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Conserved/cons");
+  strcat(fname, app);
+  strcat(fname, ".dat\0");
+
+  f = fopen(fname, "w");
+  // Ensure file is open
+  if (f == NULL) {
+    printf("Error: could not open 'cons.dat' for writing.\n");
+    exit(1);
+  }
+
+  // File is open, write data
+  fprintf(f, "cons = ");
+  for (int i(0); i < d->Ncons-1; i++) {
+    fprintf(f, "%s, ", d->consLabels[i].c_str());
+  }
+  fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
+
+
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->nx; i++) {
+      for (int j(0); j < d->ny; j++) {
+        for (int k(0); k < d->nz; k++) {
+          fprintf(f, "%.16f ", fullStateVector[ID_FULL(var, i, j, k)]);
         }
         fprintf(f, "\n");
       }

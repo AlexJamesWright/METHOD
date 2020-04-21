@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "simData.h"
+#include "platformEnv.h"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ class SaveData
 
   public:
     Data * d; //!< Pointer to Data class containing global simulation data
+
+    PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
   private:
 
@@ -48,6 +51,13 @@ class SaveData
     //! Saves the constant data
     void saveConsts();
 
+    // TODO -- docstring
+    void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
+    void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
+    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars);
+    void parallelSaveCons(double *fullStateVector);
+    void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
+
     char
     dir[50],   //!< String path to the directory in which to write files
     app[10];   //!< String appendix to add to end of file names
@@ -64,7 +74,7 @@ class SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0), test(test)
+    SaveData(Data * data, PlatformEnv * env, int test=0) : d(data), env(env), Nouts(0), Ncount(0), test(test)
     {
       dir[0] = '\0';
       app[0] = '\0';

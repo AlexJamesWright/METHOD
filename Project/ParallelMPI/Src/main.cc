@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.5);
+  double endTime(0.0004);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, 0);
+  SaveData save(&data, &env, 0);
 
 
   // Now objects have been created, set up the simulation
