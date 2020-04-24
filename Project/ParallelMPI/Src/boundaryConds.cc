@@ -482,7 +482,7 @@ void ParallelPeriodic::packXBuffer(double *sendToLeftBuf, double *sendToRightBuf
 	  // Prepare buffer to send left
           sendToLeftBuf[ID_XBUFF(var, i, j, k)] = stateVector[ID(var, d->Ng + i, j, k)];
 	  // Prepare buffer to send right
-          sendToRightBuf[ID_XBUFF(var, i, j, k)] = stateVector[ID(var, d->nx + i, j, k)];
+          sendToRightBuf[ID_XBUFF(var, i, j, k)] = stateVector[ID(var, d->Nx-(2*d->Ng) + i, j, k)];
         }
       }
     }
@@ -496,7 +496,7 @@ void ParallelPeriodic::unpackXBuffer(double *recvFromLeftBuf, double *recvFromRi
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
 	  // Unpack buffer from right neighbour
-          stateVector[ID(var, d->nx + d->Ng + i, j, k)] = recvFromRightBuf[ID_XBUFF(var, i, j, k)];
+          stateVector[ID(var, d->Nx - d->Ng + i, j, k)] = recvFromRightBuf[ID_XBUFF(var, i, j, k)];
 	  // Unpack buffer from left neighbour
           stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_XBUFF(var, i, j, k)];
         }
@@ -514,7 +514,7 @@ void ParallelPeriodic::packYBuffer(double *sendToLeftBuf, double *sendToRightBuf
 	  // Prepare buffer to send left
           sendToLeftBuf[ID_YBUFF(var, i, j, k)] = stateVector[ID(var, i, d->Ng + j, k)];
 	  // Prepare buffer to send right
-          sendToRightBuf[ID_YBUFF(var, i, j, k)] = stateVector[ID(var, i, d->ny + j, k)];
+          sendToRightBuf[ID_YBUFF(var, i, j, k)] = stateVector[ID(var, i, d->Ny-(2*d->Ng) + j, k)];
         }
       }
     }
@@ -523,12 +523,12 @@ void ParallelPeriodic::packYBuffer(double *sendToLeftBuf, double *sendToRightBuf
 
 void ParallelPeriodic::unpackYBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
-  for (int var(0); var < d->Ncons; var++) {
+  for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
       for (int j(0); j < d->Ng; j++) {
         for (int k(0); k < d->Nz; k++) {
 	  // Unpack buffer from right neighbour
-          stateVector[ID(var, i, d->ny + d->Ng + j, k)] = recvFromRightBuf[ID_YBUFF(var, i, j, k)];
+          stateVector[ID(var, i, d->Ny - d->Ng + j, k)] = recvFromRightBuf[ID_YBUFF(var, i, j, k)];
 	  // Unpack buffer from left neighbour
           stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_YBUFF(var, i, j, k)];
         }
@@ -546,7 +546,7 @@ void ParallelPeriodic::packZBuffer(double *sendToLeftBuf, double *sendToRightBuf
 	  // Prepare buffer to send left
           sendToLeftBuf[ID_ZBUFF(var, i, j, k)] = stateVector[ID(var, i, j, d->Ng + k)];
 	  // Prepare buffer to send right
-          sendToRightBuf[ID_ZBUFF(var, i, j, k)] = stateVector[ID(var, i, j, d->nz + k)];
+          sendToRightBuf[ID_ZBUFF(var, i, j, k)] = stateVector[ID(var, i, j, d->Nz-(2*d->Ng) + k)];
         }
       }
     }
@@ -560,7 +560,7 @@ void ParallelPeriodic::unpackZBuffer(double *recvFromLeftBuf, double *recvFromRi
       for (int j(0); j < d->Ng; j++) {
         for (int k(0); k < d->Nz; k++) {
 	  // Unpack buffer from right neighbour
-          stateVector[ID(var, i, j, d->nz + d->Ng + k)] = recvFromRightBuf[ID_ZBUFF(var, i, j, k)];
+          stateVector[ID(var, i, j, d->Nz - d->Ng + k)] = recvFromRightBuf[ID_ZBUFF(var, i, j, k)];
 	  // Unpack buffer from left neighbour
           stateVector[ID(var, i, j, k)] = recvFromLeftBuf[ID_ZBUFF(var, i, j, k)];
         }
@@ -571,7 +571,6 @@ void ParallelPeriodic::unpackZBuffer(double *recvFromLeftBuf, double *recvFromRi
 
 void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 {
-
   // Syntax
   Data * d(this->data);
 
@@ -628,7 +627,6 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
 
     unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
   }
-
 
   if (d->Ny > 1) {
     // y dimension

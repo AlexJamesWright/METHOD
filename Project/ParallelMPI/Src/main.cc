@@ -19,7 +19,9 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(256);
+  //int nx(4);
   int ny(256);
+  //int ny(4);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -28,6 +30,8 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.0004);
+  //double endTime(0.0001);
+  //double endTime(0.0000);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -39,8 +43,8 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  double nxRanks(1);
-  double nyRanks(1);
+  double nxRanks(2);
+  double nyRanks(2);
   double nzRanks(1);
 
   PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
@@ -75,7 +79,6 @@ int main(int argc, char *argv[]) {
 
   // Run until end time and save results
   sim.evolve(output);
-
   //double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();

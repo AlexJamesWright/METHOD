@@ -105,9 +105,9 @@ void SaveData::copyMasterStateVectorToFullStateVector(double *fullStateVector, d
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
-          printf("nx: %d, ny: %d\n", d->nx, d->ny);
-          printf("var: %d i: %d j: %d, id: %d, id_full: %d\n", var, i, j, ID(var, i+d->Ng, j+d->Ng, 0),
-                  ID_FULL_2D(var, i, j));
+          //printf("nx: %d, ny: %d\n", d->nx, d->ny);
+          //printf("var: %d i: %d j: %d, id: %d, id_full: %d\n", var, i, j, ID(var, i+d->Ng, j+d->Ng, 0),
+                  //ID_FULL_2D(var, i, j));
           fullStateVector[ID_FULL_2D(var, i, j)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)]; 
         }
       }
