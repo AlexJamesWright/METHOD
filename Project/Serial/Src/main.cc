@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.5);
+  //double endTime(0.5);
+  double endTime(0.0004);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);

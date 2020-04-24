@@ -8,7 +8,10 @@ using namespace std;
 // Id in a state vector that does not include ghost cells
 #define ID_PHYS(variable, idx, jdx, kdx) ((variable)*(d->Nx-(d->Ng*2))*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (idx)*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (jdx)*(d->Nz-(d->Ng*2)) + (kdx))
 
-#define ID_FULL(variable, idx, jdx, kdx) ((variable)*(d->nx)*(d->ny)*(d->nz) + (idx)*(d->ny)*(d->nz) + (jdx)*(d->nz) + (kdx))
+#define ID_FULL_3D(variable, idx, jdx, kdx) ((variable)*(d->nx)*(d->ny)*(d->nz) + (idx)*(d->ny)*(d->nz) + (jdx)*(d->nz) + (kdx))
+#define ID_FULL_2D(variable, idx, jdx) ((variable)*(d->nx)*(d->ny) + (idx)*(d->ny) + (jdx))
+#define ID_FULL_1D(variable, idx) ((variable)*(d->nx) + (idx))
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 void SaveData::saveAll(bool timeSeries)
 {
@@ -34,6 +37,8 @@ void SaveData::saveAll(bool timeSeries)
   int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
   double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
 
+  // For all procs other than proc0, copy local statevector to a buffer that does not include ghost cells
+  // for sending to proc0. Proc0 can copy directly from its local statevector to the fullstatevector
   if (env->rank != 0) packStateVectorBuffer(buffer, d->cons, d->Ncons);
   else copyMasterStateVectorToFullStateVector(fullStateVector, d->cons, d->Ncons);
 
@@ -43,7 +48,7 @@ void SaveData::saveAll(bool timeSeries)
       if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons);
   }
 
-  this->parallelSaveCons(fullStateVector);
+  if (env->rank == 0) this->parallelSaveCons(fullStateVector);
 /*
   this->saveCons();
   this->savePrims();
@@ -91,7 +96,7 @@ void SaveData::copyMasterStateVectorToFullStateVector(double *fullStateVector, d
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
           for (int k(0); k < d->Nz-(d->Ng*2); k++) {
-            fullStateVector[ID_FULL(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]; 
+            fullStateVector[ID_FULL_3D(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]; 
           }
         }
       }
@@ -100,14 +105,17 @@ void SaveData::copyMasterStateVectorToFullStateVector(double *fullStateVector, d
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
-          fullStateVector[ID_FULL(var, i, j, 0)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)]; 
+          printf("nx: %d, ny: %d\n", d->nx, d->ny);
+          printf("var: %d i: %d j: %d, id: %d, id_full: %d\n", var, i, j, ID(var, i+d->Ng, j+d->Ng, 0),
+                  ID_FULL_2D(var, i, j));
+          fullStateVector[ID_FULL_2D(var, i, j)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)]; 
         }
       }
     }
   } else {
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
-        fullStateVector[ID_FULL(var, i, 0, 0)] = stateVector[ID(var, i + d->Ng, 0, 0)];
+        fullStateVector[ID_FULL_1D(var, i)] = stateVector[ID(var, i + d->Ng, 0, 0)];
       }
     }
   }
@@ -136,7 +144,7 @@ void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int 
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
           for (int k(0); k < d->Nz-(d->Ng*2); k++) {
-            stateVector[ID(var, i + iOffset, j + jOffset, k + kOffset)] = buffer[ID_PHYS(var, i, j, k)]; 
+            stateVector[ID_FULL_3D(var, i + iOffset, j + jOffset, k + kOffset)] = buffer[ID_PHYS(var, i, j, k)]; 
           }
         }
       }
@@ -145,14 +153,14 @@ void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int 
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
-          stateVector[ID(var, i + iOffset, j + jOffset, 0)] = buffer[ID_PHYS(var, i, j, 0)]; 
+          stateVector[ID_FULL_2D(var, i + iOffset, j + jOffset)] = buffer[ID_PHYS(var, i, j, 0)]; 
         }
       }
     }
   } else {
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
-        stateVector[ID(var, i + iOffset, 0, 0)] = buffer[ID_PHYS(var, i, 0, 0)];
+        stateVector[ID_FULL_1D(var, i + iOffset)] = buffer[ID_PHYS(var, i, 0, 0)];
       }
     }
   }
@@ -221,17 +229,35 @@ void SaveData::parallelSaveCons(double *fullStateVector)
   }
   fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
 
-
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->nx; i++) {
-      for (int j(0); j < d->ny; j++) {
-        for (int k(0); k < d->nz; k++) {
-          fprintf(f, "%.16f ", fullStateVector[ID_FULL(var, i, j, k)]);
+  if (d->dims==3){
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          for (int k(0); k < d->nz; k++) {
+            fprintf(f, "%.16f ", fullStateVector[ID_FULL_3D(var, i, j, k)]);
+          }
+          fprintf(f, "\n");
         }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->nx; i++) {
+        fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
         fprintf(f, "\n");
       }
     }
   }
+
   fclose(f);
 
 }
