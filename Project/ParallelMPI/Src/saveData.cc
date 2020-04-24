@@ -6,7 +6,10 @@
 using namespace std;
 
 // Id in a state vector that does not include ghost cells
-#define ID_PHYS(variable, idx, jdx, kdx) ((variable)*(d->Nx-(d->Ng*2))*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (idx)*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (jdx)*(d->Nz-(d->Ng*2)) + (kdx))
+// TODO -- Should probably just define a variable on Data that is (Nz-2*Ng or 1 if nz=0) to avoid having a copy for each dimension
+#define ID_PHYS_3D(variable, idx, jdx, kdx) ((variable)*(d->Nx-(d->Ng*2))*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (idx)*(d->Ny-(d->Ng*2))*(d->Nz-(d->Ng*2)) + (jdx)*(d->Nz-(d->Ng*2)) + (kdx))
+#define ID_PHYS_2D(variable, idx, jdx) ((variable)*(d->Nx-(d->Ng*2))*(d->Ny-(d->Ng*2)) + (idx)*(d->Ny-(d->Ng*2)) + (jdx))
+#define ID_PHYS_1D(variable, idx) ((variable)*(d->Nx-(d->Ng*2)) + (idx))
 
 #define ID_FULL_3D(variable, idx, jdx, kdx) ((variable)*(d->nx)*(d->ny)*(d->nz) + (idx)*(d->ny)*(d->nz) + (jdx)*(d->nz) + (kdx))
 #define ID_FULL_2D(variable, idx, jdx) ((variable)*(d->nx)*(d->ny) + (idx)*(d->ny) + (jdx))
@@ -30,11 +33,11 @@ void SaveData::saveAll(bool timeSeries)
   }
 
   // allocate buffers for gathering distributed state vectors onto master process
-  int numCellsInBuffer = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * (d->Nx-(2*d->Ng));
-  if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
-  if (d->dims > 2) numCellsInBuffer *= (d->Nz - (2*d->Ng));
-  double *buffer = (double*) malloc(numCellsInBuffer * sizeof(double));
-  int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
+  int maxNumCellsInBuffer = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * (d->Nx-(2*d->Ng));
+  if (d->dims > 1) maxNumCellsInBuffer *= (d->Ny - (2*d->Ng));
+  if (d->dims > 2) maxNumCellsInBuffer *= (d->Nz - (2*d->Ng));
+  double *buffer = (double*) malloc(maxNumCellsInBuffer * sizeof(double));
+  int numCellsInFullStateVector = maxNumCellsInBuffer * env->nProc;
   double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
 
   // For all procs other than proc0, copy local statevector to a buffer that does not include ghost cells
@@ -43,7 +46,9 @@ void SaveData::saveAll(bool timeSeries)
   else copyMasterStateVectorToFullStateVector(fullStateVector, d->cons, d->Ncons);
 
   for (int r(1); r < env->nProc; r++){
-      int numCellsSent = d->Ncons * (d->Nx-(2*d->Ng)) * (d->Ny-(2*d->Ng)) * (d->Nz-(2*d->Ng)); 
+      int numCellsSent = d->Ncons * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
       sendStateVectorBufferToMaster(buffer, numCellsSent, r);
       if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons);
   }
@@ -67,7 +72,7 @@ void SaveData::packStateVectorBuffer(double *buffer, double *stateVector, int nV
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
           for (int k(0); k < d->Nz-(d->Ng*2); k++) {
-            buffer[ID_PHYS(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)];
+            buffer[ID_PHYS_3D(var, i, j, k)] = stateVector[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)];
           }
         }
       }
@@ -76,14 +81,14 @@ void SaveData::packStateVectorBuffer(double *buffer, double *stateVector, int nV
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
-          buffer[ID_PHYS(var, i, j, 0)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)];
+          buffer[ID_PHYS_2D(var, i, j)] = stateVector[ID(var, i + d->Ng, j + d->Ng, 0)];
         }
       }
     }
   } else {
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
-        buffer[ID_PHYS(var, i, 0, 0)] = stateVector[ID(var, i + d->Ng, 0, 0)];
+        buffer[ID_PHYS_1D(var, i)] = stateVector[ID(var, i + d->Ng, 0, 0)];
       }
     }
   }
@@ -144,7 +149,7 @@ void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int 
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
           for (int k(0); k < d->Nz-(d->Ng*2); k++) {
-            stateVector[ID_FULL_3D(var, i + iOffset, j + jOffset, k + kOffset)] = buffer[ID_PHYS(var, i, j, k)]; 
+            stateVector[ID_FULL_3D(var, i + iOffset, j + jOffset, k + kOffset)] = buffer[ID_PHYS_3D(var, i, j, k)]; 
           }
         }
       }
@@ -153,14 +158,14 @@ void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int 
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
         for (int j(0); j < d->Ny-(d->Ng*2); j++) {
-          stateVector[ID_FULL_2D(var, i + iOffset, j + jOffset)] = buffer[ID_PHYS(var, i, j, 0)]; 
+          stateVector[ID_FULL_2D(var, i + iOffset, j + jOffset)] = buffer[ID_PHYS_2D(var, i, j)]; 
         }
       }
     }
   } else {
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {
-        stateVector[ID_FULL_1D(var, i + iOffset)] = buffer[ID_PHYS(var, i, 0, 0)];
+        stateVector[ID_FULL_1D(var, i + iOffset)] = buffer[ID_PHYS_1D(var, i)];
       }
     }
   }
