@@ -6,9 +6,8 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "parallelSaveData.h"
 #include <cstring>
 
 using namespace std;
@@ -67,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, &env, 0);
+  ParallelSaveData save(&data, &env, 0);
 
 
   // Now objects have been created, set up the simulation

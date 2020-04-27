@@ -5,6 +5,9 @@
 #CC = g++
 CC = mpic++
 
+# Whether to use MPI for multi-cpu processing
+USE_MPI = 1
+
 # Module directory
 MODULE_DIR = ./Src
 
@@ -42,12 +45,21 @@ SRCS = main.cc 								\
 			 SSP3.cc 								\
 			 IMEX3Args.cc 					\
 			 boundaryConds.cc 			\
-			 saveData.cc 						\
 			 fluxVectorSplitting.cc \
 			 srrmhd.cc 							\
 			 REGIME.cc 							\
 			 hybrid.cc		\
 			 platformEnv.cc
+
+SERIAL_SRCS = serialSaveData.cc
+
+PARALLEL_SRCS = parallelSaveData.cc
+
+ifeq ($(USE_MPI), 1)
+	SRCS += ${PARALLEL_SRCS}
+else
+	SRCS += ${SERIAL_SRCS}
+endif
 
 
 # Headers
@@ -155,7 +167,10 @@ IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
+##serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
+	##$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
