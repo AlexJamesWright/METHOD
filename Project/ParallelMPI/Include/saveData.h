@@ -54,7 +54,7 @@ class SaveData
     // TODO -- docstring
     void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
     void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
-    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars);
+    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
     void parallelSaveCons(double *fullStateVector);
     void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
 

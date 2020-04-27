@@ -18,10 +18,10 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(256);
-  //int nx(4);
-  int ny(256);
-  //int ny(4);
+  //int nx(256);
+  int nx(4);
+  //int ny(256);
+  int ny(4);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  double nxRanks(2);
+  double nxRanks(1);
   double nyRanks(2);
   double nzRanks(1);
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   //double startTime(omp_get_wtime());
 

@@ -50,7 +50,7 @@ void SaveData::saveAll(bool timeSeries)
       if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
       if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
       sendStateVectorBufferToMaster(buffer, numCellsSent, r);
-      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons, r);
   }
 
   if (env->rank == 0) this->parallelSaveCons(fullStateVector);
@@ -138,11 +138,25 @@ void SaveData::sendStateVectorBufferToMaster(double *buffer, int numCellsSent, i
    }
 }
 
-void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars){
+void SaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank){
   // Unpack send buffer, which don't include ghost cells, into the global state vector
-  int iOffset = env->xRankId * (d->Nx - (d->Ng*2));
-  int jOffset = env->yRankId * (d->Ny - (d->Ng*2));
-  int kOffset = env->zRankId * (d->Nz - (d->Ng*2));
+
+  // Get (x,y,z) coords of rank that sent data to proc0
+  int rankCoords[3];
+  int ndims = 3; // rank grid is always 3D
+  MPI_Cart_coords(env->mpiCartesianComm, rank, ndims, rankCoords);
+
+  int iOffset, jOffset, kOffset;
+  iOffset = rankCoords[0] * (d->Nx - (d->Ng*2));
+  if (d->dims > 1) {
+      jOffset = rankCoords[1] * (d->Ny - (d->Ng*2));
+  } else jOffset = 0;
+
+  if (d->dims > 2) {
+      kOffset = rankCoords[2] * (d->Nz - (d->Ng*2));
+  } else kOffset = 0;
+
+  printf("rankCoords: %d %d\n", rankCoords[0], rankCoords[1]);
 
   if (d->dims==3){
     for (int var(0); var < nVars; var++) {
