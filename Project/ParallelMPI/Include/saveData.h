@@ -55,8 +55,10 @@ class SaveData
     void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
     void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
     void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
-    void parallelSaveCons(double *fullStateVector);
     void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
+    void parallelSaveCons(double *fullStateVector);
+    void parallelSavePrims(double *fullStateVector);
+    void parallelSaveAux(double *fullStateVector);
 
     char
     dir[50],   //!< String path to the directory in which to write files

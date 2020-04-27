@@ -26,7 +26,7 @@ for index in range(len(vars_folders)):
                                     line_number = line_number + 1
                                     if (abs(serial_val-parallel_val) > TOL):
                                         print("\n\n!! Error in {} (val={}, line={}), {}, (val={})\n\n".format(serial_filename, serial_val, line_number, parallel_filename, parallel_val))  
-                                        #break
+                                        break
 
         except IOError:
                 print("Could not read file:", filename)

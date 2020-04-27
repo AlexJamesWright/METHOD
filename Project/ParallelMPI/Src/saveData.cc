@@ -40,6 +40,8 @@ void SaveData::saveAll(bool timeSeries)
   int numCellsInFullStateVector = maxNumCellsInBuffer * env->nProc;
   double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
 
+  // Cons
+  
   // For all procs other than proc0, copy local statevector to a buffer that does not include ghost cells
   // for sending to proc0. Proc0 can copy directly from its local statevector to the fullstatevector
   if (env->rank != 0) packStateVectorBuffer(buffer, d->cons, d->Ncons);
@@ -54,13 +56,39 @@ void SaveData::saveAll(bool timeSeries)
   }
 
   if (env->rank == 0) this->parallelSaveCons(fullStateVector);
-/*
-  this->saveCons();
-  this->savePrims();
-  this->saveAux();
-  this->saveDomain();
-  this->saveConsts();
-*/
+
+  // Prims
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->prims, d->Nprims);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->prims, d->Nprims);
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Nprims * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Nprims, r);
+  }
+
+  if (env->rank == 0) this->parallelSavePrims(fullStateVector);
+
+  // Aux
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->aux, d->Naux);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->aux, d->Naux);
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Naux * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Naux, r);
+  }
+
+  if (env->rank == 0) this->parallelSaveAux(fullStateVector);
+
+  // TODO -- could gather this to proc0 like for the other state vectors but not sure if it is required
+  //this->saveDomain();
+
+  // TODO -- Nx, Ny are per process -- may need to print out a global version as well (nx, ny don't include ghost cells)
+  if (env->rank == 0) this->saveConsts();
+
   free(buffer);
   free(fullStateVector);
 }
@@ -312,6 +340,60 @@ void SaveData::savePrims()
     }
   }
 
+
+  fclose(f);
+
+}
+
+void SaveData::parallelSavePrims(double *fullStateVector)
+{
+  FILE * f;
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Primitive/prims");
+  strcat(fname, app);
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
+
+  // Ensure file is open
+  if (f == NULL) {
+    printf("Error: could not open 'prims.dat' for writing.\n");
+    exit(1);
+  }
+
+  // File is open, write data
+  fprintf(f, "prims = ");
+  for (int i(0); i < d->Nprims-1; i++) fprintf(f, "%s, ", d->primsLabels[i].c_str());
+  fprintf(f, "%s\n", d->primsLabels[d->Nprims-1].c_str());
+
+  if (d->dims==3){
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          for (int k(0); k < d->nz; k++) {
+            fprintf(f, "%.16f ", fullStateVector[ID_FULL_3D(var, i, j, k)]);
+          }
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->nx; i++) {
+        fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
+        fprintf(f, "\n");
+      }
+    }
+  }
+
   fclose(f);
 
 }
@@ -341,6 +423,59 @@ void SaveData::saveAux()
         for (int k(0); k < d->Nz; k++) {
           fprintf(f, "%.16f ", d->aux[ID(var, i, j, k)]);
         }
+        fprintf(f, "\n");
+      }
+    }
+  }
+
+  fclose(f);
+
+}
+
+void SaveData::parallelSaveAux(double *fullStateVector)
+{
+  FILE * f;
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Auxiliary/aux");
+  strcat(fname, app);
+  strcat(fname, ".dat\0");  f = fopen(fname, "w");
+
+  // Ensure file is open
+  if (f == NULL) {
+    printf("Error: could not open 'aux.dat' for writing.\n");
+    exit(1);
+  }
+
+  // File is open, write data
+  fprintf(f, "aux = ");
+  for (int i(0); i < d->Naux-1; i++) fprintf(f, "%s, ", d->auxLabels[i].c_str());
+  fprintf(f, "%s\n", d->auxLabels[d->Naux-1].c_str());
+
+  if (d->dims==3){
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          for (int k(0); k < d->nz; k++) {
+            fprintf(f, "%.16f ", fullStateVector[ID_FULL_3D(var, i, j, k)]);
+          }
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->nx; i++) {
+        for (int j(0); j < d->ny; j++) {
+          fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->nx; i++) {
+        fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
         fprintf(f, "\n");
       }
     }
