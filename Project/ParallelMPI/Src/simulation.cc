@@ -28,10 +28,9 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data)
 
   // Initialise the data
 
-  // TODO -- this won't work if nx doesn't divide into nxRanks perfectly
-  d->dx = (d->xmax - d->xmin) / (d->nx * env->nxRanks);
-  d->dy = (d->ymax - d->ymin) / (d->ny * env->nyRanks);
-  d->dz = (d->zmax - d->zmin) / (d->nz * env->nzRanks);
+  d->dx = (d->xmax - d->xmin) / (d->nx);
+  d->dy = (d->ymax - d->ymin) / (d->ny);
+  d->dz = (d->zmax - d->zmin) / (d->nz);
 
   d->iters = 0;
   d->t = 0;

@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  double nxRanks(1);
+  double nxRanks(2);
   double nyRanks(2);
   double nzRanks(1);
 
