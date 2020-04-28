@@ -1,5 +1,5 @@
-#ifndef SAVEDATA_H
-#define SAVEDATA_H
+#ifndef PARALLELSAVEDATA_H
+#define PARALLELSAVEDATA_H
 
 #include <string>
 #include <iostream>
@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "simData.h"
+#include "saveData.h"
 #include "platformEnv.h"
 
 using namespace std;
@@ -20,7 +21,7 @@ using namespace std;
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
   and the values of all prims, aux and cons variables.
 */
-class SaveData
+class ParallelSaveData : public SaveData
 {
 
   public:
@@ -28,30 +29,38 @@ class SaveData
 
     PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
-    int
-    Nouts,         //!< Number of output files
-    Ncount,        //!< Which user defined variable is this?
-    test;          //!< Flags if we are running one of the given examples
+  private:
+
+    double *fullStateVector;     //! temporary buffer containing all non-ghost cells for one of cons/prims/aux
+
+    // TODO -- docstring
+    void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
+    void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
+    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
+    void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
+    void parallelSaveCons(double *fullStateVector);
+    void parallelSavePrims(double *fullStateVector);
+    void parallelSaveAux(double *fullStateVector);
+
+
+  public:
 
     //! Saves the conserved vector state
-    virtual void saveCons() = 0;
+    void saveCons();
 
     //! Saves the primitive vector state
-    virtual void savePrims() = 0;
+    void savePrims();
 
     //! Saves the auxiliary vector state
-    virtual void saveAux() = 0;
+    void saveAux();
 
     //! Saves the domain coordinates
-    virtual void saveDomain() = 0;
+    void saveDomain();
 
     //! Saves the constant data
-    virtual void saveConsts() = 0;
+    void saveConsts();
 
-    char
-    dir[50],   //!< String path to the directory in which to write files
-    app[10];   //!< String appendix to add to end of file names
-
+    
     //! Constructor
     /*!
       @par
@@ -63,14 +72,9 @@ class SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SaveData(Data * data, PlatformEnv * env, int test=0) : d(data), env(env), Nouts(0), Ncount(0), test(test)
-    {
-      dir[0] = '\0';
-      app[0] = '\0';
-      if (test) {
-        strcpy(dir, "../../");
-      }
-    }
+    ParallelSaveData(Data * data, PlatformEnv * env, int test=0) : SaveData(data, env, test) {}
+
+    ~ParallelSaveData();     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!
@@ -80,7 +84,7 @@ class SaveData
 
       @param[in] timeSeries flags whether the saved data is final or transient
     */
-    virtual void saveAll(bool timeSeries=false) = 0;
+    void saveAll(bool timeSeries=false);
 
     //! Saves user specified variable
     /*!
@@ -90,7 +94,7 @@ class SaveData
       @param[in] variable Defines the variable the user wants to save. Should match a variable label
       @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
     */
-    virtual void saveVar(string variable, int num=1) = 0;
+    void saveVar(string variable, int num=1);
 
 };
 

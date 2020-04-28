@@ -6,7 +6,7 @@
 CC = mpic++
 
 # Whether to use MPI for multi-cpu processing
-USE_MPI = 1
+USE_MPI = 0
 
 # Module directory
 MODULE_DIR = ./Src
@@ -167,8 +167,8 @@ IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-##serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	##$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)

@@ -7,7 +7,8 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
-#include "parallelSaveData.h"
+//#include "parallelSaveData.h"
+#include "serialSaveData.h"
 #include <cstring>
 
 using namespace std;
@@ -41,8 +42,8 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
 
-  double nxRanks(2);
-  double nyRanks(2);
+  double nxRanks(1);
+  double nyRanks(1);
   double nzRanks(1);
 
   PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  SerialSaveData save(&data, &env, 0);
 
 
   // Now objects have been created, set up the simulation
