@@ -1,7 +1,9 @@
 #ifndef PLATFORM_ENV_H
 #define PLATFORM_ENV_H
 
-#include <mpi.h>
+#if USE_MPI
+    #include <mpi.h>
+#endif
 
 class PlatformEnv
 {
@@ -13,7 +15,10 @@ class PlatformEnv
 		int leftXNeighbourRank, rightXNeighbourRank;
 		int leftYNeighbourRank, rightYNeighbourRank;
 		int leftZNeighbourRank, rightZNeighbourRank;
+
+#if USE_MPI
 		MPI_Comm mpiCartesianComm; 
+#endif
 
 		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks);
 

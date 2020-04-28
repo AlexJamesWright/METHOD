@@ -5,17 +5,21 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstdlib>
-#include <mpi.h>
+
+#if USE_MPI
+    #include <mpi.h>
+#endif
 
 // TODO -- rename setParallelDecomposition and split it out into more functions
 
 PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
 {
+#if USE_MPI
 	MPI_Init(argcP, argvP);
 
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	
+
 	printf("Initialised MPI. nProc %d, rankId %d\n", nProc, rank);
 
 	this->nxRanks = nxRanks;
@@ -24,11 +28,18 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 
 	setParallelDecomposition();
 
+#else
+    this->nxRanks = 1;
+    this->nyRanks = 1;
+    this->nzRanks = 1;
+#endif
 }
 
 PlatformEnv::~PlatformEnv()
 {
+#if USE_MPI
 	MPI_Finalize();
+#endif
 }
 
 int PlatformEnv::isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int zNeighbourDir)
@@ -38,6 +49,7 @@ int PlatformEnv::isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int z
 
 void PlatformEnv::setParallelDecomposition(void)
 {
+#if USE_MPI
 	// number of dimensions in process grid
 	int ndims=1;
 	// number of ranks in each dimension of the grid
@@ -86,6 +98,7 @@ void PlatformEnv::setParallelDecomposition(void)
 	direction = 2;
 	MPI_Cart_shift(mpiCartesianComm, direction, displacement, 
 		&(leftZNeighbourRank), &(rightZNeighbourRank));
+#endif
 }
 
 
