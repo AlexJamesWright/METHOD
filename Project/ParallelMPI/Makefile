@@ -6,7 +6,7 @@
 CC = mpic++
 
 # Whether to use MPI for multi-cpu processing
-USE_MPI = 0
+USE_MPI = 1
 
 # Module directory
 MODULE_DIR = ./Src
@@ -24,7 +24,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -g
+CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI)
 
 # Sources
 SRCS = main.cc 								\
@@ -53,7 +53,8 @@ SRCS = main.cc 								\
 
 SERIAL_SRCS = serialSaveData.cc
 
-PARALLEL_SRCS = parallelSaveData.cc
+PARALLEL_SRCS = parallelSaveData.cc \
+				parallelBoundaryConds.cc 
 
 ifeq ($(USE_MPI), 1)
 	SRCS += ${PARALLEL_SRCS}
@@ -172,6 +173,9 @@ serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h
+	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
