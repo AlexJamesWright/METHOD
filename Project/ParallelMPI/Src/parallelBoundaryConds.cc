@@ -8,7 +8,7 @@
 #define ID_YBUFF(variable, idx, gdx, kdx) ((variable)*(d->Nx)*(d->Ng)*(d->Nz) + (idx)*(d->Ng)*(d->Nz) + (gdx)*(d->Nz) + (kdx))
 #define ID_ZBUFF(variable, idx, jdx, gdx) ((variable)*(d->Nx)*(d->Ny)*(d->Ng) + (idx)*(d->Ny)*(d->Ng) + (jdx)*(d->Ng) + (gdx))
 
-void ParallelPeriodic::swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
+void ParallelBcs::swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
 	double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent){
 
   // MPI message vars
@@ -29,7 +29,7 @@ void ParallelPeriodic::swapGhostBuffers(double *sendToLeftBuf, double *sendToRig
 	env->mpiCartesianComm, &status);
 }
 
-void ParallelPeriodic::packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
+void ParallelBcs::packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Ng; i++) {
@@ -45,7 +45,7 @@ void ParallelPeriodic::packXBuffer(double *sendToLeftBuf, double *sendToRightBuf
   }
 }
 
-void ParallelPeriodic::unpackXBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
+void ParallelBcs::unpackXBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Ng; i++) {
@@ -61,7 +61,7 @@ void ParallelPeriodic::unpackXBuffer(double *recvFromLeftBuf, double *recvFromRi
   }
 }
 
-void ParallelPeriodic::packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
+void ParallelBcs::packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
@@ -77,7 +77,7 @@ void ParallelPeriodic::packYBuffer(double *sendToLeftBuf, double *sendToRightBuf
   }
 }
 
-void ParallelPeriodic::unpackYBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
+void ParallelBcs::unpackYBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
@@ -93,7 +93,7 @@ void ParallelPeriodic::unpackYBuffer(double *recvFromLeftBuf, double *recvFromRi
   }
 }
 
-void ParallelPeriodic::packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
+void ParallelBcs::packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
@@ -109,7 +109,7 @@ void ParallelPeriodic::packZBuffer(double *sendToLeftBuf, double *sendToRightBuf
   }
 }
 
-void ParallelPeriodic::unpackZBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
+void ParallelBcs::unpackZBuffer(double *recvFromLeftBuf, double *recvFromRightBuf, double *stateVector, int nVars){
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
@@ -255,9 +255,290 @@ void ParallelPeriodic::apply(double * cons, double * prims, double * aux)
     }
   }
 
+  // Todo -- allocate and free in constructor/destructor
   free(sendToLeftBuf);
   free(sendToRightBuf);
   free(recvFromRightBuf);
   free(recvFromLeftBuf);
 
 }
+
+void ParallelOutflow::apply(double * cons, double * prims, double * aux)
+{
+    /*
+  // Syntax
+  Data * d(this->data);
+
+  // Allocate one ghost region buffer array the size of the largest ghost region
+  int maxSendBufSize = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * d->Ng;
+  if (d->Ny > 1) {
+      maxSendBufSize *= std::max(d->Nx, d->Ny);
+  }
+  if (d->Nz > 1) {
+    maxSendBufSize *= std::max(std::min(d->Nx, d->Ny), (d->Nz));
+  }
+
+  // TODO -- Could do left and right halo exchange separately and allocate half as many buffers but this would
+  // add twice as many loops
+
+  // Allocate temporary buffers for ghost region exchange
+  // TODO -- should allocate this once at beginning of run
+  double *sendToLeftBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *sendToRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *recvFromRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *recvFromLeftBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+
+  int numCellsSent;
+
+  // x dimension
+
+  // Cons
+  numCellsSent = d->Ncons * d->Ng * d->Ny * d->Nz;
+  packXBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+
+  swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+	env->rightXNeighbourRank, numCellsSent);
+
+  unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+  
+  // Prims
+  if (prims) {
+    numCellsSent = d->Nprims * d->Ng * d->Ny * d->Nz;
+    packXBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+          env->rightXNeighbourRank, numCellsSent);
+
+    unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+  }
+
+  // Aux
+  if (aux) {
+    numCellsSent = d->Naux * d->Ng * d->Ny * d->Nz;
+    packXBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+          env->rightXNeighbourRank, numCellsSent);
+
+    unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+  }
+
+  if (d->Ny > 1) {
+    // y dimension
+  
+    // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ng * d->Nz;
+    packYBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+  
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+  	env->rightYNeighbourRank, numCellsSent);
+  
+    unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+    
+    // Prims
+    if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ng * d->Nz;
+      packYBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+            env->rightYNeighbourRank, numCellsSent);
+  
+      unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+    }
+  
+    // Aux
+    if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ng * d->Nz;
+      packYBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+            env->rightYNeighbourRank, numCellsSent);
+  
+      unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+    }
+  }
+
+
+  if (d->Nz > 1) {
+    // y dimension
+  
+    // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ny * d->Ng;
+    packZBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+  
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+  	env->rightZNeighbourRank, numCellsSent);
+  
+    unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+    
+    // Prims
+    if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ny * d->Ng;
+      packZBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+            env->rightZNeighbourRank, numCellsSent);
+  
+      unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+    }
+  
+    // Aux
+    if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ny * d->Ng;
+      packZBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+            env->rightZNeighbourRank, numCellsSent);
+  
+      unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+    }
+  }
+
+  free(sendToLeftBuf);
+  free(sendToRightBuf);
+  free(recvFromRightBuf);
+  free(recvFromLeftBuf);
+
+*/
+
+
+  // ---------
+
+  // Syntax
+  Data * d(this->data);
+
+  // Cons
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(0); i < d->Ng; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
+          // Left
+          cons[ID(var, i, j, k)] = cons[ID(var, d->Ng, j, k)];
+          // Right
+          cons[ID(var, d->nx + d->Ng + i, j, k)] = cons[ID(var, d->nx + d->Ng - 1, j, k)];
+        }
+      }
+    }
+  }
+  // Prims
+  if (prims) {
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Ng; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Left
+            prims[ID(var, i, j, k)] = prims[ID(var, d->Ng, j, k)];
+            // Right
+            prims[ID(var, d->nx + d->Ng + i, j, k)] = prims[ID(var, d->nx + d->Ng - 1, j, k)];
+          }
+        }
+      }
+    }
+  }
+  if (aux) {
+    // Aux
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Ng; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Left
+            aux[ID(var, i, j, k)] = aux[ID(var, d->Ng, j, k)];
+            // Right
+            aux[ID(var, d->nx + d->Ng + i, j, k)] = aux[ID(var, d->nx + d->Ng - 1, j, k)];
+          }
+        }
+      }
+    }
+  }
+  if (d->Ny > 1) {
+    // Cons
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            cons[ID(var, i, j, k)] = cons[ID(var, i, d->Ng, k)];
+            // Back
+            cons[ID(var, i, d->ny + d->Ng + j, k)] = cons[ID(var, i, d->ny + d->Ng - 1, k)];
+          }
+        }
+      }
+    }
+    // Prims
+    if (prims) {
+      for (int var(0); var < d->Nprims; var++) {
+        for (int i(0); i < d->Nx; i++) {
+          for (int j(0); j < d->Ng; j++) {
+            for (int k(0); k < d->Nz; k++) {
+              // Front
+              prims[ID(var, i, j, k)] = prims[ID(var, i, d->Ng, k)];
+              // Back
+              prims[ID(var, i, d->ny + d->Ng + j, k)] = prims[ID(var, i, d->ny + d->Ng - 1, k)];
+            }
+          }
+        }
+      }
+    }
+    // Aux
+    if (aux) {
+      for (int var(0); var < d->Naux; var++) {
+        for (int i(0); i < d->Nx; i++) {
+          for (int j(0); j < d->Ng; j++) {
+            for (int k(0); k < d->Nz; k++) {
+              // Front
+              aux[ID(var, i, j, k)] = aux[ID(var, i, d->Ng, k)];
+              // Back
+              aux[ID(var, i, d->ny + d->Ng + j, k)] = aux[ID(var, i, d->ny + d->Ng - 1, k)];
+            }
+          }
+        }
+      }
+    }
+  }
+  if (d->Nz > 1) {
+    // Cons
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Ng; k++) {
+            // Bottom
+            cons[ID(var, i, j, k)] = cons[ID(var, i, j, d->Ng)];
+            // Top
+            cons[ID(var, i, j, d->nz + d->Ng + k)] = cons[ID(var, i, j, d->nz + d->Ng - 1)];
+          }
+        }
+      }
+    }
+    // Prims
+    if (prims) {
+      for (int var(0); var < d->Nprims; var++) {
+        for (int i(0); i < d->Nx; i++) {
+          for (int j(0); j < d->Ny; j++) {
+            for (int k(0); k < d->Ng; k++) {
+              // Bottom
+              prims[ID(var, i, j, k)] = prims[ID(var, i, j, d->Ng)];
+              // Top
+              prims[ID(var, i, j, d->nz + d->Ng + k)] = prims[ID(var, i, j, d->nz + d->Ng - 1)];
+            }
+          }
+        }
+      }
+    }
+    // Aux
+    if (aux) {
+      for (int var(0); var < d->Naux; var++) {
+        for (int i(0); i < d->Nx; i++) {
+          for (int j(0); j < d->Ny; j++) {
+            for (int k(0); k < d->Ng; k++) {
+              // Bottom
+              aux[ID(var, i, j, k)] = aux[ID(var, i, j, d->Ng)];
+              // Top
+              aux[ID(var, i, j, d->nz + d->Ng + k)] = aux[ID(var, i, j, d->nz + d->Ng - 1)];
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

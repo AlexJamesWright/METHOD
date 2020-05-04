@@ -16,7 +16,8 @@ class Bcs
   protected:
 
     Data * data; //!< Pointer to Data class containing global simulation data
-    
+
+// TODO -- remove env    
     PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
     //! Constructor store data about simulation (needed for domain)
@@ -180,76 +181,6 @@ class Periodic : public Bcs
 
 };
 
-//! <b> Periodic boundary conditions for a data structure that has been distributed across ranks</b>
-/*!
-    Flows that exit across one domain boundary re-enter at the opposing
-  end. I.e. the N ghost cells at one edge of the domain are set to the values
-  of the N physical cells before the ghost cells at the opposing edge.
-
-  For left-right reconstruction:<br>
-  (Note that the lower and upper halves of each row will lie on different ranks) <br>
-  Before...<br>
-  ____________________________<br>
-  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
-  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
-<br>
-  After....<br>
-  ____________________________<br>
-  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
-  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
-  <br>
-  ..and similar in other directions.
-
-*/
-class ParallelPeriodic : public Bcs
-{
-
-  public:
-
-    //! Constructor
-    /*!
-        Calls constructor of base class to store the pointer to the Data class.
-
-      @param[in] *data pointer to Data class
-      @sa Bcs::Bcs
-    */
-    ParallelPeriodic(Data * data) : Bcs(data) { }
-
-    //! Constructor
-    /*!
-        Calls constructor of base class to store the pointer to the Data class and PlatformEnv class.
-
-      @param[in] *data pointer to Data class
-      @param[in] *env pointer to PlatformEnv class
-      @sa Bcs::Bcs
-    */
-    ParallelPeriodic(Data * data, PlatformEnv * env) : Bcs(data, env) { } 
-
-
-    //! Application function
-    /*!
-        Applies the Periodic boundary conditions to the ghost cells.
-
-      @param[in, out] *cons pointer to the conservative (sized) vector
-      @param[in, out] *prims optional pointer to the primitive vector
-      @param[in, out] *aux optional pointer to the primitive vector
-      @sa Bcs::apply
-    */
-    void apply(double * cons, double * prims = NULL, double * aux = NULL);
-
-    // TODO -- Docstring
-    void swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
-        double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent);
-
-    void packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
-    void unpackXBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
-    void packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
-    void unpackYBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
-    void packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
-    void unpackZBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
-
-};
-
 //! <b> Flow boundary conditions </b>
 /*!
     Boundary conditions used for the Kelvin Helmholtz instability. The
@@ -280,6 +211,134 @@ class Flow : public Bcs
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
 };
+
+class ParallelBcs : public Bcs
+{
+
+  public:
+
+    int xPeriodic, yPeriodic, zPeriodic;
+
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class and PlatformEnv class.
+
+      @param[in] *data pointer to Data class
+      @param[in] *env pointer to PlatformEnv class
+      @sa Bcs::Bcs
+    */
+    ParallelBcs(Data *data, PlatformEnv *env, int xPeriodic=1, int yPeriodic=1, int zPeriodic=1) : Bcs(data, env)
+    {
+        env->setParallelDecomposition(xPeriodic, yPeriodic, zPeriodic);
+    }
+
+    // TODO -- Docstring
+    void swapGhostBuffers(double *sendToLeftBuf, double *sendToRightBuf, double *recvFromLeftBuf,
+        double *recvFromRightBuf,  int leftNeighbour, int rightNeighbour, int numCellsSent);
+
+    void packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+    void unpackXBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+    void packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+    void unpackYBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+    void packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
+    void unpackZBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
+
+};
+
+//! <b> Outflow boundary conditions </b>
+/*!
+    Imposes flows that exit the domain freely at all boundaries, analogous to a
+  domain that extends to infinity in each direction.
+    All ghost cells are identical to their nearest physical cell. <br>
+  For left-right reconstruction:<br>
+  Before...<br>
+  ______________________________<br>
+  |0|1|2|3|4||5|6|.....  |12||13||14|15|16|17|<br>
+  |0|1|2|3|4||5|6|.....  |12||13||14|15|16|17|<br>
+  <br>
+<br>
+  After....<br>
+  ______________________________<br>
+  |4|4|4|4||4|5|6|.....  |12||13||13|13|13|13|<br>
+  |4|4|4|4||4|5|6|.....  |12||13||13|13|13|13|<br>
+  <br>
+<br>
+  ..and similar in other directions.
+*/
+class ParallelOutflow : public ParallelBcs
+{
+  public:
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class.
+
+      @param[in] *data pointer to Data class
+      @sa Bcs::Bcs
+    */
+    ParallelOutflow(Data * data, PlatformEnv *env) : ParallelBcs(data, env, xPeriodic=0, yPeriodic=0, zPeriodic=0) { }
+
+    //! Application function
+    /*!
+        Applies the Outflow boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
+    void apply(double * cons, double * prims = NULL, double * aux = NULL);
+};
+
+
+//! <b> Periodic boundary conditions for a data structure that has been distributed across ranks</b>
+/*!
+    Flows that exit across one domain boundary re-enter at the opposing
+  end. I.e. the N ghost cells at one edge of the domain are set to the values
+  of the N physical cells before the ghost cells at the opposing edge.
+
+  For left-right reconstruction:<br>
+  (Note that the lower and upper halves of each row will lie on different ranks) <br>
+  Before...<br>
+  ____________________________<br>
+  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
+  |0|1|2|3||4|5|6|.....  |13||14|15|16|17|<br>
+<br>
+  After....<br>
+  ____________________________<br>
+  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
+  |10|11|12|13||4|5|6|.....  |13||4|5|6|7|<br>
+  <br>
+  ..and similar in other directions.
+
+*/
+class ParallelPeriodic : public ParallelBcs
+{
+
+  public:
+
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class and PlatformEnv class.
+
+      @param[in] *data pointer to Data class
+      @param[in] *env pointer to PlatformEnv class
+      @sa Bcs::Bcs
+    */
+    ParallelPeriodic(Data * data, PlatformEnv * env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=1, zPeriodic=1) { }
+
+    //! Application function
+    /*!
+        Applies the Periodic boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
+    void apply(double * cons, double * prims = NULL, double * aux = NULL);
+
+};
+
 
 //
 // //! <b> Conducting channel boundary conditions </b>

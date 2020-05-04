@@ -26,8 +26,6 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 	this->nyRanks = nyRanks;
 	this->nzRanks = nzRanks;
 
-	setParallelDecomposition();
-
 #else
     this->nxRanks = 1;
     this->nyRanks = 1;
@@ -42,12 +40,33 @@ PlatformEnv::~PlatformEnv()
 #endif
 }
 
-int PlatformEnv::isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int zNeighbourDir)
+int PlatformEnv::isNeighbourExternal(int dimension, int direction)
 {
-	
+    int isExternal = 0;
+    int dimRank = 0;
+    int maxRank = 0;
+
+    if (dimension==0) {
+        dimRank = xRankId;
+        maxRank = nxRanks;
+    } else if (dimension==0) {
+        dimRank = yRankId;
+        maxRank = nyRanks;
+    } else {
+        dimRank = zRankId;
+        maxRank = nzRanks;
+    }
+
+    if (direction==0){
+        isExternal = (dimRank==0);
+    } else {
+        isExternal = (dimRank==maxRank-1);
+    }
+    
+    return isExternal;
 }
 
-void PlatformEnv::setParallelDecomposition(void)
+void PlatformEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic)
 {
 #if USE_MPI
 	// number of dimensions in process grid
@@ -68,11 +87,11 @@ void PlatformEnv::setParallelDecomposition(void)
 	// Does this introduce too much overhead? Could also send through nx, ny, nz from data.
 
 	dims[0] = nxRanks;
-	periods[0] = 1;
+	periods[0] = xPeriodic;
 	dims[1] = nyRanks;
-	periods[1] = 1;
+	periods[1] = yPeriodic;
 	dims[2] = nzRanks;
-	periods[2] = 1;
+	periods[2] = zPeriodic;
 	ndims = 3;
 
 	// Create MPI communicator in a cartesian grid that matches the domain

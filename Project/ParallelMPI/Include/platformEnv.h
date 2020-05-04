@@ -24,9 +24,9 @@ class PlatformEnv
 
 		~PlatformEnv();
 
-		int isNeighbourExternal(int xNeighbourDir, int yNeighbourDir, int zNeighbourDir);
+		int isNeighbourExternal(int dimension, int direction);
 
-		void setParallelDecomposition(void);
+		void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic);
 };
 
 #endif
