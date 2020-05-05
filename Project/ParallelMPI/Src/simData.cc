@@ -36,7 +36,7 @@ Data::Data(int nx, int ny, int nz,
   this->Ny = ny/env->nyRanks + 2 * Ng;
   this->Nz = nz/env->nzRanks + 2 * Ng;
 
-  printf("proc %d (%d) initialized with %d nx\n", env->rank, env->xRankId, this->Nx);
+  //printf("proc %d (%d) initialized with %d nx\n", env->rank, env->xRankId, this->Nx);
   dims = 3;
 
   // Catch 2D case

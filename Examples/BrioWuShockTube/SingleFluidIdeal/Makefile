@@ -20,7 +20,7 @@ RTFIND_INC_DIR = ./../../../Project/Serial/CminpackLibrary/Include
 RTFIND_SRC_DIR = ./../../../Project/Serial//CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -Wall -std=c++11 -g
 
 # Sources
 SRCS = simulation.cc \

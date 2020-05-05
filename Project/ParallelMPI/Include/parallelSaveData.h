@@ -23,12 +23,6 @@ using namespace std;
 */
 class ParallelSaveData : public SaveData
 {
-
-  public:
-    Data * d; //!< Pointer to Data class containing global simulation data
-
-    PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
-
   private:
 
     double *fullStateVector;     //! temporary buffer containing all non-ghost cells for one of cons/prims/aux

@@ -25,9 +25,6 @@ class SerialSaveData : public SaveData
 {
 
   public:
-    Data * d; //!< Pointer to Data class containing global simulation data
-
-    PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
     //! Saves the conserved vector state
     void saveCons();
@@ -56,6 +53,8 @@ class SerialSaveData : public SaveData
       Only used for running the given examples, can ignore otherwise.
     */
     SerialSaveData(Data * data, PlatformEnv * env, int test=0) : SaveData(data, env, test) {}
+
+    ~SerialSaveData() {}     //!< Destructor
     
     //! Saves all cons, prims, aux and constant data
     /*!
