@@ -22,12 +22,15 @@ class Hybrid : public Model
 
     bool useREGIME;
 
+
+
     SRRMHD * resistiveModel;
 
     SRMHD * idealModel;
 
     REGIME * subgridModel = NULL;
 
+    int *mask;                         // Flag, can we set REGIME source
 
     Hybrid(); //!< Default constructor
 
@@ -55,6 +58,8 @@ class Hybrid : public Model
     // cons prims aux are for all cells!
     void setIdealCPAsAll(double *cons, double * prims, double * aux);
 
+    // Mask to set the REGIME source term
+    void setMasks(double * cons, double * prims, double * aux);
 
     void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
 

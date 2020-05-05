@@ -80,6 +80,7 @@ Hybrid::~Hybrid()
   {
     delete subgridModel;
     delete[] regimeSource;
+    delete[] mask;
   }
   delete[] icons;
   delete[] iprims;
@@ -95,10 +96,14 @@ Hybrid::~Hybrid()
 
 void Hybrid::setSubgridModel(FluxMethod * fluxMethod)
 {
+  // Syntax
+  Data * d(this->data);
+
   if (useREGIME)
   {
-    subgridModel = new REGIME(data, fluxMethod);
-    regimeSource = new double[data->Nx*data->Ny*data->Nz*idealModel->Ncons];
+    subgridModel = new REGIME(d, fluxMethod);
+    regimeSource = new double[d->Nx*d->Ny*d->Nz*idealModel->Ncons];
+    mask         = new int[d->Nx*d->Ny*d->Nz];
   }
 }
 
@@ -272,7 +277,12 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
         // Copy result back
         for (int var(0); var < d->Ncons; var++) {
           source[ID(var, i, j, k)] = singleSource[var];
+          // if (i == 203)
+          // printf("i(203) NoRegSource %f\n", source[ID(var, i, j, k)]);
+          // if (i == 202)
+          // printf("i(202) NoRegSource %f\n", source[ID(var, i, j, k)]);
         }
+
       }
     }
   }
@@ -281,8 +291,10 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
   if (useREGIME)
   {
     setIdealCPAsAll(cons, prims, aux);
+    setMasks(cons, prims, aux);
     subgridModel->sourceExtension(icons, iprims, iaux, regimeSource);
-
+    // printf("202 iprims: "); for (int var(0); var<idealModel->Nprims; var++) printf("%f, ", iprims[ID(var, 202, 0, 0)]); printf("\n");
+    // printf("203 iprims: "); for (int var(0); var<idealModel->Nprims; var++) printf("%f, ", iprims[ID(var, 203, 0, 0)]); printf("\n");
 
     for (int var(0); var < idealModel->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
@@ -293,7 +305,13 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
             if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
               use = true;
 
-            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW;
+            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW * mask[ID(0, i, j, k)];
+
+
+            // if (i == 203)
+            //   printf("i(203) RegSource adds %f, %d, %f, %f, mask = %d\n", regimeSource[ID(var, i, j, k)], use, iW, d->sigmaFunc(icons, iprims, iaux, i, j, k), mask[ID(0, i, j, k)]);
+            // if (i == 202)
+            //   printf("i(202) RegSource adds %f, %d, %f, %f, mask = %d\n", regimeSource[ID(var, i, j, k)], use, iW, d->sigmaFunc(icons, iprims, iaux, i, j, k), mask[ID(0, i, j, k)]);
 
           }
         }
@@ -310,14 +328,17 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
 
 void Hybrid::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
+  // printf("(i, j, k) = (%3d, %3d, %3d)\n", i, j, k);
   if (useResistive(cons, prims, aux))
   {
     // Resistive cons2prims
+    // printf("Resistive C2P\n");
     resistiveModel->getPrimitiveVarsSingleCell(cons, prims, aux, i, j, k);
   }
   else
   {
     // Ideal cons2prims
+    // printf("Ideal C2P\n");
     setIdealCPAs(cons, prims, aux);
     idealModel->getPrimitiveVarsSingleCell(sicons, siprims, siaux, i, j, k);
 
@@ -441,14 +462,60 @@ void Hybrid::finalise(double *cons, double *prims, double *aux)
         double iEy = -(prims[ID(3, i, j, k)]*prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)]*prims[ID(7, i, j, k)]);
         double iEz = -(prims[ID(1, i, j, k)]*prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)]*prims[ID(5, i, j, k)]);
 
-        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)]  *= (1-iW);
-        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)]  *= (1-iW);
-        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)] *= (1-iW);
+        cons[ID(8, i, j, k)]  *= (1-iW);
+        cons[ID(9, i, j, k)]  *= (1-iW);
+        cons[ID(10, i, j, k)] *= (1-iW);
 
-        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)]  += iW*iEx;
-        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)]  += iW*iEy;
-        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)] += iW*iEz;
+        cons[ID(8, i, j, k)]  += iW*iEx;
+        cons[ID(9, i, j, k)]  += iW*iEy;
+        cons[ID(10, i, j, k)] += iW*iEz;
 
+        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)];
+        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)];
+        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)];
+
+      }
+    }
+  }
+}
+
+void Hybrid::setMasks(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        mask[ID(0, i, j, k)] = 0;
+      }
+    }
+  }
+
+
+  for (int i(3); i < d->Nx-3; i++) {
+    for (int j(3); j < d->Ny-3; j++) {
+      for (int k(3); k < d->Nz-3; k++) {
+        bool termsPossible(true);
+
+        // If this cell needs the REGIME source....
+        if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
+        {
+          // Can we compute all of the terms too?
+          for (int l(-3); l < 3; l++) {
+            for (int m(-3); m < 3; m++) {
+              for (int n(-3); n < 3; n++) {
+                if (d->sigmaFunc(icons, iprims, iaux, i+l, j+m, k+n) < sigmaCrossOver-sigmaSpan)
+                  termsPossible = false;
+              }
+            }
+          }
+          // And we can calculate all the terms too... set the masks
+          if (termsPossible)
+          {
+            mask[ID(0, i, j, k)] = 1;
+          }
+        }
       }
     }
   }
