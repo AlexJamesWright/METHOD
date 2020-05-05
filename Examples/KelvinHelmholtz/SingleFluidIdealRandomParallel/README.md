@@ -44,3 +44,13 @@ Notes
 
   - This simulation should be run using `make main` and then `./main seed` where
   `seed` is some integar seed for the random perturbation on the layer.
+
+
+Parallel version -- current limitations
+---------------------------------------
+  - Save data gathers all state vectors to proc0 so while this version will be faster, it doesn't currently allow a larger problem to be simulated than will fit on one node
+  - nx, ny, nz must currently be even multiple of nxRanks, nyRanks, nzRanks, and these must be specified as args to PlatformEnv manually. 
+  - nxRanks x nyRanks x nzRanks must match the total number of processes launched
+  - Save data does not include boundary cells
+
+
