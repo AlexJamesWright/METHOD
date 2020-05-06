@@ -277,10 +277,6 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
         // Copy result back
         for (int var(0); var < d->Ncons; var++) {
           source[ID(var, i, j, k)] = singleSource[var];
-          // if (i == 203)
-          // printf("i(203) NoRegSource %f\n", source[ID(var, i, j, k)]);
-          // if (i == 202)
-          // printf("i(202) NoRegSource %f\n", source[ID(var, i, j, k)]);
         }
 
       }
@@ -293,25 +289,14 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
     setIdealCPAsAll(cons, prims, aux);
     setMasks(cons, prims, aux);
     subgridModel->sourceExtension(icons, iprims, iaux, regimeSource);
-    // printf("202 iprims: "); for (int var(0); var<idealModel->Nprims; var++) printf("%f, ", iprims[ID(var, 202, 0, 0)]); printf("\n");
-    // printf("203 iprims: "); for (int var(0); var<idealModel->Nprims; var++) printf("%f, ", iprims[ID(var, 203, 0, 0)]); printf("\n");
 
     for (int var(0); var < idealModel->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
             double iW = idealWeightID(icons, iprims, iaux, i, j, k);
-            bool use(false);
-            if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
-              use = true;
 
-            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW * mask[ID(0, i, j, k)];
-
-
-            // if (i == 203)
-            //   printf("i(203) RegSource adds %f, %d, %f, %f, mask = %d\n", regimeSource[ID(var, i, j, k)], use, iW, d->sigmaFunc(icons, iprims, iaux, i, j, k), mask[ID(0, i, j, k)]);
-            // if (i == 202)
-            //   printf("i(202) RegSource adds %f, %d, %f, %f, mask = %d\n", regimeSource[ID(var, i, j, k)], use, iW, d->sigmaFunc(icons, iprims, iaux, i, j, k), mask[ID(0, i, j, k)]);
+            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * iW * mask[ID(0, i, j, k)];
 
           }
         }
@@ -328,17 +313,14 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
 
 void Hybrid::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
-  // printf("(i, j, k) = (%3d, %3d, %3d)\n", i, j, k);
   if (useResistive(cons, prims, aux))
   {
     // Resistive cons2prims
-    // printf("Resistive C2P\n");
     resistiveModel->getPrimitiveVarsSingleCell(cons, prims, aux, i, j, k);
   }
   else
   {
     // Ideal cons2prims
-    // printf("Ideal C2P\n");
     setIdealCPAs(cons, prims, aux);
     idealModel->getPrimitiveVarsSingleCell(sicons, siprims, siaux, i, j, k);
 
@@ -392,8 +374,6 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
 
         singlePrims[5] = singleCons[5]; singlePrims[6] = singleCons[6]; singlePrims[7] = singleCons[7];
         singlePrims[8] = singleCons[8]; singlePrims[9] = singleCons[9]; singlePrims[10] = singleCons[10];
-
-        // Get primitive and auxilliary vars
 
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
 
@@ -492,10 +472,20 @@ void Hybrid::setMasks(double * cons, double * prims, double * aux)
     }
   }
 
+  int is(3); int ie(d->Nx-3);
+  int js(3); int je(d->Ny-3);
+  int ks(3); int ke(d->Nz-3);
+  if (d->dims<3) {
+    ks = 0; ke = 1;
+  }
+  if (d->dims<2) {
+    js = 0; je = 1;
+  }
 
-  for (int i(3); i < d->Nx-3; i++) {
-    for (int j(3); j < d->Ny-3; j++) {
-      for (int k(3); k < d->Nz-3; k++) {
+
+  for (int i(is); i < ie; i++) {
+    for (int j(js); j < je; j++) {
+      for (int k(ks); k < ke; k++) {
         bool termsPossible(true);
 
         // If this cell needs the REGIME source....
