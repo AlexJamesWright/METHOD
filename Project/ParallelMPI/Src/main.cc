@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  // TODO -- this must be defined before Simulation for x,y,z arrays to be initialized correctly(). Add flag on simulation to check this has been done
   ParallelOutflow bcs(&data, &env);
 
   Simulation sim(&data, &env);
