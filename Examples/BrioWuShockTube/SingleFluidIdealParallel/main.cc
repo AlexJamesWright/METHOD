@@ -29,11 +29,10 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  //double endTime(0.0004);
   double gamma(2.0);
   double cfl(0.4);
 
-  double nxRanks(4);
+  double nxRanks(2);
   double nyRanks(1);
   double nzRanks(1);
 
@@ -54,11 +53,9 @@ int main(int argc, char *argv[]) {
 
   BrioWuSingleFluid init(&data);
 
-  //ParallelOutflow bcs(&data, &env);
-
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  ParallelSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
