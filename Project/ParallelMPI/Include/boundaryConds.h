@@ -344,6 +344,41 @@ class ParallelPeriodic : public ParallelBcs
 
 };
 
+//! <b> Flow boundary conditions </b>
+/*!
+    Boundary conditions used for the Kelvin Helmholtz instability. The
+  x-direction is periodic and y- and z-directions are outflow.
+*/
+
+class ParallelFlow : public ParallelBcs
+{
+  public:
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class.
+
+      @param[in] *data pointer to Data class
+      @sa Bcs::Bcs
+    */
+    ParallelFlow(Data * data, PlatformEnv *env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=0, zPeriodic=0) { }
+
+    //! Application function
+    /*!
+        Applies the Outflow boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
+    void apply(double * cons, double * prims = NULL, double * aux = NULL);
+
+    // TODO -- docstring
+    void setYBoundary(double *stateVector, int nVars); 
+    void setZBoundary(double *stateVector, int nVars); 
+};
+
+
 
 //
 // //! <b> Conducting channel boundary conditions </b>

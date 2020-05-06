@@ -510,3 +510,216 @@ void ParallelOutflow::apply(double * cons, double * prims, double * aux)
 
 }
 
+
+// TODO -- these are shared by ParallelOutflow, so could be added to the ParallelBcs base class.
+void ParallelFlow::setYBoundary(double *stateVector, int nVars){
+  // Syntax
+  Data * d(this->data);
+
+  // Front boundary
+  if (env->isNeighbourExternal(1, 0)){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Front
+            stateVector[ID(var, i, j, k)] = stateVector[ID(var, i, d->Ng, k)];
+          }
+        }
+      }
+    }
+  }
+
+  // Back boundary
+  if (env->isNeighbourExternal(1, 1)){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ng; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Back
+            stateVector[ID(var, i, d->Nx - d->Ng + j, k)] = stateVector[ID(var, i, d->Ng - d->Ng - 1, k)];
+          }
+        }
+      }
+    }
+  }
+}
+
+void ParallelFlow::setZBoundary(double *stateVector, int nVars){
+  // Syntax
+  Data * d(this->data);
+
+  // Bottom boundary
+  if (env->isNeighbourExternal(2, 0)){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Ng; k++) {
+            // Bottom
+            stateVector[ID(var, i, j, k)] = stateVector[ID(var, i, j, d->Ng)];
+          }
+        }
+      }
+    }
+  }
+
+  // Top boundary
+  if (env->isNeighbourExternal(2, 1)){
+    for (int var(0); var < nVars; var++) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Ng; k++) {
+            // Top
+            stateVector[ID(var, i, j, d->Nz - d->Ng + k)] = stateVector[ID(var, i, j, d->Nz - d->Ng - 1)];
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+void ParallelFlow::apply(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Allocate one ghost region buffer array the size of the largest ghost region
+  int maxSendBufSize = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * d->Ng;
+  if (d->Ny > 1) {
+      maxSendBufSize *= std::max(d->Nx, d->Ny);
+  }
+  if (d->Nz > 1) {
+    maxSendBufSize *= std::max(std::min(d->Nx, d->Ny), (d->Nz));
+  }
+
+  // TODO -- Could do left and right halo exchange separately and allocate half as many buffers but this would
+  // add twice as many loops
+
+  // Allocate temporary buffers for ghost region exchange
+  // TODO -- should allocate this once at beginning of run
+  double *sendToLeftBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *sendToRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *recvFromRightBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+  double *recvFromLeftBuf = (double *) malloc(maxSendBufSize*sizeof(double));
+
+  int numCellsSent;
+
+  // x dimension
+
+  // Cons
+  numCellsSent = d->Ncons * d->Ng * d->Ny * d->Nz;
+  packXBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+
+  swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+	env->rightXNeighbourRank, numCellsSent);
+
+  unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+  
+  // Prims
+  if (prims) {
+    numCellsSent = d->Nprims * d->Ng * d->Ny * d->Nz;
+    packXBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+          env->rightXNeighbourRank, numCellsSent);
+
+    unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+  }
+
+  // Aux
+  if (aux) {
+    numCellsSent = d->Naux * d->Ng * d->Ny * d->Nz;
+    packXBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftXNeighbourRank,
+          env->rightXNeighbourRank, numCellsSent);
+
+    unpackXBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+  }
+
+  if (d->Ny > 1) {
+    // y dimension
+  
+    // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ng * d->Nz;
+    packYBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+  
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+  	env->rightYNeighbourRank, numCellsSent);
+  
+    unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+    setYBoundary(cons, d->Ncons);
+    
+    // Prims
+    if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ng * d->Nz;
+      packYBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+            env->rightYNeighbourRank, numCellsSent);
+  
+      unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+      setYBoundary(prims, d->Nprims);
+    }
+  
+    // Aux
+    if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ng * d->Nz;
+      packYBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftYNeighbourRank,
+            env->rightYNeighbourRank, numCellsSent);
+  
+      unpackYBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+      setYBoundary(aux, d->Naux);
+    }
+  }
+
+
+  if (d->Nz > 1) {
+    // y dimension
+  
+    // Cons
+    numCellsSent = d->Ncons * d->Nx * d->Ny * d->Ng;
+    packZBuffer(sendToLeftBuf, sendToRightBuf, cons, d->Ncons);
+  
+    swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+  	env->rightZNeighbourRank, numCellsSent);
+  
+    unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, cons, d->Ncons);
+    setZBoundary(cons, d->Ncons);
+    
+    // Prims
+    if (prims) {
+      numCellsSent = d->Nprims * d->Nx * d->Ny * d->Ng;
+      packZBuffer(sendToLeftBuf, sendToRightBuf, prims, d->Nprims);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+            env->rightZNeighbourRank, numCellsSent);
+  
+      unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, prims, d->Nprims);
+      setZBoundary(prims, d->Nprims);
+    }
+  
+    // Aux
+    if (aux) {
+      numCellsSent = d->Naux * d->Nx * d->Ny * d->Ng;
+      packZBuffer(sendToLeftBuf, sendToRightBuf, aux, d->Naux);
+  
+      swapGhostBuffers(sendToLeftBuf, sendToRightBuf, recvFromLeftBuf, recvFromRightBuf, env->leftZNeighbourRank,
+            env->rightZNeighbourRank, numCellsSent);
+  
+      unpackZBuffer(recvFromLeftBuf, recvFromRightBuf, aux, d->Naux);
+      setZBoundary(aux, d->Naux);
+    }
+  }
+
+  free(sendToLeftBuf);
+  free(sendToRightBuf);
+  free(recvFromRightBuf);
+  free(recvFromLeftBuf);
+
+}
+
