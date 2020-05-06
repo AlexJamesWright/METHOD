@@ -287,6 +287,11 @@ class ParallelOutflow : public ParallelBcs
       @sa Bcs::apply
     */
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
+
+    // TODO -- docstring
+    void setXBoundary(double *stateVector, int nVars); 
+    void setYBoundary(double *stateVector, int nVars); 
+    void setZBoundary(double *stateVector, int nVars); 
 };
 
 
