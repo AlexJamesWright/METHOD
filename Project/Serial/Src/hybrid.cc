@@ -125,7 +125,8 @@ double Hybrid::idealWeightID(double * cons, double * prims, double * aux, int i,
 
 bool Hybrid::useResistive(double * cons, double * prims, double * aux)
 {
-  return data->sigmaFunc(cons, prims, aux) <= sigmaCrossOver+sigmaSpan;
+  // Should we use the Resistive C2P?
+  return data->sigmaFunc(cons, prims, aux) < sigmaCrossOver;
 }
 
 void Hybrid::setIdealCPAs(double * rcons, double * rprims, double * raux)
@@ -301,7 +302,7 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
   }
 
   // Now add REGIME source
-  if (useREGIME)
+  if (EGIME)
   {
     setIdealCPAsAll(cons, prims, aux);
     setMasks(cons, prims, aux);
