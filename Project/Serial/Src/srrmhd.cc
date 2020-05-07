@@ -183,6 +183,7 @@ void SRRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, con
           // psi, phi
           f[ID(11, i, j, k)] = cons[ID(10, i, j, k)];
           f[ID(12, i, j, k)] = cons[ID(7, i, j, k)];
+          // qch
           f[ID(13, i, j, k)] = aux[ID(6, i, j, k)];
         }
       }
@@ -308,7 +309,6 @@ void SRRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux
   aux[6] = cons[13] * prims[3] + aux[1] * sigma * (cons[10] + (prims[1] * cons[6] -
            prims[2] * cons[5]) - aux[11] * prims[3]);
 
-
 }
 
 void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
@@ -364,9 +364,6 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
       for (int j(0); j < d->Ny; j++) {
         for (int k(0); k < d->Nz; k++) {
 
-          // What is the conductivity
-          double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
-
           // phi, psi
           cons[ID(11, i, j, k)] = cons[ID(12, i, j, k)] = 0.0;
           // Bx, By, Bz
@@ -395,6 +392,8 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
                                  prims[ID(3, i, j, k)] * cons[ID(10, i, j, k)];
           // W
           aux[ID(1, i, j, k)] = 1.0 / sqrt(1 - aux[ID(9, i, j, k)]);
+          // D
+          cons[ID(0, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)];
           // e
           aux[ID(2, i, j, k)] = prims[ID(4, i, j, k)] / (prims[ID(0, i, j, k)] *
                                 (d->gamma - 1));
@@ -406,6 +405,10 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
           // rhohWsq
           aux[ID(10, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] *
                                  aux[ID(1, i, j, k)] * aux[ID(1, i, j, k)];
+
+          // Set conductivity
+          double sigma(d->sigmaFunc(cons, prims, aux, i, j, k));
+
           // qch, Jx, Jy, Jz
           // 3D
           if (i > 1 && j > 1 && k > 1 && i < d->Nx-2 && j < d->Ny-2 && k < d->Nz-2) {
@@ -476,8 +479,6 @@ void SRRMHD::primsToAll(double *cons, double *prims, double *aux)
             cons[ID(13, i, j, k)] = aux[ID(4, i, j, k)] = aux[ID(5, i, j, k)] =
             aux[ID(6, i, j, k)] = 0.0;
           }
-          // D
-          cons[ID(0, i, j, k)] = prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)];
           // Sx, Sy, Sz
           cons[ID(1, i, j, k)] = aux[ID(10, i, j, k)] * prims[ID(1, i, j, k)] +
                                  cons[ID(9, i, j, k)] * cons[ID(7, i, j, k)] -
