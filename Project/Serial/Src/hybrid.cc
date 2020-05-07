@@ -302,7 +302,7 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
   }
 
   // Now add REGIME source
-  if (REGIME)
+  if (useREGIME)
   {
     setIdealCPAsAll(cons, prims, aux);
     setMasks(cons, prims, aux);
