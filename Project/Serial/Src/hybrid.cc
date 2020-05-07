@@ -109,17 +109,23 @@ void Hybrid::setSubgridModel(FluxMethod * fluxMethod)
 
 double Hybrid::idealWeight(double * cons, double * prims, double * aux)
 {
-  return (tanh((data->sigmaFunc(cons, prims, aux) - sigmaCrossOver) / (sigmaSpan/3))+1)/2;
+  return data->sigmaFunc(cons, prims, aux) < sigmaCrossOver-sigmaSpan ? 0 :
+         data->sigmaFunc(cons, prims, aux) < sigmaCrossOver+sigmaSpan?
+        (tanh((data->sigmaFunc(cons, prims, aux) - sigmaCrossOver) / (sigmaSpan/3))+1)/2 :
+        1;
 }
 
 double Hybrid::idealWeightID(double * cons, double * prims, double * aux, int i, int j, int k)
 {
-  return (tanh((data->sigmaFunc(cons, prims, aux, i, j, k) - sigmaCrossOver) / (sigmaSpan/3))+1)/2;
+  return data->sigmaFunc(cons, prims, aux, i, j, k) < sigmaCrossOver-sigmaSpan ? 0 :
+         data->sigmaFunc(cons, prims, aux, i, j, k) < sigmaCrossOver+sigmaSpan?
+         (tanh((data->sigmaFunc(cons, prims, aux, i, j, k) - sigmaCrossOver) / (sigmaSpan/3))+1)/2 :
+         1;
 }
 
 bool Hybrid::useResistive(double * cons, double * prims, double * aux)
 {
-  return data->sigmaFunc(cons, prims, aux) < sigmaCrossOver;
+  return data->sigmaFunc(cons, prims, aux) <= sigmaCrossOver+sigmaSpan;
 }
 
 void Hybrid::setIdealCPAs(double * rcons, double * rprims, double * raux)
