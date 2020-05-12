@@ -107,6 +107,7 @@ void Simulation::updateTime()
   // Syntax
   Data * d(this->data);
 
+  // TODO -- pass PlatformEnv object in here and check env->rank==0
   printf("t = %f\n", d->t);
 
   // Calculate the size of the next timestep
