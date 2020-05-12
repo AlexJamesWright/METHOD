@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(256);
-  int ny(256);
+  int nx(64);
+  int ny(64);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -49,13 +49,14 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  Periodic bcs(&data);
+
   Simulation sim(&data, &env);
 
   printf("Seed: %d\n", seed);
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  Periodic bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
