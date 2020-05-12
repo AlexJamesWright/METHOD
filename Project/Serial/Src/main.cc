@@ -8,6 +8,7 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
+#include <ctime>
 #include <cstring>
 
 using namespace std;
@@ -17,33 +18,22 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(256);
-  //int nx(4);
-  int ny(256);
-  //int ny(4);
+  int nx(100);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
-  double ymin(0.0);
+  double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  //double endTime(0.5);
+  double endTime(0.4);
   //double endTime(0.0004);
-  double endTime(3);
-  double cfl(0.6);
-  double gamma(4.0/3.0);
-  double sigma(10);
-  double cp(1.0);
-  double mu1(-100);
-  double mu2(100);
-  int frameSkip(10);
-  bool output(false);
-  if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
-  int seed(atoi(argv[1]));
+  double gamma(2.0);
+  double cfl(0.4);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+            cfl, Ng, gamma);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -52,11 +42,9 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data);
 
-  printf("Seed: %d\n", seed);
+  BrioWuSingleFluid init(&data);
 
-  KHRandomInstabilitySingleFluid init(&data, 1, seed);
-
-  Periodic bcs(&data);
+  Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
@@ -64,17 +52,17 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-
+  
   // Time execution of programme
-  //double startTime(omp_get_wtime());
+  clock_t startTime(clock());
 
   // Run until end time and save results
-  sim.evolve(output);
+  sim.evolve();
 
-  //double timeTaken(omp_get_wtime() - startTime);
+  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
-  //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 
