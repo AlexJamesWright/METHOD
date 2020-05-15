@@ -12,10 +12,9 @@
 
 using namespace std;
 
-//! <b> Class used to save simulation data </b>
+//! <b> Class used to save simulation data using a single process</b>
 /*!
   @par
-    Abstract base class to allow for different output schemes in a parallel environment.
   Class is initialized with the data that is to be saved. Saves the simulation
   data in the Data directory, located within the Project folder. All data is
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
