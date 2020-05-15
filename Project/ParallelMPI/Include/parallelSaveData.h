@@ -12,10 +12,13 @@
 
 using namespace std;
 
-//! <b> Class used to save simulation data </b>
+//! <b> Class used to save simulation data using multiple processes</b>
 /*!
   @par
-    Abstract base class to allow for different output schemes in a parallel environment.
+  Write outputs through the simple system of collecting all simulation data onto process 0
+  and writing out from process 0. This is easy to code but has the downside of limiting
+  the problem size to one that will fit onto one node.
+
   Class is initialized with the data that is to be saved. Saves the simulation
   data in the Data directory, located within the Project folder. All data is
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
@@ -27,15 +30,42 @@ class ParallelSaveData : public SaveData
 
     double *fullStateVector;     //! temporary buffer containing all non-ghost cells for one of cons/prims/aux
 
-    // TODO -- docstring
+    /*!
+        For each particular state vector (cons, prims, aux) packs a buffer containing all cells in a subdomain
+      (not including ghost values) to be sent to process 0
+      @param[out] *buffer pointer to the buffer to pack
+      @param[in] *stateVector pointer to cons, prims or aux array
+      @param[in] nVars number of variables in the cons, prims or aux array          
+     */
     void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
-    void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
-    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
-    void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
-    void parallelSaveCons(double *fullStateVector);
-    void parallelSavePrims(double *fullStateVector);
-    void parallelSaveAux(double *fullStateVector);
 
+    /*!
+        For each subdomain, send a buffer containing the non-ghost cells in that subdomain to a buffer on process 0.
+      @param[in, out] *buffer pointer to the buffer to send or receive
+      @param[in] numCellsSent number of cells in the buffer
+      @param[in] rank global id of the process sending its buffer to process 0
+     */
+    void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
+
+    /*!
+        For each particular state vector (cons, prims, aux) unpacks a buffer containing all cells
+      (not including ghost values) received from a particular subdomain into a vector containing
+      the full simulation domain
+      @param[in] *buffer pointer to the buffer to unpack
+      @param[in, out] *stateVector pointer to cons, prims or aux array of size equal to the full simulation domain
+      @param[in] rank global id of the process that sent its buffer to process 0
+     */
+    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
+
+    /*!
+        Process 0 already holds the values for its own subdomain, so does not need to send them anywhere.
+      Instead, it needs to copy its subdomain values (cons, prims, aux) to the vector containing
+      the full simulation domain
+      @param[in, out] *fullStateVector pointer to cons, prims or aux array of size equal to the full simulation domain
+      @param[in] *stateVector pointer to cons, prims or aux array for process 0's subdomain
+      @param[in] nVars number of variables in the cons, prims or aux array          
+     */
+    void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
 
   public:
 
