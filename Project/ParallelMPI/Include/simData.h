@@ -66,6 +66,7 @@ class Data
     sigma;                 //!< Resistivity
     int
     memSet,                //!< Indicator that memory has been allocated for state vectors
+    bcsSet,                //!< Indicator that boundary conditions have been created (before this information about the domain decomposition used in MPI version will not be correct). 
     //@{
     Ncons, Nprims, Naux;   //!< Number of specified variables
     //@}

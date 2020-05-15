@@ -27,7 +27,10 @@ class Bcs
       @param[in] *data pointer to the Data class
       @param[in] *env pointer to the PlatformEnv class
     */
-    Bcs(Data * data, PlatformEnv * env) : data(data), env(env) { }
+    Bcs(Data * data, PlatformEnv * env) : data(data), env(env) 
+    { 
+        data->bcsSet = 1;
+    }
 
     //TODO -- We may not want to allow creation of Bcs object without env in future 
     //! Constructor store data about simulation (needed for domain)
@@ -37,7 +40,10 @@ class Bcs
       @param[in] *data pointer to the Data class
     */
    
-    Bcs(Data * data) : data(data) { }
+    Bcs(Data * data) : data(data) 
+    { 
+        data->bcsSet = 1;
+    }
 
   public:
 

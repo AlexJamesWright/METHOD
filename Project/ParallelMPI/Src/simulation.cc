@@ -14,7 +14,10 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data)
   // Allocate memory for state arrays
   int Ntot(d->Nx * d->Ny * d->Nz);
 
-  if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
+  if (env->rank==0){
+      if (d->Ncons == 0) throw std::runtime_error("Must set model before constructing simulation");
+      if (d->bcsSet != 1) throw std::runtime_error("Must construct boundary condition class before implementing simulation. Need to set domain decomposition parameters including periodicity.");
+  }
 
   d->cons   = (double *) malloc(sizeof(double) * Ntot * d->Ncons);
   d->f      = (double *) malloc(sizeof(double) * Ntot * d->Ncons);

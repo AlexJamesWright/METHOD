@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(256);
-  int ny(256);
+  int nx(64);
+  int ny(64);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -27,8 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  //double endTime(3.0);
-  double endTime(0.0);
+  double endTime(3.0);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -56,13 +55,14 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  ParallelPeriodic bcs(&data, &env);
+
   Simulation sim(&data, &env);
 
   printf("Seed: %d\n", seed);
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  ParallelPeriodic bcs(&data, &env);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 

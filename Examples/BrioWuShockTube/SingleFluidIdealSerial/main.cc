@@ -41,11 +41,11 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  Outflow bcs(&data);
+
   Simulation sim(&data, &env);
 
   BrioWuSingleFluid init(&data);
-
-  Outflow bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
