@@ -49,13 +49,14 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  Periodic bcs(&data);
+
   Simulation sim(&data, &env);
 
   printf("Seed: %d\n", seed);
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  Periodic bcs(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
