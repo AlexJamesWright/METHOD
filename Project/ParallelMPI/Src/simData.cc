@@ -14,6 +14,7 @@ Data::Data(int nx, int ny, int nz,
            double gamma, double sigma,
            double cp,
            double mu1, double mu2, int frameSkip,
+           int reportItersPeriod,
            bool functionalSigma, double gam)
            :
            nx(nx), ny(ny), nz(nz),
@@ -26,6 +27,7 @@ Data::Data(int nx, int ny, int nz,
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
            mu1(mu1), mu2(mu2), frameSkip(frameSkip),
+           reportItersPeriod(reportItersPeriod),
            functionalSigma(functionalSigma), gam(gam)
 {
 

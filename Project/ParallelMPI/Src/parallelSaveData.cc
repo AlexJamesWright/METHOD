@@ -183,8 +183,6 @@ void ParallelSaveData::unpackStateVectorBuffer(double *buffer, double *stateVect
       kOffset = rankCoords[2] * (d->Nz - (d->Ng*2));
   } else kOffset = 0;
 
-  printf("rankCoords: %d %d\n", rankCoords[0], rankCoords[1]);
-
   if (d->dims==3){
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->Nx-(d->Ng*2); i++) {

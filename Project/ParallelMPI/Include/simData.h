@@ -101,7 +101,8 @@ class Data
     dx, dy, dz;            //!< Witdth of specified spatial step
     //@}
     int
-    iters,                 //!< Number of interations that have been completed
+    iters,                 //!< Number of iterations that have been completed
+    reportItersPeriod,     //!< Period with which time step data is reported to screen during program execution
     //@{
     Nx, Ny, Nz;            //!< Total number of compute cells in domain in the specified direction
     //@}
@@ -176,18 +177,21 @@ class Data
       @param mu2 charge mass ratio of species 2
       @param frameskip number of timesteps per file output
       @param env environment object containing platform details eg MPI ranks
+      @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
     Data(int nx, int ny, int nz,
          double xmin, double xmax,
          double ymin, double ymax,
          double zmin, double zmax,
-         double endTime, 
- 	 PlatformEnv *env,
+         double endTime,
+ 	     PlatformEnv *env,
          double cfl=0.5, int Ng=4,
-         double gamma=5.0/3.0, double sigma=1e3,
+         double gamma=5.0/3.0, 
+         double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
          int frameskip=10,
+         int reportItersPeriod=1,
          bool funtionalSigma=false, double gam=12);
 
 };

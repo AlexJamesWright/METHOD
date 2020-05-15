@@ -59,6 +59,7 @@ class PlatformEnv
            @param[in] dimension {x=0, y=1, z=2}
            @param[in] direction direction to look for the external boundary in a particular direction {low=0, high=1}
         */
+        int isNeighbourExternal(int dimension, int direction);
 
         //! Create cartesian grid of processes and calculate neighbours along that grid for each process
         /*!

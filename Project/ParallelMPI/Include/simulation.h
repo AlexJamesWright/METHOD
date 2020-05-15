@@ -37,6 +37,8 @@ class Simulation
 
     SaveData * save;            //!< Pointer to SaveData object
 
+    PlatformEnv *env;           //!< Pointer to PlatformEnv object 
+
   public:
 
     Data * data;                //!< Pointer to Data class containing global simulation data
@@ -76,6 +78,7 @@ class Simulation
       @param[in] *bcs pointer to Bcs object
       @param[in] *fluxMethod pointer to FluxMethod object
       @param[in] *save pointer to the SaveData object
+      @param[in] *env pointer to the PlatformEnv object
     */
     void set(InitialFunc * init, Model * model,
              TimeIntegrator * timeInt, Bcs * bcs,
