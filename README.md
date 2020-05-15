@@ -43,6 +43,27 @@ additional source term into the equations of motion.
 ---------------------------------------------
 <br> <br>
 
+## Implemented in parallel version
+
+### Initial conditions
+
+Implemented and tested
+* KHRandomInstabilitySingleFluid
+* BrioWuSingleFluid
+
+All other initial conditions are unimplemented
+
+### Boundary conditions
+
+Implemented and tested
+* ParallelPeriodic
+* ParallelOutflow
+
+Implemented but untested
+* ParallelFlow
+
+Unimplemented
+* OutflowRotatedBW
 
 ## Getting started
 To begin using METHOD, first clone the repository

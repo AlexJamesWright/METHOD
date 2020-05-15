@@ -20,7 +20,9 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	printf("Initialised MPI. nProc %d, rankId %d\n", nProc, rank);
+	if (rank==0){
+        printf("Running in multi-process mode with %d processes\n", nProc);
+    }
 
 	this->nxRanks = nxRanks;
 	this->nyRanks = nyRanks;
@@ -102,7 +104,6 @@ void PlatformEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPe
 	// Get (x,y,z) coords of rank in grid and set on object
 	MPI_Cart_coords(mpiCartesianComm, rank, ndims, coords);
 	xRankId = coords[0]; 
-	printf("!!! x rank id: %d in %d\n\n", xRankId, rank);
 	if (nyRanks > 1) yRankId = coords[1];
 	if (nzRanks > 1) zRankId = coords[2];	
 

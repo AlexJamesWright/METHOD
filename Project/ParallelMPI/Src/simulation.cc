@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-Simulation::Simulation(Data * data, PlatformEnv *env) : data(data)
+Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
 {
   // Simplify syntax
   Data * d;
@@ -111,7 +111,9 @@ void Simulation::updateTime()
   Data * d(this->data);
 
   // TODO -- pass PlatformEnv object in here and check env->rank==0
-  printf("t = %f\n", d->t);
+  if (env->rank == 0 && (d->iters % d->reportItersPeriod == 0 )) {
+      printf("t = %f\n", d->t);
+  }
 
   // Calculate the size of the next timestep
   double dtX(d->cfl * d->dx / (d->alphaX * sqrt(d->dims)));

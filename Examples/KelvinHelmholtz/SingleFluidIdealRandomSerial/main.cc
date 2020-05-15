@@ -38,11 +38,12 @@ int main(int argc, char *argv[]) {
   bool output(false);
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
+  int reportItersPeriod(20);
 
   PlatformEnv env(&argc, &argv, 1, 1, 1);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   SRMHD model(&data);

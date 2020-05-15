@@ -43,12 +43,12 @@ int main(int argc, char *argv[]) {
   double nyRanks(2);
   double nzRanks(1);
 
+  int reportItersPeriod(50);
+
   PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
-
-  printf("!!!!\n\n: USE_MPI\n");
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -59,7 +59,9 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  printf("Seed: %d\n", seed);
+  if (env.rank==0){
+      printf("Seed: %d\n", seed);
+  }
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
