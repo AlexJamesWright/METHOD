@@ -25,7 +25,7 @@ RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI) -g
+CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI)
 
 # Sources
 SRCS = simulation.cc \

@@ -110,7 +110,6 @@ void Simulation::updateTime()
   // Syntax
   Data * d(this->data);
 
-  // TODO -- pass PlatformEnv object in here and check env->rank==0
   if (env->rank == 0 && (d->iters % d->reportItersPeriod == 0 )) {
       printf("t = %f\n", d->t);
   }
