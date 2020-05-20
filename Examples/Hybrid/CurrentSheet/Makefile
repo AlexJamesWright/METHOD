@@ -30,7 +30,7 @@ SRCS = simulation.cc 					\
 			 simData.cc 						\
 			 weno.cc 								\
 			 RK2.cc 								\
-			 rkSplit.cc 						\
+			 rkSplit2ndOrder.cc 						\
 			 boundaryConds.cc 			\
 			 saveData.cc 						\
 			 REGIME.cc						 	\
@@ -116,7 +116,7 @@ weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
 RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
 		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
+rkSplit2ndOrder.o : $(MODULE_DIR)/rkSplit2ndOrder.cc $(INC_DIR)/rkSplit2ndOrder.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
