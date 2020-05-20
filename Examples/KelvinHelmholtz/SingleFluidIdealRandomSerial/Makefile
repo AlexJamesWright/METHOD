@@ -6,6 +6,7 @@
 CC = g++
 
 USE_MPI = 0
+USE_OMP = 0
 
 PROJECT_TYPE = ParallelMPI
 
@@ -24,8 +25,12 @@ RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
 
+ifeq ($(USE_OMP), 1)
+    OMP_FLAGS = -fopenmp
+endif
+
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3
+CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI) $(OMP_FLAGS)
 
 # Sources
 SRCS = simulation.cc \
@@ -149,7 +154,7 @@ platformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -D$(USE_MPI)
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -DUSE_MPI=$(USE_MPI)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

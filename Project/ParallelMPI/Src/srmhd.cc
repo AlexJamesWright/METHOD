@@ -15,6 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 
+
 SRMHD::SRMHD() : Model()
 {
   this->Ncons = 9;
@@ -376,7 +377,6 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
 
 }
 
-
 //! Solve for the primitive and auxiliary variables
 /*!
     Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
@@ -387,6 +387,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   old values for the prims and aux vectors.
   Output is the current values of cons, prims and aux.
 */
+
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
@@ -395,77 +396,100 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
   const int n(2);                     // Size of system
-  double sol[2];                      // Guess and solution vector
-  double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
   const double tol = 1.49011612e-7;   // Tolerance of rootfinder
-  const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
-  double wa[lwa];                     // Work array
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
 
-  // Loop through domain solving and setting the prim and aux vars
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        // Update possible values
-        // Bx, By, Bz
-        prims[ID(5, i, j, k)] = cons[ID(5, i, j, k)];
-        prims[ID(6, i, j, k)] = cons[ID(6, i, j, k)];
-        prims[ID(7, i, j, k)] = cons[ID(7, i, j, k)];
+  # pragma omp parallel \
+    default  (none) \
+    shared   (cons, prims, aux, solution, fails, d) \
+    private  (args, info) 
+  {
+    // We declare d a shared rather than private variable here to avoid a copy of the Data object being made for every thread.
+    // d must be treated as read only.
+    
+    // Vars defined in OMP parallel region will be private per thread -- this is what we want for our working arrays
+    double sol[2];                      // Guess and solution vector
+    double res[2];                      // Residual/fvec vector
+    const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
+    double wa[lwa];                     // Work array
 
-        // BS
-        aux[ID(10, i, j, k)] = cons[ID(5, i, j, k)] * cons[ID(1, i, j, k)] +
-                                  cons[ID(6, i, j, k)] * cons[ID(2, i, j, k)] +
-                                  cons[ID(7, i, j, k)] * cons[ID(3, i, j, k)];
-        // Bsq
-        aux[ID(11, i, j, k)] = cons[ID(5, i ,j, k)] * cons[ID(5, i, j, k)] +
-                                  cons[ID(6, i, j, k)] * cons[ID(6, i, j, k)] +
-                                  cons[ID(7, i, j, k)] * cons[ID(7, i, j, k)];
-        // Ssq
-        aux[ID(12, i, j, k)] = cons[ID(1, i ,j, k)] * cons[ID(1, i, j, k)] +
-                                  cons[ID(2, i, j, k)] * cons[ID(2, i, j, k)] +
-                                  cons[ID(3, i, j, k)] * cons[ID(3, i, j, k)];
+    // Loop through domain solving and setting the prim and aux vars
+    # pragma omp for
+    for (int i=0; i < d->Nx; i++) {
+      for (int j=0; j < d->Ny; j++) {
+        for (int k=0; k < d->Nz; k++) {
+          // Update possible values
+          // Bx, By, Bz
+          prims[ID(5, i, j, k)] = cons[ID(5, i, j, k)];
+          prims[ID(6, i, j, k)] = cons[ID(6, i, j, k)];
+          prims[ID(7, i, j, k)] = cons[ID(7, i, j, k)];
+
+          // BS
+          aux[ID(10, i, j, k)] = cons[ID(5, i, j, k)] * cons[ID(1, i, j, k)] +
+                                    cons[ID(6, i, j, k)] * cons[ID(2, i, j, k)] +
+                                    cons[ID(7, i, j, k)] * cons[ID(3, i, j, k)];
+          // Bsq
+          aux[ID(11, i, j, k)] = cons[ID(5, i ,j, k)] * cons[ID(5, i, j, k)] +
+                                    cons[ID(6, i, j, k)] * cons[ID(6, i, j, k)] +
+                                    cons[ID(7, i, j, k)] * cons[ID(7, i, j, k)];
+          // Ssq
+          aux[ID(12, i, j, k)] = cons[ID(1, i ,j, k)] * cons[ID(1, i, j, k)] +
+                                    cons[ID(2, i, j, k)] * cons[ID(2, i, j, k)] +
+                                    cons[ID(3, i, j, k)] * cons[ID(3, i, j, k)];
 
 
-        // Set additional args for rootfind
-        args.D = cons[ID(0, i, j, k)];
-        args.g = d->gamma;
-        args.BS = aux[ID(10, i, j, k)];
-        args.Bsq = aux[ID(11, i, j, k)];
-        args.Ssq = aux[ID(12, i, j, k)];
-        args.tau = cons[ID(4, i, j, k)];
+          // Set additional args for rootfind
+          args.D = cons[ID(0, i, j, k)];
+          args.g = d->gamma;
+          args.BS = aux[ID(10, i, j, k)];
+          args.Bsq = aux[ID(11, i, j, k)];
+          args.Ssq = aux[ID(12, i, j, k)];
+          args.tau = cons[ID(4, i, j, k)];
 
-        sol[0] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
-                 prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
-                 prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
-        sol[1] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] /
-                 (1 - sol[0]);
+          sol[0] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                   prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                   prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
+          sol[1] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] /
+                   (1 - sol[0]);
 
-        // Solve residual = 0
-        info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
-                                          tol, wa, lwa);
-        // If root find fails, add failed cell to the list
-        if (info!=1) {
-          Failed fail = {i, j, k};
-          fails.push_back(fail);
-        }
-        else {
-          // Now have the correct values for vsq and rho*h*Wsq
-          solution[ID(0, i, j, k)] = sol[0];
-          solution[ID(1, i, j, k)] = sol[1];
-        }
+          // Solve residual = 0
+          info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
+                                            tol, wa, lwa);
+          // If root find fails, add failed cell to the list
+          if (info!=1) {
+            #pragma omp critical
+            {
+              // We hope this doesn't happen often and therefore don't mind executing this in serial
+              Failed fail = {i, j, k};
+              fails.push_back(fail);
+            }
+          }
+          else {
+            // Now have the correct values for vsq and rho*h*Wsq
+            solution[ID(0, i, j, k)] = sol[0];
+            solution[ID(1, i, j, k)] = sol[1];
+          }
 
-      } // End k-loop
-    } // End j-loop
-  } // End i-loop
+        } // End k-loop
+      } // End j-loop
+    } // End i-loop
+  } // End parallel region
 
 
 
 
 
   // ################################## Smart guessing ########################### //
+  // Again, we hope this doesn't happen often so don't bother parallelising with OMP
   // Are there any failures?
   if (fails.size() > 0) {
+    // These vars needed to be defined locally for OMP in the loop above. Define them again in this scope
+    double sol[2];                      // Guess and solution vector
+    double res[2];                      // Residual/fvec vector
+    const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
+    double wa[lwa];                     // Work array
+
     int x, y, z;
     // Loop through any failed cells and try again, using the mean of successfull
     // surrounding cells solutions as an initial estimate
@@ -507,63 +531,67 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 
-
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        // W
-        aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
-        // rho
-        prims[ID(0, i, j, k)] = cons[ID(0, i, j, k)] / aux[ID(1, i, j, k)];
-        // h
-        aux[ID(0, i, j, k)] = solution[ID(1, i, j, k)] / (prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
-                                 aux[ID(1, i, j, k)]);
-        // p
-        prims[ID(4, i, j, k)] = (aux[ID(0, i, j, k)] - 1) * prims[ID(0, i, j, k)] *
-                                   (d->gamma - 1) / d->gamma;
-        // e
-        aux[ID(2, i, j, k)] = prims[ID(4, i, j, k)] / (prims[ID(0, i, j, k)] *
-                                 (d->gamma - 1));
-        // vx, vy, vz
-        prims[ID(1, i, j, k)] = (cons[ID(5, i, j, k)] * aux[ID(10, i, j, k)] +
-                                   cons[ID(1, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
-                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
-        prims[ID(2, i, j, k)] = (cons[ID(6, i, j, k)] * aux[ID(10, i, j, k)] +
-                                   cons[ID(2, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
-                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
-        prims[ID(3, i, j, k)] = (cons[ID(7, i, j, k)] * aux[ID(10, i, j, k)] +
-                                   cons[ID(3, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
-                                   (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
-        aux[ID(9, i, j, k)] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
-                                 prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
-                                 prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
-        // c
-        aux[ID(3, i, j, k)] = sqrt(aux[ID(2, i, j, k)] * d->gamma * (d->gamma -1) /
-                              aux[ID(0, i, j, k)]);
-        // b0
-        aux[ID(4, i, j, k)] = aux[ID(1, i, j, k)] * (cons[ID(5, i, j, k)] * prims[ID(1, i, j, k)] +
-                                                           cons[ID(6, i, j, k)] * prims[ID(2, i, j, k)] +
-                                                           cons[ID(7, i, j, k)] * prims[ID(3, i, j, k)]);
-        // bx, by, bz
-        aux[ID(5, i, j, k)] = cons[ID(5, i, j, k)] / aux[ID(1, i, j, k)] +
-                                 aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)];
-        aux[ID(6, i, j, k)] = cons[ID(6, i, j, k)] / aux[ID(1, i, j, k)] +
-                                 aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)];
-        aux[ID(7, i, j, k)] = cons[ID(7, i, j, k)] / aux[ID(1, i, j, k)] +
-                                 aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)];
-        // bsq
-        aux[ID(8, i, j, k)] = (prims[ID(5, i, j, k)] * prims[ID(5, i, j, k)] +
-                                 prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] +
-                                 prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] +
-                                 aux[ID(4, i, j, k)] * aux[ID(4, i, j, k)]) /
-                                 (aux[ID(1, i, j, k)] * aux[ID(1, i, j, k)]);
-      } // End k-loop
-    } // End j-loop
-  } // End i-loop
+  # pragma omp parallel \
+    default  (none) \
+    shared   (cons, prims, aux, solution, d)
+  {
+    // Loop through domain solving and setting the prim and aux vars
+    # pragma omp for
+    for (int i=0; i < d->Nx; i++) {
+      for (int j=0; j < d->Ny; j++) {
+        for (int k=0; k < d->Nz; k++) {
+          // W
+          aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
+          // rho
+          prims[ID(0, i, j, k)] = cons[ID(0, i, j, k)] / aux[ID(1, i, j, k)];
+          // h
+          aux[ID(0, i, j, k)] = solution[ID(1, i, j, k)] / (prims[ID(0, i, j, k)] * aux[ID(1, i, j, k)] *
+                                   aux[ID(1, i, j, k)]);
+          // p
+          prims[ID(4, i, j, k)] = (aux[ID(0, i, j, k)] - 1) * prims[ID(0, i, j, k)] *
+                                     (d->gamma - 1) / d->gamma;
+          // e
+          aux[ID(2, i, j, k)] = prims[ID(4, i, j, k)] / (prims[ID(0, i, j, k)] *
+                                   (d->gamma - 1));
+          // vx, vy, vz
+          prims[ID(1, i, j, k)] = (cons[ID(5, i, j, k)] * aux[ID(10, i, j, k)] +
+                                     cons[ID(1, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                     (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+          prims[ID(2, i, j, k)] = (cons[ID(6, i, j, k)] * aux[ID(10, i, j, k)] +
+                                     cons[ID(2, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                     (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+          prims[ID(3, i, j, k)] = (cons[ID(7, i, j, k)] * aux[ID(10, i, j, k)] +
+                                     cons[ID(3, i, j, k)] * solution[ID(1, i, j, k)]) / (solution[ID(1, i, j, k)] *
+                                     (aux[ID(11, i, j, k)] + solution[ID(1, i, j, k)]));
+          aux[ID(9, i, j, k)] = prims[ID(1, i, j, k)] * prims[ID(1, i, j, k)] +
+                                   prims[ID(2, i, j, k)] * prims[ID(2, i, j, k)] +
+                                   prims[ID(3, i, j, k)] * prims[ID(3, i, j, k)];
+          // c
+          aux[ID(3, i, j, k)] = sqrt(aux[ID(2, i, j, k)] * d->gamma * (d->gamma -1) /
+                                aux[ID(0, i, j, k)]);
+          // b0
+          aux[ID(4, i, j, k)] = aux[ID(1, i, j, k)] * (cons[ID(5, i, j, k)] * prims[ID(1, i, j, k)] +
+                                                             cons[ID(6, i, j, k)] * prims[ID(2, i, j, k)] +
+                                                             cons[ID(7, i, j, k)] * prims[ID(3, i, j, k)]);
+          // bx, by, bz
+          aux[ID(5, i, j, k)] = cons[ID(5, i, j, k)] / aux[ID(1, i, j, k)] +
+                                   aux[ID(4, i, j, k)] * prims[ID(1, i, j, k)];
+          aux[ID(6, i, j, k)] = cons[ID(6, i, j, k)] / aux[ID(1, i, j, k)] +
+                                   aux[ID(4, i, j, k)] * prims[ID(2, i, j, k)];
+          aux[ID(7, i, j, k)] = cons[ID(7, i, j, k)] / aux[ID(1, i, j, k)] +
+                                   aux[ID(4, i, j, k)] * prims[ID(3, i, j, k)];
+          // bsq
+          aux[ID(8, i, j, k)] = (prims[ID(5, i, j, k)] * prims[ID(5, i, j, k)] +
+                                   prims[ID(6, i, j, k)] * prims[ID(6, i, j, k)] +
+                                   prims[ID(7, i, j, k)] * prims[ID(7, i, j, k)] +
+                                   aux[ID(4, i, j, k)] * aux[ID(4, i, j, k)]) /
+                                   (aux[ID(1, i, j, k)] * aux[ID(1, i, j, k)]);
+        } // End k-loop
+      } // End j-loop
+    } // End i-loop
+  } // End parallle region
 
 }
-
-
 
 
 
