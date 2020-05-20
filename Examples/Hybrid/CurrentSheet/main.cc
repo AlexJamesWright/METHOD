@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  model.setSubgridModel(&fluxMethod);
+  model.setupREGIME(&fluxMethod);
 
   Simulation sim(&data);
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 

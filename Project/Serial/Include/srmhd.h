@@ -124,13 +124,13 @@ class SRMHD : public Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
 
-      @param *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
-      @param *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
-      @param *source pointer to source vector work array. Size is \f$N_{cons}\f$
-      @param i cell number in x-direction (optional)
-      @param j cell number in y-direction (optional)
-      @param k cell number in z-direction (optional)
+      @param[in] cons pointer to conserved vector. Size is \f$N_{cons}\f$
+      @param[in] prims pointer to primitive vector. Size is \f$N_{prims}\f$
+      @param[in] aux pointer to auxiliary vector. Size is \f$N_{aux}\f$
+      @param[in, out] source pointer to source vector. Size is \f$N_{cons}\f$
+      @param i int cell number in x-direction (optional)
+      @param j int cell number in y-direction (optional)
+      @param k int cell number in z-direction (optional)
       @sa Model::sourceTermSingleCell
     */
     void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
@@ -149,7 +149,7 @@ class SRMHD : public Model
     */
     void sourceTerm(double *cons, double *prims, double *aux, double *source);
 
-    //! Single cell cons2prims conversion
+    //! Single cell conservative to primitive transformation
     /*!
       @par
         For the same reason as outlined in sourceTermSingleCell, some models will
@@ -158,17 +158,17 @@ class SRMHD : public Model
         Each of the arguments are only for a single cell, ie, cons points to
       an (Ncons,) array, etc.
 
-      @param *cons pointer to conserved vector work array. Size is \f$N_{cons}\f$
-      @param *prims pointer to primitive vector work array. Size is \f$N_{prims}\f$
-      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}\f$
-      @param i cell number in x-direction (optional)
-      @param j cell number in y-direction (optional)
-      @param k cell number in z-direction (optional)
+      @param[in] cons pointer to conserved vector. Size is \f$N_{cons}\f$
+      @param[in] prims pointer to primitive vector. Size is \f$N_{prims}\f$
+      @param[in] aux pointer to auxiliary vector. Size is \f$N_{aux}\f$
+      @param i int cell number in x-direction (optional)
+      @param j int cell number in y-direction (optional)
+      @param k int cell number in z-direction (optional)
       @sa Model::getPrimitiveVarsSingleCell
     */
     void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1);
 
-    //! Spectral decomposition
+    //! Conservative to primitive transformation for all cells
     /*!
       @par
         Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
@@ -179,9 +179,9 @@ class SRMHD : public Model
       <b> old </b> values for the prims and aux vectors.
       Output will be the current values of cons, prims and aux.
 
-      @param *cons pointer to conserved vector work array. Size is \f$N_{cons}*N_x*N_y*N_z\f$
-      @param *prims pointer to primitive vector work array. Size is \f$N_{prims}*N_x*N_y*N_z\f$
-      @param *aux pointer to auxiliary vector work array. Size is \f$N_{aux}*N_x*N_y*N_z\f$
+      @param[in] cons pointer to conserved vector. Size is \f$N_{cons}*N_x*N_y*N_z\f$
+      @param[in] prims pointer to primitive vector. Size is \f$N_{prims}*N_x*N_y*N_z\f$
+      @param[in] aux pointer to auxiliary vector. Size is \f$N_{aux}*N_x*N_y*N_z\f$
       @sa Model::getPrimitiveVars
     */
     void getPrimitiveVars(double *cons, double *prims, double *aux);
