@@ -22,6 +22,9 @@
 */
 class Simulation
 {
+  public:
+
+    Data * data;                //!< Pointer to Data class containing global simulation data
 
   private:
 
@@ -40,8 +43,6 @@ class Simulation
     PlatformEnv *env;           //!< Pointer to PlatformEnv object 
 
   public:
-
-    Data * data;                //!< Pointer to Data class containing global simulation data
 
     //! Constructor
     /*!

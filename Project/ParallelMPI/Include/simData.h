@@ -77,6 +77,8 @@ class Data
     //@}
     int
     frameSkip;             //!< Number of timesteps per file output
+    int
+    reportItersPeriod;     //!< Period with which time step data is reported to screen during program execution
     bool
     functionalSigma;       //!< Are we using a functional (vs homogeneous) conductivity?
     double
@@ -102,7 +104,6 @@ class Data
     //@}
     int
     iters,                 //!< Number of iterations that have been completed
-    reportItersPeriod,     //!< Period with which time step data is reported to screen during program execution
     //@{
     Nx, Ny, Nz;            //!< Total number of compute cells in domain in the specified direction
     //@}

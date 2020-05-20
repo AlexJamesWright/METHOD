@@ -32,6 +32,11 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
     this->nxRanks = 1;
     this->nyRanks = 1;
     this->nzRanks = 1;
+    this->xRankId = 0;
+    this->yRankId = 0;
+    this->zRankId = 0;
+    this->rank = 0;
+    this->nProc = 1;
 #endif
 }
 
