@@ -78,7 +78,6 @@ class Hybrid : public Model
 
     ~Hybrid();  //!< Destructor
 
-  private:
     //! Setup the REGIME model
     /*!
       @par
@@ -89,6 +88,7 @@ class Hybrid : public Model
     */
     void setupREGIME(FluxMethod * fluxMethod);
 
+  private:
     //! Penalty function: ideal contribution
     /*!
       @par
@@ -173,7 +173,7 @@ class Hybrid : public Model
         @param[in] cons pointer to conserved vector. Size is \f$N_{cons}*N_x*N_y*N_z\f$.
         @param[in] prims pointer to primitive vector. Size is \f$N_{prims}*N_x*N_y*N_z\f$.
         @param[in] aux pointer to auxiliary vector. Size is \f$N_{aux}*N_x*N_y*N_z\f$.
-        @param[out] mask pointer to mask array. 
+        @param[out] mask pointer to mask array.
     */
     void setMasks(double * cons, double * prims, double * aux);
 
