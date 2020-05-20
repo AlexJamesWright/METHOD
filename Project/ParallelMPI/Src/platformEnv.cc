@@ -107,10 +107,11 @@ void PlatformEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPe
 	int coords[3];
 
 	// Get (x,y,z) coords of rank in grid and set on object
+    // This is a 3D topology regardless of how many processes we use in each dimension
 	MPI_Cart_coords(mpiCartesianComm, rank, ndims, coords);
 	xRankId = coords[0]; 
-	if (nyRanks > 1) yRankId = coords[1];
-	if (nzRanks > 1) zRankId = coords[2];	
+	yRankId = coords[1];
+	zRankId = coords[2];	
 
 	// Get neighbour rank  
 	int direction = 0;
