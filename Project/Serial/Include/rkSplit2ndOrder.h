@@ -59,6 +59,16 @@ class RKSplit2 : public RK2
     RKSplit2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
             RK2(data, model, bcs, fluxMethod, modelExtension) { }
 
+    //! Set source vector
+    /*!
+      @par
+        Calculate the total source vector, including any contributions from the
+      model extensions. Source vector is written into data->source.
+
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f.
+    */
     void setSource(double * cons, double * prims, double * aux);
 
     //! Performs a single time step

@@ -49,7 +49,6 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  // RK2::finalise(cons, prims, aux);
   model->finalise(cons, prims, aux);
-  RK2::finalise(cons, prims, aux);
+  finalise(cons, prims, aux);
 }
