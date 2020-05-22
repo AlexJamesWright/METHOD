@@ -324,9 +324,9 @@ void SRRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
   singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
 
         // Store this cell's cons data and rhohWsq from last step
         for (int var(0); var < d->Ncons; var++) {

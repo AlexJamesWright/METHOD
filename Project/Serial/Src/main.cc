@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(30);
+  int nx(200);
   int ny(0);
   int nz(0);
   double xmin(-3);
@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
   double ymax(1);
   double zmin(-1.0);
   double zmax(1.0);
-  double endTime(7);
-  double cfl(0.8);
+  double endTime(0.4);
+  double cfl(0.4);
   double gamma(2.0);
   double sigma(50);
   double cp(1.0);
@@ -67,15 +67,15 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  REGIME modelExtension(&data, &fluxMethod);
+  // REGIME modelExtension(&data, &fluxMethod);
 
   Simulation sim(&data);
 
-  CurrentSheetSingleFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
+  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod);//, &modelExtension);
 
   SaveData save(&data);
 

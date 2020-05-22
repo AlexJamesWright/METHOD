@@ -110,8 +110,11 @@ class Data
     auxLabels;
     //@}
     int
-    dims;                  //!< Number of dimensions of simulation
-
+    dims,                  //!< Number of dimensions of simulation
+    //@{
+    is, js, ks,
+    ie, je, ke;            //!< Cell IDs for interior grid points
+    //@}
 
     //! Element ID function
     /*!

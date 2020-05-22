@@ -49,5 +49,5 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  RK2::finalise(cons, prims, aux);
+  finalise(cons, prims, aux);
 }
