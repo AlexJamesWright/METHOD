@@ -92,7 +92,8 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  model->getPrimitiveVars(U1, tempprims, tempaux);
+  // model->getPrimitiveVars(U1, tempprims, tempaux);
+  finalise(U1, tempprims, tempaux);
   model->sourceTerm(U1, tempprims, tempaux, source1);
   fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
   bcs->apply(U1);
@@ -135,8 +136,9 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  bcs->apply(U2, tempprims, tempaux);
-  model->getPrimitiveVars(U2, tempprims, tempaux);
+  // bcs->apply(U2, tempprims, tempaux);
+  // model->getPrimitiveVars(U2, tempprims, tempaux);
+  finalise(U2, tempprims, tempaux);
   model->sourceTerm(U2, tempprims, tempaux, source2);
   fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
   bcs->apply(flux2);
@@ -193,8 +195,9 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  bcs->apply(U3, tempprims, tempaux);
-  model->getPrimitiveVars(U3, tempprims, tempaux);
+  // bcs->apply(U3, tempprims, tempaux);
+  // model->getPrimitiveVars(U3, tempprims, tempaux);
+  finalise(U3, tempprims, tempaux);
   model->sourceTerm(U3, tempprims, tempaux, source3);
   fluxMethod->F(U3, tempprims, tempaux, d->f, flux3);
   bcs->apply(flux3);
@@ -212,9 +215,10 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  model->getPrimitiveVars(cons, prims, aux);
-  model->finalise(cons, prims, aux);
-  bcs->apply(cons, prims, aux);
+  // model->getPrimitiveVars(cons, prims, aux);
+  // model->finalise(cons, prims, aux);
+  // bcs->apply(cons, prims, aux);
+  finalise(cons, prims, aux);
 }
 
 //! Residual function to minimize for stage one of IMEX SSP3(332)

@@ -207,18 +207,18 @@ TEST(TwoFluidEMHD, Prims2Cons2Prims)
   model2.getPrimitiveVars(d2.cons, d2.prims, d2.aux);
 
   for (int var(0); var < d.Nprims; var++) {
-    for (int i(0); i < d.Nx; i++) {
-      for (int j(0); j < d.Ny; j++) {
-        for (int k(0); k < d.Nz; k++) {
+    for (int i(d.is); i < d.ie; i++) {
+      for (int j(d.js); j < d.je; j++) {
+        for (int k(d.ks); k < d.ke; k++) {
           EXPECT_NEAR(d.prims[d.id(var, i, j, k)], d2.prims[d.id(var, i, j, k)], tol);
         }
       }
     }
   }
   for (int var(0); var < d.Naux; var++) {
-    for (int i(0); i < d.Nx; i++) {
-      for (int j(0); j < d.Ny; j++) {
-        for (int k(0); k < d.Nz; k++) {
+    for (int i(d.is); i < d.ie; i++) {
+      for (int j(d.js); j < d.je; j++) {
+        for (int k(d.ks); k < d.ke; k++) {
           EXPECT_NEAR(d.aux[d.id(var, i, j, k)], d2.aux[d.id(var, i, j, k)], tol);
         }
       }
