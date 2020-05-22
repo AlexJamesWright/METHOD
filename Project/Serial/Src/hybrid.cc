@@ -25,6 +25,10 @@ Hybrid::Hybrid() : Model()
 
 Hybrid::Hybrid(Data * data, double sigmaCrossOver, double sigmaSpan, bool useREGIME) : Model(data), sigmaCrossOver(sigmaCrossOver), sigmaSpan(sigmaSpan), useREGIME(useREGIME)
 {
+  // The hybrid model is basically a resistive model in disguise, i.e. its cons
+  // prims and aux are the same as SRRMHD. This model contains pointers to both
+  // SRMHD and SRRMHD models, and REGIME if requested.
+
   resistiveModel = new SRRMHD(data);
   idealModel = new SRMHD(data);
 
@@ -80,6 +84,7 @@ Hybrid::~Hybrid()
   {
     delete subgridModel;
     delete[] regimeSource;
+    delete[] mask;
   }
   delete[] icons;
   delete[] iprims;
@@ -93,32 +98,47 @@ Hybrid::~Hybrid()
   delete[] rsource;
 }
 
-void Hybrid::setSubgridModel(FluxMethod * fluxMethod)
+void Hybrid::setupREGIME(FluxMethod * fluxMethod)
 {
+  // Syntax
+  Data * d(this->data);
+
+  // Store pointer REGIME and allocate work arrays
   if (useREGIME)
   {
-    subgridModel = new REGIME(data, fluxMethod);
-    regimeSource = new double[data->Nx*data->Ny*data->Nz*idealModel->Ncons];
+    subgridModel = new REGIME(d, fluxMethod);
+    regimeSource = new double[d->Nx*d->Ny*d->Nz*idealModel->Ncons];
+    mask         = new int[d->Nx*d->Ny*d->Nz];
   }
 }
 
 double Hybrid::idealWeight(double * cons, double * prims, double * aux)
 {
-  return (tanh((data->sigmaFunc(cons, prims, aux) - sigmaCrossOver) / (sigmaSpan/3))+1)/2;
+  // Penalty function for a given cell
+  return data->sigmaFunc(cons, prims, aux) < sigmaCrossOver-sigmaSpan ? 0 :
+         data->sigmaFunc(cons, prims, aux) < sigmaCrossOver+sigmaSpan?
+        (tanh((data->sigmaFunc(cons, prims, aux) - sigmaCrossOver) / (sigmaSpan/3))+1)/2 :
+        1;
 }
 
 double Hybrid::idealWeightID(double * cons, double * prims, double * aux, int i, int j, int k)
 {
-  return (tanh((data->sigmaFunc(cons, prims, aux, i, j, k) - sigmaCrossOver) / (sigmaSpan/3))+1)/2;
+  // Penalty function for a given cell, given global cons prims and aux
+  return data->sigmaFunc(cons, prims, aux, i, j, k) < sigmaCrossOver-sigmaSpan ? 0 :
+         data->sigmaFunc(cons, prims, aux, i, j, k) < sigmaCrossOver+sigmaSpan?
+         (tanh((data->sigmaFunc(cons, prims, aux, i, j, k) - sigmaCrossOver) / (sigmaSpan/3))+1)/2 :
+         1;
 }
 
 bool Hybrid::useResistive(double * cons, double * prims, double * aux)
 {
+  // Should we use the Resistive C2P?
   return data->sigmaFunc(cons, prims, aux) < sigmaCrossOver;
 }
 
 void Hybrid::setIdealCPAs(double * rcons, double * rprims, double * raux)
 {
+  // Set the ideal cons prims and aux from the resistive versions (single cell)
   sicons[0] = rcons[0]; sicons[1] = rcons[1]; sicons[2] = rcons[2]; sicons[3] = rcons[3];
   sicons[4] = rcons[4]; sicons[5] = rcons[5]; sicons[6] = rcons[6]; sicons[7] = rcons[7];
   sicons[8] = rcons[12];
@@ -152,6 +172,7 @@ void Hybrid::setIdealCPAsAll(double * rcons, double * rprims, double * raux)
   // Syntax
   Data * d(this->data);
 
+  // Set the ideal cons prims and aux from the resistive versions (all cells)
   for (int i(0); i < data->Nx; i++) {
     for (int j(0); j < data->Ny; j++) {
       for (int k(0); k < data->Nz; k++) {
@@ -191,11 +212,14 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
   // Syntax
   Data * d(this->data);
 
+  // Set ideal cons prims and aux
   setIdealCPAsAll(cons, prims, aux);
+
+  // Calculate the ideal and resistive flux vectors
   idealModel->fluxVector(icons, iprims, iaux, iflux, dir);
   resistiveModel->fluxVector(cons, prims, aux, rflux, dir);
 
-  // Resistive flux
+  // Add resistive contribution to hybrid->f
   for (int var(0); var < resistiveModel->Ncons; var++) {
     for (int i(0); i < data->Nx; i++) {
       for (int j(0); j < data->Ny; j++) {
@@ -208,8 +232,8 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
       }
     }
   }
-  // Add ideal flux
-  for (int var(0); var < idealModel->Ncons; var++) {
+  // Add ideal contribution to hybrid->f
+  for (int var(0); var < 8; var++) {
     for (int i(0); i < data->Nx; i++) {
       for (int j(0); j < data->Ny; j++) {
         for (int k(0); k < data->Nz; k++) {
@@ -221,19 +245,35 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
       }
     }
   }
+  // And the divergence cleaning part separately
+  for (int i(0); i < data->Nx; i++) {
+    for (int j(0); j < data->Ny; j++) {
+      for (int k(0); k < data->Nz; k++) {
+
+        double iW = idealWeightID(cons, prims, aux, i, j, k);
+        f[ID(12, i, j, k)] += iW*iflux[ID(8, i, j, k)];
+
+      }
+    }
+  }
 }
 
 void Hybrid::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
   double iW = idealWeight(cons, prims, aux);
+  // Set ideal cons prims and aux
   setIdealCPAs(cons, prims, aux);
 
+  // Calculate the ideal and resistive source vectors
   resistiveModel->sourceTermSingleCell(cons, prims, aux, rsource, i, j, k);
   idealModel->sourceTermSingleCell(sicons, siprims, siaux, isource, i, j, k);
 
-  for (int var(0); var < idealModel->Ncons; var++)
+  // Add ideal contribution
+  for (int var(0); var < 8; var++) {
     source[var] = iW*isource[var] + (1-iW)*rsource[var];
-  for (int var(idealModel->Ncons); var < resistiveModel->Ncons; var++)
+  }
+  // Add resistive contribution
+  for (int var(8); var < resistiveModel->Ncons; var++)
     source[var] = (1-iW)*rsource[var];
 }
 
@@ -273,6 +313,7 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
         for (int var(0); var < d->Ncons; var++) {
           source[ID(var, i, j, k)] = singleSource[var];
         }
+
       }
     }
   }
@@ -280,20 +321,22 @@ void Hybrid::sourceTerm(double *cons, double *prims, double *aux, double *source
   // Now add REGIME source
   if (useREGIME)
   {
+    // Calculate the ideal cons prims and aux vectors
     setIdealCPAsAll(cons, prims, aux);
+
+    // Set the REGIME mask
+    setMasks(cons, prims, aux);
+    // Calculate the REGIEME source
     subgridModel->sourceExtension(icons, iprims, iaux, regimeSource);
 
-
+    // Add REGIME contribution
     for (int var(0); var < idealModel->Ncons; var++) {
       for (int i(0); i < d->Nx; i++) {
         for (int j(0); j < d->Ny; j++) {
           for (int k(0); k < d->Nz; k++) {
             double iW = idealWeightID(icons, iprims, iaux, i, j, k);
-            bool use(false);
-            if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
-              use = true;
 
-            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * use * iW;
+            source[ID(var, i, j, k)] += regimeSource[ID(var, i, j, k)] * iW * mask[ID(0, i, j, k)];
 
           }
         }
@@ -353,10 +396,19 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
   singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
   singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
+  int is(3); int ie(d->Nx-3);
+  int js(3); int je(d->Ny-3);
+  int ks(3); int ke(d->Nz-3);
+  if (d->dims<3) {
+    ks = 0; ke = 1;
+  }
+  if (d->dims<2) {
+    js = 0; je = 1;
+  }
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(is); i < ie; i++) {
+    for (int j(js); j < je; j++) {
+      for (int k(ks); k < ke; k++) {
 
         // Store this cell's cons data and rhohWsq from last step
         for (int var(0); var < d->Ncons; var++) {
@@ -371,8 +423,6 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
 
         singlePrims[5] = singleCons[5]; singlePrims[6] = singleCons[6]; singlePrims[7] = singleCons[7];
         singlePrims[8] = singleCons[8]; singlePrims[9] = singleCons[9]; singlePrims[10] = singleCons[10];
-
-        // Get primitive and auxilliary vars
 
         this->getPrimitiveVarsSingleCell(singleCons, singlePrims, singleAux, i, j, k);
 
@@ -401,8 +451,11 @@ void Hybrid::primsToAll(double *cons, double *prims, double *aux)
 
   setIdealCPAsAll(cons, prims, aux);
 
+  // Calculate ideal and resistive variables
   resistiveModel->primsToAll(cons, prims, aux);
   idealModel->primsToAll(icons, iprims, iaux);
+
+  // Compute the hybrid variables using the penalty function
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -441,14 +494,75 @@ void Hybrid::finalise(double *cons, double *prims, double *aux)
         double iEy = -(prims[ID(3, i, j, k)]*prims[ID(5, i, j, k)] - prims[ID(1, i, j, k)]*prims[ID(7, i, j, k)]);
         double iEz = -(prims[ID(1, i, j, k)]*prims[ID(6, i, j, k)] - prims[ID(2, i, j, k)]*prims[ID(5, i, j, k)]);
 
-        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)]  *= (1-iW);
-        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)]  *= (1-iW);
-        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)] *= (1-iW);
+        cons[ID(8, i, j, k)]  *= (1-iW);
+        cons[ID(9, i, j, k)]  *= (1-iW);
+        cons[ID(10, i, j, k)] *= (1-iW);
 
-        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)]  += iW*iEx;
-        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)]  += iW*iEy;
-        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)] += iW*iEz;
+        cons[ID(8, i, j, k)]  += iW*iEx;
+        cons[ID(9, i, j, k)]  += iW*iEy;
+        cons[ID(10, i, j, k)] += iW*iEz;
 
+        prims[ID(8, i, j, k)]  = cons[ID(8, i, j, k)];
+        prims[ID(9, i, j, k)]  = cons[ID(9, i, j, k)];
+        prims[ID(10, i, j, k)] = cons[ID(10, i, j, k)];
+
+      }
+    }
+  }
+}
+
+void Hybrid::setMasks(double * cons, double * prims, double * aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Assume REGIME is not valid...
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        mask[ID(0, i, j, k)] = 0;
+      }
+    }
+  }
+
+  // Only loop over interior points
+  int is(3); int ie(d->Nx-3);
+  int js(3); int je(d->Ny-3);
+  int ks(3); int ke(d->Nz-3);
+  if (d->dims<3) {
+    ks = 0; ke = 1;
+  }
+  if (d->dims<2) {
+    js = 0; je = 1;
+  }
+
+
+  for (int i(is); i < ie; i++) {
+    for (int j(js); j < je; j++) {
+      for (int k(ks); k < ke; k++) {
+
+        // Assume this cell's REGIME source is valid
+        bool termsPossible(true);
+
+        // If this cell needs the REGIME source....
+        if (d->sigmaFunc(icons, iprims, iaux, i, j, k) > sigmaCrossOver-sigmaSpan)
+        {
+          // Can we compute all of the terms too? I.e. and neighbours' terms be calculated
+          for (int l(-3); l < 3; l++) {
+            for (int m(-3); m < 3; m++) {
+              for (int n(-3); n < 3; n++) {
+                if (d->sigmaFunc(icons, iprims, iaux, i+l, j+m, k+n) < sigmaCrossOver-sigmaSpan)
+                  // If this neighbour is too resistive then we cannot calculate REGIME for the original cell
+                  termsPossible = false;
+              }
+            }
+          }
+          // And we can calculate all the terms too... set the masks
+          if (termsPossible)
+          {
+            mask[ID(0, i, j, k)] = 1;
+          }
+        }
       }
     }
   }

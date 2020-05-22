@@ -97,7 +97,4 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
 
   correctorStep(cons, prims, aux, dt);
   finalise(cons, prims, aux);
-
-  model->finalise(cons, prims, aux);
-
 }
