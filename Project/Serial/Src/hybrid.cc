@@ -221,9 +221,9 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
 
   // Add resistive contribution to hybrid->f
   for (int var(0); var < resistiveModel->Ncons; var++) {
-    for (int i(0); i < data->Nx; i++) {
-      for (int j(0); j < data->Ny; j++) {
-        for (int k(0); k < data->Nz; k++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
 
           double iW = idealWeightID(cons, prims, aux, i, j, k);
           f[ID(var, i, j, k)] = (1-iW)*rflux[ID(var, i, j, k)];
@@ -234,9 +234,9 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
   }
   // Add ideal contribution to hybrid->f
   for (int var(0); var < 8; var++) {
-    for (int i(0); i < data->Nx; i++) {
-      for (int j(0); j < data->Ny; j++) {
-        for (int k(0); k < data->Nz; k++) {
+    for (int i(0); i < d->Nx; i++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Nz; k++) {
 
           double iW = idealWeightID(cons, prims, aux, i, j, k);
           f[ID(var, i, j, k)] += iW*iflux[ID(var, i, j, k)];
@@ -246,9 +246,9 @@ void Hybrid::fluxVector(double *cons, double *prims, double *aux, double *f, con
     }
   }
   // And the divergence cleaning part separately
-  for (int i(0); i < data->Nx; i++) {
-    for (int j(0); j < data->Ny; j++) {
-      for (int k(0); k < data->Nz; k++) {
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
 
         double iW = idealWeightID(cons, prims, aux, i, j, k);
         f[ID(12, i, j, k)] += iW*iflux[ID(8, i, j, k)];
@@ -396,19 +396,10 @@ void Hybrid::getPrimitiveVars(double *cons, double *prims, double *aux)
   singlePrims = (double *) malloc(sizeof(double) * d->Nprims);
   singleAux = (double *) malloc(sizeof(double) * d->Naux);
 
-  int is(3); int ie(d->Nx-3);
-  int js(3); int je(d->Ny-3);
-  int ks(3); int ke(d->Nz-3);
-  if (d->dims<3) {
-    ks = 0; ke = 1;
-  }
-  if (d->dims<2) {
-    js = 0; je = 1;
-  }
 
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
 
         // Store this cell's cons data and rhohWsq from last step
         for (int var(0); var < d->Ncons; var++) {

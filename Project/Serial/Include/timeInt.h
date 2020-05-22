@@ -121,7 +121,7 @@ class TimeIntegrator : public TimeIntegratorBase
       }
 
       // Finalise via model
-      model->finalise(cons, prims, aux)
+      model->finalise(cons, prims, aux);
       // Apply BCs
       this->bcs->apply(cons, prims, aux);
     }

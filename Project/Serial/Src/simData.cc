@@ -46,6 +46,18 @@ Data::Data(int nx, int ny, int nz,
     zmax = ymax = 1e20;
     dims = 1;
   }
+
+  // Set some variables that define the interior cells
+  is = Ng; ie = Nx-Ng;  // i-start, i-end
+  js = Ng; je = Ny-Ng;  // j-start, j-end
+  ks = Ng; ke = Nz-Ng;  // k-start, k-end
+  if (dims<3) {
+    ks = 0; ke = 1;
+  }
+  if (dims<2) {
+    js = 0; je = 1;
+  }
+
   // Ensure there is some Resistivity
   if (this->sigma < 0.0) {
     throw std::invalid_argument("Conductivity must be non-negative, sigma >= 0.\n");
