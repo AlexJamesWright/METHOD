@@ -5,7 +5,8 @@
 CC = mpic++
 ##CC = g++
 
-USE_MPI=1
+USE_MPI = 1
+USE_OMP = 1
 
 PROJECT_TYPE = ParallelMPI
 
@@ -24,8 +25,12 @@ RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
 
+ifeq ($(USE_OMP), 1)
+    OMP_FLAGS = -fopenmp
+endif
+
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI)
+CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI) $(OMP_FLAGS) -g
 
 # Sources
 SRCS = simulation.cc \

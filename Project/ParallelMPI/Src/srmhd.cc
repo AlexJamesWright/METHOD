@@ -305,7 +305,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   double sol[2];                      // Guess and solution vector
   double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
-  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.4e-8;          // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
 
@@ -404,9 +404,9 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
 
   // Loop through domain solving and setting the prim and aux vars
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         // Update possible values
         // Bx, By, Bz
         prims[ID(5, i, j, k)] = cons[ID(5, i, j, k)];
@@ -508,9 +508,9 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         // W
         aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
         // rho

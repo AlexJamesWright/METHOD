@@ -4,7 +4,7 @@
 #include "initFunc.h"
 #include "srmhd.h"
 #include "boundaryConds.h"
-#include "rkSplit.h"
+#include "rkSplit2ndOrder.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
@@ -28,7 +28,6 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   double endTime(0.4);
-  //double endTime(0.0004);
   double gamma(2.0);
   double cfl(0.4);
 
@@ -40,19 +39,21 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  REGIME modelExtension(&data, &fluxMethod);
+
   Simulation sim(&data);
 
   BrioWuSingleFluid init(&data);
 
   Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
 
-  SaveData save(&data, 0);
+  SaveData save(&data);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 

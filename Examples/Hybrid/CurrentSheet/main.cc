@@ -11,13 +11,10 @@
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "srmhd.h"
-#include "srrmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "REGIME.h"
 #include "hybrid.h"
 
 #include <cstdio>
@@ -46,30 +43,27 @@ int main(int argc, char *argv[]) {
   double endTime(7.0);
   double cfl(0.2);
   double gamma(2.0);
-  double sigma(800);
+  double sigma(150);
   double cp(1.0);
   double mu1(-MU);
   double mu2(MU);
   int frameSkip(40);
   bool output(false);
   int safety(-1);
-  bool functionalSigma(false);
-  double gam(1.3);
   double sigmaCrossOver(400);
   double sigmaSpan(350);
   bool useREGIME(true);
 
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip,
-            functionalSigma, gam);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
   Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
   FVS fluxMethod(&data, &model);
 
-  model.setSubgridModel(&fluxMethod);
+  model.setupREGIME(&fluxMethod);
 
   Simulation sim(&data);
 
@@ -77,13 +71,13 @@ int main(int argc, char *argv[]) {
 
   Outflow bcs(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, NULL);
 
   SaveData save(&data, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 

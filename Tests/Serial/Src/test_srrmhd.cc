@@ -146,15 +146,15 @@ TEST(SRRMHD, Prims2Cons2Prims)
   model2.getPrimitiveVars(d2.cons, d2.prims, d2.aux);
 
   for (int var(0); var < d.Nprims; var++) {
-    for (int i(2); i < d.Nx-2; i++) {
-      for (int j(2); j < d.Ny-2; j++) {
+    for (int i(d.is); i < d.ie; i++) {
+      for (int j(d.js); j < d.je; j++) {
         EXPECT_NEAR(d.prims[d.id(var, i, j, 0)], d2.prims[d.id(var, i, j, 0)], tol);
       }
     }
   }
   for (int var(0); var < d.Naux; var++) {
-    for (int i(2); i < d.Nx-2; i++) {
-      for (int j(2); j < d.Ny-2; j++) {
+    for (int i(d.is); i < d.ie; i++) {
+      for (int j(d.is); j < d.je; j++) {
         EXPECT_NEAR(d.aux[d.id(var, i, j, 0)], d2.aux[d.id(var, i, j, 0)], tol);
       }
     }

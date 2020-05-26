@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   bool output(false);
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
-  int reportItersPeriod(20);
+  int reportItersPeriod(50);
 
   PlatformEnv env(&argc, &argv, 1, 1, 1);
 
