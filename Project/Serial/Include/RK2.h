@@ -49,10 +49,34 @@ class RK2 : public TimeIntegrator
 
     ~RK2();
 
-    void finalise(double * cons, double * prims, double * aux);
+    //! Predictor
+    /*!
+      @par
+        Calculate the first interstage result given by,
+        \f{align}{
+          U^{(1)} = U^n + \Delta t \mathcal{F}(U^n).
+        \f}
 
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param dt the step size desired to move by. Defaults to the value in the Data class
+    */
     void predictorStep(double * cons, double * prims, double * aux, double dt);
 
+    // Corrector
+    /*!
+      @par
+        Calculate the final result given by,
+        \f{align}{
+          U^{n+1} = \frac{1}{2} U^n + \frac{1}{2} U^{(1)} + \frac{1}{2} \Delta t \mathcal{F}(U^{(1)})
+        \f}
+
+      @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
+      @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
+      @param[in] *aux pointer to auxiliary vector work array. Size is\f$N_{aux} \times N_x \times N_y \times N_z\f$
+      @param dt the step size desired to move by. Defaults to the value in the Data class
+    */
     void correctorStep(double * cons, double * prims, double * aux, double dt);
 
     //! Performs a single time step
