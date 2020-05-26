@@ -27,19 +27,6 @@ RK2::~RK2()
   free(args2);
 }
 
-void RK2::finalise(double * cons, double * prims, double * aux)
-{
-  // Apply boundary conditions and get primitive and aux vars for p1
-  try {
-    this->model->getPrimitiveVars(cons, prims, aux);
-  }
-  catch (const std::exception& e) {
-    printf("RK2 raises exception with following message:\n%s\n", e.what());
-    throw e;
-  }
-
-  this->bcs->apply(cons, prims, aux);
-}
 
 void RK2::predictorStep(double * cons, double * prims, double * aux, double dt)
 {
@@ -110,7 +97,4 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
 
   correctorStep(cons, prims, aux, dt);
   finalise(cons, prims, aux);
-
-  model->finalise(cons, prims, aux);
-
 }

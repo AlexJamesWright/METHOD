@@ -66,7 +66,7 @@ class Data
     sigma;                 //!< Resistivity
     int
     memSet,                //!< Indicator that memory has been allocated for state vectors
-    bcsSet,                //!< Indicator that boundary conditions have been created (before this information about the domain decomposition used in MPI version will not be correct). 
+    bcsSet,                //!< Indicator that boundary conditions have been created (before this information about the domain decomposition used in MPI version will not be correct).
     //@{
     Ncons, Nprims, Naux;   //!< Number of specified variables
     //@}
@@ -114,7 +114,11 @@ class Data
     auxLabels;
     //@}
     int
-    dims;                  //!< Number of dimensions of simulation
+    dims,                  //!< Number of dimensions of simulation
+    //@{
+    is, js, ks,
+    ie, je, ke;            //!< Cell IDs for interior grid points
+    //@}
 
 
     //! Element ID function
@@ -187,7 +191,7 @@ class Data
          double endTime,
  	     PlatformEnv *env,
          double cfl=0.5, int Ng=4,
-         double gamma=5.0/3.0, 
+         double gamma=5.0/3.0,
          double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
