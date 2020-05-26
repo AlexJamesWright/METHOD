@@ -7,10 +7,10 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   Data * d(this->data);
 
   // Order of weno scheme
-  int order(2);
+  const int order(2);
 
   // Wave speed
-  double alpha(1);
+  const double alpha(1);
 
   // Size of vector to reconstruct (can be set to save time for subgrid models)
   if (vars<0) vars = d->Ncons;
@@ -20,11 +20,14 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   fplus = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
   fminus = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
 
+  # pragma omp parallel for \
+  default  (none) \
+  shared   (fplus, fminus, f, cons, d, vars)
   // Lax-Friedrichs approximation of flux
-  for (int var(0); var < vars; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+  for (int var=0; var < vars; var++) {
+    for (int i=0; i < d->Nx; i++) {
+      for (int j=0; j < d->Ny; j++) {
+        for (int k=0; k < d->Nz; k++) {
           fplus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] + alpha * cons[ID(var, i, j, k)]);
           fminus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] - alpha * cons[ID(var, i, j, k)]);
         }
@@ -34,10 +37,13 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Reconstruct to determine the flux at the cell face and compute difference
   if (dir == 0) { // x-direction
-    for (int var(0); var < vars; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
+    # pragma omp parallel for \
+    default  (none) \
+    shared   (frecon, fplus, fminus, d, vars)
+    for (int var=0; var < vars; var++) {
+      for (int i=0; i < d->Nx; i++) {
+        for (int j=0; j < d->Ny; j++) {
+          for (int k=0; k < d->Nz; k++) {
             if (i >= order && i < d->Nx-order) {
               frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i-order, j, k)],
                                                          fplus[ID(var, i-order+1, j, k)],
@@ -55,10 +61,13 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else if (dir == 1) { // y-direction
-    for (int var(0); var < vars; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
+    # pragma omp parallel for \
+    default  (none) \
+    shared   (frecon, fplus, fminus, d, vars)
+    for (int var=0; var < vars; var++) {
+      for (int i=0; i < d->Nx; i++) {
+        for (int j=0; j < d->Ny; j++) {
+          for (int k=0; k < d->Nz; k++) {
             if (j >= order && j < d->Ny-order) {
               frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j-order, k)],
                                                          fplus[ID(var, i, j-order+1, k)],
@@ -76,10 +85,13 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     }
   }
   else { // z-direction
-    for (int var(0); var < vars; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
+    # pragma omp parallel for \
+    default  (none) \
+    shared   (frecon, fplus, fminus, d, vars)
+    for (int var=0; var < vars; var++) {
+      for (int i=0; i < d->Nx; i++) {
+        for (int j=0; j < d->Ny; j++) {
+          for (int k=0; k < d->Nz; k++) {
             if (k >= order && k < d->Nz-order) {
               frecon[ID(var, i, j, k)] = weno3_upwind(fplus[ID(var, i, j, k-order)],
                                                          fplus[ID(var, i, j, k-order+1)],

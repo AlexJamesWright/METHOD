@@ -6,7 +6,7 @@ CC = mpic++
 ##CC = g++
 
 USE_MPI = 1
-USE_OMP = 0
+USE_OMP = 1
 
 PROJECT_TYPE = ParallelMPI
 
