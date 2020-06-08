@@ -4,13 +4,15 @@
 #include "simulation.h"
 #include "srmhd.h"
 #include "twoFluidEMHD.h"
+#include "platformEnv.h"
 #include <iostream>
 
 TEST(InitialFunc, baseConstructor)
 {
-  Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
-  Simulation sim(&data);
+  Simulation sim(&data, &env);
   InitialFunc init(&data);
 
   EXPECT_EQ(data.prims[0], 0);
@@ -40,9 +42,10 @@ TEST(InitialFunc, baseConstructor)
 
 TEST(InitialFunc, OTVortexSingleFluidFunc)
 {
-  Data data(100, 10, 0, 0, 1, 0, 1, -0.1, 0.1, 0.8);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data data(100, 10, 0, 0, 1, 0, 1, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
-  Simulation sim(&data);
+  Simulation sim(&data, &env);
   OTVortexSingleFluid init(&data);
 
   EXPECT_NEAR(data.prims[data.id(0, 0, 0, 0)], 0.2210485321, 0.0000000001);
@@ -62,24 +65,27 @@ TEST(InitialFunc, OTVortexSingleFluidFunc)
 TEST(InitialFunc, BrioWuTwoFluidFunc)
 {
   // Discontinuity in x direction
-  Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
-  Simulation simx(&dx);
+  Simulation simx(&dx, &env);
   BrioWuTwoFluid initx(&dx, 0);
 
 
 
   // Discontinuity in y direction
-  Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env2 = PlatformEnv(0, NULL, 1, 1, 1);
+  Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
-  Simulation simy(&dy);
+  Simulation simy(&dy, &env2);
   BrioWuTwoFluid inity(&dy, 1);
 
 
   // Discontinuity in z direction
-  Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env3 = PlatformEnv(0, NULL, 1, 1, 1);
+  Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
-  Simulation simz(&dz);
+  Simulation simz(&dz, &env3);
   BrioWuTwoFluid initz(&dz, 2);
 
   for (int var(0); var < dx.Ncons; var++) {

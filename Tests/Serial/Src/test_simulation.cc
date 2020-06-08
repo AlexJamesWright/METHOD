@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "saveData.h"
+#include "serialSaveData.h"
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -7,18 +7,19 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
+#include "platformEnv.h"
 #include <cstdlib>
 #include <stdexcept>
 
 
 TEST(Simulation, dataInitialisation)
 {
-
-  Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
-  EXPECT_THROW( Simulation sim(&data), std::runtime_error);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
+  EXPECT_THROW( Simulation sim(&data, &env), std::runtime_error);
 
   SRMHD model(&data);
-  Simulation sim(&data);
+  Simulation sim(&data, &env);
 
   // Check standard data
   EXPECT_EQ(sim.data->nx, 100);
@@ -66,14 +67,15 @@ TEST(Simulation, dataInitialisation)
 //! Check that the fields dont change if the system if homogenous
 TEST(Simulation, equilibriumSimulation)
 {
-  Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1, &env);
   SRMHD model(&data);
   FVS fluxMethod(&data, &model);
-  Simulation sim(&data);
-  OTVortexSingleFluid init(&data);
   Periodic bcs(&data);
+  Simulation sim(&data, &env);
+  OTVortexSingleFluid init(&data);
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
-  SaveData save(&data);
+  SerialSaveData save(&data, &env);
 
   for (int i(0); i < data.Nx; i++) {
     for (int j(0); j < data.Ny; j++) {

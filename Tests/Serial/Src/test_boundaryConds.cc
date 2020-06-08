@@ -4,12 +4,14 @@
 #include "srmhd.h"
 #include "simulation.h"
 #include "initFunc.h"
+#include "platformEnv.h"
 
 TEST(Periodic, periodicBoundaryConditions)
 {
-  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   Periodic bcs(&d);
 
@@ -190,9 +192,10 @@ TEST(Periodic, periodicBoundaryConditions)
 TEST(Outflow, outflowBoundaryConditions)
 {
 
-  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
 

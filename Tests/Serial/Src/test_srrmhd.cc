@@ -4,6 +4,7 @@
 #include "simData.h"
 #include "initFunc.h"
 #include "fluxVectorSplitting.h"
+#include "platformEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <stdio.h>
@@ -13,7 +14,8 @@
 
 TEST(SRRMHD, Constructor)
 {
-  Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRRMHD model(&d);
   EXPECT_EQ(d.Ncons, 14);
   EXPECT_EQ(d.Nprims, 11);
@@ -29,10 +31,11 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
 {
   double tol(1.0e-15);
   // Set up
-  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
+  Simulation sim(&d, &env);
 
   // Set state to stationary equilibrium state
   for (int i(0); i < d.Nx; i++) {
@@ -97,12 +100,14 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
 TEST(SRRMHD, Prims2Cons2Prims)
 {
   const double tol = 1.49011612e-8;   // Tolerance of rootfinder
-  Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
-  Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
+  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env2 = PlatformEnv(0, NULL, 1, 1, 1);
+  Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env);
+  Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env2);
   SRRMHD model(&d);
   SRRMHD model2(&d2);
-  Simulation sim(&d);
-  Simulation sim2(&d2);
+  Simulation sim(&d, &env);
+  Simulation sim2(&d2, &env2);
   OTVortexSingleFluid init(&d);
   OTVortexSingleFluid init2(&d2);
 

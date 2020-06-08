@@ -15,7 +15,9 @@
 PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
 {
 #if USE_MPI
-	MPI_Init(argcP, argvP);
+    int initialized;
+    MPI_Initialized(&initialized);
+	if (!initialized) MPI_Init(argcP, argvP);
 
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -43,7 +45,9 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 PlatformEnv::~PlatformEnv()
 {
 #if USE_MPI
-	MPI_Finalize();
+    int finalized;
+    MPI_Finalized(&finalized);
+    if (!finalized) MPI_Finalize();
 #endif
 }
 
