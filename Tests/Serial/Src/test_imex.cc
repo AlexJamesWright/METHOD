@@ -29,9 +29,9 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
   // Choose particulars of simulation
   SRRMHD model(&data);
   FVS fluxMethod(&data, &model);
+  Outflow bcs(&data);
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);
-  Outflow bcs(&data);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
   SerialSaveData save(&data, &env);
 
@@ -65,9 +65,9 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
   // Choose particulars of simulation
   SRRMHD model(&data);
   FVS fluxMethod(&data, &model);
+  Outflow bcs(&data);
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);
-  Outflow bcs(&data);
   SSP3 timeInt(&data, &model, &bcs, &fluxMethod);
   SerialSaveData save(&data, &env);
 

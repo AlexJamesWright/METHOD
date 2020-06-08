@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "simData.h"
 #include "initFunc.h"
+#include "boundaryConds.h"
 #include "simulation.h"
 #include "srmhd.h"
 #include "twoFluidEMHD.h"
@@ -12,6 +13,7 @@ TEST(InitialFunc, baseConstructor)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
+  Periodic bcs(&data);
   Simulation sim(&data, &env);
   InitialFunc init(&data);
 
@@ -45,6 +47,7 @@ TEST(InitialFunc, OTVortexSingleFluidFunc)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 0, 0, 1, 0, 1, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
+  Periodic bcs(&data);
   Simulation sim(&data, &env);
   OTVortexSingleFluid init(&data);
 
@@ -68,6 +71,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
+  Periodic bcsx(&dx);
   Simulation simx(&dx, &env);
   BrioWuTwoFluid initx(&dx, 0);
 
@@ -77,6 +81,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
   PlatformEnv env2(0, NULL, 1, 1, 1);
   Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
+  Periodic bcsy(&dy);
   Simulation simy(&dy, &env2);
   BrioWuTwoFluid inity(&dy, 1);
 
@@ -85,6 +90,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
   PlatformEnv env3(0, NULL, 1, 1, 1);
   Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
+  Periodic bcsz(&dz);
   Simulation simz(&dz, &env3);
   BrioWuTwoFluid initz(&dz, 2);
 

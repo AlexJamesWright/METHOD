@@ -46,9 +46,9 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   Data dx(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
   FVS fluxMethodx(&dx, &modelx);
+  Outflow bcsx(&dx);
   Simulation simx(&dx, &env);
   BrioWuTwoFluid initx(&dx, 0, 0);
-  Outflow bcsx(&dx);
   RKSplit timeIntx(&dx, &modelx, &bcsx, &fluxMethodx);
   SerialSaveData save(&dx, &env);
   simx.set(&initx, &modelx, &timeIntx, &bcsx, &fluxMethodx, &save);
@@ -60,9 +60,9 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   Data dy(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
   FVS fluxMethody(&dy, &modely);
+  Outflow bcsy(&dy);
   Simulation simy(&dy, &env2);
   BrioWuTwoFluid inity(&dy, 1, 0);
-  Outflow bcsy(&dy);
   RKSplit timeInty(&dy, &modely, &bcsy, &fluxMethody);
   simy.set(&inity, &modely, &timeInty, &bcsy, &fluxMethody, &save);
   printf("Stepping y-discontinuity...\n");
@@ -73,9 +73,9 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   Data dz(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
   FVS fluxMethodz(&dz, &modelz);
+  Outflow bcsz(&dz);
   Simulation simz(&dz, &env3);
   BrioWuTwoFluid initz(&dz, 2, 0);
-  Outflow bcsz(&dz);
   RKSplit timeIntz(&dz, &modelz, &bcsz, &fluxMethodz);
   simz.set(&initz, &modelz, &timeIntz, &bcsz, &fluxMethodz, &save);
   printf("Stepping z-discontinuity...\n");
@@ -159,12 +159,14 @@ TEST(TwoFluidEMHD, Prims2Cons2Prims)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   BrioWuTwoFluid init(&d, 0, 0);
 
   PlatformEnv env2(0, NULL, 1, 1, 1);
   Data d2(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD model2(&d2);
+  Periodic bcs2(&d2);
   Simulation sim2(&d2, &env2);
   BrioWuTwoFluid init2(&d2, 0, 0);
 
@@ -243,6 +245,7 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
   Data d(6, 6, 6, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   TwoFluidEMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
 
   // Set state to stationary equilibrium state

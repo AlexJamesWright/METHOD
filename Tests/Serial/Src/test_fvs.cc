@@ -22,9 +22,9 @@ TEST(FVS, SameFnetAsSerial)
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -58,9 +58,9 @@ TEST(FVS, SameXReconstructionAsSerial)
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -96,9 +96,9 @@ TEST(FVS, SameYReconstructionAsSerial)
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -134,9 +134,9 @@ TEST(FVS, SameZReconstructionAsSerial)
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

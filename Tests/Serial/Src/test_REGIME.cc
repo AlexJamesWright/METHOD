@@ -40,6 +40,7 @@ TEST(RSGM, DataAssignment1D)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(100, 0, 0, 0.01, 2.01, 0, 1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
@@ -143,6 +144,7 @@ TEST(RSGM, DataAssignment2D)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 0, 0.1, 2.1, 0.1, 2.1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
@@ -247,6 +249,7 @@ TEST(RSGM, DataAssignment3D)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
@@ -349,6 +352,7 @@ TEST(RSGM, DataAssignment3D)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
@@ -746,21 +750,25 @@ TEST(RSGM, DataAssignment3D)
 TEST(RSGM, RotationallyInvariant)
 {
   PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env1(0, NULL, 1, 1, 1);
   PlatformEnv env2(0, NULL, 1, 1, 1);
   PlatformEnv env3(0, NULL, 1, 1, 1);
-  PlatformEnv env4(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50); // Just to use ID macro
-  Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env2, 0.1, 4, 2, 50);
-  Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env3, 0.1, 4, 2, 50);
-  Data d3(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env4, 0.1, 4, 2, 50);
+  Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env1, 0.1, 4, 2, 50);
+  Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env2, 0.1, 4, 2, 50);
+  Data d3(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env3, 0.1, 4, 2, 50);
   SRMHD model(&d);
   SRMHD model1(&d1);
   SRMHD model2(&d2);
   SRMHD model3(&d3);
+  Periodic bcs(&d);
+  Periodic bcs2(&d1);
+  Periodic bcs3(&d2);
+  Periodic bcs4(&d3);
   Simulation sim(&d, &env);
-  Simulation sim1(&d1, &env2);
-  Simulation sim2(&d2, &env3);
-  Simulation sim3(&d3, &env4);
+  Simulation sim1(&d1, &env1);
+  Simulation sim2(&d2, &env2);
+  Simulation sim3(&d3, &env3);
   FVS fluxMethod1(&d1, &model1);
   FVS fluxMethod2(&d2, &model2);
   FVS fluxMethod3(&d3, &model3);
@@ -933,9 +941,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
+    Outflow bcs(&d);
     Simulation sim(&d, &env);
     CurrentSheetSingleFluid init(&d);
-    Outflow bcs(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -961,9 +969,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
+    Outflow bcs(&d);
     Simulation sim(&d, &env);
     CurrentSheetSingleFluid init(&d);
-    Outflow bcs(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -989,9 +997,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
+    Outflow bcs(&d);
     Simulation sim(&d, &env);
     CurrentSheetSingleFluid init(&d);
-    Outflow bcs(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -1020,9 +1028,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD modelA(&dA);
     FVS fluxMethodA(&dA, &modelA);
     REGIME modelExtensionA(&dA, &fluxMethodA);
+    Outflow bcsA(&dA);
     Simulation simA(&dA, &envA);
     CurrentSheetSingleFluid initA(&dA, 0);
-    Outflow bcsA(&dA);
     RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &modelExtensionA);
     simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
 
@@ -1032,9 +1040,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD modelB(&dB);
     FVS fluxMethodB(&dB, &modelB);
     REGIME modelExtensionB(&dB, &fluxMethodB);
+    Outflow bcsB(&dB);
     Simulation simB(&dB, &envB);
     CurrentSheetSingleFluid initB(&dB, 1);
-    Outflow bcsB(&dB);
     RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &modelExtensionB);
     simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
 
@@ -1044,9 +1052,9 @@ TEST(RSGM, RotationallyInvariant)
     SRMHD modelC(&dC);
     FVS fluxMethodC(&dC, &modelC);
     REGIME modelExtensionC(&dC, &fluxMethodC);
+    Outflow bcsC(&dC);
     Simulation simC(&dC, &envC);
     CurrentSheetSingleFluid initC(&dC, 2);
-    Outflow bcsC(&dC);
     RKSplit timeIntC(&dC, &modelC, &bcsC, &fluxMethodC, &modelExtensionC);
     simC.set(&initC, &modelC, &timeIntC, &bcsC, &fluxMethodC, NULL);
 

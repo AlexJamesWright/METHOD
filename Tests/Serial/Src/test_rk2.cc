@@ -21,9 +21,9 @@ TEST(RK2, RK2OutputConsistentWithSerial)
   Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
   RK2 timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

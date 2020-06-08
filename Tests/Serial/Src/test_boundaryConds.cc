@@ -11,9 +11,9 @@ TEST(Periodic, periodicBoundaryConditions)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Periodic bcs(&d);
 
   // Set the values of the cons vars to something simple
   for (int var(0); var < d.Ncons; var++) {
@@ -195,9 +195,9 @@ TEST(Outflow, outflowBoundaryConditions)
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
+  Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  Outflow bcs(&d);
 
   // Set the values of the cons vars to something simple
   for (int var(0); var < d.Ncons; var++) {

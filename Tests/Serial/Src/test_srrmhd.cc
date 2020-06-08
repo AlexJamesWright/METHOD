@@ -2,6 +2,7 @@
 #include "srrmhd.h"
 #include "simulation.h"
 #include "simData.h"
+#include "boundaryConds.h"
 #include "initFunc.h"
 #include "fluxVectorSplitting.h"
 #include "platformEnv.h"
@@ -35,6 +36,7 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
+  Periodic bcs(&d);
   Simulation sim(&d, &env);
 
   // Set state to stationary equilibrium state
@@ -106,6 +108,8 @@ TEST(SRRMHD, Prims2Cons2Prims)
   Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env2);
   SRRMHD model(&d);
   SRRMHD model2(&d2);
+  Periodic bcs(&d);
+  Periodic bcs2(&d2);
   Simulation sim(&d, &env);
   Simulation sim2(&d2, &env2);
   OTVortexSingleFluid init(&d);
