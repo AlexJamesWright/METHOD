@@ -14,11 +14,20 @@
 
 TEST(Simulation, dataInitialisation)
 {
+  PlatformEnv envNoModel(0, NULL, 1, 1, 1);
+  Data dataNoModel(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &envNoModel);
+  Periodic bcsNoModel(&dataNoModel);
+  EXPECT_THROW( Simulation sim(&dataNoModel, &envNoModel), std::runtime_error);
+
+  PlatformEnv envNoBcs(0, NULL, 1, 1, 1);
+  Data dataNoBcs(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &envNoBcs);
+  SRMHD modelNoBcs(&dataNoBcs);
+  EXPECT_THROW( Simulation sim(&dataNoBcs, &envNoBcs), std::runtime_error);
+
   PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
-  EXPECT_THROW( Simulation sim(&data, &env), std::runtime_error);
-
   SRMHD model(&data);
+  Periodic bcs(&data);
   Simulation sim(&data, &env);
 
   // Check standard data
