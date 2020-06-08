@@ -9,7 +9,7 @@
 
 TEST(InitialFunc, baseConstructor)
 {
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
   Simulation sim(&data, &env);
@@ -42,7 +42,7 @@ TEST(InitialFunc, baseConstructor)
 
 TEST(InitialFunc, OTVortexSingleFluidFunc)
 {
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 0, 0, 1, 0, 1, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
   Simulation sim(&data, &env);
@@ -65,7 +65,7 @@ TEST(InitialFunc, OTVortexSingleFluidFunc)
 TEST(InitialFunc, BrioWuTwoFluidFunc)
 {
   // Discontinuity in x direction
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
   Simulation simx(&dx, &env);
@@ -74,7 +74,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
 
 
   // Discontinuity in y direction
-  PlatformEnv env2 = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env2(0, NULL, 1, 1, 1);
   Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
   Simulation simy(&dy, &env2);
@@ -82,7 +82,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
 
 
   // Discontinuity in z direction
-  PlatformEnv env3 = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env3(0, NULL, 1, 1, 1);
   Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
   Simulation simz(&dz, &env3);

@@ -8,7 +8,7 @@
 
 TEST(Periodic, periodicBoundaryConditions)
 {
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
   Simulation sim(&d, &env);
@@ -192,7 +192,7 @@ TEST(Periodic, periodicBoundaryConditions)
 TEST(Outflow, outflowBoundaryConditions)
 {
 
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
   Simulation sim(&d, &env);

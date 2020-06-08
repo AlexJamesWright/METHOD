@@ -22,7 +22,7 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
   */
   double sigma(0);
 
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05, &env,
             0.5, 4, 4.0/3.0, sigma);
 
@@ -58,7 +58,7 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
   */
   double sigma(0);
 
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05, &env,
             0.5, 4, 4.0/3.0, sigma);
 

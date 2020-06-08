@@ -14,7 +14,7 @@
 
 TEST(Simulation, dataInitialisation)
 {
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   EXPECT_THROW( Simulation sim(&data, &env), std::runtime_error);
 
@@ -67,7 +67,7 @@ TEST(Simulation, dataInitialisation)
 //! Check that the fields dont change if the system if homogenous
 TEST(Simulation, equilibriumSimulation)
 {
-  PlatformEnv env = PlatformEnv(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1, &env);
   SRMHD model(&data);
   FVS fluxMethod(&data, &model);
