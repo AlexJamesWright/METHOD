@@ -45,6 +45,8 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 PlatformEnv::~PlatformEnv()
 {
 #if USE_MPI
+    // TODO -- Free cartesian communicator
+    
     int finalized;
     MPI_Finalized(&finalized);
     if (!finalized) MPI_Finalize();
