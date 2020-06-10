@@ -9,8 +9,6 @@
 #include "platformEnv.h"
 #include <cstdlib>
 
-extern PlatformEnv env;
-
 TEST(RK2, RK2OutputConsistentWithSerial)
 {
 
@@ -19,7 +17,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
      version with. No tests are run in the serial version of this test
   */
 
-  //PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1);
   Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
