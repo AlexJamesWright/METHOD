@@ -9,7 +9,7 @@
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "platformEnv.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include <cstdlib>
 #include <cstdio>
 
@@ -33,7 +33,7 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&data, &env);
+  ParallelSaveData save(&data, &env);
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   sim.evolve();
@@ -69,7 +69,7 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);
   SSP3 timeInt(&data, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&data, &env);
+  ParallelSaveData save(&data, &env);
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   sim.evolve();

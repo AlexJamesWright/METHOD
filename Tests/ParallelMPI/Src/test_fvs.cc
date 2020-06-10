@@ -3,7 +3,7 @@
 #include "twoFluidEMHD.h"
 #include "simulation.h"
 #include "simData.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include "initFunc.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
@@ -26,7 +26,7 @@ TEST(FVS, SameFnetAsSerial)
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   fluxMethod.F(d.cons, d.prims, d.aux, d.f, d.fnet);
@@ -62,7 +62,7 @@ TEST(FVS, SameXReconstructionAsSerial)
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 0);
@@ -100,7 +100,7 @@ TEST(FVS, SameYReconstructionAsSerial)
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 1);
@@ -138,7 +138,7 @@ TEST(FVS, SameZReconstructionAsSerial)
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 2);

@@ -2,7 +2,7 @@
 #include "srrmhd.h"
 #include "simulation.h"
 #include "simData.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include "initFunc.h"
 #include "RK2.h"
 #include "fluxVectorSplitting.h"
@@ -25,7 +25,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
@@ -34,9 +34,9 @@ TEST(RK2, RK2OutputConsistentWithSerial)
   // Save data in test directory
   strcpy(save.dir, "../TestData/Parallel");
   strcpy(save.app, "RK2");
+
   save.saveCons();
   save.savePrims();
   save.saveAux();
   save.saveConsts();
-
 }

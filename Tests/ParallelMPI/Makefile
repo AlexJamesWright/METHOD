@@ -16,9 +16,9 @@
 # but shouldn't modify.
 
 # Compiler
-CC = g++
+CC = mpic++
 
-USE_MPI = 0
+USE_MPI = 1
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -38,7 +38,7 @@ CPPFLAGS = -isystem $(GTEST_DIR)/include
 # c++11 is required for the vector looping srmhd
 # First four required to get the c++11 standard to compile with NVIDIA, dont ask me why,
 # found the solution on https://github.com/NVIDIA/nccl/issues/29
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++11 -DUSE_MPI=$(USE_MPI) -g
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
