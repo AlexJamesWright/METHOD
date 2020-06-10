@@ -32,64 +32,21 @@ void ParallelSaveData::saveAll(bool timeSeries)
     sprintf(app, "%d", Nouts++);
   }
 
-  // allocate buffers for gathering distributed state vectors onto master process
-  int maxNumCellsInBuffer = std::max(std::max(d->Ncons, d->Nprims), d->Naux) * (d->Nx-(2*d->Ng));
-  if (d->dims > 1) maxNumCellsInBuffer *= (d->Ny - (2*d->Ng));
-  if (d->dims > 2) maxNumCellsInBuffer *= (d->Nz - (2*d->Ng));
-  double *buffer = (double*) malloc(maxNumCellsInBuffer * sizeof(double));
-  int numCellsInFullStateVector = maxNumCellsInBuffer * env->nProc;
-  fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
-
   // Cons
-  
-  // For all procs other than proc0, copy local statevector to a buffer that does not include ghost cells
-  // for sending to proc0. Proc0 can copy directly from its local statevector to the fullstatevector
-  if (env->rank != 0) packStateVectorBuffer(buffer, d->cons, d->Ncons);
-  else copyMasterStateVectorToFullStateVector(fullStateVector, d->cons, d->Ncons);
-
-  for (int r(1); r < env->nProc; r++){
-      int numCellsSent = d->Ncons * (d->Nx-(2*d->Ng)); 
-      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
-      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
-      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
-      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons, r);
-  }
-
-  if (env->rank == 0) this->saveCons();
+  this->saveCons();
 
   // Prims
-  if (env->rank != 0) packStateVectorBuffer(buffer, d->prims, d->Nprims);
-  else copyMasterStateVectorToFullStateVector(fullStateVector, d->prims, d->Nprims);
-  for (int r(1); r < env->nProc; r++){
-      int numCellsSent = d->Nprims * (d->Nx-(2*d->Ng)); 
-      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
-      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
-      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
-      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Nprims, r);
-  }
-
-  if (env->rank == 0) this->savePrims();
+  this->savePrims();
 
   // Aux
-  if (env->rank != 0) packStateVectorBuffer(buffer, d->aux, d->Naux);
-  else copyMasterStateVectorToFullStateVector(fullStateVector, d->aux, d->Naux);
-  for (int r(1); r < env->nProc; r++){
-      int numCellsSent = d->Naux * (d->Nx-(2*d->Ng)); 
-      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
-      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
-      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
-      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Naux, r);
-  }
-
-  if (env->rank == 0) this->saveAux();
+  this->saveAux();
 
   // TODO -- could gather this to proc0 like for the other state vectors but not sure if it is required
   //this->saveDomain();
 
   // TODO -- Nx, Ny are per process -- may need to print out a global version as well (nx, ny don't include ghost cells)
-  if (env->rank == 0) this->saveConsts();
+  this->saveConsts();
 
-  free(buffer);
 }
 
 void ParallelSaveData::packStateVectorBuffer(double *buffer, double *stateVector, int nVars){
@@ -210,32 +167,9 @@ void ParallelSaveData::unpackStateVectorBuffer(double *buffer, double *stateVect
   }
 }
 
-void ParallelSaveData::saveCons()
-{
-  FILE * f;
-
-  char fname[60];
-  strcpy(fname, dir);
-  strcat(fname, "/Conserved/cons");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");
-
-  f = fopen(fname, "w");
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open 'cons.dat' for writing.\n");
-    exit(1);
-  }
-
-  // File is open, write data
-  fprintf(f, "cons = ");
-  for (int i(0); i < d->Ncons-1; i++) {
-    fprintf(f, "%s, ", d->consLabels[i].c_str());
-  }
-  fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
-
+void ParallelSaveData::writeStateVectorToFile(FILE *f, double *fullStateVector, int nVars){
   if (d->dims==3){
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->nx; i++) {
         for (int j(0); j < d->ny; j++) {
           for (int k(0); k < d->nz; k++) {
@@ -246,7 +180,7 @@ void ParallelSaveData::saveCons()
       }
     }
   } else if (d->dims==2){
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->nx; i++) {
         for (int j(0); j < d->ny; j++) {
           fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
@@ -255,16 +189,71 @@ void ParallelSaveData::saveCons()
       }
     }
   } else {
-    for (int var(0); var < d->Ncons; var++) {
+    for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->nx; i++) {
         fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
         fprintf(f, "\n");
       }
     }
   }
+}
 
-  fclose(f);
+void ParallelSaveData::saveCons()
+{
+  FILE * f;
 
+  char fname[60];
+  strcpy(fname, dir);
+  strcat(fname, "/Conserved/cons");
+  strcat(fname, app);
+  strcat(fname, ".dat\0");
+
+  // Allocate buffers for gathering distributed state vectors onto master process
+  // We do this here rather than in saveAll to allow saveCons to be called independently
+  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // amount of memory until it's needed. 
+  int numCellsInBuffer = d->Ncons * (d->Nx-(2*d->Ng));
+  if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
+  if (d->dims > 2) numCellsInBuffer *= (d->Nz - (2*d->Ng));
+  double *buffer = (double*) malloc(numCellsInBuffer * sizeof(double));
+  int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
+  double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
+
+  // For all procs other than proc0, copy local statevector to a buffer that does not include ghost cells
+  // for sending to proc0. Proc0 can copy directly from its local statevector to the fullstatevector
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->cons, d->Ncons);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->cons, d->Ncons);
+
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Ncons * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Ncons, r);
+  }
+
+  if (env->rank == 0){
+    f = fopen(fname, "w");
+    // Ensure file is open
+    if (f == NULL) {
+      printf("Error: could not open 'cons.dat' for writing.\n");
+      exit(1);
+    }
+  
+    // File is open, write data
+    fprintf(f, "cons = ");
+    for (int i(0); i < d->Ncons-1; i++) {
+      fprintf(f, "%s, ", d->consLabels[i].c_str());
+    }
+    fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
+  
+    writeStateVectorToFile(f, fullStateVector, d->Ncons);
+
+    fclose(f);
+  }
+
+  free(buffer);
+  free(fullStateVector);
 }
 
 void ParallelSaveData::savePrims()
@@ -276,48 +265,45 @@ void ParallelSaveData::savePrims()
   strcat(fname, app);
   strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open 'prims.dat' for writing.\n");
-    exit(1);
+  // Allocate buffers for gathering distributed state vectors onto master process
+  // We do this here rather than in saveAll to allow savePrims to be called independently
+  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // amount of memory until it's needed. 
+  int numCellsInBuffer = d->Nprims * (d->Nx-(2*d->Ng));
+  if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
+  if (d->dims > 2) numCellsInBuffer *= (d->Nz - (2*d->Ng));
+  double *buffer = (double*) malloc(numCellsInBuffer * sizeof(double));
+  int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
+  double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
+
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->prims, d->Nprims);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->prims, d->Nprims);
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Nprims * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Nprims, r);
   }
 
-  // File is open, write data
-  fprintf(f, "prims = ");
-  for (int i(0); i < d->Nprims-1; i++) fprintf(f, "%s, ", d->primsLabels[i].c_str());
-  fprintf(f, "%s\n", d->primsLabels[d->Nprims-1].c_str());
-
-  if (d->dims==3){
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->nx; i++) {
-        for (int j(0); j < d->ny; j++) {
-          for (int k(0); k < d->nz; k++) {
-            fprintf(f, "%.16f ", fullStateVector[ID_FULL_3D(var, i, j, k)]);
-          }
-          fprintf(f, "\n");
-        }
-      }
+  if (env->rank == 0){
+    // Ensure file is open
+    if (f == NULL) {
+      printf("Error: could not open 'prims.dat' for writing.\n");
+      exit(1);
     }
-  } else if (d->dims==2){
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->nx; i++) {
-        for (int j(0); j < d->ny; j++) {
-          fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else {
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->nx; i++) {
-        fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
-        fprintf(f, "\n");
-      }
-    }
+  
+    // File is open, write data
+    fprintf(f, "prims = ");
+    for (int i(0); i < d->Nprims-1; i++) fprintf(f, "%s, ", d->primsLabels[i].c_str());
+    fprintf(f, "%s\n", d->primsLabels[d->Nprims-1].c_str());
+  
+    writeStateVectorToFile(f, fullStateVector, d->Nprims);
+    fclose(f);
   }
 
-  fclose(f);
-
+  free(buffer);
+  free(fullStateVector);
 }
 
 void ParallelSaveData::saveAux()
@@ -329,47 +315,45 @@ void ParallelSaveData::saveAux()
   strcat(fname, app);
   strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open 'aux.dat' for writing.\n");
-    exit(1);
+  // Allocate buffers for gathering distributed state vectors onto master process
+  // We do this here rather than in saveAll to allow saveAux to be called independently
+  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // amount of memory until it's needed. 
+  int numCellsInBuffer = d->Naux * (d->Nx-(2*d->Ng));
+  if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
+  if (d->dims > 2) numCellsInBuffer *= (d->Nz - (2*d->Ng));
+  double *buffer = (double*) malloc(numCellsInBuffer * sizeof(double));
+  int numCellsInFullStateVector = numCellsInBuffer * env->nProc;
+  double *fullStateVector = (double*) malloc(numCellsInFullStateVector * sizeof(double));
+
+  if (env->rank != 0) packStateVectorBuffer(buffer, d->aux, d->Naux);
+  else copyMasterStateVectorToFullStateVector(fullStateVector, d->aux, d->Naux);
+  for (int r(1); r < env->nProc; r++){
+      int numCellsSent = d->Naux * (d->Nx-(2*d->Ng)); 
+      if (d->dims > 1) numCellsSent *= (d->Ny-(2*d->Ng));
+      if (d->dims > 2) numCellsSent *= (d->Nz-(2*d->Ng));
+      sendStateVectorBufferToMaster(buffer, numCellsSent, r);
+      if (env->rank == 0) unpackStateVectorBuffer(buffer, fullStateVector, d->Naux, r);
   }
 
-  // File is open, write data
-  fprintf(f, "aux = ");
-  for (int i(0); i < d->Naux-1; i++) fprintf(f, "%s, ", d->auxLabels[i].c_str());
-  fprintf(f, "%s\n", d->auxLabels[d->Naux-1].c_str());
-
-  if (d->dims==3){
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->nx; i++) {
-        for (int j(0); j < d->ny; j++) {
-          for (int k(0); k < d->nz; k++) {
-            fprintf(f, "%.16f ", fullStateVector[ID_FULL_3D(var, i, j, k)]);
-          }
-          fprintf(f, "\n");
-        }
-      }
+  if (env->rank == 0){
+    // Ensure file is open
+    if (f == NULL) {
+      printf("Error: could not open 'aux.dat' for writing.\n");
+      exit(1);
     }
-  } else if (d->dims==2){
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->nx; i++) {
-        for (int j(0); j < d->ny; j++) {
-          fprintf(f, "%.16f ", fullStateVector[ID_FULL_2D(var, i, j)]);
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else {
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->nx; i++) {
-        fprintf(f, "%.16f ", fullStateVector[ID_FULL_1D(var, i)]);
-        fprintf(f, "\n");
-      }
-    }
+  
+    // File is open, write data
+    fprintf(f, "aux = ");
+    for (int i(0); i < d->Naux-1; i++) fprintf(f, "%s, ", d->auxLabels[i].c_str());
+    fprintf(f, "%s\n", d->auxLabels[d->Naux-1].c_str());
+  
+    writeStateVectorToFile(f, fullStateVector, d->Naux);
+    fclose(f);
   }
 
-  fclose(f);
+  free(buffer);
+  free(fullStateVector);
 
 }
 
@@ -415,20 +399,21 @@ void ParallelSaveData::saveConsts()
   strcat(fname, app);
   strcat(fname, ".dat\0");  f = fopen(fname, "w");
 
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open 'constants.dat' for writing.\n");
-    exit(1);
+  if (env->rank == 0){
+      // Ensure file is open
+      if (f == NULL) {
+        printf("Error: could not open 'constants.dat' for writing.\n");
+        exit(1);
+      }
+
+      fprintf(f, "constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, ");
+      fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz\n");
+      fprintf(f, "%d %d %d %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %d %.16f %.16f %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f\n",
+              d->nx, d->ny, d->nz, d->Nx, d->Ny, d->Nz, d->xmin, d->xmax, d->ymin, d->ymax, d->zmin, d->zmax, d->endTime, d->cfl, d->Ng,
+              d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
+
+      fclose(f);
   }
-
-  fprintf(f, "constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, ");
-  fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz\n");
-  fprintf(f, "%d %d %d %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %d %.16f %.16f %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f\n",
-          d->nx, d->ny, d->nz, d->Nx, d->Ny, d->Nz, d->xmin, d->xmax, d->ymin, d->ymax, d->zmin, d->zmax, d->endTime, d->cfl, d->Ng,
-          d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
-
-  fclose(f);
-
 }
 
 
@@ -541,7 +526,3 @@ void ParallelSaveData::saveVar(string variable, int num)
 
 }
 
-ParallelSaveData::~ParallelSaveData()
-{
-  free(fullStateVector);
-}
