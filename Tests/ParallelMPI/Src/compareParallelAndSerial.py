@@ -70,7 +70,7 @@ class CompareParallelAndSerial(object):
 
             with HidePrints():
                 self.Serials.append(Plot(fromSpyder+"../TestData/Serial/", appendix))
-                self.Parallels.append(Plot(fromSpyder+"../TestData/Parallel/", appendix))
+                self.Parallels.append(Plot(fromSpyder+"../TestData/ParallelMPI/", appendix))
 
             self.Ncons.append(self.Serials[i].c['Ncons'])
             self.Nprims.append(self.Serials[i].c['Nprims'])
