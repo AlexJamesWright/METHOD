@@ -44,7 +44,7 @@ CXXFLAGS = -std=c++11 -DUSE_MPI=$(USE_MPI) -g
 # created to the list.
 TESTS = test_fvs \
 		test_rk2 \
-		test_imex \
+#		test_imex \
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -58,7 +58,7 @@ RTFIND = buildRootfinder
 
 test : $(RTFIND) $(TESTS)
 	# Run all tests
-	$(foreach exe, $(TESTS), mpirun -np 1 ./$(exe);)
+	$(foreach exe, $(TESTS), mpirun -np 4 ./$(exe);)
 
 all : $(RTFIND) $(TESTS)
 
