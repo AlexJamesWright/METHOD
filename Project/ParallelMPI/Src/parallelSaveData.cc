@@ -114,7 +114,6 @@ void ParallelSaveData::sendStateVectorBufferToMaster(double *buffer, int numCell
    // MPI message vars
    int tag = 101;
    MPI_Status status;
-
    if (env->rank == rank){
        MPI_Send(buffer, numCellsSent, MPI_DOUBLE, 0, tag, env->mpiCartesianComm);
    } else if (env->rank == 0){

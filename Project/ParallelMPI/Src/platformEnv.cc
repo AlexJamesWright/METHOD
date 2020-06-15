@@ -12,12 +12,12 @@
 
 // TODO -- rename setParallelDecomposition and split it out into more functions
 
-PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
+PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing) : testing(testing)
 {
 #if USE_MPI
     int initialized;
     MPI_Initialized(&initialized);
-	if (!initialized) MPI_Init(argcP, argvP);
+	if (!initialized && !testing) MPI_Init(argcP, argvP);
 
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -49,7 +49,7 @@ PlatformEnv::~PlatformEnv()
     
     int finalized;
     MPI_Finalized(&finalized);
-    if (!finalized) MPI_Finalize();
+    if (!finalized && !testing) MPI_Finalize();
 #endif
 }
 

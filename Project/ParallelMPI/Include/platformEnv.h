@@ -46,9 +46,10 @@ class PlatformEnv
 #if USE_MPI
 		MPI_Comm mpiCartesianComm;  //!< Cartesian MPI communicator that maps processes to the simulation grid
 #endif
+        int testing;    //!< boolean flag used to disable MPI init/finalise during unit testing
 
         //! Constructor -- Initialize global MPI communicator
-		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks);
+		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing=0);
 
         //! Destructor
 		~PlatformEnv();
