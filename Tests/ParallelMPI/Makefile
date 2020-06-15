@@ -58,7 +58,7 @@ RTFIND = buildRootfinder
 
 test : $(RTFIND) $(TESTS)
 	# Run all tests
-	$(foreach exe, $(TESTS), ./$(exe);)
+	$(foreach exe, $(TESTS), mpirun -np 1 ./$(exe);)
 
 all : $(RTFIND) $(TESTS)
 
@@ -70,7 +70,7 @@ compare : test_rk2 test_imex
 	./test_imex
 
 clean :
-	rm -f $(TESTS) gtest.a gtest_main.a *.o
+	rm -f $(TESTS) gtest.a *.o
 
 # Builds gtest.a and gtest_main.a.
 
@@ -110,14 +110,7 @@ gtest-all.o : $(GTEST_SRCS_)
 	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc
 
-gtest_main.o : $(GTEST_SRCS_)
-	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest_main.cc
-
 gtest.a : gtest-all.o
-	@$(AR) $(ARFLAGS) $@ $^
-
-gtest_main.a : gtest-all.o gtest_main.o
 	@$(AR) $(ARFLAGS) $@ $^
 
 	####################################################
@@ -129,6 +122,10 @@ ifeq ($(USE_MPI), 1)
 else
     SAVE_DATA_OBJ = serialSaveData.o 
 endif
+
+# main func
+main.o : $(TEST_DIR)/main.cpp $(INC_DIR)/platformEnv.h 
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
 
 # simData
 simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
@@ -146,7 +143,7 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_rk2 : test_rk2.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest_main.a
+test_rk2 : main.o test_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Explicit RK split integrator
@@ -161,7 +158,7 @@ test_fvs.o : $(TEST_DIR)/test_fvs.cc \
 	                    $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_fvs.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_fvs : srmhd.o test_fvs.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest_main.a
+test_fvs : main.o srmhd.o test_fvs.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Save data (required for simulation.evolve)
@@ -199,8 +196,8 @@ initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h
 
 
 # Boundary Conditions
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cc -I$(INC_DIR)
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
 
 # Imex Schemes
 SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
@@ -218,7 +215,7 @@ IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h
 test_imex.o : $(TEST_DIR)/test_imex.cc
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_imex : IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o boundaryConds.o platformEnv.o $(SAVE_DATA_OBJ) simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
+test_imex : main.o IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o parallelBoundaryConds.o platformEnv.o $(SAVE_DATA_OBJ) simulation.o test_imex.o $(RTFIND_OBJS) gtest.a fluxVectorSplitting.o weno.o 
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 

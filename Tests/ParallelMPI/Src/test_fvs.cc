@@ -18,11 +18,11 @@ TEST(FVS, SameFnetAsSerial)
   as the serial version.
 */
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1, 1);
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
@@ -54,11 +54,11 @@ TEST(FVS, SameFnetAsSerial)
 
 TEST(FVS, SameXReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1, 1);
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
@@ -92,11 +92,11 @@ TEST(FVS, SameXReconstructionAsSerial)
 
 TEST(FVS, SameYReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1, 1);
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
@@ -130,11 +130,11 @@ TEST(FVS, SameYReconstructionAsSerial)
 
 TEST(FVS, SameZReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env(0, NULL, 1, 1, 1, 1);
   Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
