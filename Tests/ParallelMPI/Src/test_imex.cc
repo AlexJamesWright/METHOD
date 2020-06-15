@@ -40,7 +40,7 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "SSP2");
   save.saveCons();
   save.savePrims();
@@ -76,7 +76,7 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "SSP3");
   save.saveCons();
   save.savePrims();

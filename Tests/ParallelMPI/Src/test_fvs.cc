@@ -46,7 +46,7 @@ TEST(FVS, SameFnetAsSerial)
   }
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "FVSFnet");
   save.saveCons();
   save.saveConsts();
@@ -83,7 +83,7 @@ TEST(FVS, SameXReconstructionAsSerial)
   }
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "FVSFx");
   save.saveCons();
   save.saveConsts();
@@ -121,7 +121,7 @@ TEST(FVS, SameYReconstructionAsSerial)
   }
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "FVSFy");
   save.saveCons();
   save.saveConsts();
@@ -159,7 +159,7 @@ TEST(FVS, SameZReconstructionAsSerial)
   }
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "FVSFz");
   save.saveCons();
   save.saveConsts();

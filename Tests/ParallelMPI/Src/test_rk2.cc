@@ -32,7 +32,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Parallel");
+  strcpy(save.dir, "../TestData/ParallelMPI");
   strcpy(save.app, "RK2");
 
   save.saveCons();
