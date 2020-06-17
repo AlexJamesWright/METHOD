@@ -171,7 +171,7 @@ parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveDa
 
 # Platform env
 platformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/platformEnv.cc -I$(INC_DIR)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/platformEnv.cc -I$(INC_DIR)
 
 # Simulation
 simulation.o : $(MODULE_DIR)/simulation.cc $(INC_DIR)/simulation.h
