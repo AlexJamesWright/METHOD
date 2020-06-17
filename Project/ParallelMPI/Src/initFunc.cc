@@ -233,7 +233,7 @@ OTVortexSingleFluid::OTVortexSingleFluid(Data * data) : InitialFunc(data)
         d->prims[ID(6, i, j, k)] = sin(4.0 * PI * d->x[i]) / sqrt(4.0 * PI);
 
 
-        if (d->Nz == 1) // 2D simulation
+        if (d->dims == 2) // 2D simulation
         {
           d->prims[ID(1, i, j, k)] = - 0.5 * sin(2.0 * PI * d->y[j]);
           d->prims[ID(2, i, j, k)] = 0.5 * sin(2.0 * PI * d->x[i]);

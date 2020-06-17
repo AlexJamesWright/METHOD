@@ -50,9 +50,9 @@ TESTS = test_simulation \
 				test_twoFluidEMHD \
 				test_srrmhd \
 				test_rk2 \
-				test_fvs \
-				test_REGIME
+				test_REGIME \
 				#test_imex \
+				test_fvs \
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.

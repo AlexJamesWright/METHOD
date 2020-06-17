@@ -43,8 +43,8 @@ CXXFLAGS = -std=c++11 -DUSE_MPI=$(USE_MPI) -g
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 TESTS = test_rk2 \
-		test_fvs \
 #		test_imex \
+		test_fvs \
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
