@@ -46,15 +46,15 @@ class InteractivePlot(object):
         Stores the following public variables:
 
             cons : array of float
-                (Ncons, Nx, Ny, Nz) Array containing the conserved vector
+                (Ncons, nx, ny, nz) Array containing the conserved vector
             consLabels : array of string
                 (Ncons,) The labels of the conserved elements
             prims : array of float
-                (Nprims, Nx, Ny, Nz) Array containing the primitive vector
+                (Nprims, nx, ny, nz) Array containing the primitive vector
             primLabels : array of string
                 (Nprims,) The labels of the primitive elements
             aux : array of float
-                (Naux, Nx, Ny, Nz) Array containing the auxiliary vector
+                (Naux, nx, ny, nz) Array containing the auxiliary vector
             auxLabels : array of string
                 (Naux,) The labels of the auxiliary elements
             c : dictionary
@@ -76,7 +76,11 @@ class InteractivePlot(object):
                     line=line.split()
                     c['nx'] = int(line[0])
                     c['ny'] = int(line[1])
+                    if c['ny'] == 0:
+                        c['ny'] = 1
                     c['nz'] = int(line[2])
+                    if c['nz'] == 0:
+                        c['nz'] = 1
                     c['Nx'] = int(line[3])
                     c['Ny'] = int(line[4])
                     c['Nz'] = int(line[5])
@@ -106,9 +110,8 @@ class InteractivePlot(object):
         print("{} auxiliary vectors".format(c['Naux']))
 
 
-
         # Now gather conserved data
-        self.cons = np.zeros([c['Ncons'], c['Nx'], c['Ny'], c['Nz']])
+        self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
         print("Fetching conserved variables...")
         with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
             for i, line in enumerate(f):
@@ -118,8 +121,8 @@ class InteractivePlot(object):
                     # Get cons var data
                 else:
                     temp = line.split()
-                    for k in range(c['Nz']-2*c['Ng']):
-                        self.cons[self._getVarFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][k] = float(temp[k])
+                    for k in range(c['nz']):
+                        self.cons[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
 
 
         # Clean up labels (remove the commas)
@@ -130,7 +133,7 @@ class InteractivePlot(object):
 
         with suppress(FileNotFoundError):
             # Now get primitive variables if  and store the data in array...
-            self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
+            self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
             print("Fetching primitive variables...")
             with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
                 for i, line in enumerate(f):
@@ -140,8 +143,8 @@ class InteractivePlot(object):
                     # Get primitive var data
                     else:
                         temp = line.split()
-                        for k in range(c['Nz']-2*c['Ng']):
-                            self.prims[self._getVarFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][k] = float(temp[k])
+                        for k in range(c['nz']):
+                            self.prims[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
 
             # Clean up labels (remove the commas)
             self.cleanPrimLabels = []
@@ -151,7 +154,7 @@ class InteractivePlot(object):
 
         with suppress(FileNotFoundError):
             # And finally the aux vars if available
-            self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
+            self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
             print("Fetching auxiliary variables...")
             with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
                 for i, line in enumerate(f):
@@ -161,8 +164,8 @@ class InteractivePlot(object):
                     # Get cons var data
                     else:
                         temp = line.split()
-                        for k in range(c['Nz']-2*c['Ng']):
-                            self.aux[self._getVarFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getXIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][self._getYIndexFromLine(i, c['Nx'], c['Ny'], c['Ng'])][k] = float(temp[k])
+                        for k in range(c['nz']):
+                            self.aux[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
 
             # Clean up labels (remove the commas)
             self.cleanAuxLabels = []
@@ -172,9 +175,9 @@ class InteractivePlot(object):
         
         with suppress(FileNotFoundError):
             # Grab domain data
-            self.x = np.zeros(c['Nx'])
-            self.y = np.zeros(c['Ny'])
-            self.z = np.zeros(c['Nz'])
+            self.x = np.zeros(c['nx'])
+            self.y = np.zeros(c['ny'])
+            self.z = np.zeros(c['nz'])
             coords = [self.x, self.y, self.z]
             print("Fetching domain coordinates...")
             with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
@@ -185,7 +188,7 @@ class InteractivePlot(object):
 
 
 
-    def _getVarFromLine(self, line, Nx, Ny, Ng):
+    def _getVarFromLine(self, line, nx, ny):
         """
         Given the line number that the iterator is on, and the size of the x-domain,
         returns the index of the primitive variable this data belongs to.
@@ -195,9 +198,9 @@ class InteractivePlot(object):
             line: int
                 The line number the file pointer is pointing to. We want to know which
                 primitive variable this line's data corresponds to.
-            Nx: int
+            nx: int
                 The total number (incl ghost cells) of domain cells in the x-direction.
-            Ny: int
+            ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
 
         Returns
@@ -213,14 +216,10 @@ class InteractivePlot(object):
         if line == 0:
             raise ValueError('Line zero does not contain any data')
         else:
-            # Remove ghost cells from count as these are no longer included in output
-            Nx = Nx - 2*Ng
-            if Ny > 1:
-                Ny = Ny - 2*Ng
-            return ((line-1)//Ny)//Nx
+            return ((line-1)//ny)//nx
 
 
-    def _getXIndexFromLine(self, line, Nx, Ny, Ng):
+    def _getXIndexFromLine(self, line, nx, ny):
         """
         Given the line number that the iterator is on, and the size of the x-domain,
         returns the x-index of this line's data.
@@ -230,9 +229,9 @@ class InteractivePlot(object):
             line: int
                 The line number the file pointer is pointing to. We want to know which
                 primitive variable this line's data corresponds to.
-            Nx: int
+            nx: int
                 The total number (incl ghost cells) of domain cells in the x-direction.
-            Ny: int
+            ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
 
         Returns
@@ -240,14 +239,9 @@ class InteractivePlot(object):
             index:
                 The x-index of the current line's data.
         """
-        # Remove ghost cells from count as these are no longer included in output
-        Nx = Nx - 2*Ng
-        if Ny > 1:
-            Ny = Ny - 2*Ng
+        return ((line-1)//ny)%nx
 
-        return ((line-1)//Ny)%Nx
-
-    def _getYIndexFromLine(self, line, Nx, Ny, Ng):
+    def _getYIndexFromLine(self, line, nx, ny):
         """
         Given the line number that the iterator is on, and the size of the y-domain,
         returns the y-index of this line's data.
@@ -257,9 +251,9 @@ class InteractivePlot(object):
             line: int
                 The line number the file pointer is pointing to. We want to know which
                 primitive variable this line's data corresponds to.
-            Nx: int
+            nx: int
                 The total number (incl ghost cells) of domain cells in the x-direction.
-            Ny: int
+            ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
 
         Returns
@@ -267,12 +261,7 @@ class InteractivePlot(object):
             index:
                 The y-index of the current line's data.
         """
-        # Remove ghost cells from count as these are no longer included in output
-        Nx = Nx - 2*Ng
-        if Ny > 1:
-            Ny = Ny - 2*Ng
-
-        return (line-1)%Ny
+        return (line-1)%ny
 
 
 

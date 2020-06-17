@@ -45,9 +45,9 @@ class CompareParallelAndSerial(object):
     Ncons = []
     Nprims = []
     Naux = []
-    Nx = []
-    Ny = []
-    Nz = []
+    nx = []
+    ny = []
+    nz = []
     Ng = []
     xbounds = []
     ybounds = []
@@ -75,21 +75,15 @@ class CompareParallelAndSerial(object):
             self.Ncons.append(self.Serials[i].c['Ncons'])
             self.Nprims.append(self.Serials[i].c['Nprims'])
             self.Naux.append(self.Serials[i].c['Naux'])
-            self.Nx.append(self.Serials[i].c['Nx'])
-            self.Ny.append(self.Serials[i].c['Ny'])
-            self.Nz.append(self.Serials[i].c['Nz'])
+            self.nx.append(self.Serials[i].c['nx'])
+            self.ny.append(self.Serials[i].c['ny'])
+            self.nz.append(self.Serials[i].c['nz'])
             self.Ng.append(self.Serials[i].c['Ng'])
 
             # Bounds within arrays which do not include ghost cells
-            self.xbounds.append((0, self.Nx[-1] - 2*self.Ng[-1]))
-            if (self.Ny[-1] > 1):
-                self.ybounds.append((0, self.Ny[-1] - 2*self.Ng[-1]))
-            else:
-                self.ybounds.append((0, 1))
-            if (self.Nz[-1] > 1):
-                self.zbounds.append((0, self.Nz[-1] - 2*self.Ng[-1]))
-            else:
-                self.zbounds.append((0, 1))
+            self.xbounds.append((0, self.nx[-1]))
+            self.ybounds.append((0, self.ny[-1]))
+            self.zbounds.append((0, self.nz[-1]))
 
             # Bounds within arrays which include ghost cells
 #           self.xbounds.append((self.Ng[-1], self.Nx[-1] - self.Ng[-1]))
@@ -110,90 +104,95 @@ Compare = CompareParallelAndSerial()
 # Test functions
 
 # IMEX3
-def test_ConsEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        print(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k])))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-
-def test_PrimsEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Nprims[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-
-def test_AuxEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Naux[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-
-# IMEX2
-def test_ConsEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-
-def test_PrimsEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Nprims[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-
-def test_AuxEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Naux[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+#def test_ConsEquivalentForSSP3():
+#    Obj = Compare.Appendicies.index('SSP3')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Ncons[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        print(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k])))
+#                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+#
+#def test_PrimsEquivalentForSSP3():
+#    Obj = Compare.Appendicies.index('SSP3')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Nprims[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
+#
+#def test_AuxEquivalentForSSP3():
+#    Obj = Compare.Appendicies.index('SSP3')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Naux[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+#
+## IMEX2
+#def test_ConsEquivalentForSSP2():
+#    Obj = Compare.Appendicies.index('SSP2')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Ncons[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+#
+#def test_PrimsEquivalentForSSP2():
+#    Obj = Compare.Appendicies.index('SSP2')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Nprims[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
+#
+#def test_AuxEquivalentForSSP2():
+#    Obj = Compare.Appendicies.index('SSP2')
+#    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+#    for Nv in range(Compare.Naux[Obj]):
+#        for i in range(*Compare.xbounds[Obj]):
+#            for j in range(*Compare.ybounds[Obj]):
+#                for k in range(*Compare.zbounds[Obj]):
+#                    try:
+#                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+#                    except AssertionError:
+#                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+#                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
 
 # RK2
 def test_ConsEquivalentForRK2():
    Obj = Compare.Appendicies.index('RK2')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   fdebug = open("demofile.txt", "w")
+   fdebug.write("!!!!! SERIAL")
+   fdebug.write(str(Serial.cons))
+   fdebug.write("!!!!! PARALLEL")
+   fdebug.write(str(Parallel.cons))
    for Nv in range(Compare.Ncons[Obj]):
        for i in range(*Compare.xbounds[Obj]):
            for j in range(*Compare.ybounds[Obj]):
