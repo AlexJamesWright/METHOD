@@ -19,7 +19,7 @@ TEST(FVS, SameFnetAsSerial)
 */
 {
   PlatformEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);
@@ -55,7 +55,7 @@ TEST(FVS, SameFnetAsSerial)
 TEST(FVS, SameXReconstructionAsSerial)
 {
   PlatformEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);
@@ -93,7 +93,7 @@ TEST(FVS, SameXReconstructionAsSerial)
 TEST(FVS, SameYReconstructionAsSerial)
 {
   PlatformEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);
@@ -131,7 +131,7 @@ TEST(FVS, SameYReconstructionAsSerial)
 TEST(FVS, SameZReconstructionAsSerial)
 {
   PlatformEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);

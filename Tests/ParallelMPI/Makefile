@@ -42,8 +42,8 @@ CXXFLAGS = -std=c++11 -DUSE_MPI=$(USE_MPI) -g
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_fvs \
-		test_rk2 \
+TESTS = test_rk2 \
+		test_fvs \
 #		test_imex \
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -59,6 +59,7 @@ RTFIND = buildRootfinder
 test : $(RTFIND) $(TESTS)
 	# Run all tests
 	$(foreach exe, $(TESTS), mpirun -np 4 ./$(exe);)
+	python -m pytest -v Src/compareParallelAndSerial.py
 
 all : $(RTFIND) $(TESTS)
 

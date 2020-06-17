@@ -49,10 +49,10 @@ TESTS = test_simulation \
 				test_boundaryConds \
 				test_twoFluidEMHD \
 				test_srrmhd \
-				test_fvs \
 				test_rk2 \
-				test_imex \
+				test_fvs \
 				test_REGIME
+				#test_imex \
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -154,7 +154,7 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_rk2 : test_rk2.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest_main.a
+test_rk2 : test_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o platformEnv.o $(SAVE_DATA_OBJ) $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Explicit RK split integrator
