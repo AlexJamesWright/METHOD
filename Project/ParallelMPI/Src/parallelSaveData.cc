@@ -201,7 +201,7 @@ void ParallelSaveData::saveCons()
 {
   FILE * f;
 
-  char fname[60];
+  char fname[120];
   strcpy(fname, dir);
   strcat(fname, "/Conserved/cons");
   strcat(fname, app);
@@ -258,7 +258,7 @@ void ParallelSaveData::saveCons()
 void ParallelSaveData::savePrims()
 {
   FILE * f;
-  char fname[60];
+  char fname[120];
   strcpy(fname, dir);
   strcat(fname, "/Primitive/prims");
   strcat(fname, app);
@@ -308,7 +308,7 @@ void ParallelSaveData::savePrims()
 void ParallelSaveData::saveAux()
 {
   FILE * f;
-  char fname[60];
+  char fname[120];
   strcpy(fname, dir);
   strcat(fname, "/Auxiliary/aux");
   strcat(fname, app);
@@ -360,7 +360,7 @@ void ParallelSaveData::saveAux()
 void ParallelSaveData::saveDomain()
 {
   FILE * f;
-  char fname[60];
+  char fname[120];
   strcpy(fname, dir);
   strcat(fname, "/Domain/domain");
   strcat(fname, app);
@@ -392,7 +392,7 @@ void ParallelSaveData::saveDomain()
 void ParallelSaveData::saveConsts()
 {
   FILE * f;
-  char fname[60];
+  char fname[120];
   strcpy(fname, dir);
   strcat(fname, "/Constants/constants");
   strcat(fname, app);
@@ -421,7 +421,7 @@ void ParallelSaveData::saveVar(string variable, int num)
   int cpa(0); // cons=1,prims=2,aux=3
   int Nvar(0); // Variable number
   FILE * f;
-  char fname[60];
+  char fname[120];
 
   // Determine which variable the user wants saved
   for (int var(0); var < d->Ncons; var++) {
