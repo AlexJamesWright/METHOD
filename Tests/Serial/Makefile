@@ -38,7 +38,7 @@ CPPFLAGS = -isystem $(GTEST_DIR)/include
 # c++11 is required for the vector looping srmhd
 # First four required to get the c++11 standard to compile with NVIDIA, dont ask me why,
 # found the solution on https://github.com/NVIDIA/nccl/issues/29
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++11 -g
 
 # Required for the parallel version of the code
 CXX_MPI_FLAGS = -DUSE_MPI=1
@@ -53,11 +53,13 @@ TESTS = test_simulation \
 				test_twoFluidEMHD \
 				test_srrmhd \
 				test_rk2 \
+				test_rkSplit \
 				test_REGIME \
 				#test_imex \
 				test_fvs \
 				
 PARALLEL_TESTS = test_parallel_rk2 \
+				 test_parallel_rkSplit \
 				 #test_parallel_imex \
 				 #test_parallel_fvs
 
@@ -85,9 +87,10 @@ buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects
 
 # TODO -- add back in test_fvs, test_imex when working
-compare : test_rk2 test_parallel_rk2
+compare : test_rk2 test_rkSplit test_parallel_rk2 test_parallel_rkSplit
 	./test_rk2
-	mpirun -np 3 ./test_parallel_rk2
+	./test_rkSplit
+	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 3 ./$(exe);)
 	python -m pytest -v Src/compareParallelAndSerial.py
 
 clean :
@@ -165,10 +168,16 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
 test_rk2 : test_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o platformEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
-
 # Explicit RK split integrator
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/rkSplit.cc -I$(INC_DIR)
+
+test_rkSplit.o : $(TEST_DIR)/test_rkSplit.cc $(INC_DIR)/rkSplit.h \
+	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_rkSplit : test_rkSplit.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o platformEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Flux vector splitting method
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
@@ -320,7 +329,13 @@ test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cc $(INC_DIR)/RK2.h \
 	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) $(CXX_MPI_FLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rk2 : main.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o pPlatformEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
-#test_parallel_rk2 : main.o test_parallel_rk2.o pSrmhd.o pSrrmhd.o pFluxVectorSplitting.o parallelBoundaryConds.o pSimData.o pRK2.o pInitFunc.o pSimulation.o pWeno.o pPlatformEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
+	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) $(CXX_MPI_FLAGS) -pthread $^ -o $@
+
+test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_DIR)/rkSplit.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) $(CXX_MPI_FLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_parallel_rkSplit : main.o test_parallel_rkSplit.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o pPlatformEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
 	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) $(CXX_MPI_FLAGS) -pthread $^ -o $@
 
 pPlatformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
