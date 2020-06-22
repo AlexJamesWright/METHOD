@@ -186,13 +186,8 @@ Compare = CompareParallelAndSerial()
 
 # RK2
 def test_ConsEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-   fdebug = open("demofile.txt", "w")
-   fdebug.write("!!!!! SERIAL")
-   fdebug.write(str(Serial.cons))
-   fdebug.write("!!!!! PARALLEL")
-   fdebug.write(str(Parallel.cons))
    for Nv in range(Compare.Ncons[Obj]):
        for i in range(*Compare.xbounds[Obj]):
            for j in range(*Compare.ybounds[Obj]):
@@ -204,7 +199,7 @@ def test_ConsEquivalentForRK2():
                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
 
 def test_PrimsEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    for Nv in range(Compare.Nprims[Obj]):
        for i in range(*Compare.xbounds[Obj]):
@@ -217,7 +212,7 @@ def test_PrimsEquivalentForRK2():
                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
 
 def test_AuxEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    for Nv in range(Compare.Naux[Obj]):
        for i in range(*Compare.xbounds[Obj]):

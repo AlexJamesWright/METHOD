@@ -75,7 +75,7 @@ test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all serial tests
 	$(foreach exe, $(TESTS), ./$(exe);)
 	# Run all parallel tests
-	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 3 ./$(exe);)
 	# Run tests that compare outputs of TestData/Serial and TestData/Parallel
 	python -m pytest -v Src/compareParallelAndSerial.py
 
@@ -87,7 +87,8 @@ buildRootfinder:
 # TODO -- add back in test_fvs, test_imex when working
 compare : test_rk2 test_parallel_rk2
 	./test_rk2
-	mpirun -np 4 ./test_parallel_rk2
+	mpirun -np 3 ./test_parallel_rk2
+	python -m pytest -v Src/compareParallelAndSerial.py
 
 clean :
 	rm -f $(TESTS) $(PARALLEL_TESTS) gtest.a gtest_main.a *.o

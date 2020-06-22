@@ -50,7 +50,7 @@ class SaveData
 
     char
     dir[50],   //!< String path to the directory in which to write files
-    app[10];   //!< String appendix to add to end of file names
+    app[50];   //!< String appendix to add to end of file names
 
     //! Constructor
     /*!

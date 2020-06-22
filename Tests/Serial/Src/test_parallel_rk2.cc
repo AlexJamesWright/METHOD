@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #if 1
-TEST(RK2, RK2OutputConsistentWithSerial)
+TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
 {
 
   /*
@@ -19,7 +19,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 2, 2, 1, 1);
+  PlatformEnv env(0, NULL, 3, 1, 1, 1);
   Data d(30, 0, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -35,7 +35,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/ParallelMPI");
-  strcpy(save.app, "RK2");
+  strcpy(save.app, "RK2SrmhdOutflowBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -45,7 +45,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
 #endif
 
 #if 0
-TEST(RK2, RK2OutputConsistentWithSerial)
+TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluid)
 {
 
   /*
@@ -69,7 +69,7 @@ TEST(RK2, RK2OutputConsistentWithSerial)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/ParallelMPI");
-  strcpy(save.app, "RK2");
+  strcpy(save.app, "RK2SrrmhdOutflowOTVortexSingleFluid");
 
   save.saveCons();
   save.savePrims();
