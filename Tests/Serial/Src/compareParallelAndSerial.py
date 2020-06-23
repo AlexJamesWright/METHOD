@@ -227,6 +227,21 @@ def test_AuxEquivalentForRKSplit():
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
 
+def test_ConsEquivalentForRKSplit():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRKSplit():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRKSplit():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
 # FVS
 #def test_FnetEquivalentForFVS():
 #    Obj = Compare.Appendicies.index('FVSFnet')

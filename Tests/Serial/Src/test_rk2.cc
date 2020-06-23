@@ -21,7 +21,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
   */
 
   PlatformEnv env(0, NULL, 1, 1, 1, 1);
-  Data d(30, 0, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Data d(40, 0, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);
@@ -55,7 +55,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
   */
 
   PlatformEnv env(0, NULL, 1, 1, 1, 1);
-  Data d(30, 30, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
   Outflow bcs(&d);
