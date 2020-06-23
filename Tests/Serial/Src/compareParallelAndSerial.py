@@ -196,51 +196,199 @@ def _compareStateVarArrays(serialArray, parallelArray, Obj, nVars):
                        assert(abs((serialArray[Nv, i, j, k] - parallelArray[Nv, i, j, k]) < TOL))
 
 # RK2
-def test_ConsEquivalentForRK2():
+
+## KelvinHelmholtzRandomInstabilitySingleFluid
+
+def test_ConsEquivalentForRK2SrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRK2SrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRK2SrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRK2SrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRK2SrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRK2SrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRK2SrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRK2SrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRK2SrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+
+## BrioWuSingleFluid
+
+def test_ConsEquivalentForRK2SrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
-
-def test_PrimsEquivalentForRK2():
+   
+def test_PrimsEquivalentForRK2SrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
    
-def test_AuxEquivalentForRK2():
+def test_AuxEquivalentForRK2SrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
    
+def test_PrimsEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
 # RKSplit
-def test_ConsEquivalentForRKSplit():
+
+## KelvinHelmholtzRandomInstabilitySingleFluid
+
+def test_ConsEquivalentForRKSplitSrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRKSplitSrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRKSplitSrmhdOutflowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRKSplitSrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRKSplitSrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRKSplitSrmhdPeriodicKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRKSplitSrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRKSplitSrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRKSplitSrmhdFlowKHRandomInstabilitySF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowKHRandomInstabilitySF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+
+## BrioWuSingleFluid
+
+def test_ConsEquivalentForRKSplitSrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
    
-def test_PrimsEquivalentForRKSplit():
+def test_PrimsEquivalentForRKSplitSrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
    
-def test_AuxEquivalentForRKSplit():
+def test_AuxEquivalentForRKSplitSrmhdOutflowBrioWuSF():
    Obj = Compare.Appendicies.index('RKSplitSrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
 
-def test_ConsEquivalentForRKSplit():
-   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+def test_ConsEquivalentForRKSplitSrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
    
-def test_PrimsEquivalentForRKSplit():
-   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+def test_PrimsEquivalentForRKSplitSrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
    
-def test_AuxEquivalentForRKSplit():
-   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicKHRandomInstabilitySF')
+def test_AuxEquivalentForRKSplitSrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdPeriodicBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+def test_ConsEquivalentForRKSplitSrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+   
+def test_PrimsEquivalentForRKSplitSrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+   
+def test_AuxEquivalentForRKSplitSrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RKSplitSrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
 
 # FVS
 #def test_FnetEquivalentForFVS():
