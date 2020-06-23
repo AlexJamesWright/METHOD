@@ -321,7 +321,7 @@ void ParallelOutflow::setYBoundary(double *stateVector, int nVars){
         for (int j(0); j < d->Ng; j++) {
           for (int k(0); k < d->Nz; k++) {
             // Back
-            stateVector[ID(var, i, d->Nx - d->Ng + j, k)] = stateVector[ID(var, i, d->Ng - d->Ng - 1, k)];
+            stateVector[ID(var, i, d->Ny - d->Ng + j, k)] = stateVector[ID(var, i, d->Ny - d->Ng - 1, k)];
           }
         }
       }
@@ -537,7 +537,7 @@ void ParallelFlow::setYBoundary(double *stateVector, int nVars){
         for (int j(0); j < d->Ng; j++) {
           for (int k(0); k < d->Nz; k++) {
             // Back
-            stateVector[ID(var, i, d->Nx - d->Ng + j, k)] = stateVector[ID(var, i, d->Ng - d->Ng - 1, k)];
+            stateVector[ID(var, i, d->Ny - d->Ng + j, k)] = stateVector[ID(var, i, d->Ny - d->Ng - 1, k)];
           }
         }
       }
