@@ -62,7 +62,7 @@ int PlatformEnv::isNeighbourExternal(int dimension, int direction)
     if (dimension==0) {
         dimRank = xRankId;
         maxRank = nxRanks;
-    } else if (dimension==0) {
+    } else if (dimension==1) {
         dimRank = yRankId;
         maxRank = nyRanks;
     } else {
