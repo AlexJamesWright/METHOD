@@ -3,9 +3,11 @@
 #include "twoFluidEMHD.h"
 #include "simulation.h"
 #include "simData.h"
+#include "serialSaveData.h"
 #include "initFunc.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
+#include "platformEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
@@ -16,14 +18,15 @@ TEST(FVS, SameFnetAsSerial)
   as the serial version.
 */
 {
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SaveData save(&d);
+  SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   fluxMethod.F(d.cons, d.prims, d.aux, d.f, d.fnet);
@@ -51,14 +54,15 @@ TEST(FVS, SameFnetAsSerial)
 
 TEST(FVS, SameXReconstructionAsSerial)
 {
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SaveData save(&d);
+  SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 0);
@@ -88,14 +92,15 @@ TEST(FVS, SameXReconstructionAsSerial)
 
 TEST(FVS, SameYReconstructionAsSerial)
 {
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SaveData save(&d);
+  SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 1);
@@ -125,14 +130,15 @@ TEST(FVS, SameYReconstructionAsSerial)
 
 TEST(FVS, SameZReconstructionAsSerial)
 {
-  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
   RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
-  SaveData save(&d);
+  SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   model.fluxVector(d.cons, d.prims, d.aux, d.f, 2);

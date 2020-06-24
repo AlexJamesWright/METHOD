@@ -28,8 +28,6 @@ class ParallelSaveData : public SaveData
 {
   private:
 
-    double *fullStateVector;     //! temporary buffer containing all non-ghost cells for one of cons/prims/aux
-
     /*!
         For each particular state vector (cons, prims, aux) packs a buffer containing all cells in a subdomain
       (not including ghost values) to be sent to process 0
@@ -67,6 +65,9 @@ class ParallelSaveData : public SaveData
      */
     void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
 
+    // TODO -- docstring
+    void writeStateVectorToFile(FILE *f, double *fullStateVector, int nVars);
+
   public:
 
     //! Saves the conserved vector state
@@ -98,7 +99,7 @@ class ParallelSaveData : public SaveData
     */
     ParallelSaveData(Data * data, PlatformEnv * env, int test=0) : SaveData(data, env, test) {}
 
-    ~ParallelSaveData();     //!< Destructor
+    ~ParallelSaveData() {}     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!

@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 #include "srmhd.h"
+#include "boundaryConds.h"
 #include "simulation.h"
 #include "simData.h"
 #include "initFunc.h"
 #include "fluxVectorSplitting.h"
+#include "platformEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <stdio.h>
@@ -12,7 +14,8 @@
 
 TEST(SRMHD, Constructor)
 {
-  Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&d);
   EXPECT_EQ(d.Ncons, 9);
   EXPECT_EQ(d.Nprims, 8);
@@ -28,10 +31,12 @@ TEST(SRMHD, FluxVectorSplittingStationary)
 {
   double tol(1.0e-15);
   // Set up
-  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   // Set state to stationary equilibrium state
   for (int i(0); i < d.Nx; i++) {
     for (int j(0); j < d.Ny; j++) {
@@ -93,9 +98,11 @@ TEST(SRMHD, SourceTerm)
 {
 
   // Set up
-  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
 
   // Set cons to something
   for (int i(0); i < d.Nx; i++) {
@@ -128,12 +135,16 @@ TEST(SRMHD, SourceTerm)
 TEST(SRMHD, Prims2Cons2Prims)
 {
   const double tol = 1.49011612e-8;   // Tolerance of rootfinder
-  Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
-  Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  PlatformEnv env2(0, NULL, 1, 1, 1);
+  Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env);
+  Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env2);
   SRMHD model(&d);
   SRMHD model2(&d2);
-  Simulation sim(&d);
-  Simulation sim2(&d2);
+  Periodic bcs(&d);
+  Periodic bcs2(&d2);
+  Simulation sim(&d, &env);
+  Simulation sim2(&d2, &env2);
   OTVortexSingleFluid init(&d);
   OTVortexSingleFluid init2(&d2);
 
@@ -216,9 +227,11 @@ TEST(SRMHD, Prims2Cons2Prims)
 TEST(SRMHD, PrimsToAll)
 {
   // Set up
-  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0);
+  PlatformEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   InitialFunc init(&d);
 
   // Set cons and aux vars to rubbish so we know they have changed, and

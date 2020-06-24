@@ -12,10 +12,12 @@
 
 // TODO -- rename setParallelDecomposition and split it out into more functions
 
-PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks)
+PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing) : testing(testing)
 {
 #if USE_MPI
-	MPI_Init(argcP, argvP);
+    int initialized;
+    MPI_Initialized(&initialized);
+	if (!initialized && !testing) MPI_Init(argcP, argvP);
 
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -43,7 +45,11 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 PlatformEnv::~PlatformEnv()
 {
 #if USE_MPI
-	MPI_Finalize();
+    // TODO -- Free cartesian communicator
+    
+    int finalized;
+    MPI_Finalized(&finalized);
+    if (!finalized && !testing) MPI_Finalize();
 #endif
 }
 
@@ -56,7 +62,7 @@ int PlatformEnv::isNeighbourExternal(int dimension, int direction)
     if (dimension==0) {
         dimRank = xRankId;
         maxRank = nxRanks;
-    } else if (dimension==0) {
+    } else if (dimension==1) {
         dimRank = yRankId;
         maxRank = nyRanks;
     } else {

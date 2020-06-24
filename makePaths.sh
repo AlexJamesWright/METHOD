@@ -48,6 +48,13 @@ mkdir Tests/TestData/Parallel/Conserved
 mkdir Tests/TestData/Parallel/Constants
 mkdir Tests/TestData/Parallel/Primitive
 
+mkdir Tests/TestData
+mkdir Tests/TestData/ParallelMPI
+mkdir Tests/TestData/ParallelMPI/Auxiliary
+mkdir Tests/TestData/ParallelMPI/Conserved
+mkdir Tests/TestData/ParallelMPI/Constants
+mkdir Tests/TestData/ParallelMPI/Primitive
+
 mkdir Tests/TestData/Serial
 mkdir Tests/TestData/Serial/Auxiliary
 mkdir Tests/TestData/Serial/Conserved

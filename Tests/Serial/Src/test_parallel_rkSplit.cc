@@ -3,17 +3,23 @@
 #include "srmhd.h"
 #include "simulation.h"
 #include "simData.h"
-#include "saveData.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include "initFunc.h"
-#include "RK2.h"
+#include "rkSplit.h"
 #include "fluxVectorSplitting.h"
 #include "platformEnv.h"
 #include <cstdlib>
 
+/*
+ Assumptions:
+   RKRandomInstabilitySingleFluid is tested in 2D only
+   BrioWuSingleFluid is tested in 1D only
+*/
+
+
 #if 1
 // RKRandomInstabilitySingleFluid
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF)
 {
 
   /*
@@ -31,23 +37,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdOutflowKHRandomInstabilitySF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdOutflowKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
@@ -55,7 +61,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicKHRandomInstabilitySF)
 {
 
   /*
@@ -73,23 +79,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Periodic bcs(&d);
+  ParallelPeriodic bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdPeriodicKHRandomInstabilitySF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdPeriodicKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
@@ -97,7 +103,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowKHRandomInstabilitySF)
 {
 
   /*
@@ -115,33 +121,32 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Flow bcs(&d);
+  ParallelFlow bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdFlowKHRandomInstabilitySF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdFlowKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
   save.saveAux();
   save.saveConsts();
 }
-
 // BrioWuSingleFluid
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowBrioWuSF)
 {
 
   /*
@@ -149,23 +154,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdOutflowBrioWuSF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdOutflowBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -173,7 +178,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicBrioWuSF)
 {
 
   /*
@@ -181,23 +186,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Periodic bcs(&d);
+  ParallelPeriodic bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdPeriodicBrioWuSF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdPeriodicBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -205,7 +210,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowBrioWuSF)
 {
 
   /*
@@ -213,23 +218,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Flow bcs(&d);
+  ParallelFlow bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdFlowBrioWuSF");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrmhdFlowBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -238,8 +243,13 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
 }
 #endif
 
+
+
 #if 0
-TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
+
+// Tests which do not currently pass
+
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrrmhdOutflowOTVortexSingleFluid)
 {
 
   /*
@@ -247,23 +257,23 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
-  Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  PlatformEnv env(0, NULL, 2, 2, 1, 1);
+  Data d(30, 30, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
-  Outflow bcs(&d);
+  ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
-  SerialSaveData save(&d, &env);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   sim.evolve();
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrrmhdOutflowOTVortexSingleFluid");
+  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.app, "RKSplitSrrmhdOutflowOTVortexSingleFluid");
 
   save.saveCons();
   save.savePrims();

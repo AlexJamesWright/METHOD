@@ -6,14 +6,14 @@
 #include "saveData.h"
 #include "serialSaveData.h"
 #include "initFunc.h"
-#include "RK2.h"
+#include "rkSplit.h"
 #include "fluxVectorSplitting.h"
 #include "platformEnv.h"
 #include <cstdlib>
 
 #if 1
 // RKRandomInstabilitySingleFluid
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
+TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF)
 {
 
   /*
@@ -38,7 +38,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -47,7 +47,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdOutflowKHRandomInstabilitySF");
+  strcpy(save.app, "RKSplitSrmhdOutflowKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
@@ -55,7 +55,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
+TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdPeriodicKHRandomInstabilitySF)
 {
 
   /*
@@ -80,7 +80,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   Periodic bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -89,7 +89,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdPeriodicKHRandomInstabilitySF");
+  strcpy(save.app, "RKSplitSrmhdPeriodicKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
@@ -97,7 +97,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
+TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdFlowKHRandomInstabilitySF)
 {
 
   /*
@@ -122,7 +122,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
   Flow bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -131,7 +131,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdFlowKHRandomInstabilitySF");
+  strcpy(save.app, "RKSplitSrmhdFlowKHRandomInstabilitySF");
 
   save.saveCons();
   save.savePrims();
@@ -141,7 +141,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
 
 // BrioWuSingleFluid
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowBrioWuSF)
 {
 
   /*
@@ -156,7 +156,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -165,7 +165,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdOutflowBrioWuSF");
+  strcpy(save.app, "RKSplitSrmhdOutflowBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -173,7 +173,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicBrioWuSF)
 {
 
   /*
@@ -188,7 +188,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
   Periodic bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -197,7 +197,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdPeriodicBrioWuSF");
+  strcpy(save.app, "RKSplitSrmhdPeriodicBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -205,7 +205,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
   save.saveConsts();
 }
 
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowBrioWuSF)
 {
 
   /*
@@ -220,7 +220,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
   Flow bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -229,7 +229,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrmhdFlowBrioWuSF");
+  strcpy(save.app, "RKSplitSrmhdFlowBrioWuSF");
 
   save.saveCons();
   save.savePrims();
@@ -239,7 +239,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
 #endif
 
 #if 0
-TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrrmhdOutflowOTVortexSingleFluidRKSplit)
 {
 
   /*
@@ -254,7 +254,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
-  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod);
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
@@ -263,7 +263,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrrmhdOutflowOTVortexSingleFluid");
+  strcpy(save.app, "RKSplitSrrmhdOutflowOTVortexSingleFluid");
 
   save.saveCons();
   save.savePrims();

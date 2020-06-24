@@ -30,7 +30,7 @@ ifeq ($(USE_OMP), 1)
 endif
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI) $(OMP_FLAGS) -g
+CXXFLAGS = -Wall -std=c++11 -O3 -DUSE_MPI=$(USE_MPI) $(OMP_FLAGS)
 
 # Sources
 SRCS = simulation.cc \
