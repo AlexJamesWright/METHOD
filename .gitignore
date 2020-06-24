@@ -1,19 +1,9 @@
 # Ignore any object files or executables
 *.o
 main
-test_srmhd
-test_srrmhd
-test_simulation
-test_initFunc
-test_cminpack
-test_boundaryConds
-test_twoFluidEMHD
-test_fvs
-test_id
-test_rk2
-test_imex
-test_REGIME
+test_*
 gtest_main.a
+gtest.a
 
 *.dat
 
