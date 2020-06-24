@@ -61,7 +61,7 @@ class CompareParallelAndSerial(object):
 
         # For each file, determine the appendix and use interactivePlot to
         # gather the data
-        for i, serfile in enumerate(glob(fromSpyder+"../TestData/Serial/Conserved/*")):
+        for i, serfile in enumerate(glob(fromSpyder+"../TestData/Parallel/Conserved/*")):
             ext = serfile.find('.dat')
             app = serfile.find('Conserved/cons') + len('Conserved.cons')
             appendix = serfile[app:ext]
