@@ -79,7 +79,7 @@ test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all parallel tests
 	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
 	# Run tests that compare outputs of TestData/Serial and TestData/Parallel
-	python -m pytest -v Src/compareParallelAndSerial.py
+	py.test -v Src/compareParallelAndSerial.py
 
 all : $(RTFIND) $(TESTS)
 
@@ -91,7 +91,7 @@ compare : test_rk2 test_rkSplit test_parallel_rk2 test_parallel_rkSplit
 	./test_rk2
 	./test_rkSplit
 	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
-	python -m pytest -v Src/compareParallelAndSerial.py
+	py.test -v Src/compareParallelAndSerial.py
 
 clean :
 	rm -f $(TESTS) $(PARALLEL_TESTS) gtest.a gtest_main.a *.o
