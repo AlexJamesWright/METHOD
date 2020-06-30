@@ -7,7 +7,7 @@
 #include "initFunc.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
@@ -18,7 +18,7 @@ TEST(FVS, SameFnetAsSerial)
   as the serial version.
 */
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -54,7 +54,7 @@ TEST(FVS, SameFnetAsSerial)
 
 TEST(FVS, SameXReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -92,7 +92,7 @@ TEST(FVS, SameXReconstructionAsSerial)
 
 TEST(FVS, SameYReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -130,7 +130,7 @@ TEST(FVS, SameYReconstructionAsSerial)
 
 TEST(FVS, SameZReconstructionAsSerial)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);

@@ -6,7 +6,7 @@
 #include "initFunc.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
@@ -15,7 +15,7 @@
 
 TEST(TwoFluidEMHD, Constructor)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   TwoFluidEMHD model(&d);
   EXPECT_EQ(d.Ncons, 18);
@@ -42,7 +42,7 @@ TEST(TwoFluidEMHD, Constructor)
 TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
 {
   // Discontinuity in x direction
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data dx(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
   FVS fluxMethodx(&dx, &modelx);
@@ -56,7 +56,7 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   simx.updateTime();
 
   // Discontinuity in y direction
-  PlatformEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
   Data dy(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
   FVS fluxMethody(&dy, &modely);
@@ -69,7 +69,7 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   simy.updateTime();
 
   // Discontinuity in z direction
-  PlatformEnv env3(0, NULL, 1, 1, 1);
+  SerialEnv env3(0, NULL, 1, 1, 1);
   Data dz(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
   FVS fluxMethodz(&dz, &modelz);
@@ -156,14 +156,14 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
 TEST(TwoFluidEMHD, Prims2Cons2Prims)
 {
   const double tol = 1.49011612e-8;   // Tolerance of rootfinder
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
   BrioWuTwoFluid init(&d, 0, 0);
 
-  PlatformEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
   Data d2(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD model2(&d2);
   Periodic bcs2(&d2);
@@ -241,7 +241,7 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
 {
 
   // Set up
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(6, 6, 6, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   TwoFluidEMHD model(&d);
   FVS fluxMethod(&d, &model);

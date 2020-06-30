@@ -12,7 +12,8 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/initFunc.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/RK2.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/rkSplit.cc
-      ${CMAKE_CURRENT_LIST_DIR}/Src/saveData.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/serialSaveData.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/serialEnv.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simData.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simulation.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/srmhd.cc
@@ -47,6 +48,9 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/RK2.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/rkSplit.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/saveData.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/serialSaveData.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/platformEnv.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/serialEnv.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/simData.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/simulation.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/srmhd.h
@@ -66,9 +70,16 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include/minpackP.h
     )
 
+#find_package(MPI REQUIRED)
+
+#target_link_libraries(Cmin
+#    ${MPI_C_LIBRARIES}
+#    )
+
 target_include_directories(
     Cmin
     PUBLIC
       ${CMAKE_CURRENT_LIST_DIR}/Include
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include
+      #      ${MPI_INCLUDE_PATH}
     )

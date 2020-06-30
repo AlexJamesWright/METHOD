@@ -4,11 +4,11 @@
 #include "srmhd.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 
 TEST(Periodic, periodicBoundaryConditions)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
   Periodic bcs(&d);
@@ -192,7 +192,7 @@ TEST(Periodic, periodicBoundaryConditions)
 TEST(Outflow, outflowBoundaryConditions)
 {
 
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
   Outflow bcs(&d);

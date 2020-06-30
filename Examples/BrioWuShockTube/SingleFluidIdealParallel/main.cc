@@ -3,12 +3,12 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveData.h"
-#include "platformEnv.h"
+#include "parallelEnv.h"
 #include <ctime>
 #include <cstring>
 
@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
   double cfl(0.4);
 
   double nxRanks(2);
-  double nyRanks(1);
+  double nyRanks(2);
   double nzRanks(1);
 
-  PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma);

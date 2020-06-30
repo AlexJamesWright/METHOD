@@ -5,12 +5,12 @@
 #include "simulation.h"
 #include "srmhd.h"
 #include "twoFluidEMHD.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <iostream>
 
 TEST(InitialFunc, baseConstructor)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
   Periodic bcs(&data);
@@ -44,7 +44,7 @@ TEST(InitialFunc, baseConstructor)
 
 TEST(InitialFunc, OTVortexSingleFluidFunc)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 0, 0, 1, 0, 1, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
   Periodic bcs(&data);
@@ -68,7 +68,7 @@ TEST(InitialFunc, OTVortexSingleFluidFunc)
 TEST(InitialFunc, BrioWuTwoFluidFunc)
 {
   // Discontinuity in x direction
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data dx(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
   Periodic bcsx(&dx);
@@ -78,7 +78,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
 
 
   // Discontinuity in y direction
-  PlatformEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
   Data dy(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
   Periodic bcsy(&dy);
@@ -87,7 +87,7 @@ TEST(InitialFunc, BrioWuTwoFluidFunc)
 
 
   // Discontinuity in z direction
-  PlatformEnv env3(0, NULL, 1, 1, 1);
+  SerialEnv env3(0, NULL, 1, 1, 1);
   Data dz(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
   Periodic bcsz(&dz);

@@ -7,7 +7,7 @@
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
 #include "serialSaveData.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <ctime>
 #include <cstring>
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   double gamma(2.0);
   double cfl(0.4);
 
-  PlatformEnv env(&argc, &argv, 1, 1, 1);
+  SerialEnv env(&argc, &argv, 1, 1, 1);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma);

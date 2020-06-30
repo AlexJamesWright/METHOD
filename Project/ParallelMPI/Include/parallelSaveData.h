@@ -8,7 +8,7 @@
 #include <cstring>
 #include "simData.h"
 #include "saveData.h"
-#include "platformEnv.h"
+#include "parallelEnv.h"
 
 using namespace std;
 
@@ -26,6 +26,9 @@ using namespace std;
 */
 class ParallelSaveData : public SaveData
 {
+  public:
+      ParallelEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
+
   private:
 
     /*!
@@ -97,7 +100,7 @@ class ParallelSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    ParallelSaveData(Data * data, PlatformEnv * env, int test=0) : SaveData(data, env, test) {}
+    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : env(env), SaveData(data, test) {}
 
     ~ParallelSaveData() {}     //!< Destructor
 

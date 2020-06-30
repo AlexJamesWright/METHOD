@@ -26,8 +26,6 @@ class SaveData
   public:
     Data * d; //!< Pointer to Data class containing global simulation data
 
-    PlatformEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
-
     int
     Nouts,         //!< Number of output files
     Ncount,        //!< Which user defined variable is this?
@@ -63,7 +61,7 @@ class SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SaveData(Data * data, PlatformEnv * env, int test=0) : d(data), env(env), Nouts(0), Ncount(0), test(test)
+    SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0), test(test)
     {
       dir[0] = '\0';
       app[0] = '\0';

@@ -8,7 +8,7 @@
 #include "initFunc.h"
 #include "RK2.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 
 #if 1
@@ -31,7 +31,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -73,7 +73,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -115,7 +115,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -149,7 +149,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -181,7 +181,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -213,7 +213,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -247,7 +247,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);

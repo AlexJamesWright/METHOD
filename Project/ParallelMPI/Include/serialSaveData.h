@@ -8,7 +8,7 @@
 #include <cstring>
 #include "simData.h"
 #include "saveData.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 
 using namespace std;
 
@@ -24,6 +24,8 @@ class SerialSaveData : public SaveData
 {
 
   public:
+
+    SerialEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
     //! Saves the conserved vector state
     void saveCons();
@@ -51,7 +53,7 @@ class SerialSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SerialSaveData(Data * data, PlatformEnv * env, int test=0) : SaveData(data, env, test) {}
+    SerialSaveData(Data * data, SerialEnv * env, int test=0) : env(env), SaveData(data, test) {}
 
     ~SerialSaveData() {}     //!< Destructor
     

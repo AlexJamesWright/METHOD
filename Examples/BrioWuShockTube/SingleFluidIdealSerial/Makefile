@@ -5,7 +5,7 @@
 ##CC = mpic++
 CC = g++
 
-USE_MPI = 0
+USE_MPI=0
 
 PROJECT_TYPE = ParallelMPI
 
@@ -25,7 +25,7 @@ RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3
+CXXFLAGS = -Wall -std=c++11 -O3 -g
 
 # Sources
 SRCS = simulation.cc \
@@ -37,12 +37,13 @@ SRCS = simulation.cc \
 			 rkSplit.cc \
 			 boundaryConds.cc \
 			 fluxVectorSplitting.cc \
-			 platformEnv.cc
 
-SERIAL_SRCS = serialSaveData.cc
+SERIAL_SRCS = serialSaveData.cc \
+			  serialEnv.cc
 
 PARALLEL_SRCS = parallelSaveData.cc \
-			 parallelboundaryConds.cc
+			 parallelBoundaryConds.cc \
+			 parallelEnv.cc 
 
 ifeq ($(USE_MPI), 1)
     SRCS += ${PARALLEL_SRCS}
@@ -131,7 +132,7 @@ rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
@@ -143,13 +144,16 @@ parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveDa
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-platformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
+serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
+	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
 	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
 
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) -D$(USE_MPI)
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) 
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects

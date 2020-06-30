@@ -1,4 +1,4 @@
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "mpi.h"
 #include "platformEnv.h"
 #include <stdio.h>

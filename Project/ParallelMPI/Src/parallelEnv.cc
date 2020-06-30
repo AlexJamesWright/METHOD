@@ -1,20 +1,17 @@
-#include "platformEnv.h"
+#include "parallelEnv.h"
 #include <cmath>
 #include "simData.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include <stdexcept>
 #include <cstdio>
 #include <cstdlib>
 
-#if USE_MPI
-    #include <mpi.h>
-#endif
+#include <mpi.h>
 
 // TODO -- rename setParallelDecomposition and split it out into more functions
 
-PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing) : testing(testing)
+ParallelEnv::ParallelEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing) : PlatformEnv(testing)
 {
-#if USE_MPI
     int initialized;
     MPI_Initialized(&initialized);
 	if (!initialized && !testing) MPI_Init(argcP, argvP);
@@ -29,31 +26,18 @@ PlatformEnv::PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 	this->nxRanks = nxRanks;
 	this->nyRanks = nyRanks;
 	this->nzRanks = nzRanks;
-
-#else
-    this->nxRanks = 1;
-    this->nyRanks = 1;
-    this->nzRanks = 1;
-    this->xRankId = 0;
-    this->yRankId = 0;
-    this->zRankId = 0;
-    this->rank = 0;
-    this->nProc = 1;
-#endif
 }
 
-PlatformEnv::~PlatformEnv()
+ParallelEnv::~ParallelEnv()
 {
-#if USE_MPI
     // TODO -- Free cartesian communicator
     
     int finalized;
     MPI_Finalized(&finalized);
     if (!finalized && !testing) MPI_Finalize();
-#endif
 }
 
-int PlatformEnv::isNeighbourExternal(int dimension, int direction)
+int ParallelEnv::isNeighbourExternal(int dimension, int direction)
 {
     int isExternal = 0;
     int dimRank = 0;
@@ -79,9 +63,8 @@ int PlatformEnv::isNeighbourExternal(int dimension, int direction)
     return isExternal;
 }
 
-void PlatformEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic)
+void ParallelEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic)
 {
-#if USE_MPI
 	// number of dimensions in process grid
 	int ndims=1;
 	// number of ranks in each dimension of the grid
@@ -130,7 +113,6 @@ void PlatformEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPe
 	direction = 2;
 	MPI_Cart_shift(mpiCartesianComm, direction, displacement, 
 		&(leftZNeighbourRank), &(rightZNeighbourRank));
-#endif
 }
 
 

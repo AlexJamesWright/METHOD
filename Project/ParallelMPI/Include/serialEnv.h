@@ -1,7 +1,9 @@
-#ifndef PLATFORM_ENV_H
-#define PLATFORM_ENV_H
+#ifndef SERIAL_ENV_H
+#define SERIAL_ENV_H
 
-//! <b> PlatformEnv</b>
+#include "platformEnv.h"
+
+//! <b> SerialEnv</b>
 /*!
   @par
     For keeping track of parameters related to the platform that the code is running on -- 
@@ -13,39 +15,15 @@
 
     The number of ranks in each dimension must be a factor of the number of cells in the dimension
 */
-class PlatformEnv
+class SerialEnv : public PlatformEnv
 {
 	public:
-		int nProc;      //!< Number of MPI processes in total (1 for serial job)
-        int rank;       //!< Global id of this MPI process (0 for serial job)
-		int 
-        //@{
-        nxRanks, nyRanks, nzRanks;      //!< Number of processes in each dimension of the cartesian grid of processes
-        //@}
-		int 
-        //@{
-        xRankId, yRankId, zRankId;      //!< Id of this MPI process in each dimension of the cartesian grid of processes 
-        //@}
-		int 
-        //@{
-        leftXNeighbourRank, rightXNeighbourRank;    //!< Global ids of this process's left and right neighbours
-        //@}
-		int 
-        //@{
-        leftYNeighbourRank, rightYNeighbourRank;    //!< Global ids of this process's front and back neighbours
-        //@}
-		int 
-        //@{
-        leftZNeighbourRank, rightZNeighbourRank;    //!< Global ids of this process's bottom and top neighbour
-        //@}
-
-        int testing;    //!< boolean flag used to disable MPI init/finalise during unit testing
 
         //! Constructor -- Initialize global MPI communicator
-		PlatformEnv(int testing=0) : testing(testing) {}
+		SerialEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing=0);
 
         //! Destructor
-		~PlatformEnv() {}
+		~SerialEnv();
 
         //! Check for external boundary
         /*!
@@ -53,7 +31,7 @@ class PlatformEnv
            @param[in] dimension {x=0, y=1, z=2}
            @param[in] direction direction to look for the external boundary in a particular direction {low=0, high=1}
         */
-        virtual int isNeighbourExternal(int dimension, int direction) = 0;
+        int isNeighbourExternal(int dimension, int direction);
 
         //! Create cartesian grid of processes and calculate neighbours along that grid for each process
         /*!
@@ -62,7 +40,7 @@ class PlatformEnv
            @param[in] yPeriodic whether the y dimension has periodic boundary conditions 
            @param[in] zPeriodic whether the z dimension has periodic boundary conditions 
          */
-		virtual void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic) = 0;
+		void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic);
 };
 
 #endif
