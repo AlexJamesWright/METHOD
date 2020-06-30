@@ -7,24 +7,24 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 #include <stdexcept>
 
 
 TEST(Simulation, dataInitialisation)
 {
-  PlatformEnv envNoModel(0, NULL, 1, 1, 1);
+  SerialEnv envNoModel(0, NULL, 1, 1, 1);
   Data dataNoModel(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &envNoModel);
   Periodic bcsNoModel(&dataNoModel);
   EXPECT_THROW( Simulation sim(&dataNoModel, &envNoModel), std::runtime_error);
 
-  PlatformEnv envNoBcs(0, NULL, 1, 1, 1);
+  SerialEnv envNoBcs(0, NULL, 1, 1, 1);
   Data dataNoBcs(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &envNoBcs);
   SRMHD modelNoBcs(&dataNoBcs);
   EXPECT_THROW( Simulation sim(&dataNoBcs, &envNoBcs), std::runtime_error);
 
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 2, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRMHD model(&data);
   Periodic bcs(&data);
@@ -76,7 +76,7 @@ TEST(Simulation, dataInitialisation)
 //! Check that the fields dont change if the system if homogenous
 TEST(Simulation, equilibriumSimulation)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1, &env);
   SRMHD model(&data);
   FVS fluxMethod(&data, &model);

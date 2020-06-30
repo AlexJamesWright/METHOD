@@ -8,7 +8,7 @@
 #include "initFunc.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 
 #if 1
@@ -31,7 +31,7 @@ TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -73,7 +73,7 @@ TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdPeriodicKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -115,7 +115,7 @@ TEST(RK2OutputConsistentWithSerial, RKSplitSrmhdFlowKHRandomInstabilitySF)
   double mu2(100);
   int frameSkip(10);
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -149,7 +149,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -181,7 +181,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -213,7 +213,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowBrioWuSF)
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -247,7 +247,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrrmhdOutflowOTVortexSingleFluidR
      version with. No tests are run in the serial version of this test
   */
 
-  PlatformEnv env(0, NULL, 1, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);

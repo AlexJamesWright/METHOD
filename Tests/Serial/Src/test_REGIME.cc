@@ -7,7 +7,7 @@
 #include "rkSplit.h"
 #include "initFunc.h"
 #include "boundaryConds.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdio>
 
 // Redefine macros as objects are not pointers now
@@ -37,7 +37,7 @@ TEST(RSGM, DataAssignment1D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(100, 0, 0, 0.01, 2.01, 0, 1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
   Periodic bcs(&d);
@@ -141,7 +141,7 @@ TEST(RSGM, DataAssignment2D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 0, 0.1, 2.1, 0.1, 2.1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
   Periodic bcs(&d);
@@ -246,7 +246,7 @@ TEST(RSGM, DataAssignment3D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
   Periodic bcs(&d);
@@ -349,7 +349,7 @@ TEST(RSGM, DataAssignment3D)
 
   TEST(RSGM, Directionality)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
   Periodic bcs(&d);
@@ -749,10 +749,10 @@ TEST(RSGM, DataAssignment3D)
 
 TEST(RSGM, RotationallyInvariant)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
-  PlatformEnv env1(0, NULL, 1, 1, 1);
-  PlatformEnv env2(0, NULL, 1, 1, 1);
-  PlatformEnv env3(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env1(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env3(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50); // Just to use ID macro
   Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env1, 0.1, 4, 2, 50);
   Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env2, 0.1, 4, 2, 50);
@@ -934,7 +934,7 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, YAxisSymmetries)
   {
-    PlatformEnv env(0, NULL, 1, 1, 1);
+    SerialEnv env(0, NULL, 1, 1, 1);
     Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env, 
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
@@ -962,7 +962,7 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, ZAxisSymmetries)
   {
-    PlatformEnv env(0, NULL, 1, 1, 1);
+    SerialEnv env(0, NULL, 1, 1, 1);
     Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
@@ -990,7 +990,7 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, YZAxisSymmetries)
   {
-    PlatformEnv env(0, NULL, 1, 1, 1);
+    SerialEnv env(0, NULL, 1, 1, 1);
     Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
@@ -1019,8 +1019,8 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, RotSymmetries)
   {
-    PlatformEnv env(0, NULL, 1, 1, 1);
-    PlatformEnv envA(0, NULL, 1, 1, 1);
+    SerialEnv env(0, NULL, 1, 1, 1);
+    SerialEnv envA(0, NULL, 1, 1, 1);
     Data d(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envA,
@@ -1034,7 +1034,7 @@ TEST(RSGM, RotationallyInvariant)
     RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &modelExtensionA);
     simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
 
-    PlatformEnv envB(0, NULL, 1, 1, 1);
+    SerialEnv envB(0, NULL, 1, 1, 1);
     Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envB,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelB(&dB);
@@ -1046,7 +1046,7 @@ TEST(RSGM, RotationallyInvariant)
     RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &modelExtensionB);
     simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
 
-    PlatformEnv envC(0, NULL, 1, 1, 1);
+    SerialEnv envC(0, NULL, 1, 1, 1);
     Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envC,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelC(&dC);

@@ -5,7 +5,7 @@
 #include "boundaryConds.h"
 #include "initFunc.h"
 #include "fluxVectorSplitting.h"
-#include "platformEnv.h"
+#include "serialEnv.h"
 #include <cstdlib>
 #include <cmath>
 #include <stdio.h>
@@ -15,7 +15,7 @@
 
 TEST(SRRMHD, Constructor)
 {
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(100, 10, 0, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);
   SRRMHD model(&d);
   EXPECT_EQ(d.Ncons, 14);
@@ -32,7 +32,7 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
 {
   double tol(1.0e-15);
   // Set up
-  PlatformEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRRMHD model(&d);
   FVS fluxMethod(&d, &model);
@@ -102,8 +102,8 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
 TEST(SRRMHD, Prims2Cons2Prims)
 {
   const double tol = 1.49011612e-8;   // Tolerance of rootfinder
-  PlatformEnv env(0, NULL, 1, 1, 1);
-  PlatformEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
   Data d(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env);
   Data d2(10, 10, 0, 0, 1, 0, 1, 0, 1, 1.0, &env2);
   SRRMHD model(&d);
