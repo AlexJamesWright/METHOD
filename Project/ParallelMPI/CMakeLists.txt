@@ -6,7 +6,6 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/backRKArgs.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/backwardsRK.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/boundaryConds.cc
-      ${CMAKE_CURRENT_LIST_DIR}/Src/parallelBoundaryConds.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/fluxVectorSplitting.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/IMEX2Args.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/IMEX3Args.cc
@@ -14,8 +13,6 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/RK2.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/rkSplit.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/serialSaveData.cc
-      ${CMAKE_CURRENT_LIST_DIR}/Src/parallelSaveData.cc
-      ${CMAKE_CURRENT_LIST_DIR}/Src/parallelEnv.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/serialEnv.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simData.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simulation.cc
@@ -52,9 +49,7 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/rkSplit.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/saveData.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/serialSaveData.h
-    ${CMAKE_CURRENT_LIST_DIR}/Include/parallelSaveData.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/platformEnv.h
-    ${CMAKE_CURRENT_LIST_DIR}/Include/parallelEnv.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/serialEnv.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/simData.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/simulation.h
@@ -75,16 +70,16 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include/minpackP.h
     )
 
-find_package(MPI REQUIRED)
+#find_package(MPI REQUIRED)
 
-target_link_libraries(Cmin
-    ${MPI_C_LIBRARIES}
-    )
+#target_link_libraries(Cmin
+#    ${MPI_C_LIBRARIES}
+#    )
 
 target_include_directories(
     Cmin
     PUBLIC
       ${CMAKE_CURRENT_LIST_DIR}/Include
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include
-      ${MPI_INCLUDE_PATH}
+      #      ${MPI_INCLUDE_PATH}
     )
