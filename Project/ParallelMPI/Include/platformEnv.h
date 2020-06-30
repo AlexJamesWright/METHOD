@@ -1,11 +1,7 @@
 #ifndef PLATFORM_ENV_H
 #define PLATFORM_ENV_H
 
-#if USE_MPI
-    #include <mpi.h>
-#endif
-
-//! <b> PlarformEnv</b>
+//! <b> PlatformEnv</b>
 /*!
   @par
     For keeping track of parameters related to the platform that the code is running on -- 
@@ -43,16 +39,13 @@ class PlatformEnv
         leftZNeighbourRank, rightZNeighbourRank;    //!< Global ids of this process's bottom and top neighbour
         //@}
 
-#if USE_MPI
-		MPI_Comm mpiCartesianComm;  //!< Cartesian MPI communicator that maps processes to the simulation grid
-#endif
         int testing;    //!< boolean flag used to disable MPI init/finalise during unit testing
 
         //! Constructor -- Initialize global MPI communicator
-		PlatformEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing=0);
+		PlatformEnv(int testing=0) : testing(testing) {}
 
         //! Destructor
-		~PlatformEnv();
+		~PlatformEnv() {}
 
         //! Check for external boundary
         /*!
@@ -60,7 +53,7 @@ class PlatformEnv
            @param[in] dimension {x=0, y=1, z=2}
            @param[in] direction direction to look for the external boundary in a particular direction {low=0, high=1}
         */
-        int isNeighbourExternal(int dimension, int direction);
+        virtual int isNeighbourExternal(int dimension, int direction) = 0;
 
         //! Create cartesian grid of processes and calculate neighbours along that grid for each process
         /*!
@@ -69,7 +62,7 @@ class PlatformEnv
            @param[in] yPeriodic whether the y dimension has periodic boundary conditions 
            @param[in] zPeriodic whether the z dimension has periodic boundary conditions 
          */
-		void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic);
+		virtual void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic) = 0;
 };
 
 #endif

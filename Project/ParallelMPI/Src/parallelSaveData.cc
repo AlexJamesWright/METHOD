@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
+#include <mpi.h>
 
 using namespace std;
 
