@@ -60,9 +60,9 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
   this->model->sourceTerm(cons, prims, aux, d->source);
 
   // Copy data and determine first stage
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]   = aux[ID(var, i, j, k)];
@@ -92,19 +92,18 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  // model->getPrimitiveVars(U1, tempprims, tempaux);
   finalise(U1, tempprims, tempaux);
   model->sourceTerm(U1, tempprims, tempaux, source1);
   fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
-  bcs->apply(U1);
-  bcs->apply(flux1);
+  // bcs->apply(U1);
+  // bcs->apply(flux1);
 
   //########################### STAGE TWO ##############################//
 
   // Determine solution to stage 2
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
@@ -141,12 +140,12 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
   finalise(U2, tempprims, tempaux);
   model->sourceTerm(U2, tempprims, tempaux, source2);
   fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
-  bcs->apply(flux2);
+  // bcs->apply(flux2);
 
   //########################### STAGE THREE ##############################//
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons; var++)
           U3guess[ID(var, i, j, k)] = U2[ID(var, i, j, k)] + dt * (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)]) / 4.0;
         for (int var(0); var < d->Nprims; var++)
@@ -159,9 +158,9 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
   }
 
   // Determine solution to stage 3
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
@@ -195,19 +194,17 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  // bcs->apply(U3, tempprims, tempaux);
-  // model->getPrimitiveVars(U3, tempprims, tempaux);
   finalise(U3, tempprims, tempaux);
   model->sourceTerm(U3, tempprims, tempaux, source3);
   fluxMethod->F(U3, tempprims, tempaux, d->f, flux3);
-  bcs->apply(flux3);
+  // bcs->apply(flux3);
 
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt *
                     (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] + 4*flux3[ID(var, i, j, k)]) / 6.0 +
                      dt * (source1[ID(var, i, j, k)] + source2[ID(var, i, j, k)] + 4*source3[ID(var, i, j, k)]) / 6.0;
@@ -215,9 +212,7 @@ void SSP3::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  // model->getPrimitiveVars(cons, prims, aux);
-  // model->finalise(cons, prims, aux);
-  // bcs->apply(cons, prims, aux);
+
   finalise(cons, prims, aux);
 }
 

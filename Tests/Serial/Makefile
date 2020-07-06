@@ -52,13 +52,13 @@ TESTS = test_simulation \
 				test_rk2 \
 				test_rkSplit \
 				test_REGIME \
-				#test_imex \
-				test_fvs \
-				
+				test_imex \
+				test_fvs 
+
 PARALLEL_TESTS = test_parallel_rk2 \
 				 test_parallel_rkSplit \
 				 #test_parallel_imex \
-				 #test_parallel_fvs
+				 test_parallel_fvs
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -339,4 +339,3 @@ test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_DIR)/rkSpli
 
 test_parallel_rkSplit : main.o test_parallel_rkSplit.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
 	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
-

@@ -48,13 +48,14 @@ SRCS = main.cc 								\
 			 fluxVectorSplitting.cc \
 			 srrmhd.cc 							\
 			 REGIME.cc 							\
-			 hybrid.cc		\
-			 platformEnv.cc
+			 hybrid.cc							\
+			 parallelEnv.cc					\
+			 serialEnv.cc
 
 SERIAL_SRCS = serialSaveData.cc
 
 PARALLEL_SRCS = parallelSaveData.cc \
-				parallelBoundaryConds.cc 
+				parallelBoundaryConds.cc
 
 ifeq ($(USE_MPI), 1)
 	SRCS += ${PARALLEL_SRCS}
@@ -186,7 +187,10 @@ REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-platformEnv.o : $(MODULE_DIR)/platformEnv.cc $(INC_DIR)/platformEnv.h
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h $(INC_DIR)/platformEnv.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h $(INC_DIR)/platformEnv.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable

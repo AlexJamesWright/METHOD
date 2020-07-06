@@ -47,7 +47,6 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
   d->memSet = 1;
 
   // Calculate the coord of the first physical cell on each process
-  // TODO -- Fix -- there should be a less messy way to do this
   double xminLocal = d->xmin + d->dx * (d->Nx - 2*d->Ng) * env->xRankId;
   double yminLocal = d->ymin + d->dy * (d->Ny - 2*d->Ng) * env->yRankId;
   double zminLocal = d->zmin + d->dz * (d->Nz - 2*d->Ng) * env->zRankId;

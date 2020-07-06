@@ -3,7 +3,7 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
   int reportItersPeriod(10);
 
-  PlatformEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 

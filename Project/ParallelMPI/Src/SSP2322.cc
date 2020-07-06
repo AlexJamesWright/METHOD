@@ -77,36 +77,13 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
   double tol(1.48e-8);
 
 
-  // We only need to implement the integrator on the physical cells provided
-  // we apply the boundary conditions to each stage.
-  // Determine start and end points
-  int is(d->Ng);          // i start and end points
-  int ie(d->Nx - d->Ng);
-  int js, je, ks, ke;     // k & k start and end points
-  if (d->Ny > 1) {
-    js = d->Ng;
-    je = d->Ny - d->Ng;
-  }
-  else {
-    js = 0;
-    je = 1;
-  }
-  if (d->Nz > 1) {
-    ks = d->Ng;
-    ke = d->Nz - d->Ng;
-  }
-  else {
-    ks = 0;
-    ke = 1;
-  }
-
   //########################### STAGE ONE #############################//
   model->sourceTerm(cons, prims, aux, d->source);
 
   // Copy data and determine first stage
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]   = aux[ID(var, i, j, k)];
@@ -136,17 +113,18 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  model->getPrimitiveVars(U1, tempprims, tempaux);
+  finalise(U1, tempprims, tempaux);
+  // model->getPrimitiveVars(U1, tempprims, tempaux);
   model->sourceTerm(U1, tempprims, tempaux, source1);
   fluxMethod->F(U1, tempprims, tempaux, d->f, flux1);
-  bcs->apply(U1);
-  bcs->apply(flux1);
+  // bcs->apply(U1);
+  // bcs->apply(flux1);
 
 
   //########################### STAGE TWO ##############################//
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
@@ -178,17 +156,17 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  bcs->apply(U2, tempprims, tempaux);
-  model->getPrimitiveVars(U2, tempprims, tempaux);
+  finalise(U2, tempprims, tempaux);
+  // model->getPrimitiveVars(U2, tempprims, tempaux);
   model->sourceTerm(U2, tempprims, tempaux, source2);
   fluxMethod->F(U2, tempprims, tempaux, d->f, flux2);
-  bcs->apply(flux2);
+  // bcs->apply(flux2);
 
 
   //########################### STAGE THREE ##############################//
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons; var++)
             U3guess[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + U2[ID(var, i, j, k)] - dt * flux2[ID(var, i, j, k)]);
         for (int var(0); var < d->Nprims; var++)
@@ -200,9 +178,9 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
   }
 
   // Determine solution to stage 3
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = tempprims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = tempaux[ID(var, i, j, k)];
@@ -236,17 +214,17 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  bcs->apply(U3, tempprims, tempaux);
-  model->getPrimitiveVars(U3, tempprims, tempaux);
+  finalise(U3, tempprims, tempaux);
+  // model->getPrimitiveVars(U3, tempprims, tempaux);
   model->sourceTerm(U3, tempprims, tempaux, source3);
   fluxMethod->F(U3, tempprims, tempaux, d->f, flux3);
-  bcs->apply(flux3);
+  // bcs->apply(flux3);
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(is); i < ie; i++) {
-      for (int j(js); j < je; j++) {
-        for (int k(ks); k < ke; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * 0.5 *
                     (flux2[ID(var, i, j, k)] + flux3[ID(var, i, j, k)] -
                      source2[ID(var, i, j, k)] - source3[ID(var, i, j, k)]);
@@ -255,9 +233,9 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Nprims; var++)
             prims[ID(var, i, j, k)] = tempprims[ID(var, i, j, k)] ;
         for (int var(0); var < d->Naux; var++)
@@ -265,9 +243,8 @@ void SSP2322::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  model->getPrimitiveVars(cons, prims, aux);
-  model->finalise(cons, prims, aux);
-  bcs->apply(cons, prims, aux);
+
+  finalise(cons, prims, aux);
 
 }
 

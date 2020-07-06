@@ -66,37 +66,12 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   // double tol(0.0000000149011612);
   double tol(0.000000149011612);
 
-
-  // We only need to implement the integrator on the physical cells provided
-  // we apply the boundary conditions to each stage.
-  // Determine start and end points
-  int is(d->Ng);          // i start and end points
-  int ie(d->Nx - d->Ng);
-  int js, je, ks, ke;     // k & k start and end points
-  if (d->Ny > 1) {
-    js = d->Ng;
-    je = d->Ny - d->Ng;
-  }
-  else {
-    js = 0;
-    je = 1;
-  }
-  if (d->Nz > 1) {
-    ks = d->Ng;
-    ke = d->Nz - d->Ng;
-  }
-  else {
-    ks = 0;
-    ke = 1;
-  }
-
-
   //########################### STAGE ONE #############################//
 
   // Copy data and determine first stage
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) x[var]          = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Ncons ; var++) args.cons[var]  = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var] = prims[ID(var, i, j, k)];
@@ -125,21 +100,18 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  // model->getPrimitiveVars(U1, prims, aux);
   finalise(U1, prims, aux);
   model->sourceTerm(U1, prims, aux, source1);
   fluxMethod->F(U1, prims, aux, d->f, flux1);
-  // bcs->apply(U1);
-  // bcs->apply(flux1);
 
 
     //########################### STAGE TWO #############################//
 
 
   // Determine solutuion of stage 2
-  for (int i(is); i < ie; i++) {
-    for (int j(js); j < je; j++) {
-      for (int k(ks); k < ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Ncons ; var++) args.cons[var]    = cons[ID(var, i, j, k)];
         for (int var(0); var < d->Nprims; var++) args.prims[var]   = prims[ID(var, i, j, k)];
         for (int var(0); var < d->Naux  ; var++) args.aux[var]     = aux[ID(var, i, j, k)];
@@ -175,19 +147,16 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
     }
   }
 
-  // bcs->apply(U2, prims, aux);
-  // model->getPrimitiveVars(U2, prims, aux);
   finalise(U2, prims, aux);
   model->sourceTerm(U2, prims, aux, source2);
   fluxMethod->F(U2, prims, aux, d->f, flux2);
-  // bcs->apply(flux2);
 
 
   // Prediction correction
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           cons[ID(var, i, j, k)] +=  - 0.5 * dt *
                     (flux1[ID(var, i, j, k)] + flux2[ID(var, i, j, k)] -
                     source1[ID(var, i, j, k)] - source2[ID(var, i, j, k)]);
@@ -195,9 +164,9 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
-  model->getPrimitiveVars(cons, prims, aux);
-  model->finalise(cons, prims, aux);
-  bcs->apply(cons, prims, aux);
+  // model->getPrimitiveVars(cons, prims, aux);
+  // model->finalise(cons, prims, aux);
+  // bcs->apply(cons, prims, aux);
   finalise(cons, prims, aux);
 
 
