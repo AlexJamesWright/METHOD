@@ -188,6 +188,8 @@ void Simulation::evolve(bool output, int safety)
     this->save->saveVar("Bz", 8);
     }
 
-  printf("\n");
+    if (env->rank == 0) {
+        printf("\n");
+    }
 
 }
