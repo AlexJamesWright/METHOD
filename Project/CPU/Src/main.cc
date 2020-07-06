@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno3 weno(&data);
+  Weno7 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
