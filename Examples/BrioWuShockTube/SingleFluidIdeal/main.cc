@@ -5,7 +5,7 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
+#include "serialSaveData.h"
 #include "fluxVectorSplitting.h"
 #include "saveData.h"
 #include <ctime>
@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, 1);
+  SerialSaveData save(&data, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 
