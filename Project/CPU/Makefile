@@ -7,6 +7,7 @@ CC = mpic++
 
 # Whether to use MPI for multi-cpu processing
 USE_MPI = 1
+USE_OMP = 0
 
 # Module directory
 MODULE_DIR = ./Src
@@ -24,7 +25,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI)
+CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O3 $(OMP_FLAGS)
 
 # Sources
 SRCS = main.cc 								\
@@ -33,6 +34,7 @@ SRCS = main.cc 								\
 			 twoFluidEMHD.cc 				\
 			 initFunc.cc 						\
 			 simData.cc 						\
+			 wenoUpwinds.cc 				\
 			 weno.cc 								\
 			 RK2.cc 								\
 			 rkSplit.cc 						\
@@ -63,6 +65,9 @@ else
 	SRCS += ${SERIAL_SRCS}
 endif
 
+ifeq ($(USE_OMP), 1)
+    OMP_FLAGS = -fopenmp
+endif
 
 # Headers
 HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
@@ -133,7 +138,10 @@ simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 main.o : $(MODULE_DIR)/main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
-weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
+wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h

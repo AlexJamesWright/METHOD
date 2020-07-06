@@ -1,4 +1,4 @@
-#include "weno.h"
+#include "wenoUpwinds.h"
 
 // Auto-generated code
 
@@ -480,5 +480,3 @@ double weno11_upwind(double vec0, double vec1, double vec2, double vec3, double 
   stencil5 += 0.16666666666666666 * vec5;
   return (w0 * stencil0 + w1 * stencil1 + w2 * stencil2 + w3 * stencil3 + w4 * stencil4 + w5 * stencil5);
 }
-
-

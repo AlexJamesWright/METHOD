@@ -2,6 +2,7 @@
 #define FLUXVECTORSPLITTING_H
 
 #include "flux.h"
+#include "wenoUpwinds.h"
 #include "weno.h"
 
 //! <b> Flux vector splitting method </b>
@@ -68,6 +69,8 @@ class FVS : public FluxMethod
 {
   public:
 
+    WenoBase * weno;
+
     //! Constructor
     /*!
         Calls the base class constructor to store pointers to Data and Model
@@ -76,7 +79,7 @@ class FVS : public FluxMethod
       @param[in] *data pointer to Data class
       @param[in] *model pointer to Model class
     */
-    FVS(Data * data, Model * model) : FluxMethod(data, model) { }
+    FVS(Data * data, WenoBase * weno, Model * model) : FluxMethod(data, model), weno(weno) { }
 
     //! Flux reconstruction
     /*!

@@ -1,6 +1,6 @@
 
-#ifndef WENO_H
-#define WENO_H
+#ifndef WENOUPWINDS_H
+#define WENOUPWINDS_H
 
 //! Various orders of WENO reconstruction
 /*!
