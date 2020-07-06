@@ -53,7 +53,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdOutflowKHRandomInstabilitySF");
 
   save.saveCons();
@@ -95,7 +95,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdPeriodicKHRandomInstabilitySF");
 
   save.saveCons();
@@ -137,7 +137,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdFlowKHRandomInstabilitySF");
 
   save.saveCons();
@@ -170,7 +170,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdOutflowBrioWuSF");
 
   save.saveCons();
@@ -202,7 +202,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdPeriodicBrioWuSF");
 
   save.saveCons();
@@ -234,7 +234,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrmhdFlowBrioWuSF");
 
   save.saveCons();
@@ -273,7 +273,7 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluid)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RK2SrrmhdOutflowOTVortexSingleFluid");
 
   save.saveCons();
@@ -281,4 +281,4 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluid)
   save.saveAux();
   save.saveConsts();
 }
-#endif 
+#endif

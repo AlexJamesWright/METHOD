@@ -24,7 +24,7 @@ if __name__=='__main__':
 else:
     fromSpyder = ''
 
-sys.path.append(fromSpyder+'../../Project/ParallelMPI/Src')
+sys.path.append(fromSpyder+'../../Project/CPU/Src')
 
 from interactivePlot import InteractivePlot as Plot
 
@@ -61,7 +61,7 @@ class CompareParallelAndSerial(object):
 
         # For each file, determine the appendix and use interactivePlot to
         # gather the data
-        for i, serfile in enumerate(glob(fromSpyder+"../TestData/ParallelMPI/Conserved/*")):
+        for i, serfile in enumerate(glob(fromSpyder+"../TestData/CPU/Conserved/*")):
             ext = serfile.find('.dat')
             app = serfile.find('Conserved/cons') + len('Conserved.cons')
             appendix = serfile[app:ext]
@@ -70,7 +70,7 @@ class CompareParallelAndSerial(object):
 
             with HidePrints():
                 self.Serials.append(Plot(fromSpyder+"../TestData/Serial/", appendix))
-                self.Parallels.append(Plot(fromSpyder+"../TestData/ParallelMPI/", appendix))
+                self.Parallels.append(Plot(fromSpyder+"../TestData/CPU/", appendix))
 
             self.Ncons.append(self.Serials[i].c['Ncons'])
             self.Nprims.append(self.Serials[i].c['Nprims'])

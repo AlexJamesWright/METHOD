@@ -53,7 +53,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdOutflowKHRandomInstabilitySF");
 
   save.saveCons();
@@ -95,7 +95,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicKHRandomInstabilityS
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdPeriodicKHRandomInstabilitySF");
 
   save.saveCons();
@@ -137,7 +137,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowKHRandomInstabilitySF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdFlowKHRandomInstabilitySF");
 
   save.saveCons();
@@ -170,7 +170,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdOutflowBrioWuSF");
 
   save.saveCons();
@@ -202,7 +202,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdPeriodicBrioWuSF");
 
   save.saveCons();
@@ -234,7 +234,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowBrioWuSF)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrmhdFlowBrioWuSF");
 
   save.saveCons();
@@ -273,7 +273,7 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrrmhdOutflowOTVortexSingleFluid)
 
 
   // Save data in test directory
-  strcpy(save.dir, "../TestData/ParallelMPI");
+  strcpy(save.dir, "../TestData/CPU");
   strcpy(save.app, "RKSplitSrrmhdOutflowOTVortexSingleFluid");
 
   save.saveCons();
@@ -281,4 +281,4 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrrmhdOutflowOTVortexSingleFluid)
   save.saveAux();
   save.saveConsts();
 }
-#endif 
+#endif

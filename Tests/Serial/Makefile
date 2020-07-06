@@ -25,9 +25,9 @@ MPICC = mpic++
 GTEST_DIR = ../../../GoogleTest
 
 # Where to find user code.
-MODULE_DIR = ./../../Project/ParallelMPI/Src
+MODULE_DIR = ./../../Project/CPU/Src
 TEST_DIR = ./Src
-INC_DIR = ./../../Project/ParallelMPI/Include
+INC_DIR = ./../../Project/CPU/Include
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -53,7 +53,7 @@ TESTS = test_simulation \
 				test_rkSplit \
 				test_REGIME \
 				test_imex \
-				test_fvs 
+				test_fvs
 
 PARALLEL_TESTS = test_parallel_rk2 \
 				 test_parallel_rkSplit \
@@ -100,7 +100,7 @@ clean :
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # Rootfinder directory
-RTFIND_DIR = ./../../Project/ParallelMPI/CminpackLibrary
+RTFIND_DIR = ./../../Project/CPU/CminpackLibrary
 
 # Cminpack include directory
 RTFIND_INC_DIR =  $(RTFIND_DIR)/Include
