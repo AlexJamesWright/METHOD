@@ -5,7 +5,6 @@
 #include "srmhd.h"
 #include "parallelBoundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveData.h"
 #include "parallelEnv.h"
@@ -59,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 
