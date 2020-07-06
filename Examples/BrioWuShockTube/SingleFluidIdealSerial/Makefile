@@ -7,7 +7,7 @@ CC = g++
 
 USE_MPI=0
 
-PROJECT_TYPE = ParallelMPI
+PROJECT_TYPE = CPU
 
 # Module directory
 MODULE_DIR = ./../../../Project/${PROJECT_TYPE}/Src
@@ -43,7 +43,7 @@ SERIAL_SRCS = serialSaveData.cc \
 
 PARALLEL_SRCS = parallelSaveData.cc \
 			 parallelBoundaryConds.cc \
-			 parallelEnv.cc 
+			 parallelEnv.cc
 
 ifeq ($(USE_MPI), 1)
     SRCS += ${PARALLEL_SRCS}
@@ -153,7 +153,7 @@ parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS) 
+	$(CC)	$^ -o $@ $(CXXFLAGS) $(CXXFLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
