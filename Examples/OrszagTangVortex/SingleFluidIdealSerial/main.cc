@@ -5,9 +5,9 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "serialSaveData.h"
+#include "serialEnv.h"
 #include <cstring>
 #include <ctime>
 
@@ -37,7 +37,9 @@ int main(int argc, char *argv[]) {
   int frameSkip(2);
   bool output(true);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  SerialEnv env(&argc, &argv, 1, 1, 1);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
@@ -45,15 +47,15 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data);
+  Periodic bcs(&data);
+
+  Simulation sim(&data, &env);
 
   OTVortexSingleFluid init(&data);
 
-  Flow bcs(&data);
-
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, 1);
+  SerialSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

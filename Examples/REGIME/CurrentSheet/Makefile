@@ -2,25 +2,35 @@
 # and links for main.cc
 
 # Compiler
+##CC = mpic++
 CC = g++
 
+USE_MPI = 0
+USE_OMP = 0
+
+PROJECT_TYPE = CPU
+
 # Module directory
-MODULE_DIR = ./../../../Project/Serial/Src
+MODULE_DIR = ./../../../Project/${PROJECT_TYPE}/Src
 
 # Rootfinder directory
-RTFIND_DIR = ./../../../Project/Serial/CminpackLibrary
+RTFIND_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary
 
 # Include directory
-INC_DIR = ./../../../Project/Serial/Include
+INC_DIR = ./../../../Project/${PROJECT_TYPE}/Include
 
 # Cminpack include directory
-RTFIND_INC_DIR = ./../../../Project/Serial/CminpackLibrary/Include
+RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 
 # Cminpack source directory
-RTFIND_SRC_DIR = ./../../../Project/Serial//CminpackLibrary/Src
+RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
+
+ifeq ($(USE_OMP), 1)
+    OMP_FLAGS = -fopenmp
+endif
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11
+CXXFLAGS = -Wall -std=c++11 -O3 $(OMP_FLAGS)
 
 # Sources
 SRCS = simulation.cc \
@@ -31,10 +41,22 @@ SRCS = simulation.cc \
 			 RK2.cc \
 			 rkSplit.cc \
 			 boundaryConds.cc \
-			 saveData.cc \
+			 serialSaveData.cc \
 			 REGIME.cc \
 			 fluxVectorSplitting.cc
 
+SERIAL_SRCS = serialSaveData.cc \
+			  serialEnv.cc
+
+PARALLEL_SRCS = parallelSaveData.cc \
+			 parallelBoundaryConds.cc \
+			 parallelEnv.cc
+
+ifeq ($(USE_MPI), 1)
+  SRCS += ${PARALLEL_SRCS}
+else
+  SRCS += ${SERIAL_SRCS}
+endif
 
 # Headers
 HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
@@ -117,7 +139,7 @@ rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-saveData.o : $(MODULE_DIR)/saveData.cc $(INC_DIR)/saveData.h
+serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
@@ -126,6 +148,12 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVect
 # Resistive subgrid model
 REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
+	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
+	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
 main : main.o $(OBJS) $(RTFIND_OBJS)
