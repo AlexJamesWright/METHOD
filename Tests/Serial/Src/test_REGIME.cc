@@ -7,6 +7,7 @@
 #include "rkSplit.h"
 #include "initFunc.h"
 #include "boundaryConds.h"
+#include "serialEnv.h"
 #include <cstdio>
 
 // Redefine macros as objects are not pointers now
@@ -36,9 +37,11 @@ TEST(RSGM, DataAssignment1D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  Data d(100, 0, 0, 0.01, 2.01, 0, 1, 0, 1, 0.4, 0.1, 4, 2, 50);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(100, 0, 0, 0.01, 2.01, 0, 1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
@@ -138,9 +141,11 @@ TEST(RSGM, DataAssignment2D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  Data d(10, 10, 0, 0.1, 2.1, 0.1, 2.1, 0, 1, 0.4, 0.1, 4, 2, 50);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 0, 0.1, 2.1, 0.1, 2.1, 0, 1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
@@ -241,9 +246,11 @@ TEST(RSGM, DataAssignment3D)
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
 {
-  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
@@ -342,9 +349,11 @@ TEST(RSGM, DataAssignment3D)
 
   TEST(RSGM, Directionality)
 {
-  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
-  Simulation sim(&d);
+  Periodic bcs(&d);
+  Simulation sim(&d, &env);
   FVS fluxMethod(&d, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
@@ -740,18 +749,26 @@ TEST(RSGM, DataAssignment3D)
 
 TEST(RSGM, RotationallyInvariant)
 {
-  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50); // Just to use ID macro
-  Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
-  Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
-  Data d3(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, 0.1, 4, 2, 50);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  SerialEnv env1(0, NULL, 1, 1, 1);
+  SerialEnv env2(0, NULL, 1, 1, 1);
+  SerialEnv env3(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50); // Just to use ID macro
+  Data d1(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env1, 0.1, 4, 2, 50);
+  Data d2(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env2, 0.1, 4, 2, 50);
+  Data d3(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env3, 0.1, 4, 2, 50);
   SRMHD model(&d);
   SRMHD model1(&d1);
   SRMHD model2(&d2);
   SRMHD model3(&d3);
-  Simulation sim(&d);
-  Simulation sim1(&d1);
-  Simulation sim2(&d2);
-  Simulation sim3(&d3);
+  Periodic bcs(&d);
+  Periodic bcs2(&d1);
+  Periodic bcs3(&d2);
+  Periodic bcs4(&d3);
+  Simulation sim(&d, &env);
+  Simulation sim1(&d1, &env1);
+  Simulation sim2(&d2, &env2);
+  Simulation sim3(&d3, &env3);
   FVS fluxMethod1(&d1, &model1);
   FVS fluxMethod2(&d2, &model2);
   FVS fluxMethod3(&d3, &model3);
@@ -917,15 +934,16 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, YAxisSymmetries)
   {
-    Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1,
+    SerialEnv env(0, NULL, 1, 1, 1);
+    Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env, 
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
-    Simulation sim(&d);
-    CurrentSheetSingleFluid init(&d);
     Outflow bcs(&d);
+    Simulation sim(&d, &env);
+    CurrentSheetSingleFluid init(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -944,15 +962,16 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, ZAxisSymmetries)
   {
-    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1,
+    SerialEnv env(0, NULL, 1, 1, 1);
+    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
-    Simulation sim(&d);
-    CurrentSheetSingleFluid init(&d);
     Outflow bcs(&d);
+    Simulation sim(&d, &env);
+    CurrentSheetSingleFluid init(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -971,15 +990,16 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, YZAxisSymmetries)
   {
-    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1,
+    SerialEnv env(0, NULL, 1, 1, 1);
+    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
     FVS fluxMethod(&d, &model);
     REGIME modelExtension(&d, &fluxMethod);
-    Simulation sim(&d);
-    CurrentSheetSingleFluid init(&d);
     Outflow bcs(&d);
+    Simulation sim(&d, &env);
+    CurrentSheetSingleFluid init(&d);
     RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
     sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
@@ -999,38 +1019,42 @@ TEST(RSGM, RotationallyInvariant)
 
   TEST(RSGM, RotSymmetries)
   {
-    Data d(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1,
+    SerialEnv env(0, NULL, 1, 1, 1);
+    SerialEnv envA(0, NULL, 1, 1, 1);
+    Data d(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
-    Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1,
+    Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envA,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelA(&dA);
     FVS fluxMethodA(&dA, &modelA);
     REGIME modelExtensionA(&dA, &fluxMethodA);
-    Simulation simA(&dA);
-    CurrentSheetSingleFluid initA(&dA, 0);
     Outflow bcsA(&dA);
+    Simulation simA(&dA, &envA);
+    CurrentSheetSingleFluid initA(&dA, 0);
     RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &modelExtensionA);
     simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
 
-    Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1,
+    SerialEnv envB(0, NULL, 1, 1, 1);
+    Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envB,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelB(&dB);
     FVS fluxMethodB(&dB, &modelB);
     REGIME modelExtensionB(&dB, &fluxMethodB);
-    Simulation simB(&dB);
-    CurrentSheetSingleFluid initB(&dB, 1);
     Outflow bcsB(&dB);
+    Simulation simB(&dB, &envB);
+    CurrentSheetSingleFluid initB(&dB, 1);
     RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &modelExtensionB);
     simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
 
-    Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1,
+    SerialEnv envC(0, NULL, 1, 1, 1);
+    Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envC,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelC(&dC);
     FVS fluxMethodC(&dC, &modelC);
     REGIME modelExtensionC(&dC, &fluxMethodC);
-    Simulation simC(&dC);
-    CurrentSheetSingleFluid initC(&dC, 2);
     Outflow bcsC(&dC);
+    Simulation simC(&dC, &envC);
+    CurrentSheetSingleFluid initC(&dC, 2);
     RKSplit timeIntC(&dC, &modelC, &bcsC, &fluxMethodC, &modelExtensionC);
     simC.set(&initC, &modelC, &timeIntC, &bcsC, &fluxMethodC, NULL);
 

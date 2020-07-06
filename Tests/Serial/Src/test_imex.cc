@@ -8,7 +8,8 @@
 #include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "serialEnv.h"
+#include "serialSaveData.h"
 #include <cstdlib>
 #include <cstdio>
 
@@ -21,17 +22,18 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
   */
   double sigma(0);
 
-  Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05,
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05, &env,
             0.5, 4, 4.0/3.0, sigma);
 
   // Choose particulars of simulation
   SRRMHD model(&data);
   FVS fluxMethod(&data, &model);
-  Simulation sim(&data);
-  BrioWuSingleFluid init(&data);
   Outflow bcs(&data);
+  Simulation sim(&data, &env);
+  BrioWuSingleFluid init(&data);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
-  SaveData save(&data);
+  SerialSaveData save(&data, &env);
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   sim.evolve();
@@ -56,17 +58,18 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
   */
   double sigma(0);
 
-  Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05,
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data data(64, 16, 0, 0, 1, 0, 1, 0, 1, 0.05, &env,
             0.5, 4, 4.0/3.0, sigma);
 
   // Choose particulars of simulation
   SRRMHD model(&data);
   FVS fluxMethod(&data, &model);
-  Simulation sim(&data);
-  BrioWuSingleFluid init(&data);
   Outflow bcs(&data);
+  Simulation sim(&data, &env);
+  BrioWuSingleFluid init(&data);
   SSP3 timeInt(&data, &model, &bcs, &fluxMethod);
-  SaveData save(&data);
+  SerialSaveData save(&data, &env);
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
   sim.evolve();

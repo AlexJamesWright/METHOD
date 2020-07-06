@@ -15,7 +15,7 @@ endif()
 
 set (CMAKE_CXX_STANDARD 11)
 
-add_subdirectory(Project/Serial)
+add_subdirectory(Project/ParallelMPI)
 
 include(cmake/googletest.cmake)
 fetch_googletest(

@@ -52,17 +52,35 @@ void SaveData::saveCons()
   }
   fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
 
-
-  for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->cons[ID(var, i, j, k)]);
+  if (d->dims==3){
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
+            fprintf(f, "%.16f ", d->cons[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
+          }
+          fprintf(f, "\n");
         }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          fprintf(f, "%.16f ", d->cons[ID(var, i + d->Ng, j + d->Ng, 0)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Ncons; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        fprintf(f, "%.16f ", d->cons[ID(var, i + d->Ng, 0, 0)]);
         fprintf(f, "\n");
       }
     }
   }
+
   fclose(f);
 
 }
@@ -87,12 +105,31 @@ void SaveData::savePrims()
   fprintf(f, "prims = ");
   for (int i(0); i < d->Nprims-1; i++) fprintf(f, "%s, ", d->primsLabels[i].c_str());
   fprintf(f, "%s\n", d->primsLabels[d->Nprims-1].c_str());
-  for (int var(0); var < d->Nprims; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->prims[ID(var, i, j, k)]);
+
+  if (d->dims==3){
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
+            fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
+          }
+          fprintf(f, "\n");
         }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, j + d->Ng, 0)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Nprims; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, 0, 0)]);
         fprintf(f, "\n");
       }
     }
@@ -121,12 +158,31 @@ void SaveData::saveAux()
   fprintf(f, "aux = ");
   for (int i(0); i < d->Naux-1; i++) fprintf(f, "%s, ", d->auxLabels[i].c_str());
   fprintf(f, "%s\n", d->auxLabels[d->Naux-1].c_str());
-  for (int var(0); var < d->Naux; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          fprintf(f, "%.16f ", d->aux[ID(var, i, j, k)]);
+
+  if (d->dims==3){
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
+            fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
+          }
+          fprintf(f, "\n");
         }
+      }
+    }
+  } else if (d->dims==2){
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
+          fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, j + d->Ng, 0)]);
+          fprintf(f, "\n");
+        }
+      }
+    }
+  } else {
+    for (int var(0); var < d->Naux; var++) {
+      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
+        fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, 0, 0)]);
         fprintf(f, "\n");
       }
     }
