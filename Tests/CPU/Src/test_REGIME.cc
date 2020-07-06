@@ -8,6 +8,7 @@
 #include "initFunc.h"
 #include "boundaryConds.h"
 #include "serialEnv.h"
+#include "weno.h"
 #include <cstdio>
 
 // Redefine macros as objects are not pointers now
@@ -32,7 +33,7 @@
   //---------------------------------------------------------------------------
 
 
-TEST(RSGM, DataAssignment1D)
+TEST(REGIME, DataAssignment1D)
 /*
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
@@ -42,7 +43,8 @@ TEST(RSGM, DataAssignment1D)
   SRMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
   // Set mid point where x=1
@@ -136,7 +138,7 @@ TEST(RSGM, DataAssignment1D)
 //---------------------------------------------------------------------------
 
 
-TEST(RSGM, DataAssignment2D)
+TEST(REGIME, DataAssignment2D)
 /*
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
@@ -146,7 +148,8 @@ TEST(RSGM, DataAssignment2D)
   SRMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
   // Set mid point where x=1
@@ -241,7 +244,7 @@ TEST(RSGM, DataAssignment2D)
 //---------------------------------------------------------------------------
 
 
-TEST(RSGM, DataAssignment3D)
+TEST(REGIME, DataAssignment3D)
 /*
   Checks that, for 1-dimensional simulations, the variables are set correctly
 */
@@ -251,7 +254,8 @@ TEST(RSGM, DataAssignment3D)
   SRMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
   // Set mid point where x=1
@@ -347,14 +351,15 @@ TEST(RSGM, DataAssignment3D)
 //---------------------------------------------------------------------------
 
 
-  TEST(RSGM, Directionality)
+  TEST(REGIME, Directionality)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
   SRMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   REGIME modelExtension(&d, &fluxMethod);
 
   // Set mid point where x=1
@@ -739,7 +744,7 @@ TEST(RSGM, DataAssignment3D)
       }
     }
   } // dfzdw
-} // TEST(RSGM, Directionality)
+} // TEST(REGIME, Directionality)
 
 
 //---------------------------------------------------------------------------
@@ -747,7 +752,7 @@ TEST(RSGM, DataAssignment3D)
 //---------------------------------------------------------------------------
 
 
-TEST(RSGM, RotationallyInvariant)
+TEST(REGIME, RotationallyInvariant)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
   SerialEnv env1(0, NULL, 1, 1, 1);
@@ -769,9 +774,12 @@ TEST(RSGM, RotationallyInvariant)
   Simulation sim1(&d1, &env1);
   Simulation sim2(&d2, &env2);
   Simulation sim3(&d3, &env3);
-  FVS fluxMethod1(&d1, &model1);
-  FVS fluxMethod2(&d2, &model2);
-  FVS fluxMethod3(&d3, &model3);
+  Weno3 weno1(&d1);
+  Weno3 weno2(&d2);
+  Weno3 weno3(&d3);
+  FVS fluxMethod1(&d1, &weno1, &model1);
+  FVS fluxMethod2(&d2, &weno2, &model2);
+  FVS fluxMethod3(&d3, &weno3, &model3);
   REGIME modelExtension1(&d1, &fluxMethod1);
   REGIME modelExtension2(&d2, &fluxMethod2);
   REGIME modelExtension3(&d3, &fluxMethod3);
@@ -817,9 +825,9 @@ TEST(RSGM, RotationallyInvariant)
 
     // Check that the set up is consistent
     {
-      for (int i(0); i<d1.Nx; i++) {
-        for (int j(0); j<d1.Ny; j++) {
-          for (int k(0); k<d1.Nz; k++) {
+      for (int i(d1.is); i<d1.ie; i++) {
+        for (int j(d1.js); j<d1.je; j++) {
+          for (int k(d1.ks); k<d1.ke; k++) {
             // y->x
             EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d2.prims[IDn(0, k, i, j)], 1e-15);
             EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d2.prims[IDn(2, k, i, j)], 1e-15);
@@ -859,9 +867,9 @@ TEST(RSGM, RotationallyInvariant)
 
     // Check Da is unchanged on rotation
     {
-      for (int i(4); i<d1.Nx-4; i++) {
-        for (int j(4); j<d1.Ny-4; j++) {
-          for (int k(4); k<d1.Nz-4; k++) {
+      for (int i(d1.is); i<d1.ie; i++) {
+        for (int j(d1.js); j<d1.je; j++) {
+          for (int k(d1.ks); k<d1.ke; k++) {
             // y->x
             EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension2.diffuY[IDn(0, k, i, j)], 1e-15);
             EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension2.diffuY[IDn(2, k, i, j)], 1e-15);
@@ -896,9 +904,9 @@ TEST(RSGM, RotationallyInvariant)
 
     // Check source is unchanged on rotation
     {
-      for (int i(4); i<d1.Nx-4; i++) {
-        for (int j(4); j<d1.Ny-4; j++) {
-          for (int k(4); k<d1.Nz-4; k++) {
+      for (int i(d1.is); i<d1.ie; i++) {
+        for (int j(d1.js); j<d1.je; j++) {
+          for (int k(d1.ks); k<d1.ke; k++) {
             // y->x
             EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d2.source[IDn(0, k, i, j)], 1e-15);
             EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d2.source[IDn(2, k, i, j)], 1e-15);
@@ -932,14 +940,15 @@ TEST(RSGM, RotationallyInvariant)
     }
   }
 
-  TEST(RSGM, YAxisSymmetries)
+  TEST(REGIME, YAxisSymmetries)
   {
     SerialEnv env(0, NULL, 1, 1, 1);
-    Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env, 
+    Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
-    FVS fluxMethod(&d, &model);
+    Weno3 weno(&d);
+    FVS fluxMethod(&d, &weno, &model);
     REGIME modelExtension(&d, &fluxMethod);
     Outflow bcs(&d);
     Simulation sim(&d, &env);
@@ -950,9 +959,9 @@ TEST(RSGM, RotationallyInvariant)
     sim.evolve();
 
     for (int var(0); var<d.Nprims; var++) {
-      for (int i(0); i<d.Nx; i++) {
-        for (int j(0); j<d.Ny-1; j++) {
-          for (int k(0); k<d.Nz; k++) {
+      for (int i(d.is); i<d.ie; i++) {
+        for (int j(d.js); j<d.je; j++) {
+          for (int k(d.ks); k<d.ke; k++) {
             EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k)], 1e-15);
           }
         }
@@ -960,14 +969,15 @@ TEST(RSGM, RotationallyInvariant)
     }
   }
 
-  TEST(RSGM, ZAxisSymmetries)
+  TEST(REGIME, ZAxisSymmetries)
   {
     SerialEnv env(0, NULL, 1, 1, 1);
     Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
-    FVS fluxMethod(&d, &model);
+    Weno3 weno(&d);
+    FVS fluxMethod(&d, &weno, &model);
     REGIME modelExtension(&d, &fluxMethod);
     Outflow bcs(&d);
     Simulation sim(&d, &env);
@@ -978,9 +988,9 @@ TEST(RSGM, RotationallyInvariant)
     sim.evolve();
 
     for (int var(0); var<d.Nprims; var++) {
-      for (int i(0); i<d.Nx; i++) {
-        for (int j(0); j<d.Ny; j++) {
-          for (int k(0); k<d.Nz-1; k++) {
+      for (int i(d.is); i<d.ie; i++) {
+        for (int j(d.js); j<d.je; j++) {
+          for (int k(d.ks); k<d.ke; k++) {
             EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j, k+1)], 1e-15);
           }
         }
@@ -988,14 +998,15 @@ TEST(RSGM, RotationallyInvariant)
     }
   }
 
-  TEST(RSGM, YZAxisSymmetries)
+  TEST(REGIME, YZAxisSymmetries)
   {
     SerialEnv env(0, NULL, 1, 1, 1);
     Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
               0.4, 4, 2.0, 100.0, 0.1);
     // Choose particulars of simulation
     SRMHD model(&d);
-    FVS fluxMethod(&d, &model);
+    Weno3 weno(&d);
+    FVS fluxMethod(&d, &weno, &model);
     REGIME modelExtension(&d, &fluxMethod);
     Outflow bcs(&d);
     Simulation sim(&d, &env);
@@ -1017,7 +1028,7 @@ TEST(RSGM, RotationallyInvariant)
   }
 
 
-  TEST(RSGM, RotSymmetries)
+  TEST(REGIME, RotSymmetries)
   {
     SerialEnv env(0, NULL, 1, 1, 1);
     SerialEnv envA(0, NULL, 1, 1, 1);
@@ -1026,7 +1037,8 @@ TEST(RSGM, RotationallyInvariant)
     Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envA,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelA(&dA);
-    FVS fluxMethodA(&dA, &modelA);
+    Weno3 wenoA(&dA);
+    FVS fluxMethodA(&dA, &wenoA, &modelA);
     REGIME modelExtensionA(&dA, &fluxMethodA);
     Outflow bcsA(&dA);
     Simulation simA(&dA, &envA);
@@ -1038,7 +1050,8 @@ TEST(RSGM, RotationallyInvariant)
     Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envB,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelB(&dB);
-    FVS fluxMethodB(&dB, &modelB);
+    Weno3 wenoB(&dB);
+    FVS fluxMethodB(&dB, &wenoB, &modelB);
     REGIME modelExtensionB(&dB, &fluxMethodB);
     Outflow bcsB(&dB);
     Simulation simB(&dB, &envB);
@@ -1050,7 +1063,8 @@ TEST(RSGM, RotationallyInvariant)
     Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envC,
               0.4, 4, 2.0, 100.0, 0.1);
     SRMHD modelC(&dC);
-    FVS fluxMethodC(&dC, &modelC);
+    Weno3 wenoC(&dC);
+    FVS fluxMethodC(&dC, &wenoC, &modelC);
     REGIME modelExtensionC(&dC, &fluxMethodC);
     Outflow bcsC(&dC);
     Simulation simC(&dC, &envC);
@@ -1062,9 +1076,9 @@ TEST(RSGM, RotationallyInvariant)
     simB.evolve();
     simC.evolve();
 
-    for (int i(0); i<dA.Nx; i++) {
-      for (int j(0); j<dA.Ny; j++) {
-        for (int k(0); k<dA.Nz; k++) {
+    for (int i(d.is); i<dA.ie; i++) {
+      for (int j(d.js); j<dA.je; j++) {
+        for (int k(d.ks); k<dA.ke; k++) {
           EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dB.cons[IDn(7, k, i, j)], 1e-15);
           EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dC.cons[IDn(5, j, k, i)], 1e-15);
           EXPECT_NEAR(dB.cons[IDn(7, k, i, j)], dC.cons[IDn(5, j, k, i)], 1e-15);

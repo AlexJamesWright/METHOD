@@ -45,7 +45,8 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   SerialEnv env(0, NULL, 1, 1, 1);
   Data dx(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env);
   TwoFluidEMHD modelx(&dx);
-  FVS fluxMethodx(&dx, &modelx);
+  Weno3 wenox(&dx);
+  FVS fluxMethodx(&dx, &wenox, &modelx);
   Outflow bcsx(&dx);
   Simulation simx(&dx, &env);
   BrioWuTwoFluid initx(&dx, 0, 0);
@@ -59,7 +60,8 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   SerialEnv env2(0, NULL, 1, 1, 1);
   Data dy(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env2);
   TwoFluidEMHD modely(&dy);
-  FVS fluxMethody(&dy, &modely);
+  Weno3 wenoy(&dy);
+  FVS fluxMethody(&dy, &wenoy, &modely);
   Outflow bcsy(&dy);
   Simulation simy(&dy, &env2);
   BrioWuTwoFluid inity(&dy, 1, 0);
@@ -72,7 +74,8 @@ TEST(TwoFluidEMHD, FluxFunctionIsConsistentUponRotation)
   SerialEnv env3(0, NULL, 1, 1, 1);
   Data dz(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.8, &env3);
   TwoFluidEMHD modelz(&dz);
-  FVS fluxMethodz(&dz, &modelz);
+  Weno3 wenoz(&dz);
+  FVS fluxMethodz(&dz, &wenoz, &modelz);
   Outflow bcsz(&dz);
   Simulation simz(&dz, &env3);
   BrioWuTwoFluid initz(&dz, 2, 0);
@@ -244,7 +247,8 @@ TEST(TwoFluidEMHD, FluxVectorSplittingStationary)
   SerialEnv env(0, NULL, 1, 1, 1);
   Data d(6, 6, 6, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   TwoFluidEMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
 

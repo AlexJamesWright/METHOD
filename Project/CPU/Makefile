@@ -59,11 +59,8 @@ SERIAL_SRCS = serialSaveData.cc
 PARALLEL_SRCS = parallelSaveData.cc \
 				parallelBoundaryConds.cc
 
-ifeq ($(USE_MPI), 1)
-	SRCS += ${PARALLEL_SRCS}
-else
-	SRCS += ${SERIAL_SRCS}
-endif
+SRCS += ${PARALLEL_SRCS}
+SRCS += ${SERIAL_SRCS}
 
 ifeq ($(USE_OMP), 1)
     OMP_FLAGS = -fopenmp

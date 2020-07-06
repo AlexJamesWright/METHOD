@@ -33,8 +33,9 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+  Weno3 weno(&d);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -76,7 +77,8 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicKHRandomInstabilitySF)
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -117,8 +119,9 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowKHRandomInstabilitySF)
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+  Weno3 weno(&d);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Flow bcs(&d);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -151,8 +154,9 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowBrioWuSF)
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Weno3 weno(&d);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
@@ -183,8 +187,9 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicBrioWuSF)
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Weno3 weno(&d);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
@@ -215,8 +220,9 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Weno3 weno(&d);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Flow bcs(&d);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
@@ -270,4 +276,4 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
   save.saveAux();
   save.saveConsts();
 }
-#endif 
+#endif

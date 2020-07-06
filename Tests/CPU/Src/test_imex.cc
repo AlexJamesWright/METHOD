@@ -8,6 +8,8 @@
 #include "SSP3.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
+#include "weno.h"
+#include "wenoUpwinds.h"
 #include "serialEnv.h"
 #include "serialSaveData.h"
 #include <cstdlib>
@@ -28,7 +30,8 @@ TEST(SSP2, IMEX2BenchmarkForParallelCode)
 
   // Choose particulars of simulation
   SRRMHD model(&data);
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+  FVS fluxMethod(&data, &weno, &model);
   Outflow bcs(&data);
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);
@@ -64,7 +67,8 @@ TEST(SSP3, IMEX3BenchmarkForParallelCode)
 
   // Choose particulars of simulation
   SRRMHD model(&data);
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+  FVS fluxMethod(&data, &weno, &model);
   Outflow bcs(&data);
   Simulation sim(&data, &env);
   BrioWuSingleFluid init(&data);

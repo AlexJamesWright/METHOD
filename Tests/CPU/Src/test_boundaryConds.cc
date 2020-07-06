@@ -5,11 +5,13 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "serialEnv.h"
+#include "weno.h"
 
 TEST(Periodic, periodicBoundaryConditions)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
+  Weno3 weno(&d);
   SRMHD model(&d);
   Periodic bcs(&d);
   Simulation sim(&d, &env);

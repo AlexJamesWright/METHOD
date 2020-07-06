@@ -7,6 +7,7 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "fluxVectorSplitting.h"
+#include "weno.h"
 #include "serialEnv.h"
 #include <cstdlib>
 #include <stdexcept>
@@ -79,7 +80,8 @@ TEST(Simulation, equilibriumSimulation)
   SerialEnv env(0, NULL, 1, 1, 1);
   Data data(30, 30, 10, 0, 1, 0, 1, 0, 1, 0.1, &env);
   SRMHD model(&data);
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+  FVS fluxMethod(&data, &weno, &model);
   Periodic bcs(&data);
   Simulation sim(&data, &env);
   OTVortexSingleFluid init(&data);

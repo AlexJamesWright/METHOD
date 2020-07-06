@@ -7,7 +7,7 @@
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "parallelSaveData.h"
+#include "serialSaveData.h"
 #include "weno.h"
 
 #include <ctime>
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno7 weno(&data);
+  Weno3 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  SerialSaveData save(&data, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

@@ -41,7 +41,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -83,7 +84,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicKHRandomInstabilityS
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelPeriodic bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -125,7 +127,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowKHRandomInstabilitySF)
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelFlow bcs(&d, &env);
   Simulation sim(&d, &env);
   KHRandomInstabilitySingleFluid init(&d, 1, seed);
@@ -158,7 +161,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowBrioWuSF)
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelOutflow bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
@@ -190,7 +194,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicBrioWuSF)
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelPeriodic bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);
@@ -222,7 +227,8 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdFlowBrioWuSF)
   ParallelEnv env(0, NULL, 2, 2, 1, 1);
   Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
   SRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   ParallelFlow bcs(&d, &env);
   Simulation sim(&d, &env);
   BrioWuSingleFluid init(&d);

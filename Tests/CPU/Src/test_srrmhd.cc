@@ -35,7 +35,8 @@ TEST(SRRMHD, FluxVectorSplittingStationary)
   SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 1.0, &env, 0.5, 4, 5.0/3.0, 1000.0, 0.5);
   SRRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
   Periodic bcs(&d);
   Simulation sim(&d, &env);
 
