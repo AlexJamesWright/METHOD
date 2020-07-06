@@ -3,12 +3,12 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "serialSaveData.h"
-#include "serialEnv.h"
+#include "parallelSaveData.h"
+#include "platformEnv.h"
 #include <cstring>
 
 using namespace std;
@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
   int nx(64);
   int ny(64);
   int nz(0);
-  double xmin(0.0);
-  double xmax(1.0);
-  double ymin(0.0);
+  double xmin(-0.5);
+  double xmax(0.5);
+  double ymin(-1.0);
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
@@ -36,31 +36,30 @@ int main(int argc, char *argv[]) {
   double mu2(100);
   int frameSkip(10);
   bool output(false);
-  if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
-  int seed(atoi(argv[1]));
-  int reportItersPeriod(50);
 
-  SerialEnv env(&argc, &argv, 1, 1, 1);
+  double nxRanks(2);
+  double nyRanks(2);
+  double nzRanks(1);
+
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
   SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
-  Periodic bcs(&data);
+  ParallelPeriodic bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
-  printf("Seed: %d\n", seed);
-
-  KHRandomInstabilitySingleFluid init(&data, 1, seed);
+  KHInstabilitySingleFluid init(&data, 1);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveData save(&data, &env, 1);
+  ParallelSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

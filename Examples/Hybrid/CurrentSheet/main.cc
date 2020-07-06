@@ -12,10 +12,11 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "boundaryConds.h"
-#include "rkSplit.h"
-#include "saveData.h"
+#include "rkSplit2ndOrder.h"
 #include "fluxVectorSplitting.h"
 #include "hybrid.h"
+#include "serialSaveData.h"
+#include "serialEnv.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -50,12 +51,14 @@ int main(int argc, char *argv[]) {
   int frameSkip(40);
   bool output(false);
   int safety(-1);
-  double sigmaCrossOver(400);
-  double sigmaSpan(350);
+  double sigmaCrossOver(150);
+  double sigmaSpan(50);
   bool useREGIME(true);
 
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  SerialEnv env(&argc, &argv, 1, 1, 1);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
@@ -65,15 +68,15 @@ int main(int argc, char *argv[]) {
 
   model.setupREGIME(&fluxMethod);
 
-  Simulation sim(&data);
+  Outflow bcs(&data);
+
+  Simulation sim(&data, &env);
 
   CurrentSheetSingleFluid init(&data);
 
-  Outflow bcs(&data);
+  RKSplit2 timeInt(&data, &model, &bcs, &fluxMethod, NULL);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, NULL);
-
-  SaveData save(&data, 1);
+  SerialSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

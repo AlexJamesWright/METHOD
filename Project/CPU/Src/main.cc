@@ -3,65 +3,68 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
+#include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "serialSaveData.h"
-#include "serialEnv.h"
-#include "REGIME.h"
-
-#include <cstdio>
-#include <cstdlib>
+#include "parallelSaveData.h"
+#include "platformEnv.h"
 #include <ctime>
-#include <iostream>
 #include <cstring>
-
-#define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
+
   // Set up domain
   int Ng(4);
-  int nx(128);
+  int nx(100);
   int ny(0);
   int nz(0);
-  double xmin(-3.0);
-  double xmax(3.0);
+  double xmin(0.0);
+  double xmax(1.0);
   double ymin(-1.0);
   double ymax(1.0);
-  double zmin(-1.5);
-  double zmax(1.5);
-  double endTime(7.0);
-  double cfl(0.2);
+  double zmin(0.0);
+  double zmax(1.0);
+  double endTime(0.4);
+  //double endTime(0.0004);
   double gamma(2.0);
-  double sigma(10000);
+  double cfl(0.4);
 
-  SerialEnv env(&argc, &argv, 1, 1, 1);
+  double nxRanks(4);
+  double nyRanks(1);
+  double nzRanks(1);
+
+  int reportItersPeriod(10);
+
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma);
+            cfl, Ng, gamma);
 
   // Choose particulars of simulation
   SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
-  REGIME modelExtension(&data, &fluxMethod);
-
-  Outflow bcs(&data);
+  // TODO -- this must be defined before Simulation for x,y,z arrays to be initialized correctly(). Add flag on simulation to check this has been done
+  ParallelOutflow bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
-  CurrentSheetSingleFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
+  //ParallelOutflow bcs(&data, &env);
 
-  SerialSaveData save(&data, &env, 1);
+  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+
+  ParallelSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
   // Time execution of programme
   clock_t startTime(clock());
 
@@ -71,7 +74,7 @@ int main(int argc, char *argv[]) {
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
-  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  if (env.rank==0) printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 

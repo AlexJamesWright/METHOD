@@ -5,7 +5,8 @@
 ##CC = mpic++
 CC = g++
 
-USE_MPI=0
+USE_MPI = 0
+USE_OMP = 0
 
 PROJECT_TYPE = CPU
 
@@ -24,8 +25,12 @@ RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./../../../Project/${PROJECT_TYPE}//CminpackLibrary/Src
 
+ifeq ($(USE_OMP), 1)
+    OMP_FLAGS = -fopenmp
+endif
+
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3 -g
+CXXFLAGS = -Wall -std=c++11 -O3 $(OMP_FLAGS)
 
 # Sources
 SRCS = simulation.cc \
@@ -36,7 +41,8 @@ SRCS = simulation.cc \
 			 RK2.cc \
 			 rkSplit.cc \
 			 boundaryConds.cc \
-			 fluxVectorSplitting.cc \
+			 serialSaveData.cc \
+			 fluxVectorSplitting.cc
 
 SERIAL_SRCS = serialSaveData.cc \
 			  serialEnv.cc
@@ -46,9 +52,9 @@ PARALLEL_SRCS = parallelSaveData.cc \
 			 parallelEnv.cc
 
 ifeq ($(USE_MPI), 1)
-    SRCS += ${PARALLEL_SRCS}
+   SRCS += ${PARALLEL_SRCS}
 else
-    SRCS += ${SERIAL_SRCS}
+   SRCS += ${SERIAL_SRCS}
 endif
 
 # Headers
@@ -132,14 +138,8 @@ rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
-
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
-
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)

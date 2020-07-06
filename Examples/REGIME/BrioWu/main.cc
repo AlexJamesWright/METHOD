@@ -5,9 +5,10 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "REGIME.h"
+#include "serialSaveData.h"
+#include "serialEnv.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -33,12 +34,13 @@ int main(int argc, char *argv[]) {
   double zmin(-1.5);
   double zmax(1.5);
   double endTime(0.4);
-  double cfl(0.2);
+  double cfl(0.15);
   double gamma(2.0);
   double sigma(50);
 
+  SerialEnv env(&argc, &argv, 1, 1, 1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
@@ -48,15 +50,15 @@ int main(int argc, char *argv[]) {
 
   REGIME modelExtension(&data, &fluxMethod);
 
-  Simulation sim(&data);
+  Outflow bcs(&data);
+
+  Simulation sim(&data, &env);
 
   BrioWuSingleFluid init(&data);
 
-  Outflow bcs(&data);
-
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod, &modelExtension);
 
-  SaveData save(&data, 1);
+  SerialSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

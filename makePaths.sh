@@ -12,19 +12,19 @@ mkdir Project/Parallel/Data/TimeSeries/Constants
 mkdir Project/Parallel/Data/TimeSeries/Primitive
 mkdir Project/Parallel/Data/TimeSeries/UserDef
 
-mkdir Project/ParallelMPI/Data
-mkdir Project/ParallelMPI/Data/Final
-mkdir Project/ParallelMPI/Data/Final/Auxiliary
-mkdir Project/ParallelMPI/Data/Final/Conserved
-mkdir Project/ParallelMPI/Data/Final/Primitive
-mkdir Project/ParallelMPI/Data/Final/Constants
-mkdir Project/ParallelMPI/Data/Final/Domain
-mkdir Project/ParallelMPI/Data/TimeSeries
-mkdir Project/ParallelMPI/Data/TimeSeries/Auxiliary
-mkdir Project/ParallelMPI/Data/TimeSeries/Conserved
-mkdir Project/ParallelMPI/Data/TimeSeries/Constants
-mkdir Project/ParallelMPI/Data/TimeSeries/Primitive
-mkdir Project/ParallelMPI/Data/TimeSeries/UserDef
+mkdir Project/CPU/Data
+mkdir Project/CPU/Data/Final
+mkdir Project/CPU/Data/Final/Auxiliary
+mkdir Project/CPU/Data/Final/Conserved
+mkdir Project/CPU/Data/Final/Primitive
+mkdir Project/CPU/Data/Final/Constants
+mkdir Project/CPU/Data/Final/Domain
+mkdir Project/CPU/Data/TimeSeries
+mkdir Project/CPU/Data/TimeSeries/Auxiliary
+mkdir Project/CPU/Data/TimeSeries/Conserved
+mkdir Project/CPU/Data/TimeSeries/Constants
+mkdir Project/CPU/Data/TimeSeries/Primitive
+mkdir Project/CPU/Data/TimeSeries/UserDef
 
 
 mkdir Project/Serial/Data
@@ -49,11 +49,11 @@ mkdir Tests/TestData/Parallel/Constants
 mkdir Tests/TestData/Parallel/Primitive
 
 mkdir Tests/TestData
-mkdir Tests/TestData/ParallelMPI
-mkdir Tests/TestData/ParallelMPI/Auxiliary
-mkdir Tests/TestData/ParallelMPI/Conserved
-mkdir Tests/TestData/ParallelMPI/Constants
-mkdir Tests/TestData/ParallelMPI/Primitive
+mkdir Tests/TestData/CPU
+mkdir Tests/TestData/CPU/Auxiliary
+mkdir Tests/TestData/CPU/Conserved
+mkdir Tests/TestData/CPU/Constants
+mkdir Tests/TestData/CPU/Primitive
 
 mkdir Tests/TestData/Serial
 mkdir Tests/TestData/Serial/Auxiliary
