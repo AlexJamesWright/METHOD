@@ -43,12 +43,10 @@ int main(int argc, char *argv[]) {
   double nyRanks(2);
   double nzRanks(1);
 
-  int reportItersPeriod(50);
-
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -65,14 +63,13 @@ int main(int argc, char *argv[]) {
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   //double startTime(omp_get_wtime());
 

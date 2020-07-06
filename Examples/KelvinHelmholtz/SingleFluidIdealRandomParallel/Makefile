@@ -8,7 +8,7 @@ CC = mpic++
 USE_MPI = 1
 USE_OMP = 1
 
-PROJECT_TYPE = ParallelMPI
+PROJECT_TYPE = CPU
 
 # Module directory
 MODULE_DIR = ./../../../Project/${PROJECT_TYPE}/Src

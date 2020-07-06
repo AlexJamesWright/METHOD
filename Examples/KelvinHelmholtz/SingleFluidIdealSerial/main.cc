@@ -7,9 +7,9 @@
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "serialSaveData.h"
+#include "serialEnv.h"
 #include <cstring>
-#include <ctime>
 
 using namespace std;
 
@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(100);
-  int ny(200);
+  int nx(64);
+  int ny(64);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(8.0);
+  double endTime(3.0);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -35,39 +35,42 @@ int main(int argc, char *argv[]) {
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
-  bool output(true);
+  bool output(false);
+  int reportItersPeriod(50);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+  SerialEnv env(&argc, &argv, 1, 1, 1);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data);
+  Periodic bcs(&data);
 
-  KHInstabilitySingleFluid init(&data);
+  Simulation sim(&data, &env);
 
-  Flow bcs(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, 1);
+  SerialSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   // Time execution of programme
-  clock_t startTime(clock());
+  //double startTime(omp_get_wtime());
 
   // Run until end time and save results
   sim.evolve(output);
 
-  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
+  //double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();
-  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 

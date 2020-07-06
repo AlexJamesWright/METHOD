@@ -3,16 +3,13 @@
 #include "simulation.h"
 #include "initFunc.h"
 #include "srmhd.h"
-#include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "saveData.h"
+#include "parallelSaveData.h"
+#include "platformEnv.h"
 #include <cstring>
-#include <ctime>
-
-#define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
-
 
 using namespace std;
 
@@ -21,8 +18,8 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(100);
-  int ny(200);
+  int nx(64);
+  int ny(64);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -30,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(8.0);
+  double endTime(3.0);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -38,9 +35,15 @@ int main(int argc, char *argv[]) {
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
-  bool output(true);
+  bool output(false);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  double nxRanks(2);
+  double nyRanks(2);
+  double nzRanks(1);
+
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
 
   // Choose particulars of simulation
@@ -48,29 +51,29 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data);
+  ParallelPeriodic bcs(&data, &env);
 
-  KHInstabilitySingleFluid init(&data);
+  Simulation sim(&data, &env);
 
-  Flow bcs(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data, 1);
+  ParallelSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   // Time execution of programme
-  clock_t startTime(clock());
+  //double startTime(omp_get_wtime());
 
   // Run until end time and save results
   sim.evolve(output);
 
-  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
+  //double timeTaken(omp_get_wtime() - startTime);
 
   save.saveAll();
-  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 

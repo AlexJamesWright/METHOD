@@ -58,14 +58,13 @@ int main(int argc, char *argv[]) {
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
   SerialSaveData save(&data, &env, 1);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   //double startTime(omp_get_wtime());
 
