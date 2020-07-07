@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 
   // Set up domain
-  int Ng(9);
+  int Ng(7);
   int nx(100);
   int ny(0);
   int nz(0);
@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
   double endTime(50);
   //double endTime(0.0004);
   double gamma(2.0);
-  double cfl(0.95);
+  double cfl(3.6);
   double sigma(40);
 
-  double nxRanks(1);
+  double nxRanks(4);
   double nyRanks(1);
   double nzRanks(1);
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno9 weno(&data);
+  Weno11 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
   AdvectionSingleFluid init(&data);
 
-  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK4_10 timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env, 0);
 

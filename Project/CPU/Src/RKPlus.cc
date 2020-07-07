@@ -575,3 +575,212 @@ void RK4::step(double * cons, double * prims, double * aux, double dt)
   finalise(cons, prims, aux);
 
 }
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// RK4
+////////////////////////////////////////////////////////////////////////////////
+
+
+RK4_10::RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
+      RKPlus(data, model, bcs, fluxMethod, modelExtension)
+{
+  // Syntax
+  Data * d(this->data);
+
+  int Ntot(d->Nx * d->Ny * d->Nz);
+
+  u1cons  = new double[Ntot * d->Ncons]();
+  u1prims = new double[Ntot * d->Nprims]();
+  u1aux   = new double[Ntot * d->Naux]();
+  u2cons  = new double[Ntot * d->Ncons]();
+  u2prims = new double[Ntot * d->Nprims]();
+  u2aux   = new double[Ntot * d->Naux]();
+  u3cons  = new double[Ntot * d->Ncons]();
+  u3prims = new double[Ntot * d->Nprims]();
+  u3aux   = new double[Ntot * d->Naux]();
+  u4cons  = new double[Ntot * d->Ncons]();
+  u4prims = new double[Ntot * d->Nprims]();
+  u4aux   = new double[Ntot * d->Naux]();
+  rhs1    = new double[Ntot * d->Ncons]();
+  rhs2    = new double[Ntot * d->Ncons]();
+  rhs3    = new double[Ntot * d->Ncons]();
+  rhs4    = new double[Ntot * d->Ncons]();
+  rhs5    = new double[Ntot * d->Ncons]();
+}
+
+RK4_10::~RK4_10()
+{
+  // Free arrays
+  delete u1cons;
+  delete u1prims;
+  delete u1aux;
+  delete u2cons;
+  delete u2prims;
+  delete u2aux;
+  delete u3cons;
+  delete u3prims;
+  delete u3aux;
+  delete u4cons;
+  delete u4prims;
+  delete u4aux;
+  delete rhs1;
+  delete rhs2;
+  delete rhs3;
+  delete rhs4;
+  delete rhs5;
+}
+
+
+void RK4_10::prepare1(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u1aux[ID(var, i, j, k)] = u2aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u1prims[ID(var, i, j, k)] = u2prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Ncons; var++) {
+          u1cons[ID(var, i, j, k)] = u2cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4_10::prepare2(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u1aux[ID(var, i, j, k)] = u2aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u1prims[ID(var, i, j, k)] = u2prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Ncons; var++) {
+          u2cons[ID(var, i, j, k)] = 1.0/25.0*u2cons[ID(var, i, j, k)] +
+                                     9.0/25.0*u1cons[ID(var, i, j, k)];
+          u1cons[ID(var, i, j, k)] = 15.0*u2cons[ID(var, i, j, k)] -
+                                      5.0*u1cons[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4_10::stageRepeat(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Get first approximation of rhs
+  this->rhs(u1cons, u1prims, u1aux, rhs1);
+
+  // First stage approximation
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u1cons[ID(var, i, j, k)] = u1cons[ID(var, i, j, k)] +
+                                     1.0/6.0 * dt * rhs1[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4_10::stageFinal(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Get first approximation of rhs
+  this->rhs(u1cons, u1prims, u1aux, rhs1);
+
+  // First stage approximation
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          cons[ID(var, i, j, k)] = u2cons[ID(var, i, j, k)] +
+                                   3.0/5.0 * u1cons[ID(var, i, j, k)] +
+                                   1.0/10.0 * dt * rhs1[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4_10::step(double * cons, double * prims, double * aux, double dt)
+{
+  prepare1(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  finalise(u2cons, u2prims, u2aux);
+
+  // Stage 1
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 2
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 3
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 4
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 5
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+
+  prepare2(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  finalise(u2cons, u2prims, u2aux);
+
+  // Stage 6
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 7
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 8
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+  // Stage 9
+  stageRepeat(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+
+  stageFinal(cons, prims, aux, dt);
+  finalise(cons, prims, aux);
+
+}
