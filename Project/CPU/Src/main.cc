@@ -5,10 +5,12 @@
 #include "srmhd.h"
 #include "parallelBoundaryConds.h"
 #include "rkSplit.h"
+#include "rkSplit2ndOrder.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveData.h"
 #include "weno.h"
+#include "RKPlus.h"
 
 #include <ctime>
 #include <cstring>
@@ -19,8 +21,8 @@ int main(int argc, char *argv[]) {
 
 
   // Set up domain
-  int Ng(5);
-  int nx(300);
+  int Ng(3);
+  int nx(100);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno7 weno(&data);
+  Weno3 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -61,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   //ParallelOutflow bcs(&data, &env);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RK2B timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env, 0);
 

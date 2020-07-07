@@ -717,7 +717,15 @@ class InteractivePlot(object):
 
 if __name__ == '__main__':
 
-    Plot = InteractivePlot()
-
-    Plot.plotSlice()
+#    Plot = InteractivePlot()
+#
+#    Plot.plotSlice()
+    
+    plt.figure()
+    plt.plot(rksplit.prims[6, :, 0, 0], label='rksplit')
+    plt.plot(rksplit2.prims[6, :, 0, 0], label='rksplit2')
+    plt.plot(rk2b.prims[6, :, 0, 0], label='rk2b')
+    plt.legend()
+    plt.show()
+    
     

@@ -52,7 +52,8 @@ SRCS = main.cc 								\
 			 REGIME.cc 							\
 			 hybrid.cc							\
 			 parallelEnv.cc					\
-			 serialEnv.cc
+			 serialEnv.cc						\
+			 RKPlus.cc
 
 SERIAL_SRCS = serialSaveData.cc
 
@@ -142,6 +143,9 @@ weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
+		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+RKPlus.o : $(MODULE_DIR)/RKPlus.cc $(INC_DIR)/RKPlus.h
 		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
