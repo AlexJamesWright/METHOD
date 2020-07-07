@@ -27,7 +27,7 @@ void WenoBase::reconstructUpwind(double * arr, double * recon, int nvars, int di
 
   // Reconstruct to determine the flux at the cell face and compute difference
   if (dir == 0) { // x-direction
-    # pragma omp parallel for   default (none)   shared (recon, shift, arr, d, nvars)
+    # pragma omp parallel for   default(none)   shared(recon, shift, arr, d, nvars)
     for (int var=0; var < nvars; var++) {
       for (int i=shift; i < d->Nx-shift; i++) {
         for (int j=0; j < d->Ny; j++) {
@@ -39,7 +39,7 @@ void WenoBase::reconstructUpwind(double * arr, double * recon, int nvars, int di
     }
   }
   else if (dir == 1) { // y-direction
-    # pragma omp parallel for   default (none)   shared (recon, arr, shift, d, nvars)
+    # pragma omp parallel for   default(none)   shared(recon, arr, shift, d, nvars)
     for (int var=0; var < nvars; var++) {
       for (int i=0; i < d->Nx; i++) {
         for (int j=shift; j < d->Ny-shift; j++) {
@@ -51,7 +51,7 @@ void WenoBase::reconstructUpwind(double * arr, double * recon, int nvars, int di
     }
   }
   else { // z-direction
-    # pragma omp parallel for   default (none)   shared (recon, arr, shift, d, nvars)
+    # pragma omp parallel for   default(none)   shared(recon, arr, shift, d, nvars)
     for (int var=0; var < nvars; var++) {
       for (int i=0; i < d->Nx; i++) {
         for (int j=0; j < d->Ny; j++) {
@@ -73,7 +73,7 @@ void WenoBase::reconstructDownwind(double * arr, double * recon, int nvars, int 
   if (dir == 0) { // x-direction
     # pragma omp parallel for   default (none)   shared (recon, shift, arr, d, nvars)
     for (int var=0; var < nvars; var++) {
-      for (int i=order; i < d->Nx-shift; i++) {
+      for (int i=shift; i < d->Nx-shift; i++) {
         for (int j=0; j < d->Ny; j++) {
           for (int k=0; k < d->Nz; k++) {
             recon[ID(var, i, j, k)] = downwindX(arr, var, i, j, k);

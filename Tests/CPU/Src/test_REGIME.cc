@@ -351,7 +351,7 @@ TEST(REGIME, DataAssignment3D)
 //---------------------------------------------------------------------------
 
 
-  TEST(REGIME, Directionality)
+TEST(REGIME, Directionality)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
   Data d(10, 10, 10, 0.1, 2.1, 0.1, 2.1, 0.1, 2.1, 0.4, &env, 0.1, 4, 2, 50);
@@ -784,305 +784,305 @@ TEST(REGIME, RotationallyInvariant)
   REGIME modelExtension2(&d2, &fluxMethod2);
   REGIME modelExtension3(&d3, &fluxMethod3);
 
-    // Set mid point where x=1
-    int mid(d1.Nz/2-1);
-    EXPECT_NEAR(d1.z[mid], 1.0, 1e-15);
+  // Set mid point where x=1
+  int mid(d1.Nz/2-1);
+  EXPECT_NEAR(d1.z[mid], 1.0, 1e-15);
 
-    // Set primitive variables to known values
+  // Set primitive variables to known values
+  for (int i(0); i<d.Nx; i++) {
+    for (int j(0); j<d.Ny; j++) {
+      for (int k(0); k<d.Nz; k++) {
+        // Sim 1
+        d1.prims[IDn(0, i, j, k)] = 0.1;
+        d1.prims[IDn(1, i, j, k)] = 0.0;
+        d1.prims[IDn(2, i, j, k)] = 0.41 * d1.x[i];
+        d1.prims[IDn(3, i, j, k)] = 0.51;
+        d1.prims[IDn(4, i, j, k)] = 0.66;
+        d1.prims[IDn(5, i, j, k)] = 0.0;
+        d1.prims[IDn(6, i, j, k)] = 0.22 * d1.x[i];
+        d1.prims[IDn(7, i, j, k)] = 0.33;
+        // Sim 2
+        d2.prims[IDn(0, i, j, k)] = 0.1;
+        d2.prims[IDn(1, i, j, k)] = 0.51;
+        d2.prims[IDn(2, i, j, k)] = 0.0;
+        d2.prims[IDn(3, i, j, k)] = 0.41 * d2.y[j];
+        d2.prims[IDn(4, i, j, k)] = 0.66;
+        d2.prims[IDn(5, i, j, k)] = 0.33;
+        d2.prims[IDn(6, i, j, k)] = 0.0;
+        d2.prims[IDn(7, i, j, k)] = 0.22 * d2.y[j];
+        // Sim 3
+        d3.prims[IDn(0, i, j, k)] = 0.1;
+        d3.prims[IDn(1, i, j, k)] = 0.41 * d3.z[k];
+        d3.prims[IDn(2, i, j, k)] = 0.51;
+        d3.prims[IDn(3, i, j, k)] = 0.0;
+        d3.prims[IDn(4, i, j, k)] = 0.66;
+        d3.prims[IDn(5, i, j, k)] = 0.22 * d3.z[k];
+        d3.prims[IDn(6, i, j, k)] = 0.33;
+        d3.prims[IDn(7, i, j, k)] = 0.0;
+      }
+    }
+  }
+
+  // Check that the set up is consistent
+  {
+    for (int i(d1.is); i<d1.ie; i++) {
+      for (int j(d1.js); j<d1.je; j++) {
+        for (int k(d1.ks); k<d1.ke; k++) {
+          // y->x
+          EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d2.prims[IDn(0, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d2.prims[IDn(2, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d2.prims[IDn(3, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d2.prims[IDn(1, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d2.prims[IDn(4, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d2.prims[IDn(6, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d2.prims[IDn(7, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d2.prims[IDn(5, k, i, j)], 1e-15);
+          //z->x
+          EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d3.prims[IDn(0, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d3.prims[IDn(3, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d3.prims[IDn(1, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d3.prims[IDn(2, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d3.prims[IDn(4, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d3.prims[IDn(7, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d3.prims[IDn(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d3.prims[IDn(6, j, k, i)], 1e-15);
+          // z->y
+          EXPECT_NEAR(d2.prims[IDn(0, i, j, k)], d3.prims[IDn(0, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(1, i, j, k)], d3.prims[IDn(2, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(2, i, j, k)], d3.prims[IDn(3, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(3, i, j, k)], d3.prims[IDn(1, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(4, i, j, k)], d3.prims[IDn(4, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(5, i, j, k)], d3.prims[IDn(6, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(6, i, j, k)], d3.prims[IDn(7, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.prims[IDn(7, i, j, k)], d3.prims[IDn(5, i, k, j)], 1e-15);
+        }
+      }
+    }
+  }
+
+  // Generate source terms for each sim
+  modelExtension1.sourceExtension(NULL, d1.prims, NULL, d1.source);
+  modelExtension2.sourceExtension(NULL, d2.prims, NULL, d2.source);
+  modelExtension3.sourceExtension(NULL, d3.prims, NULL, d3.source);
+
+  // Check Da is unchanged on rotation
+  {
+    for (int i(d1.is); i<d1.ie; i++) {
+      for (int j(d1.js); j<d1.je; j++) {
+        for (int k(d1.ks); k<d1.ke; k++) {
+          // y->x
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension2.diffuY[IDn(0, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension2.diffuY[IDn(2, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension2.diffuY[IDn(3, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension2.diffuY[IDn(1, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension2.diffuY[IDn(4, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension2.diffuY[IDn(6, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension2.diffuY[IDn(7, k, i, j)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension2.diffuY[IDn(5, k, i, j)], 1e-15);
+          // z->x
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(3, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(1, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(2, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(7, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(6, j, k, i)], 1e-15);
+          // // z->y
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(2, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(3, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(1, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(6, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(7, i, k, j)], 1e-15);
+          EXPECT_NEAR(modelExtension2.diffuY[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(5, i, k, j)], 1e-15);
+        }
+      }
+    }
+  }
+
+  // Check source is unchanged on rotation
+  {
+    for (int i(d1.is); i<d1.ie; i++) {
+      for (int j(d1.js); j<d1.je; j++) {
+        for (int k(d1.ks); k<d1.ke; k++) {
+          // y->x
+          EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d2.source[IDn(0, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d2.source[IDn(2, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d2.source[IDn(3, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d2.source[IDn(1, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d2.source[IDn(4, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d2.source[IDn(6, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d2.source[IDn(7, k, i, j)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d2.source[IDn(5, k, i, j)], 1e-15);
+          //z->x
+          EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d3.source[IDn(0, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d3.source[IDn(3, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d3.source[IDn(1, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d3.source[IDn(2, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d3.source[IDn(4, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d3.source[IDn(7, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d3.source[IDn(5, j, k, i)], 1e-15);
+          EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d3.source[IDn(6, j, k, i)], 1e-15);
+          // z->y
+          EXPECT_NEAR(d2.source[IDn(0, i, j, k)], d3.source[IDn(0, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(1, i, j, k)], d3.source[IDn(2, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(2, i, j, k)], d3.source[IDn(3, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(3, i, j, k)], d3.source[IDn(1, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(4, i, j, k)], d3.source[IDn(4, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(5, i, j, k)], d3.source[IDn(6, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(6, i, j, k)], d3.source[IDn(7, i, k, j)], 1e-15);
+          EXPECT_NEAR(d2.source[IDn(7, i, j, k)], d3.source[IDn(5, i, k, j)], 1e-15);
+        }
+      }
+    }
+  }
+}
+
+TEST(REGIME, YAxisSymmetries)
+{
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
+            0.4, 4, 2.0, 100.0, 0.1);
+  // Choose particulars of simulation
+  SRMHD model(&d);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  CurrentSheetSingleFluid init(&d);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+  sim.evolve();
+
+  for (int var(0); var<d.Nprims; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k)], 1e-15);
+        }
+      }
+    }
+  }
+}
+
+TEST(REGIME, ZAxisSymmetries)
+{
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
+            0.4, 4, 2.0, 100.0, 0.1);
+  // Choose particulars of simulation
+  SRMHD model(&d);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  CurrentSheetSingleFluid init(&d);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+  sim.evolve();
+
+  for (int var(0); var<d.Nprims; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j, k+1)], 1e-15);
+        }
+      }
+    }
+  }
+}
+
+TEST(REGIME, YZAxisSymmetries)
+{
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
+            0.4, 4, 2.0, 100.0, 0.1);
+  // Choose particulars of simulation
+  SRMHD model(&d);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  CurrentSheetSingleFluid init(&d);
+  RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
+
+  sim.evolve();
+
+  for (int var(0); var<d.Nprims; var++) {
     for (int i(0); i<d.Nx; i++) {
-      for (int j(0); j<d.Ny; j++) {
-        for (int k(0); k<d.Nz; k++) {
-          // Sim 1
-          d1.prims[IDn(0, i, j, k)] = 0.1;
-          d1.prims[IDn(1, i, j, k)] = 0.0;
-          d1.prims[IDn(2, i, j, k)] = 0.41 * d1.x[i];
-          d1.prims[IDn(3, i, j, k)] = 0.51;
-          d1.prims[IDn(4, i, j, k)] = 0.66;
-          d1.prims[IDn(5, i, j, k)] = 0.0;
-          d1.prims[IDn(6, i, j, k)] = 0.22 * d1.x[i];
-          d1.prims[IDn(7, i, j, k)] = 0.33;
-          // Sim 2
-          d2.prims[IDn(0, i, j, k)] = 0.1;
-          d2.prims[IDn(1, i, j, k)] = 0.51;
-          d2.prims[IDn(2, i, j, k)] = 0.0;
-          d2.prims[IDn(3, i, j, k)] = 0.41 * d2.y[j];
-          d2.prims[IDn(4, i, j, k)] = 0.66;
-          d2.prims[IDn(5, i, j, k)] = 0.33;
-          d2.prims[IDn(6, i, j, k)] = 0.0;
-          d2.prims[IDn(7, i, j, k)] = 0.22 * d2.y[j];
-          // Sim 3
-          d3.prims[IDn(0, i, j, k)] = 0.1;
-          d3.prims[IDn(1, i, j, k)] = 0.41 * d3.z[k];
-          d3.prims[IDn(2, i, j, k)] = 0.51;
-          d3.prims[IDn(3, i, j, k)] = 0.0;
-          d3.prims[IDn(4, i, j, k)] = 0.66;
-          d3.prims[IDn(5, i, j, k)] = 0.22 * d3.z[k];
-          d3.prims[IDn(6, i, j, k)] = 0.33;
-          d3.prims[IDn(7, i, j, k)] = 0.0;
-        }
-      }
-    }
-
-    // Check that the set up is consistent
-    {
-      for (int i(d1.is); i<d1.ie; i++) {
-        for (int j(d1.js); j<d1.je; j++) {
-          for (int k(d1.ks); k<d1.ke; k++) {
-            // y->x
-            EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d2.prims[IDn(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d2.prims[IDn(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d2.prims[IDn(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d2.prims[IDn(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d2.prims[IDn(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d2.prims[IDn(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d2.prims[IDn(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d2.prims[IDn(5, k, i, j)], 1e-15);
-            //z->x
-            EXPECT_NEAR(d1.prims[IDn(0, i, j, k)], d3.prims[IDn(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(1, i, j, k)], d3.prims[IDn(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(2, i, j, k)], d3.prims[IDn(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(3, i, j, k)], d3.prims[IDn(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(4, i, j, k)], d3.prims[IDn(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(5, i, j, k)], d3.prims[IDn(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(6, i, j, k)], d3.prims[IDn(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.prims[IDn(7, i, j, k)], d3.prims[IDn(6, j, k, i)], 1e-15);
-            // z->y
-            EXPECT_NEAR(d2.prims[IDn(0, i, j, k)], d3.prims[IDn(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(1, i, j, k)], d3.prims[IDn(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(2, i, j, k)], d3.prims[IDn(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(3, i, j, k)], d3.prims[IDn(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(4, i, j, k)], d3.prims[IDn(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(5, i, j, k)], d3.prims[IDn(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(6, i, j, k)], d3.prims[IDn(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.prims[IDn(7, i, j, k)], d3.prims[IDn(5, i, k, j)], 1e-15);
-          }
-        }
-      }
-    }
-
-    // Generate source terms for each sim
-    modelExtension1.sourceExtension(NULL, d1.prims, NULL, d1.source);
-    modelExtension2.sourceExtension(NULL, d2.prims, NULL, d2.source);
-    modelExtension3.sourceExtension(NULL, d3.prims, NULL, d3.source);
-
-    // Check Da is unchanged on rotation
-    {
-      for (int i(d1.is); i<d1.ie; i++) {
-        for (int j(d1.js); j<d1.je; j++) {
-          for (int k(d1.ks); k<d1.ke; k++) {
-            // y->x
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension2.diffuY[IDn(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension2.diffuY[IDn(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension2.diffuY[IDn(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension2.diffuY[IDn(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension2.diffuY[IDn(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension2.diffuY[IDn(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension2.diffuY[IDn(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension2.diffuY[IDn(5, k, i, j)], 1e-15);
-            // z->x
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(modelExtension1.diffuX[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(6, j, k, i)], 1e-15);
-            // // z->y
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(0, i, j, k)], modelExtension3.diffuZ[IDn(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(1, i, j, k)], modelExtension3.diffuZ[IDn(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(2, i, j, k)], modelExtension3.diffuZ[IDn(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(3, i, j, k)], modelExtension3.diffuZ[IDn(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(4, i, j, k)], modelExtension3.diffuZ[IDn(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(5, i, j, k)], modelExtension3.diffuZ[IDn(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(6, i, j, k)], modelExtension3.diffuZ[IDn(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(modelExtension2.diffuY[IDn(7, i, j, k)], modelExtension3.diffuZ[IDn(5, i, k, j)], 1e-15);
-          }
-        }
-      }
-    }
-
-    // Check source is unchanged on rotation
-    {
-      for (int i(d1.is); i<d1.ie; i++) {
-        for (int j(d1.js); j<d1.je; j++) {
-          for (int k(d1.ks); k<d1.ke; k++) {
-            // y->x
-            EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d2.source[IDn(0, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d2.source[IDn(2, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d2.source[IDn(3, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d2.source[IDn(1, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d2.source[IDn(4, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d2.source[IDn(6, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d2.source[IDn(7, k, i, j)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d2.source[IDn(5, k, i, j)], 1e-15);
-            //z->x
-            EXPECT_NEAR(d1.source[IDn(0, i, j, k)], d3.source[IDn(0, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(1, i, j, k)], d3.source[IDn(3, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(2, i, j, k)], d3.source[IDn(1, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(3, i, j, k)], d3.source[IDn(2, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(4, i, j, k)], d3.source[IDn(4, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(5, i, j, k)], d3.source[IDn(7, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(6, i, j, k)], d3.source[IDn(5, j, k, i)], 1e-15);
-            EXPECT_NEAR(d1.source[IDn(7, i, j, k)], d3.source[IDn(6, j, k, i)], 1e-15);
-            // z->y
-            EXPECT_NEAR(d2.source[IDn(0, i, j, k)], d3.source[IDn(0, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(1, i, j, k)], d3.source[IDn(2, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(2, i, j, k)], d3.source[IDn(3, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(3, i, j, k)], d3.source[IDn(1, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(4, i, j, k)], d3.source[IDn(4, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(5, i, j, k)], d3.source[IDn(6, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(6, i, j, k)], d3.source[IDn(7, i, k, j)], 1e-15);
-            EXPECT_NEAR(d2.source[IDn(7, i, j, k)], d3.source[IDn(5, i, k, j)], 1e-15);
-          }
+      for (int j(0); j<d.Ny-1; j++) {
+        for (int k(0); k<d.Nz-1; k++) {
+          EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k+1)], 1e-15);
         }
       }
     }
   }
+}
 
-  TEST(REGIME, YAxisSymmetries)
-  {
-    SerialEnv env(0, NULL, 1, 1, 1);
-    Data d(10, 10, 0, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
-              0.4, 4, 2.0, 100.0, 0.1);
-    // Choose particulars of simulation
-    SRMHD model(&d);
-    Weno3 weno(&d);
-    FVS fluxMethod(&d, &weno, &model);
-    REGIME modelExtension(&d, &fluxMethod);
-    Outflow bcs(&d);
-    Simulation sim(&d, &env);
-    CurrentSheetSingleFluid init(&d);
-    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
-    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
 
-    sim.evolve();
+TEST(REGIME, RotSymmetries)
+{
+  SerialEnv env(0, NULL, 1, 1, 1);
+  SerialEnv envA(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &env,
+            0.4, 4, 2.0, 100.0, 0.1);
+  Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envA,
+            0.4, 4, 2.0, 100.0, 0.1);
+  SRMHD modelA(&dA);
+  Weno3 wenoA(&dA);
+  FVS fluxMethodA(&dA, &wenoA, &modelA);
+  REGIME modelExtensionA(&dA, &fluxMethodA);
+  Outflow bcsA(&dA);
+  Simulation simA(&dA, &envA);
+  CurrentSheetSingleFluid initA(&dA, 0);
+  RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &modelExtensionA);
+  simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
 
-    for (int var(0); var<d.Nprims; var++) {
-      for (int i(d.is); i<d.ie; i++) {
-        for (int j(d.js); j<d.je; j++) {
-          for (int k(d.ks); k<d.ke; k++) {
-            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k)], 1e-15);
-          }
-        }
+  SerialEnv envB(0, NULL, 1, 1, 1);
+  Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envB,
+            0.4, 4, 2.0, 100.0, 0.1);
+  SRMHD modelB(&dB);
+  Weno3 wenoB(&dB);
+  FVS fluxMethodB(&dB, &wenoB, &modelB);
+  REGIME modelExtensionB(&dB, &fluxMethodB);
+  Outflow bcsB(&dB);
+  Simulation simB(&dB, &envB);
+  CurrentSheetSingleFluid initB(&dB, 1);
+  RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &modelExtensionB);
+  simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
+
+  SerialEnv envC(0, NULL, 1, 1, 1);
+  Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envC,
+            0.4, 4, 2.0, 100.0, 0.1);
+  SRMHD modelC(&dC);
+  Weno3 wenoC(&dC);
+  FVS fluxMethodC(&dC, &wenoC, &modelC);
+  REGIME modelExtensionC(&dC, &fluxMethodC);
+  Outflow bcsC(&dC);
+  Simulation simC(&dC, &envC);
+  CurrentSheetSingleFluid initC(&dC, 2);
+  RKSplit timeIntC(&dC, &modelC, &bcsC, &fluxMethodC, &modelExtensionC);
+  simC.set(&initC, &modelC, &timeIntC, &bcsC, &fluxMethodC, NULL);
+
+  simA.evolve();
+  simB.evolve();
+  simC.evolve();
+
+  for (int i(d.is); i<dA.ie; i++) {
+    for (int j(d.js); j<dA.je; j++) {
+      for (int k(d.ks); k<dA.ke; k++) {
+        EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dB.cons[IDn(7, k, i, j)], 1e-15);
+        EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dC.cons[IDn(5, j, k, i)], 1e-15);
+        EXPECT_NEAR(dB.cons[IDn(7, k, i, j)], dC.cons[IDn(5, j, k, i)], 1e-15);
       }
     }
   }
-
-  TEST(REGIME, ZAxisSymmetries)
-  {
-    SerialEnv env(0, NULL, 1, 1, 1);
-    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
-              0.4, 4, 2.0, 100.0, 0.1);
-    // Choose particulars of simulation
-    SRMHD model(&d);
-    Weno3 weno(&d);
-    FVS fluxMethod(&d, &weno, &model);
-    REGIME modelExtension(&d, &fluxMethod);
-    Outflow bcs(&d);
-    Simulation sim(&d, &env);
-    CurrentSheetSingleFluid init(&d);
-    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
-    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
-
-    sim.evolve();
-
-    for (int var(0); var<d.Nprims; var++) {
-      for (int i(d.is); i<d.ie; i++) {
-        for (int j(d.js); j<d.je; j++) {
-          for (int k(d.ks); k<d.ke; k++) {
-            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j, k+1)], 1e-15);
-          }
-        }
-      }
-    }
-  }
-
-  TEST(REGIME, YZAxisSymmetries)
-  {
-    SerialEnv env(0, NULL, 1, 1, 1);
-    Data d(10, 10, 10, -3.0, 3.0, -1, 1, -1, 1, 0.1, &env,
-              0.4, 4, 2.0, 100.0, 0.1);
-    // Choose particulars of simulation
-    SRMHD model(&d);
-    Weno3 weno(&d);
-    FVS fluxMethod(&d, &weno, &model);
-    REGIME modelExtension(&d, &fluxMethod);
-    Outflow bcs(&d);
-    Simulation sim(&d, &env);
-    CurrentSheetSingleFluid init(&d);
-    RKSplit timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
-    sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, NULL);
-
-    sim.evolve();
-
-    for (int var(0); var<d.Nprims; var++) {
-      for (int i(0); i<d.Nx; i++) {
-        for (int j(0); j<d.Ny-1; j++) {
-          for (int k(0); k<d.Nz-1; k++) {
-            EXPECT_NEAR(d.prims[IDn(var, i, j, k)], d.prims[IDn(var, i, j+1, k+1)], 1e-15);
-          }
-        }
-      }
-    }
-  }
-
-
-  TEST(REGIME, RotSymmetries)
-  {
-    SerialEnv env(0, NULL, 1, 1, 1);
-    SerialEnv envA(0, NULL, 1, 1, 1);
-    Data d(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &env,
-              0.4, 4, 2.0, 100.0, 0.1);
-    Data dA(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envA,
-              0.4, 4, 2.0, 100.0, 0.1);
-    SRMHD modelA(&dA);
-    Weno3 wenoA(&dA);
-    FVS fluxMethodA(&dA, &wenoA, &modelA);
-    REGIME modelExtensionA(&dA, &fluxMethodA);
-    Outflow bcsA(&dA);
-    Simulation simA(&dA, &envA);
-    CurrentSheetSingleFluid initA(&dA, 0);
-    RKSplit timeIntA(&dA, &modelA, &bcsA, &fluxMethodA, &modelExtensionA);
-    simA.set(&initA, &modelA, &timeIntA, &bcsA, &fluxMethodA, NULL);
-
-    SerialEnv envB(0, NULL, 1, 1, 1);
-    Data dB(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envB,
-              0.4, 4, 2.0, 100.0, 0.1);
-    SRMHD modelB(&dB);
-    Weno3 wenoB(&dB);
-    FVS fluxMethodB(&dB, &wenoB, &modelB);
-    REGIME modelExtensionB(&dB, &fluxMethodB);
-    Outflow bcsB(&dB);
-    Simulation simB(&dB, &envB);
-    CurrentSheetSingleFluid initB(&dB, 1);
-    RKSplit timeIntB(&dB, &modelB, &bcsB, &fluxMethodB, &modelExtensionB);
-    simB.set(&initB, &modelB, &timeIntB, &bcsB, &fluxMethodB, NULL);
-
-    SerialEnv envC(0, NULL, 1, 1, 1);
-    Data dC(10, 10, 10, -3, 3, -3, 3, -3, 3, 0.1, &envC,
-              0.4, 4, 2.0, 100.0, 0.1);
-    SRMHD modelC(&dC);
-    Weno3 wenoC(&dC);
-    FVS fluxMethodC(&dC, &wenoC, &modelC);
-    REGIME modelExtensionC(&dC, &fluxMethodC);
-    Outflow bcsC(&dC);
-    Simulation simC(&dC, &envC);
-    CurrentSheetSingleFluid initC(&dC, 2);
-    RKSplit timeIntC(&dC, &modelC, &bcsC, &fluxMethodC, &modelExtensionC);
-    simC.set(&initC, &modelC, &timeIntC, &bcsC, &fluxMethodC, NULL);
-
-    simA.evolve();
-    simB.evolve();
-    simC.evolve();
-
-    for (int i(d.is); i<dA.ie; i++) {
-      for (int j(d.js); j<dA.je; j++) {
-        for (int k(d.ks); k<dA.ke; k++) {
-          EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dB.cons[IDn(7, k, i, j)], 1e-15);
-          EXPECT_NEAR(dA.cons[IDn(6, i, j, k)], dC.cons[IDn(5, j, k, i)], 1e-15);
-          EXPECT_NEAR(dB.cons[IDn(7, k, i, j)], dC.cons[IDn(5, j, k, i)], 1e-15);
-        }
-      }
-    }
-  }
+}

@@ -17,10 +17,10 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
 
   // Up and downwind fluxes
   double *fplus, *fminus, *fplusrct, *fminusrct;
-  fplus     = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
-  fminus    = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
-  fplusrct  = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
-  fminusrct = (double *) malloc(sizeof(double) * vars * d->Nx * d->Ny * d->Nz);
+  fplus     = new double[vars * d->Nx * d->Ny * d->Nz]();
+  fminus    = new double[vars * d->Nx * d->Ny * d->Nz]();
+  fplusrct  = new double[vars * d->Nx * d->Ny * d->Nz]();
+  fminusrct = new double[vars * d->Nx * d->Ny * d->Nz]();
 
   # pragma omp parallel for  default(none)   shared(fplus, fminus, f, cons, d, vars)
   // Lax-Friedrichs approximation of flux
@@ -28,7 +28,7 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
     for (int i=0; i < d->Nx; i++) {
       for (int j=0; j < d->Ny; j++) {
         for (int k=0; k < d->Nz; k++) {
-          fplus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] + alpha * cons[ID(var, i, j, k)]);
+          fplus[ ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] + alpha * cons[ID(var, i, j, k)]);
           fminus[ID(var, i, j, k)] = 0.5 * (f[ID(var, i, j, k)] - alpha * cons[ID(var, i, j, k)]);
         }
       }
@@ -52,10 +52,10 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   }
 
   // Free arrays
-  free(fplus);
-  free(fminus);
-  free(fplusrct);
-  free(fminusrct);
+  delete fplus;
+  delete fminus;
+  delete fplusrct;
+  delete fminusrct;
 }
 
 void FVS::F(double * cons, double * prims, double * aux, double * f, double * fnet)
