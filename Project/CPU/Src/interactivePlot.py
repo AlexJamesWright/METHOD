@@ -179,10 +179,14 @@ class InteractivePlot(object):
             self.y = np.zeros(c['ny'])
             self.z = np.zeros(c['nz'])
             coords = [self.x, self.y, self.z]
+            print(c['nx'])
+            print(c['ny'])
+            print(c['nz'])
             print("Fetching domain coordinates...")
             with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
                 for coord, (i, line) in zip(coords, enumerate(f)):
                     temp = line.split()
+                    print(len(temp))
                     for k, val in enumerate(temp):
                         coord[k] = float(val)
 
@@ -363,24 +367,24 @@ class InteractivePlot(object):
             raise ValueError("Variable type not recognised, please try again")
         c = self.c
 
-        Nx, Ny, Nz, Ng= c['Nx'], c['Ny'], c['Nz'], c['Ng']
+        Nx, Ny, Nz = c['Nx'], c['Ny'], c['Nz']
 
         for i in range(len(data)):
             plt.figure()
             if (axis == 0):
-                plotVars = data[i, Ng:-Ng, Ny//2, Nz//2]
+                plotVars = data[i, :, Ny//2, Nz//2]
                 axisLabel = r'$x$'
                 step = c['dx']
                 n = c['nx']
                 left, right = c['xmin'], c['xmax']
             if (axis == 1):
-                plotVars = data[i, Nx//2, Ng:-Ng, Nz//2]
+                plotVars = data[i, Nx//2, :, Nz//2]
                 axisLabel = r'$y$'
                 step = c['dy']
                 n = c['ny']
                 left, right = c['ymin'], c['ymax']
             if (axis == 2):
-                plotVars = data[i, Nx//2, Ny//2, Ng:-Ng]
+                plotVars = data[i, Nx//2, Ny//2, :]
                 axisLabel = r'$z$'
                 step = c['dz']
                 n = c['nz']
@@ -411,9 +415,9 @@ class InteractivePlot(object):
         c = self.c
         Ny, Nz, Ng = c['Ny'], c['Nz'], c['Ng']
 
-        rho = self.prims[0, Ng:-Ng, Ny//2, Nz//2] + self.prims[5, Ng:-Ng, Ny//2, Nz//2]
-        p   = self.prims[4, Ng:-Ng, Ny//2, Nz//2] + self.prims[9, Ng:-Ng, Ny//2, Nz//2]
-        var = [rho, *self.aux[31:34, Ng:-Ng, Ny//2, Nz//2], p, *self.prims[10:, Ng:-Ng, Ny//2, Nz//2]]
+        rho = self.prims[0, :, Ny//2, Nz//2] + self.prims[5, :, Ny//2, Nz//2]
+        p   = self.prims[4, :, Ny//2, Nz//2] + self.prims[9, :, Ny//2, Nz//2]
+        var = [rho, *self.aux[31:34, :, Ny//2, Nz//2], p, *self.prims[10:, :, Ny//2, Nz//2]]
         varLab = [r'$\rho$', r'$u_x$', r'$u_y$', r'$u_z$', r'$p$', r'$B_x$', r'$B_y$', r'$B_z$', r'$E_x$', r'$E_y$', r'$E_z$']
 
         xs = np.linspace(c['xmin'] + c['dx']/2, c['xmax'] - c['dx']/2, c['nx'])
@@ -533,28 +537,28 @@ class InteractivePlot(object):
         BxSol = np.zeros_like(BySol)
         BxSol[:] = B0
         plt.figure()
-        plt.plot(xs, Bx[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, Bx[:, 0, 0], label='Numerical')
         plt.plot(xs, BxSol, '--', label='Exact')
         plt.title(r'Exact comparison for $B_x$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # By
         plt.figure()
-        plt.plot(xs, By[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, By[:, 0, 0], label='Numerical')
         plt.plot(xs, BySol, '--', label='Exact')
         plt.title(r'Exact comparison for $B_y$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # By
         plt.figure()
-        plt.plot(xs, Bz[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, Bz[:, 0, 0], label='Numerical')
         plt.plot(xs, BzSol, '--', label='Exact')
         plt.title(r'Exact comparison for $B_z$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # Ex
         plt.figure()
-        plt.plot(xs, Ex[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, Ex[:, 0, 0], label='Numerical')
         plt.plot(xs, np.zeros_like(xs), '--', label='Exact')
         plt.title(r'Exact comparison for $E_x$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
@@ -565,21 +569,21 @@ class InteractivePlot(object):
         plt.legend()
         # Ey
         plt.figure()
-        plt.plot(xs, Ey[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, Ey[:, 0, 0], label='Numerical')
         plt.plot(xs, EySol, '--', label='Exact')
         plt.title(r'Exact comparison for $E_y$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # Ez
         plt.figure()
-        plt.plot(xs, Ez[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, Ez[:, 0, 0], label='Numerical')
         plt.plot(xs, EzSol, '--', label='Exact')
         plt.title(r'Exact comparison for $E_z$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # vx1
         plt.figure()
-        plt.plot(xs, vx1[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vx1[:, 0, 0], label='Numerical')
         plt.plot(xs, np.zeros_like(xs), '--', label='Exact')
         plt.title(r'Exact comparison for $v_x1$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
@@ -590,21 +594,21 @@ class InteractivePlot(object):
         plt.legend()
         # vy1
         plt.figure()
-        plt.plot(xs, vy1[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vy1[:, 0, 0], label='Numerical')
         plt.plot(xs, vy1sol, '--', label='Exact')
         plt.title(r'Exact comparison for $v_y1$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # vz1
         plt.figure()
-        plt.plot(xs, vz1[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vz1[:, 0, 0], label='Numerical')
         plt.plot(xs, vz1sol, '--', label='Exact')
         plt.title(r'Exact comparison for $v_z1$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # vx2
         plt.figure()
-        plt.plot(xs, vx2[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vx2[:, 0, 0], label='Numerical')
         plt.plot(xs, np.zeros_like(xs), '--', label='Exact')
         plt.title(r'Exact comparison for $v_x2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
@@ -615,14 +619,14 @@ class InteractivePlot(object):
         plt.legend()
         # vy2
         plt.figure()
-        plt.plot(xs, vy2[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vy2[:, 0, 0], label='Numerical')
         plt.plot(xs, vy2sol, '--', label='Exact')
         plt.title(r'Exact comparison for $v_y2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
         plt.legend()
         # vz2
         plt.figure()
-        plt.plot(xs, vz2[Ng:-Ng, 0, 0], label='Numerical')
+        plt.plot(xs, vz2[:, 0, 0], label='Numerical')
         plt.plot(xs, vz2sol, '--', label='Exact')
         plt.title(r'Exact comparison for $v_z2$ at $t={}$'.format(t))
         plt.xlim([c['xmin'], c['xmax']])
@@ -655,14 +659,14 @@ class InteractivePlot(object):
             step = 1
 
 
-        dens = self.prims[0, Ng:-Ng, LB:RB:step, midZ].diagonal()
-        vx = self.prims[1, Ng:-Ng, LB:RB:step, midZ].diagonal()
-        vy = self.prims[2, Ng:-Ng, LB:RB:step, midZ].diagonal()
+        dens = self.prims[0, :, LB:RB:step, midZ].diagonal()
+        vx = self.prims[1, :, LB:RB:step, midZ].diagonal()
+        vy = self.prims[2, :, LB:RB:step, midZ].diagonal()
 
 
-        p = self.prims[4, Ng:-Ng, LB:RB:step, midZ].diagonal()
-        B = self.prims[5, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2) + \
-            self.prims[6, Ng:-Ng, LB:RB:step, midZ].diagonal() / np.sqrt(2)
+        p = self.prims[4, :, LB:RB:step, midZ].diagonal()
+        B = self.prims[5, :, LB:RB:step, midZ].diagonal() / np.sqrt(2) + \
+            self.prims[6, :, LB:RB:step, midZ].diagonal() / np.sqrt(2)
 
         # rho
         plt.figure()

@@ -12,10 +12,10 @@ WenoBase::WenoBase(Data * data, int order) : data(data), order(order)
 
 void WenoBase::checkSufficientGhostZones()
 {
-  if (data->Ng < this->order-1)
+  if (data->Ng < this->shift+1)
   {
-    printf("Ng=%d, order=%d\n", data->Ng, order);
-    throw std::invalid_argument("This order Weno reconstruction requires more ghost zones.");
+    printf("This order Weno reconstruction requires at least %d ghost zones, you have %d...", shift+2, data->Ng);
+    throw std::invalid_argument("You must increase number of boundary cells.");
   }
 }
 

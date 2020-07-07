@@ -7,7 +7,7 @@
 #include "rkSplit.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include "weno.h"
 
 #include <ctime>
@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
 
   // Set up domain
-  int Ng(4);
-  int nx(100);
+  int Ng(5);
+  int nx(300);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveData save(&data, 0);
+  ParallelSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
