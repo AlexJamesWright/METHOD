@@ -24,6 +24,7 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/SSP2322.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/twoFluidEMHD.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/weno.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/wenoUpwinds.cc
 
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Src/dogleg.cc
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Src/dpmpar.cc
