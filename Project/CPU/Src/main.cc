@@ -11,6 +11,7 @@
 #include "parallelSaveData.h"
 #include "weno.h"
 #include "RKPlus.h"
+#include "SSP3.h"
 
 #include <ctime>
 #include <cstring>
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 
   // Set up domain
-  int Ng(3);
+  int Ng(9);
   int nx(100);
   int ny(0);
   int nz(0);
@@ -31,10 +32,11 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.4);
+  double endTime(50);
   //double endTime(0.0004);
   double gamma(2.0);
-  double cfl(0.4);
+  double cfl(0.95);
+  double sigma(40);
 
   double nxRanks(1);
   double nyRanks(1);
@@ -45,25 +47,22 @@ int main(int argc, char *argv[]) {
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma);
+            cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno3 weno(&data);
+  Weno9 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
-  // TODO -- this must be defined before Simulation for x,y,z arrays to be initialized correctly(). Add flag on simulation to check this has been done
-  ParallelOutflow bcs(&data, &env);
+  ParallelPeriodic bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
-  BrioWuSingleFluid init(&data);
+  AdvectionSingleFluid init(&data);
 
-  //ParallelOutflow bcs(&data, &env);
-
-  RK2B timeInt(&data, &model, &bcs, &fluxMethod);
+  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env, 0);
 
@@ -75,6 +74,7 @@ int main(int argc, char *argv[]) {
 
   // Run until end time and save results
   sim.evolve();
+  // sim.updateTime();
 
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 

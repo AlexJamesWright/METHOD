@@ -28,9 +28,9 @@ void RKPlus::rhs(double * cons, double * prims, double * aux, double * rhsVec)
     modelExtension->sourceExtension(cons, prims, aux, d->sourceExtension);
 
     for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
+      for (int i(d->is); i < d->ie; i++) {
+        for (int j(d->js); j < d->je; j++) {
+          for (int k(d->ks); k < d->ke; k++) {
             d->source[ID(var, i, j, k)] += d->sourceExtension[ID(var, i, j, k)];
           }
         }
@@ -40,9 +40,9 @@ void RKPlus::rhs(double * cons, double * prims, double * aux, double * rhsVec)
 
   // Sum the contributions
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           rhsVec[ID(var, i, j, k)] = d->source[ID(var, i, j, k)] - fluxCont[ID(var, i, j, k)];
         }
       }
@@ -51,9 +51,11 @@ void RKPlus::rhs(double * cons, double * prims, double * aux, double * rhsVec)
 }
 
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // RK2
 ////////////////////////////////////////////////////////////////////////////////
+
 
 RK2B::RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
       RKPlus(data, model, bcs, fluxMethod, modelExtension)
@@ -63,25 +65,25 @@ RK2B::RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, Model
 
   int Ntot(d->Nx * d->Ny * d->Nz);
 
-  p1cons  = new double[Ntot * d->Ncons]();
-  p1prims = new double[Ntot * d->Nprims]();
-  p1aux   = new double[Ntot * d->Naux]();
-  args1   = new double[Ntot * d->Ncons]();
-  args2   = new double[Ntot * d->Ncons]();
+  u1cons  = new double[Ntot * d->Ncons]();
+  u1prims = new double[Ntot * d->Nprims]();
+  u1aux   = new double[Ntot * d->Naux]();
+  rhs1   = new double[Ntot * d->Ncons]();
+  rhs2   = new double[Ntot * d->Ncons]();
 }
 
 RK2B::~RK2B()
 {
   // Free arrays
-  delete p1cons;
-  delete p1prims;
-  delete p1aux;
-  delete args1;
-  delete args2;
+  delete u1cons;
+  delete u1prims;
+  delete u1aux;
+  delete rhs1;
+  delete rhs2;
 }
 
 
-void RK2B::predictorStep(double * cons, double * prims, double * aux, double dt)
+void RK2B::stage1(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
@@ -89,37 +91,37 @@ void RK2B::predictorStep(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) (dt=d->dt);
 
-  // Cons2prims conversion for p1 estimate stage requires old values to start
+  // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Naux; var++) {
-          p1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+          u1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
         for (int var(0); var < d->Nprims; var++) {
-          p1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+          u1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
         }
       }
     }
   }
 
   // Get first approximation of rhs
-  this->rhs(cons, prims, aux, args1);
+  this->rhs(cons, prims, aux, rhs1);
 
   // First stage approximation
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] + dt * args1[ID(var, i, j, k)];
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] + dt * rhs1[ID(var, i, j, k)];
         }
       }
     }
   }
 }
 
-void RK2B::correctorStep(double * cons, double * prims, double * aux, double dt)
+void RK2B::stage2(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
@@ -128,15 +130,15 @@ void RK2B::correctorStep(double * cons, double * prims, double * aux, double dt)
   if (dt <= 0) (dt=d->dt);
 
   // Get second approximation of rhs
-  this->rhs(p1cons, p1prims, p1aux, args2);
+  this->rhs(u1cons, u1prims, u1aux, rhs2);
 
   // Construct solution
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-          cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] +
-                                      dt * args2[ID(var, i, j, k)]);
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + u1cons[ID(var, i, j, k)] +
+                                      dt * rhs2[ID(var, i, j, k)]);
         }
       }
     }
@@ -145,9 +147,431 @@ void RK2B::correctorStep(double * cons, double * prims, double * aux, double dt)
 
 void RK2B::step(double * cons, double * prims, double * aux, double dt)
 {
-  predictorStep(cons, prims, aux, dt);
-  finalise(p1cons, p1prims, p1aux);
+  stage1(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
 
-  correctorStep(cons, prims, aux, dt);
+  stage2(cons, prims, aux, dt);
   finalise(cons, prims, aux);
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// RK3
+////////////////////////////////////////////////////////////////////////////////
+
+
+RK3::RK3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
+      RKPlus(data, model, bcs, fluxMethod, modelExtension)
+{
+  // Syntax
+  Data * d(this->data);
+
+  int Ntot(d->Nx * d->Ny * d->Nz);
+
+  u1cons  = new double[Ntot * d->Ncons]();
+  u1prims = new double[Ntot * d->Nprims]();
+  u1aux   = new double[Ntot * d->Naux]();
+  u2cons  = new double[Ntot * d->Ncons]();
+  u2prims = new double[Ntot * d->Nprims]();
+  u2aux   = new double[Ntot * d->Naux]();
+  rhs1    = new double[Ntot * d->Ncons]();
+  rhs2    = new double[Ntot * d->Ncons]();
+  rhs3    = new double[Ntot * d->Ncons]();
+}
+
+RK3::~RK3()
+{
+  // Free arrays
+  delete u1cons;
+  delete u1prims;
+  delete u1aux;
+  delete u2cons;
+  delete u2prims;
+  delete u2aux;
+  delete rhs1;
+  delete rhs2;
+  delete rhs3;
+}
+
+
+void RK3::stage1(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get first approximation of rhs
+  this->rhs(cons, prims, aux, rhs1);
+
+  // First stage approximation
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] + dt * rhs1[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK3::stage2(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u2aux[ID(var, i, j, k)] = u1aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u2prims[ID(var, i, j, k)] = u1prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get second approximation of rhs
+  this->rhs(u1cons, u1prims, u1aux, rhs2);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u2cons[ID(var, i, j, k)] = 3.0/4.0 * cons[ID(var, i, j, k)] +
+                                     1.0/4.0 * u1cons[ID(var, i, j, k)] +
+                                     1.0/4.0 * dt * rhs2[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK3::stage3(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Get second approximation of rhs
+  this->rhs(u2cons, u2prims, u2aux, rhs3);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          cons[ID(var, i, j, k)] = 1.0/3.0 * cons[ID(var, i, j, k)] +
+                                   2.0/3.0 * u2cons[ID(var, i, j, k)] +
+                                   2.0/3.0 * dt * rhs3[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK3::step(double * cons, double * prims, double * aux, double dt)
+{
+  stage1(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+
+  stage2(cons, prims, aux, dt);
+  finalise(u2cons, u2prims, u2aux);
+
+  stage3(cons, prims, aux, dt);
+  finalise(cons, prims, aux);
+
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// RK4
+////////////////////////////////////////////////////////////////////////////////
+
+
+RK4::RK4(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
+      RKPlus(data, model, bcs, fluxMethod, modelExtension)
+{
+  // Syntax
+  Data * d(this->data);
+
+  int Ntot(d->Nx * d->Ny * d->Nz);
+
+  u1cons  = new double[Ntot * d->Ncons]();
+  u1prims = new double[Ntot * d->Nprims]();
+  u1aux   = new double[Ntot * d->Naux]();
+  u2cons  = new double[Ntot * d->Ncons]();
+  u2prims = new double[Ntot * d->Nprims]();
+  u2aux   = new double[Ntot * d->Naux]();
+  u3cons  = new double[Ntot * d->Ncons]();
+  u3prims = new double[Ntot * d->Nprims]();
+  u3aux   = new double[Ntot * d->Naux]();
+  u4cons  = new double[Ntot * d->Ncons]();
+  u4prims = new double[Ntot * d->Nprims]();
+  u4aux   = new double[Ntot * d->Naux]();
+  rhs1    = new double[Ntot * d->Ncons]();
+  rhs2    = new double[Ntot * d->Ncons]();
+  rhs3    = new double[Ntot * d->Ncons]();
+  rhs4    = new double[Ntot * d->Ncons]();
+  rhs5    = new double[Ntot * d->Ncons]();
+}
+
+RK4::~RK4()
+{
+  // Free arrays
+  delete u1cons;
+  delete u1prims;
+  delete u1aux;
+  delete u2cons;
+  delete u2prims;
+  delete u2aux;
+  delete u3cons;
+  delete u3prims;
+  delete u3aux;
+  delete u4cons;
+  delete u4prims;
+  delete u4aux;
+  delete rhs1;
+  delete rhs2;
+  delete rhs3;
+  delete rhs4;
+  delete rhs5;
+}
+
+
+void RK4::stage1(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u1prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get first approximation of rhs
+  this->rhs(cons, prims, aux, rhs1);
+
+  // First stage approximation
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] +
+                                     0.391752226571890 * dt * rhs1[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4::stage2(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u2aux[ID(var, i, j, k)] = u1aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u2prims[ID(var, i, j, k)] = u1prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get second approximation of rhs
+  this->rhs(u1cons, u1prims, u1aux, rhs2);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u2cons[ID(var, i, j, k)] = 0.444370493651235 * cons[ID(var, i, j, k)] +
+                                     0.555629506348765 * u1cons[ID(var, i, j, k)] +
+                                     0.368410593050371 * dt * rhs2[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4::stage3(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u3aux[ID(var, i, j, k)] = u2aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u3prims[ID(var, i, j, k)] = u2prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get second approximation of rhs
+  this->rhs(u2cons, u2prims, u2aux, rhs3);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u3cons[ID(var, i, j, k)] = 0.620101851488403 * cons[ID(var, i, j, k)] +
+                                     0.379898148511597 * u2cons[ID(var, i, j, k)] +
+                                     0.251891774271694 * dt * rhs3[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4::stage4(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Cons2prims conversion for u1 estimate stage requires old values to start
+  // the rootfind
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          u4aux[ID(var, i, j, k)] = u3aux[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          u4prims[ID(var, i, j, k)] = u3prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  // Get second approximation of rhs
+  this->rhs(u3cons, u3prims, u3aux, rhs4);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          u4cons[ID(var, i, j, k)] = 0.178079954393132 * cons[ID(var, i, j, k)] +
+                                     0.821920045606868 * u3cons[ID(var, i, j, k)] +
+                                     0.544974750228521 * dt * rhs4[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4::stage5(double * cons, double * prims, double * aux, double dt)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // Get timestep
+  if (dt <= 0) (dt=d->dt);
+
+  // Get second approximation of rhs
+  this->rhs(u4cons, u4prims, u4aux, rhs5);
+
+  // Construct solution
+  for (int var(0); var < d->Ncons; var++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          cons[ID(var, i, j, k)] = 0.517231671970585 * u2cons[ID(var, i, j, k)] +
+                                   0.096059710526147 * u3cons[ID(var, i, j, k)] +
+                                   0.386708617503269 * u4cons[ID(var, i, j, k)] +
+                                   0.063692468666290 * dt * rhs4[ID(var, i, j, k)] +
+                                   0.226007483236906 * dt * rhs5[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+void RK4::step(double * cons, double * prims, double * aux, double dt)
+{
+  stage1(cons, prims, aux, dt);
+  finalise(u1cons, u1prims, u1aux);
+
+  stage2(cons, prims, aux, dt);
+  finalise(u2cons, u2prims, u2aux);
+
+  stage3(cons, prims, aux, dt);
+  finalise(u3cons, u3prims, u3aux);
+
+  stage4(cons, prims, aux, dt);
+  finalise(u4cons, u4prims, u4aux);
+
+  stage5(cons, prims, aux, dt);
+  finalise(cons, prims, aux);
+
 }

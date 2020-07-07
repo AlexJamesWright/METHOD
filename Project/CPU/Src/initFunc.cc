@@ -39,6 +39,27 @@ InitialFunc::InitialFunc(Data * data) : data(data)
   }
 }
 
+AdvectionSingleFluid::AdvectionSingleFluid(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0, 1]\n");
+
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        d->prims[ID(0, i, j, k)] = 0.1;
+        if (d->x[i] > 0.25 && d->x[i] < 0.75)
+          d->prims[ID(0, i, j, k)] += 0.4*pow(sin(2*3.141592653589793*(d->x[i]-0.25)), 2);
+        d->prims[ID(1, i, j, k)] = 0.2;
+        d->prims[ID(4, i, j, k)] = 0.1;
+      }
+    }
+  }
+}
+
 CPAlfvenWaveTwoFluid::CPAlfvenWaveTwoFluid(Data * data) : InitialFunc(data)
 {
   // Syntax
@@ -535,7 +556,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
           d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
           d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
         }
-        
+
       }
     }
   }

@@ -21,25 +21,82 @@ class RKPlus : public TimeIntegrator
 };
 
 
-//! RK2B integrator, but based off RKPlus API
+//! Second order RK
+/*!
+    SSPRK(2,2) from Gottlieb 2009
+*/
 class RK2B : public RKPlus
 {
   public:
-    // Need some work arrays
-    double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
+    // Need some work arrays
+    double *u1cons, *u1prims, *u1aux, *rhs1, *rhs2;
 
     RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
     ~RK2B();
 
-    void predictorStep(double * cons, double * prims, double * aux, double dt);
+    virtual void stage1(double * cons, double * prims, double * aux, double dt);
 
-    void correctorStep(double * cons, double * prims, double * aux, double dt);
+    void stage2(double * cons, double * prims, double * aux, double dt);
 
     void step(double * cons, double * prims, double * aux, double dt=0);
 
+};
+
+//! Third order RK
+/*!
+    SSPRK(3,3) from Gottlieb 2009
+*/
+class RK3 : public RKPlus
+{
+  public:
+
+    // Need some work arrays
+    double *u1cons, *u1prims, *u1aux, *u2cons, *u2prims, *u2aux, *rhs1, *rhs2, *rhs3;
+
+    RK3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
+
+    ~RK3();
+
+    void stage1(double * cons, double * prims, double * aux, double dt);
+
+    void stage2(double * cons, double * prims, double * aux, double dt);
+
+    void stage3(double * cons, double * prims, double * aux, double dt);
+
+    void step(double * cons, double * prims, double * aux, double dt=0);
 
 };
+
+//! Fourth order RK
+/*!
+    SSPRK(5,4) from Gottlieb 2009
+*/
+class RK4 : public RKPlus
+{
+  public:
+
+    // Need some work arrays
+    double *u1cons, *u1prims, *u1aux, *u2cons, *u2prims, *u2aux, *u3cons, *u3prims, *u3aux, *u4cons, *u4prims, *u4aux, *rhs1, *rhs2, *rhs3, *rhs4, *rhs5;
+
+    RK4(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
+
+    ~RK4();
+
+    void stage1(double * cons, double * prims, double * aux, double dt);
+
+    void stage2(double * cons, double * prims, double * aux, double dt);
+
+    void stage3(double * cons, double * prims, double * aux, double dt);
+
+    void stage4(double * cons, double * prims, double * aux, double dt);
+
+    void stage5(double * cons, double * prims, double * aux, double dt);
+
+    void step(double * cons, double * prims, double * aux, double dt=0);
+
+};
+
 
 #endif

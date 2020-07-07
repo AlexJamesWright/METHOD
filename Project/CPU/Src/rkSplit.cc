@@ -16,9 +16,9 @@ void RKSplit::setSource(double * cons, double * prims, double * aux)
     modelExtension->sourceExtension(cons, prims, aux, d->sourceExtension);
 
     for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx; i++) {
-        for (int j(0); j < d->Ny; j++) {
-          for (int k(0); k < d->Nz; k++) {
+      for (int i(d->is); i < d->ie; i++) {
+        for (int j(d->js); j < d->je; j++) {
+          for (int k(d->ks); k < d->ke; k++) {
             d->source[ID(var, i, j, k)] += d->sourceExtension[ID(var, i, j, k)];
           }
         }
@@ -41,9 +41,9 @@ void RKSplit::step(double * cons, double * prims, double * aux, double dt)
   // Set and add source
   this->setSource(cons, prims, aux);
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           cons[ID(var, i, j, k)] +=  dt * d->source[ID(var, i, j, k)];
         }
       }

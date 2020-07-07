@@ -26,6 +26,12 @@ class InitialFunc
     InitialFunc(Data * data);
 };
 
+class AdvectionSingleFluid : public InitialFunc
+{
+  public:
+    AdvectionSingleFluid(Data * data);
+};
+
 //! <b> Two-fluid circularly polarized Alfven wave </b>
 /*!
     Two fluid version of the CP Alfven wave test. See Amano 2016 for description.

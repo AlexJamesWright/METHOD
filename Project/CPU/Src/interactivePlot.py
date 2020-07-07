@@ -179,9 +179,6 @@ class InteractivePlot(object):
             self.y = np.zeros(c['ny'])
             self.z = np.zeros(c['nz'])
             coords = [self.x, self.y, self.z]
-            print(c['nx'])
-            print(c['ny'])
-            print(c['nz'])
             print("Fetching domain coordinates...")
             with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
                 for coord, (i, line) in zip(coords, enumerate(f)):
@@ -312,15 +309,15 @@ class InteractivePlot(object):
         for i in range(data.shape[0]):
             fig, ax = plt.subplots(1)
             if (axis == 0):
-                plotVars = data[i, c['Nx']//2, c['Ng']:-c['Ng'], c['Ng']:-c['Ng']]
+                plotVars = data[i, c['Nx']//2, :, :]
                 axisLabel1 = r'$y$'
                 axisLabel2 = r'$z$'
             if (axis == 1):
-                plotVars = data[i, c['Ng']:-c['Ng'], c['Ny']//2, c['Ng']:-c['Ng']]
+                plotVars = data[i, :, c['Ny']//2, :]
                 axisLabel1 = r'$x$'
                 axisLabel2 = r'$z$'
             if (axis == 2):
-                plotVars = data[i, c['Ng']:-c['Ng'], c['Ng']:-c['Ng'], c['Nz']//2]
+                plotVars = data[i, :, :, c['Nz']//2]
                 axisLabel1 = r'$x$'
                 axisLabel2 = r'$y$'
 
@@ -413,7 +410,7 @@ class InteractivePlot(object):
         """
 
         c = self.c
-        Ny, Nz, Ng = c['Ny'], c['Nz'], c['Ng']
+        Ny, Nz = c['Ny'], c['Nz']
 
         rho = self.prims[0, :, Ny//2, Nz//2] + self.prims[5, :, Ny//2, Nz//2]
         p   = self.prims[4, :, Ny//2, Nz//2] + self.prims[9, :, Ny//2, Nz//2]
@@ -449,7 +446,7 @@ class InteractivePlot(object):
         plt.figure()
         xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
         exact = np.sign(xs)*erf(0.5 * np.sqrt(c['sigma'] * xs ** 2 / (c['t']+1)))
-        plt.plot(xs, By[c['Ng']:-c['Ng'], 0, 0], label='Numerical')
+        plt.plot(xs, By[:, 0, 0], label='Numerical')
         plt.plot(xs, exact, label='Exact')
         plt.xlim([c['xmin'], c['xmax']])
         plt.ylim([-1.2, 1.2])
@@ -458,7 +455,7 @@ class InteractivePlot(object):
         plt.title(r'Comparison of exact and numerical $B_y$ at $t={:.4f}$'.format(c['t']+1))
         plt.legend(loc='upper left')
         plt.show()
-        #return np.linalg.norm(exact - By[c['Ng']:-c['Ng'], 0, 0])
+        #return np.linalg.norm(exact - By[:, 0, 0])
 
 
     def plotSingleFluidCurrentSheetAgainstExact(self, direction=0):
@@ -473,13 +470,13 @@ class InteractivePlot(object):
         nz = self.c['Nz'] // 2
 
         if direction == 0:
-            B = self.cons[6, c['Ng']:-c['Ng'], ny, nz]
+            B = self.cons[6, :, ny, nz]
             x = np.linspace(c['xmin'], c['xmax'], c['nx'])
         elif direction == 1:
-            B = self.cons[7, nx, c['Ng']:-c['Ng'], nz]
+            B = self.cons[7, nx, :, nz]
             x = np.linspace(c['ymin'], c['ymax'], c['ny'])
         else:
-            B = self.cons[5, nx, ny, c['Ng']:-c['Ng']]
+            B = self.cons[5, nx, ny, :]
             x = np.linspace(c['zmin'], c['zmax'], c['nz'])
 
         exact = np.sign(x)*erf(0.5 * np.sqrt(c['sigma'] * x ** 2 / (c['t']+1)))
@@ -506,7 +503,6 @@ class InteractivePlot(object):
         c = self.c
         xs = np.linspace(c['xmin'], c['xmax'], c['nx'])
         t = c['t']
-        Ng = c['Ng']
 
         h = 1.04
         B0 = h
@@ -717,14 +713,20 @@ class InteractivePlot(object):
 
 if __name__ == '__main__':
 
-#    Plot = InteractivePlot()
-#
+    Plot = InteractivePlot()
+
 #    Plot.plotSlice()
+#    Plot.plotSingleFluidCurrentSheetAgainstExact()
+    xs = np.linspace(Plot.c['dx']/2, 1-Plot.c['dx']/2, Plot.c['nx'])
+    initialRho = np.ones_like(xs)*0.1
+    wheres = np.logical_and(xs < 0.75, xs > 0.25)
+    initialRho[wheres] += 0.4*np.sin(2*3.141592653589793*(xs[wheres] - 0.25))**2
     
     plt.figure()
-    plt.plot(rksplit.prims[6, :, 0, 0], label='rksplit')
-    plt.plot(rksplit2.prims[6, :, 0, 0], label='rksplit2')
-    plt.plot(rk2b.prims[6, :, 0, 0], label='rk2b')
+    plt.plot(xs, initialRho, label='initial')
+    plt.plot(xs, Plot.prims[0, :, 0, 0], label='rho')
+#    plt.plot(rksplit2.prims[6, :, 0, 0], label='rksplit2')
+#    plt.plot(rk2b.prims[6, :, 0, 0], label='rk2b')
     plt.legend()
     plt.show()
     
