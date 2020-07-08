@@ -9,6 +9,7 @@ add_executable(
     test_boundaryConds.cc
     test_REGIME.cc
     test_weno.cc
+    test_RKPlus.cc
     )
 
 target_link_libraries(

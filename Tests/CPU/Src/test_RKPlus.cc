@@ -1248,7 +1248,6 @@ TEST(RK4_10, Step)
   timeInt.stageFinal(d.cons, d.prims, d.aux, d.dt);
   timeInt.finalise(d.cons, d.prims, d.aux);
 
-
   // ...and using RK4
   timeInt.step(tempCons, tempPrims, tempAux, d.dt);
 

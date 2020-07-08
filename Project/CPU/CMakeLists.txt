@@ -25,6 +25,7 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/twoFluidEMHD.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/weno.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/wenoUpwinds.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/RKPlus.cc
 
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Src/dogleg.cc
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Src/dpmpar.cc
@@ -63,7 +64,8 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/REGIME.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/timeInt.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/twoFluidEMHD.h
-    ${CMAKE_CURRENT_LIST_DIR}/Include/weno.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/wenoUpwinds.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/RKPlus.h
 
     ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include/cminpack.h
     ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include/cminpackP.h
@@ -71,16 +73,9 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include/minpackP.h
     )
 
-#find_package(MPI REQUIRED)
-
-#target_link_libraries(Cmin
-#    ${MPI_C_LIBRARIES}
-#    )
-
 target_include_directories(
     Cmin
     PUBLIC
       ${CMAKE_CURRENT_LIST_DIR}/Include
       ${CMAKE_CURRENT_LIST_DIR}/CminpackLibrary/Include
-      #      ${MPI_INCLUDE_PATH}
     )

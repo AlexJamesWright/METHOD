@@ -3,7 +3,7 @@
 RKPlus::RKPlus(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension) :
               TimeIntegrator(data, model, bcs, fluxMethod, modelExtension)
 {
-  fluxCont = new double[data->Nx*data->Ny*data->Nz*data->Ncons];
+  fluxCont = new double[data->Nx*data->Ny*data->Nz*data->Ncons]();
 }
 
 
