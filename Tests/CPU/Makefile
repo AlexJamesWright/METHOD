@@ -54,7 +54,8 @@ TESTS = test_simulation 		\
 				test_REGIME 				\
 				test_imex 					\
 				test_fvs						\
-				test_weno
+				test_weno						\
+				test_RKPlus
 
 PARALLEL_TESTS = test_parallel_rk2 \
 				 test_parallel_rkSplit \
@@ -186,6 +187,18 @@ test_rkSplit.o : $(TEST_DIR)/test_rkSplit.cc $(INC_DIR)/rkSplit.h \
 
 test_rkSplit : test_rkSplit.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
+# RKPlus
+RKPlus.o	:	$(MODULE_DIR)/RKPlus.cc $(INC_DIR)/RKPlus.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/RKPlus.cc -I$(INC_DIR)
+
+test_RKPlus.o : $(TEST_DIR)/test_RKPlus.cc $(INC_DIR)/RKPlus.h \
+	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_RKPlus.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_RKPlus : test_RKPlus.o REGIME.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RKPlus.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
 
 # Flux vector splitting method
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h

@@ -37,6 +37,7 @@ Data::Data(int nx, int ny, int nz,
   this->Nx = nx/env->nxRanks + 2 * Ng;
   this->Ny = ny/env->nyRanks + 2 * Ng;
   this->Nz = nz/env->nzRanks + 2 * Ng;
+  this->Ntot = this->Nx * this->Ny * this->Nz;
 
   //printf("proc %d (%d) initialized with %d nx\n", env->rank, env->xRankId, this->Nx);
   dims = 3;

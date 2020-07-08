@@ -63,13 +63,11 @@ RK2B::RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, Model
   // Syntax
   Data * d(this->data);
 
-  int Ntot(d->Nx * d->Ny * d->Nz);
-
-  u1cons  = new double[Ntot * d->Ncons]();
-  u1prims = new double[Ntot * d->Nprims]();
-  u1aux   = new double[Ntot * d->Naux]();
-  rhs1   = new double[Ntot * d->Ncons]();
-  rhs2   = new double[Ntot * d->Ncons]();
+  u1cons  = new double[d->Ntot * d->Ncons]();
+  u1prims = new double[d->Ntot * d->Nprims]();
+  u1aux   = new double[d->Ntot * d->Naux]();
+  rhs1    = new double[d->Ntot * d->Ncons]();
+  rhs2    = new double[d->Ntot * d->Ncons]();
 }
 
 RK2B::~RK2B()
@@ -87,9 +85,6 @@ void RK2B::stage1(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -126,9 +121,6 @@ void RK2B::stage2(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Get second approximation of rhs
   this->rhs(u1cons, u1prims, u1aux, rhs2);
 
@@ -147,6 +139,9 @@ void RK2B::stage2(double * cons, double * prims, double * aux, double dt)
 
 void RK2B::step(double * cons, double * prims, double * aux, double dt)
 {
+  // Get timestep
+  if (dt <= 0) (dt=data->dt);
+
   stage1(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
@@ -168,17 +163,15 @@ RK3::RK3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelEx
   // Syntax
   Data * d(this->data);
 
-  int Ntot(d->Nx * d->Ny * d->Nz);
-
-  u1cons  = new double[Ntot * d->Ncons]();
-  u1prims = new double[Ntot * d->Nprims]();
-  u1aux   = new double[Ntot * d->Naux]();
-  u2cons  = new double[Ntot * d->Ncons]();
-  u2prims = new double[Ntot * d->Nprims]();
-  u2aux   = new double[Ntot * d->Naux]();
-  rhs1    = new double[Ntot * d->Ncons]();
-  rhs2    = new double[Ntot * d->Ncons]();
-  rhs3    = new double[Ntot * d->Ncons]();
+  u1cons  = new double[d->Ntot * d->Ncons]();
+  u1prims = new double[d->Ntot * d->Nprims]();
+  u1aux   = new double[d->Ntot * d->Naux]();
+  u2cons  = new double[d->Ntot * d->Ncons]();
+  u2prims = new double[d->Ntot * d->Nprims]();
+  u2aux   = new double[d->Ntot * d->Naux]();
+  rhs1    = new double[d->Ntot * d->Ncons]();
+  rhs2    = new double[d->Ntot * d->Ncons]();
+  rhs3    = new double[d->Ntot * d->Ncons]();
 }
 
 RK3::~RK3()
@@ -200,9 +193,6 @@ void RK3::stage1(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -238,9 +228,6 @@ void RK3::stage2(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -279,9 +266,6 @@ void RK3::stage3(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Get second approximation of rhs
   this->rhs(u2cons, u2prims, u2aux, rhs3);
 
@@ -301,6 +285,9 @@ void RK3::stage3(double * cons, double * prims, double * aux, double dt)
 
 void RK3::step(double * cons, double * prims, double * aux, double dt)
 {
+  // Get timestep
+  if (dt <= 0) (dt=data->dt);
+
   stage1(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
@@ -309,7 +296,6 @@ void RK3::step(double * cons, double * prims, double * aux, double dt)
 
   stage3(cons, prims, aux, dt);
   finalise(cons, prims, aux);
-
 }
 
 
@@ -327,25 +313,23 @@ RK4::RK4(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelEx
   // Syntax
   Data * d(this->data);
 
-  int Ntot(d->Nx * d->Ny * d->Nz);
-
-  u1cons  = new double[Ntot * d->Ncons]();
-  u1prims = new double[Ntot * d->Nprims]();
-  u1aux   = new double[Ntot * d->Naux]();
-  u2cons  = new double[Ntot * d->Ncons]();
-  u2prims = new double[Ntot * d->Nprims]();
-  u2aux   = new double[Ntot * d->Naux]();
-  u3cons  = new double[Ntot * d->Ncons]();
-  u3prims = new double[Ntot * d->Nprims]();
-  u3aux   = new double[Ntot * d->Naux]();
-  u4cons  = new double[Ntot * d->Ncons]();
-  u4prims = new double[Ntot * d->Nprims]();
-  u4aux   = new double[Ntot * d->Naux]();
-  rhs1    = new double[Ntot * d->Ncons]();
-  rhs2    = new double[Ntot * d->Ncons]();
-  rhs3    = new double[Ntot * d->Ncons]();
-  rhs4    = new double[Ntot * d->Ncons]();
-  rhs5    = new double[Ntot * d->Ncons]();
+  u1cons  = new double[d->Ntot * d->Ncons]();
+  u1prims = new double[d->Ntot * d->Nprims]();
+  u1aux   = new double[d->Ntot * d->Naux]();
+  u2cons  = new double[d->Ntot * d->Ncons]();
+  u2prims = new double[d->Ntot * d->Nprims]();
+  u2aux   = new double[d->Ntot * d->Naux]();
+  u3cons  = new double[d->Ntot * d->Ncons]();
+  u3prims = new double[d->Ntot * d->Nprims]();
+  u3aux   = new double[d->Ntot * d->Naux]();
+  u4cons  = new double[d->Ntot * d->Ncons]();
+  u4prims = new double[d->Ntot * d->Nprims]();
+  u4aux   = new double[d->Ntot * d->Naux]();
+  rhs1    = new double[d->Ntot * d->Ncons]();
+  rhs2    = new double[d->Ntot * d->Ncons]();
+  rhs3    = new double[d->Ntot * d->Ncons]();
+  rhs4    = new double[d->Ntot * d->Ncons]();
+  rhs5    = new double[d->Ntot * d->Ncons]();
 }
 
 RK4::~RK4()
@@ -375,9 +359,6 @@ void RK4::stage1(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -414,9 +395,6 @@ void RK4::stage2(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -455,9 +433,6 @@ void RK4::stage3(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
   for (int i(d->is); i < d->ie; i++) {
@@ -494,9 +469,6 @@ void RK4::stage4(double * cons, double * prims, double * aux, double dt)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -535,9 +507,6 @@ void RK4::stage5(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Get second approximation of rhs
   this->rhs(u4cons, u4prims, u4aux, rhs5);
 
@@ -559,6 +528,9 @@ void RK4::stage5(double * cons, double * prims, double * aux, double dt)
 
 void RK4::step(double * cons, double * prims, double * aux, double dt)
 {
+  // Get timestep
+  if (dt <= 0) (dt=data->dt);
+
   stage1(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
@@ -581,7 +553,7 @@ void RK4::step(double * cons, double * prims, double * aux, double dt)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// RK4
+// RK4_10
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -591,15 +563,13 @@ RK4_10::RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, M
   // Syntax
   Data * d(this->data);
 
-  int Ntot(d->Nx * d->Ny * d->Nz);
-
-  u1cons  = new double[Ntot * d->Ncons]();
-  u1prims = new double[Ntot * d->Nprims]();
-  u1aux   = new double[Ntot * d->Naux]();
-  u2cons  = new double[Ntot * d->Ncons]();
-  u2prims = new double[Ntot * d->Nprims]();
-  u2aux   = new double[Ntot * d->Naux]();
-  rhs1    = new double[Ntot * d->Ncons]();
+  u1cons  = new double[d->Ntot * d->Ncons]();
+  u1prims = new double[d->Ntot * d->Nprims]();
+  u1aux   = new double[d->Ntot * d->Naux]();
+  u2cons  = new double[d->Ntot * d->Ncons]();
+  u2prims = new double[d->Ntot * d->Nprims]();
+  u2aux   = new double[d->Ntot * d->Naux]();
+  rhs1    = new double[d->Ntot * d->Ncons]();
 }
 
 RK4_10::~RK4_10()
@@ -615,13 +585,10 @@ RK4_10::~RK4_10()
 }
 
 
-void RK4_10::prepare1(double * cons, double * prims, double * aux, double dt)
+void RK4_10::prepare1(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -642,13 +609,10 @@ void RK4_10::prepare1(double * cons, double * prims, double * aux, double dt)
   }
 }
 
-void RK4_10::prepare2(double * cons, double * prims, double * aux, double dt)
+void RK4_10::prepare2(double * cons, double * prims, double * aux)
 {
   // Syntax
   Data * d(this->data);
-
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
@@ -677,9 +641,6 @@ void RK4_10::stageRepeat(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Get first approximation of rhs
   this->rhs(u1cons, u1prims, u1aux, rhs1);
 
@@ -701,9 +662,6 @@ void RK4_10::stageFinal(double * cons, double * prims, double * aux, double dt)
   // Syntax
   Data * d(this->data);
 
-  // Get timestep
-  if (dt <= 0) (dt=d->dt);
-
   // Get first approximation of rhs
   this->rhs(u1cons, u1prims, u1aux, rhs1);
 
@@ -723,7 +681,10 @@ void RK4_10::stageFinal(double * cons, double * prims, double * aux, double dt)
 
 void RK4_10::step(double * cons, double * prims, double * aux, double dt)
 {
-  prepare1(cons, prims, aux, dt);
+  // Get timestep
+  if (dt <= 0) (dt=data->dt);
+
+  prepare1(cons, prims, aux);
   finalise(u1cons, u1prims, u1aux);
   finalise(u2cons, u2prims, u2aux);
 
@@ -743,7 +704,7 @@ void RK4_10::step(double * cons, double * prims, double * aux, double dt)
   stageRepeat(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
-  prepare2(cons, prims, aux, dt);
+  prepare2(cons, prims, aux);
   finalise(u1cons, u1prims, u1aux);
   finalise(u2cons, u2prims, u2aux);
 

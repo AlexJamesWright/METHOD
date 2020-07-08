@@ -105,7 +105,7 @@ class Data
     int
     iters,                 //!< Number of iterations that have been completed
     //@{
-    Nx, Ny, Nz;            //!< Total number of compute cells in domain in the specified direction
+    Nx, Ny, Nz, Ntot;      //!< Total number of compute cells in domain in the specified direction
     //@}
     std::vector<std::string>
     //@{

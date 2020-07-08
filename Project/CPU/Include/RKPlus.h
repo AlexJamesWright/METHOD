@@ -118,9 +118,9 @@ class RK4_10 : public RKPlus
 
     ~RK4_10();
 
-    void prepare1(double * cons, double * prims, double * aux, double dt);
+    void prepare1(double * cons, double * prims, double * aux);
 
-    void prepare2(double * cons, double * prims, double * aux, double dt);
+    void prepare2(double * cons, double * prims, double * aux);
 
     void stageRepeat(double * cons, double * prims, double * aux, double dt);
 
