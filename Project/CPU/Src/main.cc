@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(7);
-  int nx(100);
+  int nx(800);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -32,10 +32,9 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(50);
-  //double endTime(0.0004);
+  double endTime(5);
   double gamma(2.0);
-  double cfl(3.6);
+  double cfl(0.5);
   double sigma(40);
 
   double nxRanks(4);
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
 
   AdvectionSingleFluid init(&data);
 
-  RK4_10 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env, 0);
 

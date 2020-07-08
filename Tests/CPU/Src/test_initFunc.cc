@@ -8,7 +8,7 @@
 #include "serialEnv.h"
 #include <iostream>
 
-TEST(InitialFunc, baseConstructor)
+TEST(InitialFunc, BaseConstructor)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
   Data data(100, 10, 10, 0, 1, -0.5, 0.5, -0.1, 0.1, 0.8, &env);

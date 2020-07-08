@@ -42,18 +42,19 @@ CXXFLAGS = -std=c++11 -g
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = test_simulation \
-				test_srmhd \
-				test_initFunc \
-				test_cminpack \
-				test_boundaryConds \
-				test_twoFluidEMHD \
-				test_srrmhd \
-				test_rk2 \
-				test_rkSplit \
-				test_REGIME \
-				test_imex \
-				test_fvs
+TESTS = test_simulation 		\
+				test_srmhd 				 	\
+				test_initFunc 			\
+				test_cminpack 			\
+				test_boundaryConds	\
+				test_twoFluidEMHD 	\
+				test_srrmhd 				\
+				test_rk2 						\
+				test_rkSplit 				\
+				test_REGIME 				\
+				test_imex 					\
+				test_fvs						\
+				test_weno
 
 PARALLEL_TESTS = test_parallel_rk2 \
 				 test_parallel_rkSplit \
@@ -157,6 +158,13 @@ wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
 weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cc -I$(INC_DIR)
 
+test_weno.o : $(TEST_DIR)/test_weno.cc $(INC_DIR)/weno.h \
+	                    $(INC_DIR)/wenoUpwinds.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_weno.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_weno : test_weno.o weno.o wenoUpwinds.o simData.o serialEnv.o gtest_main.a
+	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
 # Runge-Kutta integrators
 RK2.o	:	$(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/RK2.cc -I$(INC_DIR)
@@ -165,7 +173,7 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_rk2 : wenoUpwinds.o test_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
+test_rk2 : test_rk2.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Explicit RK split integrator
@@ -176,7 +184,7 @@ test_rkSplit.o : $(TEST_DIR)/test_rkSplit.cc $(INC_DIR)/rkSplit.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_rkSplit : wenoUpwinds.o test_rkSplit.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
+test_rkSplit : test_rkSplit.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Flux vector splitting method
@@ -198,11 +206,8 @@ parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveDa
 	@$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
 
 # Platform env
-
-
 serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialEnv.cc -I$(INC_DIR)
-
 
 # Simulation
 simulation.o : $(MODULE_DIR)/simulation.cc $(INC_DIR)/simulation.h
@@ -240,7 +245,6 @@ test_srrmhd : wenoUpwinds.o srrmhd.o test_srrmhd.o simData.o fluxVectorSplitting
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # TwoFluidEMHD Model
-
 twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/twoFluidEMHD.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
@@ -253,7 +257,6 @@ test_twoFluidEMHD : wenoUpwinds.o twoFluidEMHD.o test_twoFluidEMHD.o fluxVectorS
 
 
 # InitialFunc
-
 initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h
 		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cc -I$(INC_DIR)
 
@@ -317,7 +320,7 @@ test_REGIME : wenoUpwinds.o srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkS
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
-# Parallel tests
+
 
 # main func used for testing parallel tests. Serial tests can use the default gtest_main
 main.o : $(TEST_DIR)/main.cpp $(INC_DIR)/parallelEnv.h

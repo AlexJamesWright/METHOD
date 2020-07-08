@@ -14,7 +14,7 @@ void WenoBase::checkSufficientGhostZones()
 {
   if (data->Ng < this->shift+1)
   {
-    printf("This order Weno reconstruction requires at least %d ghost zones, you have %d...", shift+2, data->Ng);
+    printf("This order Weno reconstruction requires at least %d ghost zones, you have %d...", shift+1, data->Ng);
     throw std::invalid_argument("You must increase number of boundary cells.");
   }
 }

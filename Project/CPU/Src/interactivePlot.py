@@ -708,6 +708,31 @@ class InteractivePlot(object):
         plt.show()
 
         return B
+    
+    def plotAdvectionAgainstInitial(self):
+        xs = np.linspace(Plot.c['dx']/2, 1-Plot.c['dx']/2, Plot.c['nx'])
+        initialRho = np.ones_like(xs)*0.1
+        initialRho += 0.4*np.exp(-(10 * (xs - 0.5))**2)
+        
+        fig, axs = plt.subplots(2)
+        fig.set_size_inches(8, 6)
+        axs[0].plot(xs, initialRho, 'k-', linewidth=5, alpha=0.3, label='initial')
+        axs[0].plot(xs, Plot.prims[0, :, 0, 0], 'b:', label='rho')
+        axs[0].set_xlim(xs[0], xs[-1])
+        axs[0].set_xlabel(r'$x$')
+        axs[0].set_ylabel(r'$\rho$')
+        axs[0].legend()
+        
+        error = np.abs(initialRho-Plot.prims[0, :, 0, 0])
+        errorNorm = np.sum(error)/len(error)
+        axs[1].semilogy(xs, error, label=rf'Mean = ${errorNorm:.1e}$')
+        axs[1].set_xlabel(r"$x$")
+        axs[1].set_ylabel('Error')
+        axs[1].set_xlim(xs[0], xs[-1])
+        axs[1].legend()
+        plt.show()
+        
+        
 # Function declarations over, access data and plot!
 
 
@@ -717,17 +742,5 @@ if __name__ == '__main__':
 
 #    Plot.plotSlice()
 #    Plot.plotSingleFluidCurrentSheetAgainstExact()
-    xs = np.linspace(Plot.c['dx']/2, 1-Plot.c['dx']/2, Plot.c['nx'])
-    initialRho = np.ones_like(xs)*0.1
-    wheres = np.logical_and(xs < 0.75, xs > 0.25)
-    initialRho[wheres] += 0.4*np.sin(2*3.141592653589793*(xs[wheres] - 0.25))**2
-    
-    plt.figure()
-    plt.plot(xs, initialRho, label='initial')
-    plt.plot(xs, Plot.prims[0, :, 0, 0], label='rho')
-#    plt.plot(rksplit2.prims[6, :, 0, 0], label='rksplit2')
-#    plt.plot(rk2b.prims[6, :, 0, 0], label='rk2b')
-    plt.legend()
-    plt.show()
-    
+    Plot.plotAdvectionAgainstInitial()
     
