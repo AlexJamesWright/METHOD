@@ -30,8 +30,8 @@ class RK2 : public TimeIntegrator
 {
   public:
 
-      // Need some work arrays
-      double *p1cons, *p1prims, *p1aux, *args1, *args2;
+    // Need some work arrays
+    double *p1cons, *p1prims, *p1aux, *args1, *args2;
 
     //! Constructor
     /*!
