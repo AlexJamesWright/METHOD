@@ -24,6 +24,7 @@ class RKPlus : public TimeIntegrator
 //! Second order RK
 /*!
     SSPRK(2,2) from Gottlieb 2009
+    This can run the AdvectionSingleFluid test with cfl=0.6
 */
 class RK2B : public RKPlus
 {
@@ -47,6 +48,7 @@ class RK2B : public RKPlus
 //! Third order RK
 /*!
     SSPRK(3,3) from Gottlieb 2009
+    This can run the AdvectionSingleFluid test with cfl=1.7
 */
 class RK3 : public RKPlus
 {
@@ -72,7 +74,7 @@ class RK3 : public RKPlus
 //! Fourth order RK
 /*!
     SSPRK(5,4) from Gottlieb 2009
-    This can run the AdvectionSingleFluid test with cfl=1.7
+    This can run the AdvectionSingleFluid test with cfl=2.3
 */
 class RK4 : public RKPlus
 {
@@ -110,7 +112,7 @@ class RK4_10 : public RKPlus
   public:
 
     // Need some work arrays
-    double *u1cons, *u1prims, *u1aux, *u2cons, *u2prims, *u2aux, *u3cons, *u3prims, *u3aux, *u4cons, *u4prims, *u4aux, *rhs1, *rhs2, *rhs3, *rhs4, *rhs5;
+    double *u1cons, *u1prims, *u1aux, *u2cons, *u2prims, *u2aux, *rhs1;
 
     RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 

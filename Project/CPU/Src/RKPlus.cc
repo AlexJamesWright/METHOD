@@ -599,17 +599,7 @@ RK4_10::RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, M
   u2cons  = new double[Ntot * d->Ncons]();
   u2prims = new double[Ntot * d->Nprims]();
   u2aux   = new double[Ntot * d->Naux]();
-  u3cons  = new double[Ntot * d->Ncons]();
-  u3prims = new double[Ntot * d->Nprims]();
-  u3aux   = new double[Ntot * d->Naux]();
-  u4cons  = new double[Ntot * d->Ncons]();
-  u4prims = new double[Ntot * d->Nprims]();
-  u4aux   = new double[Ntot * d->Naux]();
   rhs1    = new double[Ntot * d->Ncons]();
-  rhs2    = new double[Ntot * d->Ncons]();
-  rhs3    = new double[Ntot * d->Ncons]();
-  rhs4    = new double[Ntot * d->Ncons]();
-  rhs5    = new double[Ntot * d->Ncons]();
 }
 
 RK4_10::~RK4_10()
@@ -621,17 +611,7 @@ RK4_10::~RK4_10()
   delete u2cons;
   delete u2prims;
   delete u2aux;
-  delete u3cons;
-  delete u3prims;
-  delete u3aux;
-  delete u4cons;
-  delete u4prims;
-  delete u4aux;
   delete rhs1;
-  delete rhs2;
-  delete rhs3;
-  delete rhs4;
-  delete rhs5;
 }
 
 
