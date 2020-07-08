@@ -226,11 +226,9 @@ TEST(RK2B, Stage2)
         for (int var(0); var<d.Ncons; var++) tempU1Cons[d.id(var, i, j, k)] = timeInt.u1cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u1prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u1aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU1Cons, tempPrims, tempAux, tempRHS);
 
@@ -293,11 +291,9 @@ TEST(RK2B, Step)
         for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = d.prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = d.aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   // Do stage1 and 2, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -413,11 +409,9 @@ TEST(RK3, Stage2)
         for (int var(0); var<d.Ncons; var++) tempU1Cons[d.id(var, i, j, k)] = timeInt.u1cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u1prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u1aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU1Cons, tempPrims, tempAux, tempRHS);
 
@@ -488,11 +482,9 @@ TEST(RK3, Stage3)
         for (int var(0); var<d.Ncons; var++) tempU2Cons[d.id(var, i, j, k)] = timeInt.u2cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u2prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u2aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU2Cons, tempPrims, tempAux, tempRHS);
 
@@ -555,11 +547,9 @@ TEST(RK3, Step)
         for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = d.prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = d.aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   // Do stage1, 2 and 3, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -678,11 +668,9 @@ TEST(RK4, Stage2)
         for (int var(0); var<d.Ncons; var++) tempU1Cons[d.id(var, i, j, k)] = timeInt.u1cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u1prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u1aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU1Cons, tempPrims, tempAux, tempRHS);
 
@@ -753,11 +741,9 @@ TEST(RK4, Stage3)
         for (int var(0); var<d.Ncons; var++) tempU2Cons[d.id(var, i, j, k)] = timeInt.u2cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u2prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u2aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU2Cons, tempPrims, tempAux, tempRHS);
 
@@ -830,11 +816,9 @@ TEST(RK4, Stage4)
         for (int var(0); var<d.Ncons; var++) tempU3Cons[d.id(var, i, j, k)] = timeInt.u3cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u3prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u3aux[d.id(var, i, j, k)];
-
       }
     }
   }
-
 
   timeInt.rhs(tempU3Cons, tempPrims, tempAux, tempRHS);
 
@@ -909,7 +893,6 @@ TEST(RK4, Stage5)
         for (int var(0); var<d.Ncons; var++) tempU4Cons[d.id(var, i, j, k)] = timeInt.u4cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u4prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u4aux[d.id(var, i, j, k)];
-
       }
     }
   }
@@ -977,7 +960,6 @@ TEST(RK4, Step)
         for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)];
         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = d.prims[d.id(var, i, j, k)];
         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = d.aux[d.id(var, i, j, k)];
-
       }
     }
   }
@@ -1051,6 +1033,7 @@ TEST(RK4_10, Prepare1)
   }
 }
 
+
 TEST(RK4_10, Prepare2)
 {
   SerialEnv env(0, NULL, 1, 1, 1, 1);
@@ -1081,118 +1064,205 @@ TEST(RK4_10, Prepare2)
   }
 }
 
-// TEST(RK4_10, StageRepeat)
-// {
-//   SerialEnv env(0, NULL, 1, 1, 1, 1);
-//   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.004, &env, 0.5, 3);
-//   Weno3 weno(&d);
-//   SRMHD model(&d);
-//   FVS fluxMethod(&d, &weno, &model);
-//   REGIME modelExtension(&d, &fluxMethod);
-//   Flow bcs(&d);
-//   Simulation sim(&d, &env);
-//   OTVortexSingleFluid init(&d);
-//   RK4_10 timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
-//   SerialSaveData save(&d, &env);
-//   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-//
-//   timeInt.prepare1(d.cons, d.prims, d.aux, d.dt);
-//
-//   double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-//   double * tempU1RHS   = new double[d.Ntot * d.Ncons];
-//
-//   // Manually perform stage
-//   timeInt.rhs(d.cons, d.prims, d.aux, tempU1RHS);
-//   for (int var(0); var<d.Ncons; var++) {
-//     for (int i(d.is); i<d.ie; i++) {
-//       for (int j(d.js); j<d.je; j++) {
-//         for (int k(d.ks); k<d.ke; k++) {
-//           tempU1Cons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)] +
-//                                            0.391752226571890 * d.dt * tempU1RHS[d.id(var, i, j, k)];
-//         }
-//       }
-//     }
-//   }
-//
-//   // ...using RK4_10
-//   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
-//
-//   // Are they the same
-//   for (int var(0); var<d.Ncons; var++) {
-//     for (int i(d.is); i<d.ie; i++) {
-//       for (int j(d.js); j<d.je; j++) {
-//         for (int k(d.ks); k<d.ke; k++) {
-//           EXPECT_NEAR(tempU1Cons[d.id(var, i, j, k)], timeInt.u1cons[d.id(var, i, j, k)], 1e-15);
-//         }
-//       }
-//     }
-//   }
-//
-//   delete tempU1Cons;
-//   delete tempU1RHS;
-// }
+
+TEST(RK4_10, StageRepeat)
+{
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.004, &env, 0.5, 3);
+  Weno3 weno(&d);
+  SRMHD model(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Flow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
+  RK4_10 timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  SerialSaveData save(&d, &env);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  double * tempCons  = new double[d.Ntot * d.Ncons];
+  double * tempRHS  = new double[d.Ntot * d.Ncons];
+  double * tempPrims = new double[d.Ntot * d.Nprims];
+  double * tempAux   = new double[d.Ntot * d.Naux];
+
+  timeInt.prepare1(d.cons, d.prims, d.aux); // cons=u1cons=u2cons
 
 
+  // Do stage manually
+  for (int i(0); i<d.Nx; i++) {
+    for (int j(0); j<d.Ny; j++) {
+      for (int k(0); k<d.Nz; k++) {
+        for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = timeInt.u1cons[d.id(var, i, j, k)];
+        for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u1prims[d.id(var, i, j, k)];
+        for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u1aux[d.id(var, i, j, k)];
+      }
+    }
+  }
+
+  timeInt.rhs(tempCons, tempPrims, tempAux, tempRHS);
+
+  for (int var(0); var<d.Ncons; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          tempCons[d.id(var, i, j, k)] = tempCons[d.id(var, i, j, k)] +
+                                         1.0/6.0 * d.dt * tempRHS[d.id(var, i ,j, k)];
+        }
+      }
+    }
+  }
+
+  // ..and using RK4_10
+  timeInt.prepare1(d.cons, d.prims, d.aux);
+  timeInt.stageRepeat(d.cons, d.prims, d.aux, d.dt);
 
 
-// TEST(RK4_10, Step)
-// {
-//   SerialEnv env(0, NULL, 1, 1, 1, 1);
-//   Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.004, &env, 0.5, 3);
-//   Weno3 weno(&d);
-//   SRMHD model(&d);
-//   FVS fluxMethod(&d, &weno, &model);
-//   REGIME modelExtension(&d, &fluxMethod);
-//   Flow bcs(&d);
-//   Simulation sim(&d, &env);
-//   OTVortexSingleFluid init(&d);
-//   RK4_10 timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
-//   SerialSaveData save(&d, &env);
-//   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-//
-//   double * tempCons  = new double[d.Ntot * d.Ncons];
-//   double * tempPrims = new double[d.Ntot * d.Nprims];
-//   double * tempAux   = new double[d.Ntot * d.Naux];
-//
-//   // Manually do stage2
-//   for (int i(0); i<d.Nx; i++) {
-//     for (int j(0); j<d.Ny; j++) {
-//       for (int k(0); k<d.Nz; k++) {
-//         for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)];
-//         for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = d.prims[d.id(var, i, j, k)];
-//         for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = d.aux[d.id(var, i, j, k)];
-//
-//       }
-//     }
-//   }
-//
-//
-//   // Do stage1, 2 and 3, should already have been checked
-//   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
-//   timeInt.finalise(timeInt.u1cons, timeInt.u1prims, timeInt.u1aux);
-//   timeInt.stage2(d.cons, d.prims, d.aux, d.dt);
-//   timeInt.finalise(timeInt.u2cons, timeInt.u2prims, timeInt.u2aux);
-//   timeInt.stage3(d.cons, d.prims, d.aux, d.dt);
-//   timeInt.finalise(timeInt.u3cons, timeInt.u3prims, timeInt.u3aux);
-//   timeInt.stage4(d.cons, d.prims, d.aux, d.dt);
-//   timeInt.finalise(timeInt.u4cons, timeInt.u4prims, timeInt.u4aux);
-//   timeInt.stage5(d.cons, d.prims, d.aux, d.dt);
-//   timeInt.finalise(d.cons, d.prims, d.aux);
-//
-//   // ...and using RK4
-//   timeInt.step(tempCons, tempPrims, tempAux, d.dt);
-//
-//   for (int var(0); var<d.Ncons; var++) {
-//     for (int i(d.is); i<d.ie; i++) {
-//       for (int j(d.js); j<d.je; j++) {
-//         for (int k(d.ks); k<d.ke; k++) {
-//           EXPECT_NEAR(tempCons[d.id(var, i, j, k)], d.cons[d.id(var, i, j, k)], 1e-15);
-//         }
-//       }
-//     }
-//   }
-//
-//   delete tempCons;
-//   delete tempPrims;
-//   delete tempAux;
-// }
+  for (int var(0); var<d.Ncons; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          EXPECT_NEAR(timeInt.u1cons[d.id(var, i, j, k)], tempCons[d.id(var, i, j, k)], 1e-15);
+        }
+      }
+    }
+  }
+
+  delete tempCons;
+  delete tempRHS;
+  delete tempPrims;
+  delete tempAux;
+}
+
+
+TEST(RK4_10, StageFinal)
+{
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.004, &env, 0.5, 3);
+  Weno3 weno(&d);
+  SRMHD model(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Flow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
+  RK4_10 timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  SerialSaveData save(&d, &env);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  double * tempCons  = new double[d.Ntot * d.Ncons];
+  double * tempRHS  = new double[d.Ntot * d.Ncons];
+  double * tempPrims = new double[d.Ntot * d.Nprims];
+  double * tempAux   = new double[d.Ntot * d.Naux];
+
+  timeInt.prepare1(d.cons, d.prims, d.aux); // cons=u1cons=u2cons
+
+
+  // Do stage manually
+  for (int i(0); i<d.Nx; i++) {
+    for (int j(0); j<d.Ny; j++) {
+      for (int k(0); k<d.Nz; k++) {
+        for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = timeInt.u1cons[d.id(var, i, j, k)];
+        for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = timeInt.u1prims[d.id(var, i, j, k)];
+        for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = timeInt.u1aux[d.id(var, i, j, k)];
+      }
+    }
+  }
+
+  timeInt.rhs(tempCons, tempPrims, tempAux, tempRHS);
+
+  for (int var(0); var<d.Ncons; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          tempCons[d.id(var, i, j, k)] = timeInt.u2cons[d.id(var, i, j, k)] +
+                                         3.0/5.0 * timeInt.u2cons[d.id(var, i, j, k)] +
+                                         1.0/10.0 * d.dt * tempRHS[d.id(var, i ,j, k)];
+        }
+      }
+    }
+  }
+
+  // ..and using RK4_10
+  timeInt.prepare1(d.cons, d.prims, d.aux);
+  timeInt.stageFinal(d.cons, d.prims, d.aux, d.dt);
+
+
+  for (int var(0); var<d.Ncons; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          EXPECT_NEAR(d.cons[d.id(var, i, j, k)], tempCons[d.id(var, i, j, k)], 1e-15);
+        }
+      }
+    }
+  }
+
+  delete tempCons;
+  delete tempRHS;
+  delete tempPrims;
+  delete tempAux;
+}
+
+
+TEST(RK4_10, Step)
+{
+  SerialEnv env(0, NULL, 1, 1, 1, 1);
+  Data d(10, 10, 10, 0, 1, 0, 1, 0, 1, 0.004, &env, 0.5, 3);
+  Weno3 weno(&d);
+  SRMHD model(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  REGIME modelExtension(&d, &fluxMethod);
+  Flow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
+  RK4_10 timeInt(&d, &model, &bcs, &fluxMethod, &modelExtension);
+  SerialSaveData save(&d, &env);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  double * tempCons  = new double[d.Ntot * d.Ncons];
+  double * tempPrims = new double[d.Ntot * d.Nprims];
+  double * tempAux   = new double[d.Ntot * d.Naux];
+
+  // Manually do stage2
+  for (int i(0); i<d.Nx; i++) {
+    for (int j(0); j<d.Ny; j++) {
+      for (int k(0); k<d.Nz; k++) {
+        for (int var(0); var<d.Ncons; var++) tempCons[d.id(var, i, j, k)] = d.cons[d.id(var, i, j, k)];
+        for (int var(0); var<d.Nprims; var++) tempPrims[d.id(var, i, j, k)] = d.prims[d.id(var, i, j, k)];
+        for (int var(0); var<d.Naux; var++) tempAux[d.id(var, i, j, k)] = d.aux[d.id(var, i, j, k)];
+      }
+    }
+  }
+
+  // Do stage1, 2 and 3, should already have been checked
+  timeInt.prepare1(d.cons, d.prims, d.aux);
+  for (int i(0); i<5; i++) {
+    timeInt.stageRepeat(d.cons, d.prims, d.aux, d.dt);
+    timeInt.finalise(timeInt.u1cons, timeInt.u1prims, timeInt.u1aux);
+  }
+  timeInt.prepare2(d.cons, d.prims, d.aux);
+  for (int i(5); i<9; i++) {
+    timeInt.stageRepeat(d.cons, d.prims, d.aux, d.dt);
+    timeInt.finalise(timeInt.u1cons, timeInt.u1prims, timeInt.u1aux);
+  }
+  timeInt.stageFinal(d.cons, d.prims, d.aux, d.dt);
+  timeInt.finalise(d.cons, d.prims, d.aux);
+
+
+  // ...and using RK4
+  timeInt.step(tempCons, tempPrims, tempAux, d.dt);
+
+  for (int var(0); var<d.Ncons; var++) {
+    for (int i(d.is); i<d.ie; i++) {
+      for (int j(d.js); j<d.je; j++) {
+        for (int k(d.ks); k<d.ke; k++) {
+          EXPECT_NEAR(tempCons[d.id(var, i, j, k)], d.cons[d.id(var, i, j, k)], 1e-15);
+        }
+      }
+    }
+  }
+
+  delete tempCons;
+  delete tempPrims;
+  delete tempAux;
+}

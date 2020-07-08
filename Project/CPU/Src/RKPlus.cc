@@ -592,9 +592,9 @@ void RK4_10::prepare1(double * cons, double * prims, double * aux)
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
-  for (int i(d->is); i < d->ie; i++) {
-    for (int j(d->js); j < d->je; j++) {
-      for (int k(d->ks); k < d->ke; k++) {
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Naux; var++) {
           u1aux[ID(var, i, j, k)] = u2aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
@@ -616,9 +616,9 @@ void RK4_10::prepare2(double * cons, double * prims, double * aux)
 
   // Cons2prims conversion for u1 estimate stage requires old values to start
   // the rootfind
-  for (int i(d->is); i < d->ie; i++) {
-    for (int j(d->js); j < d->je; j++) {
-      for (int k(d->ks); k < d->ke; k++) {
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
         for (int var(0); var < d->Naux; var++) {
           u1aux[ID(var, i, j, k)] = u2aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
@@ -684,9 +684,8 @@ void RK4_10::step(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) (dt=data->dt);
 
+  // Prep
   prepare1(cons, prims, aux);
-  finalise(u1cons, u1prims, u1aux);
-  finalise(u2cons, u2prims, u2aux);
 
   // Stage 1
   stageRepeat(cons, prims, aux, dt);
@@ -704,9 +703,8 @@ void RK4_10::step(double * cons, double * prims, double * aux, double dt)
   stageRepeat(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
+  // Prep again
   prepare2(cons, prims, aux);
-  finalise(u1cons, u1prims, u1aux);
-  finalise(u2cons, u2prims, u2aux);
 
   // Stage 6
   stageRepeat(cons, prims, aux, dt);
@@ -721,6 +719,7 @@ void RK4_10::step(double * cons, double * prims, double * aux, double dt)
   stageRepeat(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
+  // Fin
   stageFinal(cons, prims, aux, dt);
   finalise(cons, prims, aux);
 
