@@ -8,6 +8,7 @@ add_executable(
     test_cminpack.cc
     test_boundaryConds.cc
     test_REGIME.cc
+    test_weno.cc
     )
 
 target_link_libraries(
