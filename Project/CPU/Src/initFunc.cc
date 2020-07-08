@@ -46,15 +46,15 @@ AdvectionSingleFluid::AdvectionSingleFluid(Data * data) : InitialFunc(data)
 
   if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0, 1]\n");
 
-
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
+        // Backgroud
         d->prims[ID(0, i, j, k)] = 0.1;
-        if (d->x[i] > 0.25 && d->x[i] < 0.75)
-          d->prims[ID(0, i, j, k)] += 0.4*pow(sin(2*3.141592653589793*(d->x[i]-0.25)), 2);
         d->prims[ID(1, i, j, k)] = 0.2;
         d->prims[ID(4, i, j, k)] = 0.1;
+        // Gaussian pulse
+        d->prims[ID(0, i, j, k)] += 0.4*exp(-pow(10*(d->x[i]-0.5), 2));
       }
     }
   }
