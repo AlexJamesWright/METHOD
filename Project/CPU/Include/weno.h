@@ -170,7 +170,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindX(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in y-dir
     /*!
@@ -184,7 +184,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindY(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in z-dir
     /*!
@@ -198,7 +198,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindZ(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in x-dir
     /*!
@@ -212,7 +212,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindX(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in y-dir
     /*!
@@ -226,7 +226,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindY(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in z-dir
     /*!
@@ -240,7 +240,7 @@ class Weno3 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindZ(double * arr, int var, int i, int j, int k);
 
 };
 
@@ -262,7 +262,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindX(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in y-dir
     /*!
@@ -276,7 +276,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindY(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in z-dir
     /*!
@@ -290,7 +290,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindZ(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in x-dir
     /*!
@@ -304,7 +304,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindX(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in y-dir
     /*!
@@ -318,7 +318,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindY(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in z-dir
     /*!
@@ -332,7 +332,7 @@ class Weno5 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindZ(double * arr, int var, int i, int j, int k);
 
 };
 
@@ -353,7 +353,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindX(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in y-dir
     /*!
@@ -367,7 +367,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindY(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in z-dir
     /*!
@@ -381,7 +381,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindZ(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in x-dir
     /*!
@@ -395,7 +395,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindX(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in y-dir
     /*!
@@ -409,7 +409,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindY(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in z-dir
     /*!
@@ -423,7 +423,7 @@ class Weno7 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindZ(double * arr, int var, int i, int j, int k);
 
 };
 
@@ -444,7 +444,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindX(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in y-dir
     /*!
@@ -458,7 +458,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindY(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in z-dir
     /*!
@@ -472,7 +472,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindZ(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in x-dir
     /*!
@@ -486,7 +486,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindX(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in y-dir
     /*!
@@ -500,7 +500,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindY(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in z-dir
     /*!
@@ -514,7 +514,7 @@ class Weno9 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindZ(double * arr, int var, int i, int j, int k);
 
 };
 
@@ -535,7 +535,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindX(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in y-dir
     /*!
@@ -549,7 +549,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindY(double * arr, int var, int i, int j, int k);
 
     //!< Upwind reconstruction in z-dir
     /*!
@@ -563,7 +563,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double upwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double upwindZ(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in x-dir
     /*!
@@ -577,7 +577,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindX(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindX(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in y-dir
     /*!
@@ -591,7 +591,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindY(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindY(double * arr, int var, int i, int j, int k);
 
     //!< Downwind reconstruction in z-dir
     /*!
@@ -605,7 +605,7 @@ class Weno11 : public WenoBase
       @param j Cell number in the y-direction to reconstruct
       @param k Cell number in the z-direction to reconstruct
     */
-    virtual double downwindZ(double * arr, int var, int i, int j, int k) = 0;
+    virtual double downwindZ(double * arr, int var, int i, int j, int k);
 
 };
 

@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(5);
+  double endTime(0.4);
   double gamma(2.0);
   double cfl(0.5);
   double sigma(40);
@@ -55,11 +55,11 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &weno, &model);
 
-  ParallelPeriodic bcs(&data, &env);
+  ParallelOutflow bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
-  AdvectionSingleFluid init(&data);
+  BrioWuSingleFluid init(&data);
 
   RK4 timeInt(&data, &model, &bcs, &fluxMethod);
 
