@@ -67,7 +67,7 @@ class SSP2322 : public SSP2
     SSP2322(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
     //! Destructor
-    ~SSP2322();
+    virtual ~SSP2322();
 
     //! Performs a single time step
     /*!

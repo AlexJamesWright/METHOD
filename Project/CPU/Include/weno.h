@@ -34,6 +34,9 @@ class WenoBase
     */
     WenoBase(Data * data, int order);
 
+
+    virtual ~WenoBase() { }     //!< Destructor
+
     //!< Upwind reconstruction in x-dir
     /*!
       @par
@@ -158,6 +161,8 @@ class Weno3 : public WenoBase
   public:
     Weno3(Data * data) : WenoBase(data, 3) { }
 
+    virtual ~Weno3() { }    //!< Destructor
+
     //!< Upwind reconstruction in x-dir
     /*!
       @par
@@ -250,6 +255,8 @@ class Weno5 : public WenoBase
   public:
     Weno5(Data * data) : WenoBase(data, 5) { }
 
+    virtual ~Weno5() { }    //!< Destructor
+
     //!< Upwind reconstruction in x-dir
     /*!
       @par
@@ -340,6 +347,8 @@ class Weno7 : public WenoBase
 {
   public:
     Weno7(Data * data) : WenoBase(data, 7) { }
+
+    virtual ~Weno7() { }    //!< Destructor
 
     //!< Upwind reconstruction in x-dir
     /*!
@@ -432,6 +441,8 @@ class Weno9 : public WenoBase
   public:
     Weno9(Data * data) : WenoBase(data, 9) { }
 
+    virtual ~Weno9() { }    //!< Destructor
+
     //!< Upwind reconstruction in x-dir
     /*!
       @par
@@ -522,6 +533,8 @@ class Weno11 : public WenoBase
 {
   public:
     Weno11(Data * data) : WenoBase(data, 11) { }
+
+    virtual ~Weno11() { }    //!< Destructor
 
     //!< Upwind reconstruction in x-dir
     /*!

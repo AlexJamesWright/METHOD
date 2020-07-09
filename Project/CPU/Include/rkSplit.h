@@ -55,6 +55,9 @@ class RKSplit : public RK2
     RKSplit(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
             RK2(data, model, bcs, fluxMethod, modelExtension) { }
 
+
+    virtual ~RKSplit() { }    //!< Destructor
+
     //! Set source vector
     /*!
       @par

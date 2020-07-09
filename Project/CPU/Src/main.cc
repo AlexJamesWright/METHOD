@@ -1,17 +1,13 @@
 // Serial main
-#include "simData.h"
-#include "simulation.h"
-#include "initFunc.h"
-#include "srmhd.h"
 #include "parallelBoundaryConds.h"
-#include "rkSplit.h"
-#include "rkSplit2ndOrder.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveData.h"
-#include "weno.h"
+#include "simulation.h"
+#include "initFunc.h"
+#include "simData.h"
 #include "RKPlus.h"
-#include "SSP3.h"
+#include "hybrid.h"
+#include "weno.h"
 
 #include <ctime>
 #include <cstring>
@@ -35,7 +31,15 @@ int main(int argc, char *argv[]) {
   double endTime(0.4);
   double gamma(2.0);
   double cfl(0.5);
+  double cp(1);
+  double mu1(-1);
+  double mu2(1);
+  int frameSkip(1);
+  int reportItersPeriod(1);
+
   double sigma(40);
+  bool functionalSigma(true);
+  double gam(6);
 
   double nxRanks(4);
   double nyRanks(1);
@@ -44,14 +48,16 @@ int main(int argc, char *argv[]) {
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod, functionalSigma, gam);
 
   // Choose particulars of simulation
-  SRMHD model(&data);
+  Hybrid model(&data);
 
-  Weno11 weno(&data);
+  Weno7 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
+
+  model.setupREGIME(&fluxMethod);
 
   ParallelOutflow bcs(&data, &env);
 

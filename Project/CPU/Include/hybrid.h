@@ -76,7 +76,7 @@ class Hybrid : public Model
     Hybrid(Data * data, double sigmaCrossOver=150, double sigmaSpan=50, bool useREGIME=true);
 
 
-    ~Hybrid();  //!< Destructor
+    virtual ~Hybrid();  //!< Destructor
 
     //! Setup the REGIME model
     /*!

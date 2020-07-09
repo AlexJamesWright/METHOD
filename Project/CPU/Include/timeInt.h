@@ -43,6 +43,9 @@ class TimeIntegratorBase
     TimeIntegratorBase(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
                    data(data), model(model), bcs(bcs), fluxMethod(fluxMethod), modelExtension(modelExtension) { }
 
+
+    virtual ~TimeIntegratorBase() { }     //!< Destructor
+
     //! Perform a single timestep on the conserved variables
     /*!
       @par
@@ -97,6 +100,8 @@ class TimeIntegrator : public TimeIntegratorBase
     TimeIntegrator(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL) :
                     TimeIntegratorBase(data, model, bcs, fluxMethod, modelExtension) { }
 
+
+    virtual ~TimeIntegrator() { }     //!< Destructor
 
     //! Finalise a step
     /*!

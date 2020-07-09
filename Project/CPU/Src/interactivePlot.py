@@ -740,7 +740,7 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
 
-#    Plot.plotSlice()
+    Plot.plotSlice()
 #    Plot.plotSingleFluidCurrentSheetAgainstExact()
-    Plot.plotAdvectionAgainstInitial()
+#    Plot.plotAdvectionAgainstInitial()
     

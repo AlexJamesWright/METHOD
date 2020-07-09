@@ -33,7 +33,7 @@ class Model
     */
     Model(Data * data) : data(data) {}
 
-    ~Model() { }     //!< Destructor
+    virtual ~Model() { }     //!< Destructor
 
     //! Single cell source term contribution
     /*!
@@ -125,7 +125,7 @@ class Model
       @par
         Mostly, this probably wont be needed, but if there is any final steps to finish
       off a timestep, this can be done here.
-      
+
       @param[in] *cons pointer to conserved vector work array. Size is \f$N_{cons} \times N_x \times N_y \times N_z\f$
       @param[in] *prims pointer to primitive vector work array. Size is \f$N_{prims} \times N_x \times N_y \times N_z\f$
       @param[in] *aux pointer to auxiliary vector work array. Size is \f$N_{aux} \times N_x \times N_y \times N_z\f$

@@ -102,7 +102,7 @@ class TwoFluidEMHD : public Model
     */
     TwoFluidEMHD(Data * data);
 
-    ~TwoFluidEMHD() {}     //!< Destructor
+    virtual ~TwoFluidEMHD() { }     //!< Destructor
 
 
     //! Single cell source term contribution

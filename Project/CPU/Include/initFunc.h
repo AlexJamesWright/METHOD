@@ -24,12 +24,16 @@ class InitialFunc
       @param[in] *data pointer to Data class
     */
     InitialFunc(Data * data);
+
+    virtual ~InitialFunc() { }     //!< Destructor
 };
 
 class AdvectionSingleFluid : public InitialFunc
 {
   public:
     AdvectionSingleFluid(Data * data);
+
+    virtual ~AdvectionSingleFluid() { }     //!< Destructor
 };
 
 //! <b> Two-fluid circularly polarized Alfven wave </b>
@@ -48,6 +52,8 @@ class CPAlfvenWaveTwoFluid : public InitialFunc
       @sa InitialFunc
     */
     CPAlfvenWaveTwoFluid(Data * data);
+
+    virtual ~CPAlfvenWaveTwoFluid() { }     //!< Destructor
 };
 
 //! <b> Single-fluid circularly polarized Alfven wave </b>
@@ -68,6 +74,8 @@ class CPAlfvenWaveSingleFluid : public InitialFunc
       @sa InitialFunc
     */
     CPAlfvenWaveSingleFluid(Data * data);
+
+    virtual ~CPAlfvenWaveSingleFluid() { }     //!< Destructor
 };
 
 //! <b> Two fluid self similar current sheet </b>
@@ -89,6 +97,8 @@ class CurrentSheetTwoFluid : public InitialFunc
       @sa InitialFunc
     */
     CurrentSheetTwoFluid(Data * data);
+
+    virtual ~CurrentSheetTwoFluid() { }     //!< Destructor
 };
 
 //! <b> Single-fluid current sheet </b>
@@ -111,6 +121,8 @@ class CurrentSheetSingleFluid : public InitialFunc
       @sa InitialFunc
     */
     CurrentSheetSingleFluid(Data * data, int direction=0);
+
+    virtual ~CurrentSheetSingleFluid() { }     //!< Destructor
 };
 
 
@@ -134,6 +146,8 @@ class OTVortexSingleFluid : public InitialFunc
       @sa InitialFunc
     */
     OTVortexSingleFluid(Data * data);
+
+    virtual ~OTVortexSingleFluid() { }     //!< Destructor
 };
 
 
@@ -160,6 +174,8 @@ class BrioWuTwoFluid : public InitialFunc
     @sa InitialFunc
     */
     BrioWuTwoFluid(Data * data, int dir=0, int setUp=1);
+
+    virtual ~BrioWuTwoFluid() { }     //!< Destructor
 };
 
 //! <b> Single-fluid Brio-Wu shock tube </b>
@@ -178,6 +194,8 @@ class BrioWuSingleFluid : public InitialFunc
       @sa InitialFunc
     */
     BrioWuSingleFluid(Data * data, int dir=0);
+
+    virtual ~BrioWuSingleFluid() { }     //!< Destructor
 };
 
 //! <b> Single-fluid Kelvin-Helmholtz instability </b>
@@ -195,6 +213,8 @@ class KHInstabilitySingleFluid : public InitialFunc
       @sa InitialFunc
     */
     KHInstabilitySingleFluid(Data * data, int mag=0);
+
+    virtual ~KHInstabilitySingleFluid() { }     //!< Destructor
 };
 
 //! <b> Single-fluid Kelvin-Helmholtz instability with random interface </b>
@@ -213,6 +233,8 @@ class KHRandomInstabilitySingleFluid : public InitialFunc
       @sa InitialFunc
     */
     KHRandomInstabilitySingleFluid(Data * data, int mag=0, int seed=1234);
+
+    virtual ~KHRandomInstabilitySingleFluid() { }     //!< Destructor
 };
 
 //! <b> Two-fluid Kelvin-Helmholtz instability </b>
@@ -229,6 +251,8 @@ class KHInstabilityTwoFluid : public InitialFunc
         @sa InitialFunc
     */
     KHInstabilityTwoFluid(Data * data, int mag=0);
+
+    virtual ~KHInstabilityTwoFluid() { }     //!< Destructor
 };
 
 
@@ -246,6 +270,8 @@ class FieldLoopAdvectionSingleFluid : public InitialFunc
       @sa InitialFunc
     */
     FieldLoopAdvectionSingleFluid(Data * data);
+
+    virtual ~FieldLoopAdvectionSingleFluid() { }     //!< Destructor
 };
 
 
@@ -266,6 +292,8 @@ class ResistiveReconnectionSingleFluid : public InitialFunc
     */
     ResistiveReconnectionSingleFluid(Data * data);
 
+    virtual ~ResistiveReconnectionSingleFluid() { }     //!< Destructor
+
 };
 
 //! <b> Magnetic rotor initial data, single fluid </b>
@@ -277,6 +305,8 @@ class MagneticRotorSingleFluid : public InitialFunc
 {
   public:
     MagneticRotorSingleFluid(Data * data);
+
+    virtual ~MagneticRotorSingleFluid() { }     //!< Destructor
 };
 
 //! <b> Spherical blast wave initial data. single fluid </b>
@@ -288,6 +318,8 @@ class SphericalBlastWaveSingleFluid : public InitialFunc
 {
   public:
     SphericalBlastWaveSingleFluid(Data * data);
+
+    virtual ~SphericalBlastWaveSingleFluid() { }     //!< Destructor
 };
 
 
@@ -301,6 +333,8 @@ class RotatedBrioWu2DSingleFluid : public InitialFunc
 {
   public:
     RotatedBrioWu2DSingleFluid(Data * data);
+
+    virtual ~RotatedBrioWu2DSingleFluid() { }     //!< Destructor
 };
 
 
@@ -314,6 +348,8 @@ class PerturbedBrioWu2DSingleFluid : public InitialFunc
 {
   public:
     PerturbedBrioWu2DSingleFluid(Data * data);
+
+    virtual ~PerturbedBrioWu2DSingleFluid() { }     //!< Destructor
 };
 
 

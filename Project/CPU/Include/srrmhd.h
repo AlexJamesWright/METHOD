@@ -90,7 +90,7 @@ class SRRMHD : public Model
     */
     SRRMHD(Data * data);
 
-    ~SRRMHD() { };  //!< Destructor
+    virtual ~SRRMHD() { };  //!< Destructor
 
     //! Single cell source term contribution
     /*!

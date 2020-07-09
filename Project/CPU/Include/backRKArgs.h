@@ -64,7 +64,7 @@ class BackRKArguments
     /*!
         Frees allocated memory.
     */
-    ~BackRKArguments();
+    virtual ~BackRKArguments();
 
     //! Overload assignment operator
     /*!

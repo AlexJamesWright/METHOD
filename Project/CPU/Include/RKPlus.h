@@ -52,7 +52,7 @@ class RKPlus : public TimeIntegrator
     */
     RKPlus(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RKPlus();
+    virtual ~RKPlus();
 
     //! Right-hand side evaluator
     /*!
@@ -122,7 +122,7 @@ class RK2B : public RKPlus
     */
     RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RK2B();
+    virtual ~RK2B();
 
     //! Stage 1 result
     /*!
@@ -217,7 +217,7 @@ class RK3 : public RKPlus
     */
     RK3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RK3();
+    virtual ~RK3();
 
     //! Stage 1 result
     /*!
@@ -333,7 +333,7 @@ class RK4 : public RKPlus
     */
     RK4(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RK4();
+    virtual ~RK4();
 
     //! Stage 2 result
     /*!
@@ -444,7 +444,7 @@ class RK4_10 : public RKPlus
     */
     RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RK4_10();
+    virtual ~RK4_10();
 
     //! Prepare for stages 1-5
     /*!

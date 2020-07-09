@@ -100,9 +100,9 @@ class ParallelSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) {}
+    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) { }
 
-    ~ParallelSaveData() {}     //!< Destructor
+    virtual ~ParallelSaveData() { }     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!

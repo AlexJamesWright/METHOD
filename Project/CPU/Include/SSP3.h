@@ -62,7 +62,7 @@ class SSP3 : public SSP2
     SSP3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
     //! Destructor
-    ~SSP3();
+    virtual ~SSP3();
 
     //! Performs a single time step
     /*!

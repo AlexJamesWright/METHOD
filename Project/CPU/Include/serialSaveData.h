@@ -53,9 +53,9 @@ class SerialSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    SerialSaveData(Data * data, SerialEnv * env, int test=0) : SaveData(data, test), env(env) {}
+    SerialSaveData(Data * data, SerialEnv * env, int test=0) : SaveData(data, test), env(env) { }
 
-    ~SerialSaveData() {}     //!< Destructor
+    virtual ~SerialSaveData() { }     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!

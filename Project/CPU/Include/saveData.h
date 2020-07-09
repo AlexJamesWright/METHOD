@@ -70,6 +70,8 @@ class SaveData
       }
     }
 
+    virtual ~SaveData() { }     //!< Destructor
+
     //! Saves all cons, prims, aux and constant data
     /*!
       @par

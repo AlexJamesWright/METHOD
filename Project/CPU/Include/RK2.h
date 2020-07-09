@@ -47,7 +47,7 @@ class RK2 : public TimeIntegrator
     */
     RK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelExtension * modelExtension = NULL);
 
-    ~RK2();
+    virtual ~RK2();
 
     //! Predictor
     /*!

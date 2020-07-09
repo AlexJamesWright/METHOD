@@ -81,6 +81,8 @@ class FVS : public FluxMethod
     */
     FVS(Data * data, WenoBase * weno, Model * model) : FluxMethod(data, model), weno(weno) { }
 
+    virtual ~FVS() { }     //!< Destructor
+
     //! Flux reconstruction
     /*!
         Reconstructs the fluxes at the center of the cells to the faces upwind

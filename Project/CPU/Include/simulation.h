@@ -40,7 +40,7 @@ class Simulation
 
     SaveData * save;            //!< Pointer to SaveData object
 
-    PlatformEnv *env;           //!< Pointer to PlatformEnv object 
+    PlatformEnv *env;           //!< Pointer to PlatformEnv object
 
   public:
 
@@ -58,7 +58,7 @@ class Simulation
     Simulation(Data * data, PlatformEnv *env);
 
     //! Destructor frees alloc'd memory
-    ~Simulation();
+    virtual ~Simulation();
 
 
 

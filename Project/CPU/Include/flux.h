@@ -30,6 +30,8 @@ class FluxMethod
     */
     FluxMethod(Data * data, Model * model) : data(data), model(model) { }
 
+    virtual ~FluxMethod() { }     //!< Destructor
+
     //! Numerical flux function
     /*!
         Pure virtual function to set the API for the numerical flux function. The

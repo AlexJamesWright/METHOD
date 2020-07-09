@@ -109,7 +109,7 @@ class REGIME : public ModelExtension
     REGIME(Data * data, FluxMethod * fluxMethod);
 
     //! Destructor
-    ~REGIME();
+    virtual ~REGIME();
 
     //! Main user function for the modified source
     /*!

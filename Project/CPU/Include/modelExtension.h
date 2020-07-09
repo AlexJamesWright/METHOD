@@ -31,7 +31,7 @@ class ModelExtension
     */
     ModelExtension(Data * data) : data(data), sourceExists(false), fluxExists(false) { }
 
-     ~ModelExtension() { };
+     virtual ~ModelExtension() { };
 
     //!< Modified source term
     /*!

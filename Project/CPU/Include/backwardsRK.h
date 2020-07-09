@@ -47,6 +47,8 @@ class BackwardsRK2 : public RKSplit
     */
     BackwardsRK2(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod);
 
+    virtual ~BackwardsRK2() { }     //!< Destructor
+
 
     //! Performs a single time step
     /*!

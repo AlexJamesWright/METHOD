@@ -35,13 +35,15 @@ class ParallelBcs : public Bcs
         env->setParallelDecomposition(xPeriodic, yPeriodic, zPeriodic);
     }
 
+    virtual ~ParallelBcs() { }     //!< Destructor
+
     /*!
         Exchanges buffers packed with ghost cells with neighbouring subdomains using MPI.
 
       @param[in] *sendToLeftBuf pointer to the buffer contaning ghost cells at the left (front, bottom) face,
-            to be sent to the left (front, bottom) neighbour process  
+            to be sent to the left (front, bottom) neighbour process
       @param[in] *sendToRightBuf pointer to the buffer contaning ghost cells at the right (back, top) face,
-            to be sent to the right (back, top) neighbour process  
+            to be sent to the right (back, top) neighbour process
       @param[out] *recvFromLeftBuf buffer for receiving ghost cells from the left (front, bottom) process
       @param[out] *recvFromRightBuf buffer for receiving ghost cells from the right (back, top) process
       @param[in] leftNeighbour id of the left (front, bottom) process in the global MPI communicator
@@ -53,81 +55,81 @@ class ParallelBcs : public Bcs
 
     /*!
         For a particular state vector (cons, prims, aux) copies cells along the left and right faces
-            of the physical (non-ghost) cells in a subdomain and packs them into buffers for MPI communication to 
+            of the physical (non-ghost) cells in a subdomain and packs them into buffers for MPI communication to
             another process.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the left face,
-            to be sent to the left neighbour process  
+            to be sent to the left neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the right face,
-            to be sent to the right neighbour process  
+            to be sent to the right neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void packXBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
 
     /*!
-        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost 
+        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost
             cell region at the left and right faces of a subdomain.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the left face,
-            to be sent to the left neighbour process  
+            to be sent to the left neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the right face,
-            to be sent to the right neighbour process  
+            to be sent to the right neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void unpackXBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
 
     /*!
         For a particular state vector (cons, prims, aux) copies cells along the front and back faces
-            of the physical (non-ghost) cells in a subdomain and packs them into buffers for MPI communication to 
+            of the physical (non-ghost) cells in a subdomain and packs them into buffers for MPI communication to
             another process.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the front face,
-            to be sent to the front neighbour process  
+            to be sent to the front neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the back face,
-            to be sent to the back neighbour process  
+            to be sent to the back neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void packYBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
 
     /*!
-        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost 
+        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost
             cell region at the front and back faces of a subdomain.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the front face,
-            to be sent to the front neighbour process  
+            to be sent to the front neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the back face,
-            to be sent to the back neighbour process  
+            to be sent to the back neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void unpackYBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
 
     /*!
-        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost 
+        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost
             cell region at the bottom and top faces of a subdomain.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the bottom face,
-            to be sent to the bottom neighbour process  
+            to be sent to the bottom neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the top face,
-            to be sent to the top neighbour process  
+            to be sent to the top neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void packZBuffer(double *sendToLeftBuf, double *sendToRightBuf, double *stateVector, int nVars);
 
 /*!
-        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost 
+        For a particular state vector (cons, prims, aux) copies cells received from a neighbour process into the ghost
             cell region at the bottom and top faces of a subdomain.
 
       @param[out] *sendToLeftBuf pointer to the buffer to pack with cells at the bottom face,
-            to be sent to the bottom neighbour process  
+            to be sent to the bottom neighbour process
       @param[out] *sendToRightBuf pointer to the buffer to pack with cells at the top face,
-            to be sent to the top neighbour process  
+            to be sent to the top neighbour process
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
     void unpackZBuffer(double *recvFromLeftBuf, double *recfFromRightBuf, double *stateVector, int nVars);
 
@@ -165,6 +167,8 @@ class ParallelOutflow : public ParallelBcs
     */
     ParallelOutflow(Data * data, ParallelEnv *env) : ParallelBcs(data, env, xPeriodic=0, yPeriodic=0, zPeriodic=0) { }
 
+    virtual ~ParallelOutflow() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Outflow boundary conditions to the ghost cells.
@@ -181,27 +185,27 @@ class ParallelOutflow : public ParallelBcs
         the x dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
-    void setXBoundary(double *stateVector, int nVars); 
+    void setXBoundary(double *stateVector, int nVars);
 
     /*!
         Applies the Outflow boundary conditions to the ghost cells of subdomains that have an external face along
         the y dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
-    void setYBoundary(double *stateVector, int nVars); 
+    void setYBoundary(double *stateVector, int nVars);
 
     /*!
         Applies the Outflow boundary conditions to the ghost cells of subdomains that have an external face along
         the z dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
-    void setZBoundary(double *stateVector, int nVars); 
+    void setZBoundary(double *stateVector, int nVars);
 };
 
 
@@ -241,6 +245,8 @@ class ParallelPeriodic : public ParallelBcs
     */
     ParallelPeriodic(Data * data, ParallelEnv * env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=1, zPeriodic=1) { }
 
+    virtual ~ParallelPeriodic() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Periodic boundary conditions to the ghost cells.
@@ -272,6 +278,8 @@ class ParallelFlow : public ParallelBcs
     */
     ParallelFlow(Data * data, ParallelEnv *env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=0, zPeriodic=0) { }
 
+    virtual ~ParallelFlow() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Outflow boundary conditions to the ghost cells.
@@ -288,53 +296,19 @@ class ParallelFlow : public ParallelBcs
         the y dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
-    void setYBoundary(double *stateVector, int nVars); 
+    void setYBoundary(double *stateVector, int nVars);
 
     /*!
         Applies the Outflow boundary conditions to the ghost cells of subdomains that have an external face along
         the z dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
-      @param[in] nVars number of variables in the cons, prims or aux array 
+      @param[in] nVars number of variables in the cons, prims or aux array
     */
-    void setZBoundary(double *stateVector, int nVars); 
+    void setZBoundary(double *stateVector, int nVars);
 };
 
-
-
-//
-// //! <b> Conducting channel boundary conditions </b>
-// /*!
-//     Boundary conditions used for the resistive reconnection problem  The
-//   x-direction is periodic and y- and z-directions are outflow and perfectly
-//   conducting (i.e. electric field vanishes).
-// */
-// class ConductingChannel : public Bcs
-// {
-//
-//   public:
-//     //! Constructor
-//     /*!
-//         Calls constructor of base class to store the pointer to the Data class.
-//
-//       @param[in] *data pointer to Data class
-//       @sa Bcs::Bcs
-//     */
-//     ConductingChannel(Data * data) : Bcs(data) { }
-//
-//     //! Application function
-//     /*!
-//         Applies the ConductingChannel boundary conditions to the ghost cells.
-//
-//       @param[in, out] *cons pointer to the conservative (sized) vector
-//       @param[in, out] *prims optional pointer to the primitive vector
-//       @param[in, out] *aux optional pointer to the primitive vector
-//       @sa Bcs::apply
-//     */
-//     void apply(double * cons, double * prims = NULL, double * aux = NULL);
-//
-// };
 
 #endif

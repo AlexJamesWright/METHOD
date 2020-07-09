@@ -24,22 +24,24 @@ class Bcs
       @param[in] *env pointer to the PlatformEnv class
     */
     Bcs(Data * data, PlatformEnv * env) : data(data)
-    { 
+    {
         data->bcsSet = 1;
     }
 
-    //TODO -- We may not want to allow creation of Bcs object without env in future 
+    //TODO -- We may not want to allow creation of Bcs object without env in future
     //! Constructor store data about simulation (needed for domain)
     /*!
         Constructor simply stores the pointer to the Data class.
 
       @param[in] *data pointer to the Data class
     */
-   
-    Bcs(Data * data) : data(data) 
-    { 
+
+    Bcs(Data * data) : data(data)
+    {
         data->bcsSet = 1;
     }
+
+    virtual ~Bcs() { }     //!< Destructor
 
   public:
 
@@ -91,6 +93,8 @@ class Outflow : public Bcs
     */
     Outflow(Data * data) : Bcs(data) { }
 
+    virtual ~Outflow() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Outflow boundary conditions to the ghost cells.
@@ -122,6 +126,8 @@ public:
   @sa Bcs::Bcs
   */
   OutflowRotatedBW(Data * data) : Bcs(data) { }
+
+  virtual ~OutflowRotatedBW() { }     //!< Destructor
 
   //! Application function
   /*!
@@ -170,6 +176,8 @@ class Periodic : public Bcs
     */
     Periodic(Data * data) : Bcs(data) { }
 
+    virtual ~Periodic() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Periodic boundary conditions to the ghost cells.
@@ -201,6 +209,8 @@ class Flow : public Bcs
     */
     Flow(Data * data) : Bcs(data) { }
 
+    virtual ~Flow() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Flow boundary conditions to the ghost cells.
@@ -213,38 +223,5 @@ class Flow : public Bcs
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
 };
-
-//
-// //! <b> Conducting channel boundary conditions </b>
-// /*!
-//     Boundary conditions used for the resistive reconnection problem  The
-//   x-direction is periodic and y- and z-directions are outflow and perfectly
-//   conducting (i.e. electric field vanishes).
-// */
-// class ConductingChannel : public Bcs
-// {
-//
-//   public:
-//     //! Constructor
-//     /*!
-//         Calls constructor of base class to store the pointer to the Data class.
-//
-//       @param[in] *data pointer to Data class
-//       @sa Bcs::Bcs
-//     */
-//     ConductingChannel(Data * data) : Bcs(data) { }
-//
-//     //! Application function
-//     /*!
-//         Applies the ConductingChannel boundary conditions to the ghost cells.
-//
-//       @param[in, out] *cons pointer to the conservative (sized) vector
-//       @param[in, out] *prims optional pointer to the primitive vector
-//       @param[in, out] *aux optional pointer to the primitive vector
-//       @sa Bcs::apply
-//     */
-//     void apply(double * cons, double * prims = NULL, double * aux = NULL);
-//
-// };
 
 #endif
