@@ -398,7 +398,7 @@ class InteractivePlot(object):
             plt.xlabel(axisLabel)
             plt.ylabel(r'$q_{}(x)$'.format(i+1))
             plt.xlim([c['xmin'], c['xmax']])
-            plt.ylim((ylower, yupper))
+#            plt.ylim((ylower, yupper))
             plt.legend(loc='lower center', fontsize=10)
             plt.show()
 
@@ -740,7 +740,12 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
 
-    Plot.plotSlice()
+#    Plot.plotSlice()
 #    Plot.plotSingleFluidCurrentSheetAgainstExact()
 #    Plot.plotAdvectionAgainstInitial()
+#    Plot.plotHeatMaps()
+    
+    plt.figure()
+    plt.imshow(Plot.prims[0, :, :, 0].T, extent=[0, 8, 0, 4], origin='lower')
+    plt.show()
     

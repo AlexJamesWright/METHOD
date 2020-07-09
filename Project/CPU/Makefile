@@ -53,7 +53,8 @@ SRCS = main.cc 								\
 			 hybrid.cc							\
 			 parallelEnv.cc					\
 			 serialEnv.cc						\
-			 RKPlus.cc
+			 RKPlus.cc							\
+			 Euler.cc
 
 SERIAL_SRCS = serialSaveData.cc
 
@@ -200,6 +201,9 @@ parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h $(INC_DIR)
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h $(INC_DIR)/platformEnv.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+Euler.o : $(MODULE_DIR)/Euler.cc $(INC_DIR)/Euler.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 # Executable
