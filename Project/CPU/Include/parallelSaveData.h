@@ -27,7 +27,7 @@ using namespace std;
 class ParallelSaveData : public SaveData
 {
   public:
-      ParallelEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
+      ParallelEnv * env;     //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
   private:
 
@@ -36,7 +36,7 @@ class ParallelSaveData : public SaveData
       (not including ghost values) to be sent to process 0
       @param[out] *buffer pointer to the buffer to pack
       @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array          
+      @param[in] nVars number of variables in the cons, prims or aux array
      */
     void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
 
@@ -64,7 +64,7 @@ class ParallelSaveData : public SaveData
       the full simulation domain
       @param[in, out] *fullStateVector pointer to cons, prims or aux array of size equal to the full simulation domain
       @param[in] *stateVector pointer to cons, prims or aux array for process 0's subdomain
-      @param[in] nVars number of variables in the cons, prims or aux array          
+      @param[in] nVars number of variables in the cons, prims or aux array
      */
     void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
 
@@ -88,7 +88,7 @@ class ParallelSaveData : public SaveData
     //! Saves the constant data
     void saveConsts();
 
-    
+
     //! Constructor
     /*!
       @par
@@ -100,7 +100,7 @@ class ParallelSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : env(env), SaveData(data, test) {}
+    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) {}
 
     ~ParallelSaveData() {}     //!< Destructor
 

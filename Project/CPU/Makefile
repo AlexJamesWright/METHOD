@@ -25,7 +25,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O3 $(OMP_FLAGS)
+CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O3 $(OMP_FLAGS) -Wno-unknown-pragmas
 
 # Sources
 SRCS = main.cc 								\

@@ -6,9 +6,6 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   // Syntax
   Data * d(this->data);
 
-  // Order of weno scheme
-  const int order(2);
-
   // Wave speed
   const double alpha(1);
 
@@ -22,8 +19,8 @@ void FVS::fluxReconstruction(double * cons, double * prims, double * aux, double
   fplusrct  = new double[vars * d->Nx * d->Ny * d->Nz]();
   fminusrct = new double[vars * d->Nx * d->Ny * d->Nz]();
 
-  # pragma omp parallel for  default(none)   shared(fplus, fminus, f, cons, d, vars)
   // Lax-Friedrichs approximation of flux
+  # pragma omp parallel for  default(none)   shared(fplus, fminus, f, cons, d, vars)
   for (int var=0; var < vars; var++) {
     for (int i=0; i < d->Nx; i++) {
       for (int j=0; j < d->Ny; j++) {

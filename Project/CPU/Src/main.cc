@@ -41,8 +41,6 @@ int main(int argc, char *argv[]) {
   double nyRanks(1);
   double nzRanks(1);
 
-  int reportItersPeriod(10);
-
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
