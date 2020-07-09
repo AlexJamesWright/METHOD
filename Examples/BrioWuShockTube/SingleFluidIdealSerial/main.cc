@@ -8,6 +8,7 @@
 #include "fluxVectorSplitting.h"
 #include "serialSaveData.h"
 #include "serialEnv.h"
+#include "weno.h"
 #include <ctime>
 #include <cstring>
 
@@ -39,7 +40,9 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+
+  FVS fluxMethod(&data, &weno, &model);
 
   Outflow bcs(&data);
 
@@ -53,7 +56,7 @@ int main(int argc, char *argv[]) {
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-  
+
   // Time execution of programme
   clock_t startTime(clock());
 

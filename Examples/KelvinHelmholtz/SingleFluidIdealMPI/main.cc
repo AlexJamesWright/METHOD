@@ -9,6 +9,7 @@
 #include "fluxVectorSplitting.h"
 #include "parallelSaveData.h"
 #include "platformEnv.h"
+#include "weno.h"
 #include <cstring>
 
 using namespace std;
@@ -49,7 +50,9 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+
+  FVS fluxMethod(&data, &weno, &model);
 
   ParallelPeriodic bcs(&data, &env);
 

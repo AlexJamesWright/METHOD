@@ -17,6 +17,7 @@
 #include "hybrid.h"
 #include "serialSaveData.h"
 #include "serialEnv.h"
+#include "weno.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -64,7 +65,9 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   Hybrid model(&data, sigmaCrossOver, sigmaSpan, useREGIME);
 
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+
+  FVS fluxMethod(&data, &weno, &model);
 
   model.setupREGIME(&fluxMethod);
 

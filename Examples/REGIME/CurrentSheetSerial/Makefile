@@ -2,11 +2,11 @@
 # and links for main.cc
 
 # Compiler
-CC = mpic++
-##CC = g++
+##CC = mpic++
+CC = g++
 
-USE_MPI = 1
-USE_OMP = 1
+USE_MPI = 0
+USE_OMP = 0
 
 PROJECT_TYPE = CPU
 
@@ -30,18 +30,21 @@ ifeq ($(USE_OMP), 1)
 endif
 
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -O3 $(OMP_FLAGS)
+CXXFLAGS = -Wall -std=c++11 -O3 $(OMP_FLAGS) -Wno-unknown-pragmas
 
 # Sources
 SRCS = simulation.cc \
 			 srmhd.cc \
 			 initFunc.cc \
 			 simData.cc \
-			 weno.cc \
+			 wenoUpwinds.cc 				\
+			 weno.cc 								\
 			 RK2.cc \
 			 rkSplit.cc \
 			 boundaryConds.cc \
-			 fluxVectorSplitting.cc \
+			 serialSaveData.cc \
+			 REGIME.cc \
+			 fluxVectorSplitting.cc
 
 SERIAL_SRCS = serialSaveData.cc \
 			  serialEnv.cc
@@ -51,9 +54,9 @@ PARALLEL_SRCS = parallelSaveData.cc \
 			 parallelEnv.cc
 
 ifeq ($(USE_MPI), 1)
-    SRCS += ${PARALLEL_SRCS}
+  SRCS += ${PARALLEL_SRCS}
 else
-    SRCS += ${SERIAL_SRCS}
+  SRCS += ${SERIAL_SRCS}
 endif
 
 # Headers
@@ -125,7 +128,10 @@ simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 main.o : ./main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
-weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h
+wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
@@ -137,16 +143,14 @@ rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
+serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
-serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
-
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
-
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+# Resistive subgrid model
+REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h

@@ -8,6 +8,7 @@
 #include "fluxVectorSplitting.h"
 #include "serialSaveData.h"
 #include "serialEnv.h"
+#include "weno.h"
 #include <cstring>
 #include <ctime>
 
@@ -43,7 +44,9 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   TwoFluidEMHD model(&data);
 
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+
+  FVS fluxMethod(&data, &weno, &model);
 
   Outflow bcs(&data);
 

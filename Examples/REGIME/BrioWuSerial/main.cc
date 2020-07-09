@@ -9,6 +9,7 @@
 #include "REGIME.h"
 #include "serialSaveData.h"
 #include "serialEnv.h"
+#include "weno.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -46,7 +47,9 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  FVS fluxMethod(&data, &model);
+  Weno3 weno(&data);
+
+  FVS fluxMethod(&data, &weno, &model);
 
   REGIME modelExtension(&data, &fluxMethod);
 

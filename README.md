@@ -43,27 +43,6 @@ additional source term into the equations of motion.
 ---------------------------------------------
 <br> <br>
 
-## Implemented in parallel version
-
-### Initial conditions
-
-Implemented and tested
-* KHRandomInstabilitySingleFluid
-* BrioWuSingleFluid
-
-All other initial conditions are unimplemented
-
-### Boundary conditions
-
-Implemented and tested
-* ParallelPeriodic
-* ParallelOutflow
-
-Implemented but untested
-* ParallelFlow
-
-Unimplemented
-* OutflowRotatedBW
 
 ## Getting started
 To begin using METHOD, first clone the repository
@@ -81,20 +60,26 @@ Next, you will need to ensure the Makefiles are valid for your system, changing 
 <br> <br>
 
 
+## Note
+METHOD is currently going through a revamp, with a number of additions and changes to its functionality. The CPU code (METHOD/Project/CPU/) can be run using a single process, openMP, or openMP/MPI, The Makefile will build the executable according to the `USE_MPI` and `USE_OMP` definitions (generally OMP is only faster for very high reslution runs). The GPU code (METHOD/Project/CPU/) should work, but has not been tested in a long time and has a reduced functionality compared to the CPU. This may change soon.
+
 ## Testing
-Once METHOD is installed, check the latest build is working by running the unittests.
+Once METHOD is installed, check the latest build is working by running the unit tests.
 
-We use the Google Test framework for unit testing---any tests are saved in the `Tests/Serial/Src` or `Tests/Parallel/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/Parallel/Src` and `Tests/Serial/Src`) to point to the GoogleTest root directory.
+We use the Google Test framework for unit testing---any tests are saved in the `Tests/CPU/Src` or `Tests/GPU/Src` directory. You will need to set the `GTEST_DIR` environment variable (in the Makefile within `Tests/GPU/Src` and `Tests/CPU/Src`) to point to the GoogleTest root directory.
 
-The serial and parallel versions have separate testing directories. As far as possible the tests are the same, but there is additional testing such that the parallel results match the serial to within floating point accuracy. First, run
+The CPU and GPU versions have separate testing directories. As far as possible the tests are the same, but there is additional testing such that the GPU results match the CPU to within floating point accuracy. In addition, the CPU code can be tested in serial and multiprocessor mode to ensure they match. First, run
 
     make test
 
-from the `Tests/Serial` directory, then the `Tests/Parallel` directory. To check if results match, from `Tests/Parallel` run
+from the `Tests/CPU` directory, then
 
      py.test -v Src/compareSerialAndParallel.py
 
-NOTE: this final test will only pass if the `MATCH_SERIAL` defined constant in `Project/Parallel/Include/timeInt.h` is set to unity, `MATCH_SERIAL=1`.
+to ensure the MPI run matches single processor mode.
+To run the GPU tests, `cd` to `Tests/GPU` and run `make test`. Currently, as the
+CPU code saves in a different format to the GPU code, checks that CPU and GPU code
+match dont work anymore.
 
 It is a good idea to check that the examples run successfully next.
 
@@ -106,12 +91,23 @@ It is a good idea to check that the examples run successfully next.
 ## Example Simulations == Best way to understand functionality!
 
 Example simulations have been provided that illustrate how to use the
-various classes. By typing
+various classes. When running a parallel test problem (i.e. one that compiles
+using MPI even if run in single processor mode), build the executable using
+
+    make main
+
+and run it using
+
+    mpirun -n nproc main
+
+where nprocs is the total number of processors used (defined in the main.cc for
+that problem)---tests that require MPI are stored in directories with the name
+`Tests/CPU/*/*MPI/*` and are all set to run with 4 processors, `nprocs=4`. To run
+serial tests, using the naming convention `Tests/CPU/*/*Serial*/`, simply use
 
     make run
 
-in one of the example directories, the relevant object files will be built and
-executed. Data is saved in the *Examples/Data* directory and is easily viewed
+Data is saved in the *Examples/Data* directory and is easily viewed
 using the interactivePlot script. We suggest that the spyder environment from
 Anaconda is the best way to use this tool.
 
@@ -200,7 +196,7 @@ Simulations are run from the *main.cc/cu* scripts. Simply use
 
     make run
 
-to compile and run the simulation from within `Project/Serial` or `Project/Parallel`. The executable is labelled `main` so
+to compile and run the simulation from within `Project/CPU` or `Project/GPU`. The executable is labelled `main` so
 
     make build
     ./main
@@ -235,7 +231,8 @@ NOTE: The second variable must be included and be the number of variables you wi
 ## Authors
 
 [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk
-
+[Ania Brown](https://github.com/aniabrown)
+[Ian Hawke](https://cmg.soton.ac.uk/people/ih3/)
 ---------------------------------------------
 ---------------------------------------------
 <br> <br>
