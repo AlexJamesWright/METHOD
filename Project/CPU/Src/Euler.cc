@@ -32,6 +32,12 @@ void Euler::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   prims[3] = cons[3] / cons[0];
   aux[0] = prims[1]*prims[1] + prims[2]*prims[2] + prims[3]*prims[3];
   prims[4] = (d->gamma - 1) * (cons[4] - cons[0] * aux[0] / 2);
+
+  if (prims[0] != prims[0] || prims[1] != prims[1] || prims[2] != prims[2] || prims[3] != prims[3] || prims[4] != prims[4])
+  {
+    printf("Some prims are nan! Exiting...");
+    exit(1);
+  }
 }
 
 void Euler::getPrimitiveVars(double *cons, double *prims, double *aux)
@@ -39,9 +45,9 @@ void Euler::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
 
         prims[ID(0, i, j, k)] = cons[ID(0, i, j, k)];
         prims[ID(1, i, j, k)] = cons[ID(1, i, j, k)] / cons[ID(0, i, j, k)];
@@ -49,6 +55,12 @@ void Euler::getPrimitiveVars(double *cons, double *prims, double *aux)
         prims[ID(3, i, j, k)] = cons[ID(3, i, j, k)] / cons[ID(0, i, j, k)];
         aux[ID(0, i, j, k)] = prims[ID(1, i, j, k)]*prims[ID(1, i, j, k)] + prims[ID(2, i, j, k)]*prims[ID(2, i, j, k)] + prims[ID(3, i, j, k)]*prims[ID(3, i, j, k)];
         prims[ID(4, i, j, k)] = (d->gamma - 1) * (cons[ID(4, i, j, k)] - cons[ID(0, i, j, k)] * aux[ID(0, i, j, k)] / 2);
+
+        if (prims[ID(0, i, j, k)] != prims[ID(0, i, j, k)] || prims[ID(1, i, j, k)] != prims[ID(1, i, j, k)] || prims[ID(2, i, j, k)] != prims[ID(2, i, j, k)] || prims[ID(3, i, j, k)] != prims[ID(3, i, j, k)] || prims[ID(4, i, j, k)] != prims[ID(4, i, j, k)])
+        {
+          printf("Some prims are nan! Exiting...");
+          exit(1);
+        }
 
       }
     }

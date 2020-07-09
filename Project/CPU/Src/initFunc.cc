@@ -1082,36 +1082,36 @@ FancyMETHODData::FancyMETHODData(Data * data) : InitialFunc(data)
         }
 
         // Add a shock coming from the top left
-        if (d->y[j] > 4*d->x[i] + 1)
+        if (d->y[j] > d->x[i] + 3)
         {
-          d->prims[ID(0, i, j, k)] = 0.11;
-          d->prims[ID(4, i, j, k)] = 0.13;
-          d->prims[ID(1, i, j, k)] = 0.9;
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = 0.3;
           d->prims[ID(2, i, j, k)] = -0.1;
         }
         // Add a shock coming from the bottom left
         if (d->y[j] < -d->x[i] + 1)
         {
-          d->prims[ID(0, i, j, k)] = 0.1;
-          d->prims[ID(4, i, j, k)] = 0.13;
-          d->prims[ID(1, i, j, k)] = 0.7;
-          d->prims[ID(2, i, j, k)] = 0.7;
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = 0.2;
+          d->prims[ID(2, i, j, k)] = 0.4;
         }
         // Add a shock coming from the top right
-        if (d->y[j] > -0.3*d->x[i] + 5)
+        if (d->y[j] > -d->x[i] + 11)
         {
-          d->prims[ID(0, i, j, k)] = 0.12;
-          d->prims[ID(4, i, j, k)] = 0.13;
-          d->prims[ID(1, i, j, k)] = -0.1;
-          d->prims[ID(2, i, j, k)] = -1;
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = -0.05;
+          d->prims[ID(2, i, j, k)] = -0.5;
         }
         // Add a shock coming from the bottom right
         if (d->y[j] < d->x[i] - 7)
         {
-          d->prims[ID(0, i, j, k)] = 0.09;
-          d->prims[ID(4, i, j, k)] = 0.13;
-          d->prims[ID(1, i, j, k)] = -0.7;
-          d->prims[ID(2, i, j, k)] = 0.7;
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = -0.1;
+          d->prims[ID(2, i, j, k)] = 0.5;
         }
 
       }

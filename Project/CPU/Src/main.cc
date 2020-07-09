@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
 
 
   // Set up domain
-  int Ng(4);
-  int nx(200);
-  int ny(100);
+  int Ng(5);
+  int nx(800);
+  int ny(400);
   int nz(0);
   double xmin(0.0);
   double xmax(8.0);
@@ -28,14 +28,15 @@ int main(int argc, char *argv[]) {
   double ymax(4.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(20.0);
+  double endTime(30.0);
   double gamma(2.0);
-  double cfl(0.4);
+  double cfl(0.5);
   double cp(1);
   double mu1(-1);
   double mu2(1);
   bool output(true);
-  int frameSkip(10);
+  int frameSkip(50);
+  int safety(frameSkip);
   int reportItersPeriod(1);
   double sigma(50);
   double nxRanks(4);
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   Euler model(&data);
 
-  Weno5 weno(&data);
+  Weno7 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
   clock_t startTime(clock());
 
   // Run until end time and save results
-  sim.evolve(output);
+  sim.evolve(output, safety);
 
 
   double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);

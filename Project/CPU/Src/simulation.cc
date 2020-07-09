@@ -157,7 +157,7 @@ void Simulation::evolve(bool output, int safety)
 
     if (safety>0 && d->iters%safety==0) {
       this->save->saveAll();
-      printf("Data saved...\n");
+      if (env->rank==0) printf("Data saved...\n");
     }
   }
 

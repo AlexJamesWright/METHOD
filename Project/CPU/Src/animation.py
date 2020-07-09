@@ -78,24 +78,26 @@ if __name__ == '__main__':
     ##### Not a disaster atm so will leave it like this            ########
     
     fig = plt.figure()
-    
+    fig.set_size_inches(8, 5)
     # ims is a list of lists, each row is a list of artists to draw in the
     # current frame; here we are just animating one artist, the image, in
     # each frame
     ims = []
     for i in range(animClass.Nframes):
+        
         im = plt.imshow(animClass.frame[i][var][:, :, 0].T, 
                         interpolation='bicubic', 
                         animated=True,
                         extent=[0, 8, 0, 4],
+                        vmin=0.1, vmax=1.6,
                         origin='lower')
         ims.append([im])
     
-    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
-                                    repeat_delay=10)
+    ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True,
+                                    repeat_delay=75)
     
-    plt.colorbar()
-    ani.save('rho1024T3.gif', writer='imagemagick', fps=20)
+#    plt.colorbar()
+    ani.save('METHOD.gif', writer='imagemagick', fps=15)
     
     
     
