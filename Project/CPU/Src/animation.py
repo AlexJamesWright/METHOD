@@ -39,7 +39,7 @@ class Anim(object):
 
     def _gatherData(self):
         # Number of frames
-        self.vars = np.zeros([len(self.variables), self.final.c['Nx'], self.final.c['Ny'], self.final.c['Nz']])
+        self.vars = np.zeros([len(self.variables), self.final.c['nx'], self.final.c['ny'], self.final.c['nz']])
         self.Nframes = len(glob(self.DataDirectory + self.variables[0][:-1] + '*'))
     
         self.frame = []
@@ -57,8 +57,8 @@ class Anim(object):
                         # Get var data
                         else:
                             temp = line.split()
-                            for k in range(self.final.c['Nz']):
-                                self.vars[v][self.final._getXIndexFromLine(i, self.final.c['Nx'], self.final.c['Ny'])][self.final._getYIndexFromLine(i, self.final.c['Nx'], self.final.c['Ny'])][k] = float(temp[k])
+                            for k in range(self.final.c['nz']):
+                                self.vars[v][self.final._getXIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])][self.final._getYIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])][k] = float(temp[k])
             self.frame.append(deepcopy(self.vars))
         print("Ready!")
     
@@ -68,12 +68,12 @@ class Anim(object):
 if __name__ == '__main__':
     
 #     Get data
-#    animClass = Anim()
+    animClass = Anim()
+
     
     # Animate density
     var = animClass.variables.index('rho\n')
-    N = animClass.final.c['Ng']
-    Nzo2 = animClass.final.c['Nz']//2
+#    N = animClass.final.c['Ng']
     ##### For some reason this doesnt work when inside a function. ########
     ##### Not a disaster atm so will leave it like this            ########
     
@@ -84,10 +84,11 @@ if __name__ == '__main__':
     # each frame
     ims = []
     for i in range(animClass.Nframes):
-        im = plt.imshow(animClass.frame[i][var][N:-N, N:-N, Nzo2].T, 
+        im = plt.imshow(animClass.frame[i][var][:, :, 0].T, 
                         interpolation='bicubic', 
                         animated=True,
-                        cmap=cm.afmhot)
+                        extent=[0, 8, 0, 4],
+                        origin='lower')
         ims.append([im])
     
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,

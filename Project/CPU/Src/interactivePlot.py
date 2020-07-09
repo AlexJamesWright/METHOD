@@ -746,6 +746,6 @@ if __name__ == '__main__':
 #    Plot.plotHeatMaps()
     
     plt.figure()
-    plt.imshow(Plot.prims[0, :, :, 0].T, extent=[0, 8, 0, 4], origin='lower')
+    plt.imshow(np.log(Plot.prims[4, :, :, 0].T), extent=[0, 8, 0, 4], origin='lower')
     plt.show()
     
