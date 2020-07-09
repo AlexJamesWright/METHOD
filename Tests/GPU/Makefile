@@ -23,9 +23,9 @@ CC = nvcc
 GTEST_DIR = ../../../GoogleTest
 
 # Where to find user code.
-MODULE_DIR = ./../../Project/Parallel/Src
+MODULE_DIR = ./../../Project/GPU/Src
 TEST_DIR = ./Src
-INC_DIR = ./../../Project/Parallel/Include
+INC_DIR = ./../../Project/GPU/Include
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -92,7 +92,7 @@ clean :
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # Rootfinder directory
-RTFIND_DIR = ./../../Project/Parallel/CminpackLibrary
+RTFIND_DIR = ./../../Project/GPU/CminpackLibrary
 
 # Cminpack include directory
 RTFIND_INC_DIR =  $(RTFIND_DIR)/Include

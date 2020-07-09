@@ -1,16 +1,16 @@
-mkdir Project/Parallel/Data
-mkdir Project/Parallel/Data/Final
-mkdir Project/Parallel/Data/Final/Auxiliary
-mkdir Project/Parallel/Data/Final/Conserved
-mkdir Project/Parallel/Data/Final/Primitive
-mkdir Project/Parallel/Data/Final/Constants
-mkdir Project/Parallel/Data/Final/Domain
-mkdir Project/Parallel/Data/TimeSeries
-mkdir Project/Parallel/Data/TimeSeries/Auxiliary
-mkdir Project/Parallel/Data/TimeSeries/Conserved
-mkdir Project/Parallel/Data/TimeSeries/Constants
-mkdir Project/Parallel/Data/TimeSeries/Primitive
-mkdir Project/Parallel/Data/TimeSeries/UserDef
+mkdir Project/GPU/Data
+mkdir Project/GPU/Data/Final
+mkdir Project/GPU/Data/Final/Auxiliary
+mkdir Project/GPU/Data/Final/Conserved
+mkdir Project/GPU/Data/Final/Primitive
+mkdir Project/GPU/Data/Final/Constants
+mkdir Project/GPU/Data/Final/Domain
+mkdir Project/GPU/Data/TimeSeries
+mkdir Project/GPU/Data/TimeSeries/Auxiliary
+mkdir Project/GPU/Data/TimeSeries/Conserved
+mkdir Project/GPU/Data/TimeSeries/Constants
+mkdir Project/GPU/Data/TimeSeries/Primitive
+mkdir Project/GPU/Data/TimeSeries/UserDef
 
 mkdir Project/CPU/Data
 mkdir Project/CPU/Data/Final
@@ -42,11 +42,11 @@ mkdir Project/Serial/Data/TimeSeries/Primitive
 mkdir Project/Serial/Data/TimeSeries/UserDef
 
 mkdir Tests/TestData
-mkdir Tests/TestData/Parallel
-mkdir Tests/TestData/Parallel/Auxiliary
-mkdir Tests/TestData/Parallel/Conserved
-mkdir Tests/TestData/Parallel/Constants
-mkdir Tests/TestData/Parallel/Primitive
+mkdir Tests/TestData/GPU
+mkdir Tests/TestData/GPU/Auxiliary
+mkdir Tests/TestData/GPU/Conserved
+mkdir Tests/TestData/GPU/Constants
+mkdir Tests/TestData/GPU/Primitive
 
 mkdir Tests/TestData
 mkdir Tests/TestData/CPU

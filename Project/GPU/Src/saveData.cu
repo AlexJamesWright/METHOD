@@ -43,6 +43,7 @@ void SaveData::saveCons()
 
   f = fopen(fname, "w");
   // Ensure file is open
+  printf("Writing into %s\n", fname);
   if (f == NULL) {
     printf("Error: could not open 'cons.dat' for writing.\n");
     exit(1);
