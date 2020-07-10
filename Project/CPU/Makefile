@@ -7,7 +7,7 @@ CC = mpic++
 
 # Whether to use MPI for multi-cpu processing
 USE_MPI = 1
-USE_OMP = 0
+USE_OMP = 1
 
 # Module directory
 MODULE_DIR = ./Src
