@@ -195,7 +195,26 @@ def _compareStateVarArrays(serialArray, parallelArray, Obj, nVars):
                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
                        assert(abs((serialArray[Nv, i, j, k] - parallelArray[Nv, i, j, k]) < TOL))
 
+
 # RK2
+
+# OTVortex
+def test_ConsEquivalentForRK2SrmhdOutflowOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+
+def test_PrimsEquivalentForRK2SrmhdOutflowOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+
+def test_AuxEquivalentForRK2SrmhdOutflowOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+
 
 ## KelvinHelmholtzRandomInstabilitySingleFluid
 
