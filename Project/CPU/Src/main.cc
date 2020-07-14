@@ -1,88 +1,101 @@
 // Serial main
-#include "parallelBoundaryConds.h"
-#include "fluxVectorSplitting.h"
-#include "parallelSaveData.h"
+#include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "simData.h"
-#include "RKPlus.h"
-#include "hybrid.h"
+#include "srmhd.h"
+#include "srrmhd.h"
+#include "boundaryConds.h"
+#include "rkSplit.h"
+#include "SSP2.h"
+#include "serialSaveData.h"
+#include "fluxVectorSplitting.h"
 #include "weno.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <cstring>
+#include <omp.h>
+
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
 
+  const double MU(1000);
   // Set up domain
-  int Ng(7);
-  int nx(800);
-  int ny(0);
+  int Ng(4);
+  int nx(256);
+  int ny(512);
   int nz(0);
-  double xmin(0.0);
-  double xmax(1.0);
+  double xmin(-0.5);
+  double xmax(0.5);
   double ymin(-1.0);
   double ymax(1.0);
-  double zmin(0.0);
-  double zmax(1.0);
-  double endTime(0.4);
-  double gamma(2.0);
-  double cfl(0.5);
-  double cp(1);
-  double mu1(-1);
-  double mu2(1);
-  int frameSkip(1);
-  int reportItersPeriod(1);
+  double zmin(-1.5);
+  double zmax(1.5);
+  double endTime(3.0);
+  double cfl(0.1);
+  double gamma(4.0/3.0);
+  double sigma(300);
+  double cp(1.0);
+  double mu1(-MU);
+  double mu2(MU);
+  int frameSkip(180);
+  bool output(true);
+  int safety(180);
 
-  double sigma(40);
-  bool functionalSigma(true);
-  double gam(6);
 
-  double nxRanks(4);
-  double nyRanks(1);
-  double nzRanks(1);
+  char * ptr(0);
+  //! Overwrite any variables that have been passed in as main() arguments
+  for (int i(0); i < argc; i++) {
+    if (strcmp(argv[i], "sigma") == 0) {
+      sigma = (double)strtol(argv[i+1], &ptr, 10);
+    }
+  }
 
-  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  SerialEnv env(&argc, &argv, 1, 1, 1);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod, functionalSigma, gam);
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+
 
   // Choose particulars of simulation
-  Hybrid model(&data);
+  SRRMHD model(&data);
 
-  Weno7 weno(&data);
+  Weno3 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
-  model.setupREGIME(&fluxMethod);
-
-  ParallelOutflow bcs(&data, &env);
+  Flow bcs(&data);
 
   Simulation sim(&data, &env);
 
-  BrioWuSingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
-  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  SerialSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
-
   // Time execution of programme
-  clock_t startTime(clock());
+  //double startTime(omp_get_wtime());
 
   // Run until end time and save results
-  sim.evolve();
-  // sim.updateTime();
+  // sim.evolve(output, safety);
+  sim.updateTime();
+  sim.updateTime();
+  sim.updateTime();
+  sim.updateTime();
+  sim.updateTime();
 
-  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
+  //double timeTaken(omp_get_wtime()- startTime);
 
   save.saveAll();
-  if (env.rank==0) printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 
