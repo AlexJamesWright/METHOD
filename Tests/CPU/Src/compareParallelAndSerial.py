@@ -198,21 +198,37 @@ def _compareStateVarArrays(serialArray, parallelArray, Obj, nVars):
 
 # RK2
 
-# OTVortex
-def test_ConsEquivalentForRK2SrmhdOutflowOTVSF():
-   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+# OTVortexPeriodic
+def test_ConsEquivalentForRK2SrmhdPeriodicOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicOTVSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
 
-def test_PrimsEquivalentForRK2SrmhdOutflowOTVSF():
-   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+def test_PrimsEquivalentForRK2SrmhdPeriodicOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicOTVSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
 
-def test_AuxEquivalentForRK2SrmhdOutflowOTVSF():
-   Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+def test_AuxEquivalentForRK2SrmhdPeriodicOTVSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicOTVSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
    _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+# OTVortexPeriodic
+def test_ConsEquivalentForRK2SrmhdOutflowOTVSF():
+  Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+  Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+  _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+
+def test_PrimsEquivalentForRK2SrmhdOutflowOTVSF():
+  Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+  Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+  _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+
+def test_AuxEquivalentForRK2SrmhdOutflowOTVSF():
+  Obj = Compare.Appendicies.index('RK2SrmhdOutflowOTVSF')
+  Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+  _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
 
 
 
