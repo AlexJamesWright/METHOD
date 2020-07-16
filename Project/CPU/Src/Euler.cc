@@ -1,6 +1,23 @@
 #include "Euler.h"
 
-void Euler::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k) { }
+void Euler::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
+{
+    source[0] = source[1] = source[2] = source[3] = source[4] = 0.0;
+}
+
+void Euler::sourceTerm(double *cons, double *prims, double *aux, double *source)
+{
+  // Syntax
+  Data * d(this->data);
+  
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        source[ID(0, i, j, k)] = source[ID(1, i, j, k)] = source[ID(2, i, j, k)] = source[ID(3, i, j, k)] = source[ID(4, i, j, k)] = 0.0;
+      }
+    }
+  }
+}
 
 
 Euler::Euler(Data * data) : Model(data)
@@ -33,7 +50,8 @@ void Euler::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   aux[0] = prims[1]*prims[1] + prims[2]*prims[2] + prims[3]*prims[3];
   prims[4] = (d->gamma - 1) * (cons[4] - cons[0] * aux[0] / 2);
 
-  if (prims[0] != prims[0] || prims[1] != prims[1] || prims[2] != prims[2] || prims[3] != prims[3] || prims[4] != prims[4])
+  if (prims[0] != prims[0] || prims[1] != prims[1] || prims[2] != prims[2] ||
+      prims[3] != prims[3] || prims[4] != prims[4])
   {
     printf("Some prims are nan! Exiting...");
     exit(1);
@@ -56,7 +74,11 @@ void Euler::getPrimitiveVars(double *cons, double *prims, double *aux)
         aux[ID(0, i, j, k)] = prims[ID(1, i, j, k)]*prims[ID(1, i, j, k)] + prims[ID(2, i, j, k)]*prims[ID(2, i, j, k)] + prims[ID(3, i, j, k)]*prims[ID(3, i, j, k)];
         prims[ID(4, i, j, k)] = (d->gamma - 1) * (cons[ID(4, i, j, k)] - cons[ID(0, i, j, k)] * aux[ID(0, i, j, k)] / 2);
 
-        if (prims[ID(0, i, j, k)] != prims[ID(0, i, j, k)] || prims[ID(1, i, j, k)] != prims[ID(1, i, j, k)] || prims[ID(2, i, j, k)] != prims[ID(2, i, j, k)] || prims[ID(3, i, j, k)] != prims[ID(3, i, j, k)] || prims[ID(4, i, j, k)] != prims[ID(4, i, j, k)])
+        if (prims[ID(0, i, j, k)] != prims[ID(0, i, j, k)] ||
+            prims[ID(1, i, j, k)] != prims[ID(1, i, j, k)] ||
+            prims[ID(2, i, j, k)] != prims[ID(2, i, j, k)] ||
+            prims[ID(3, i, j, k)] != prims[ID(3, i, j, k)] ||
+            prims[ID(4, i, j, k)] != prims[ID(4, i, j, k)])
         {
           printf("Some prims are nan! Exiting...");
           exit(1);

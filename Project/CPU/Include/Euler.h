@@ -16,7 +16,7 @@ class Euler : public Model
     virtual ~Euler() { }
 
     void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
-    void sourceTerm(double *cons, double *prims, double *aux, double *source) { }
+    void sourceTerm(double *cons, double *prims, double *aux, double *source);
     void getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i=-1, int j=-1, int k=-1);
     void getPrimitiveVars(double *cons, double *prims, double *aux);
     void primsToAll(double *cons, double *prims, double *aux);
