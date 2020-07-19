@@ -34,70 +34,132 @@ class Anim(object):
         with open(self.DataDirectory + 'info') as f:
             for var in f.readlines():
                 self.variables.append(var)
-        self.final = Plot(self.DataDirectory + '../../Final/')
-        self._gatherData()
-
-    def _gatherData(self):
-        # Number of frames
-        self.vars = np.zeros([len(self.variables), self.final.c['nx'], self.final.c['ny'], self.final.c['nz']])
+        self.final = Plot(self.DataDirectory + '../../Final/', states=False)
         self.Nframes = len(glob(self.DataDirectory + self.variables[0][:-1] + '*'))
-    
-        self.frame = []
         self.t = []
-        # Conserved vector first
-        print("Gathering data...\nThis may take some time! Found {} frames...".format(self.Nframes))
-        for f in range(self.Nframes):
-            print("Fetching frame {}/{}".format(f+1, self.Nframes))
-            for v, var in enumerate(self.variables):
-                with open(self.DataDirectory + self.variables[v][:-1] + str(f) + '.dat') as file:
-                    for i, line in enumerate(file):
-                        if i==0:
-                            if v==0:
-                                self.t.append(float(line[line.index("t = ") + 4:]))
-                        # Get var data
-                        else:
-                            temp = line.split()
-                            for k in range(self.final.c['nz']):
-                                self.vars[v][self.final._getXIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])][self.final._getYIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])][k] = float(temp[k])
-            self.frame.append(deepcopy(self.vars))
-        print("Ready!")
+        self.frame = np.zeros([self.final.c['nx'], self.final.c['ny']])
+
+
     
+    def _fetchFrame(self, f, v):
+        """
+        Given an index, update the current frame data for self.frame.
+        
+        Parameters
+        ----------
+        f : int 
+            Frame number (indexing from 0)
+        v : int 
+            Variable number (index from self.variables)
+            
+        
+        """
+        var = self.variables[v][:-1]
+        print(f"Fetching frame {f+1}/{self.Nframes} of {var}".format(f+1, self.Nframes))
+        
+        with open(self.DataDirectory + var + str(f) + '.dat') as file:
+            for i, line in enumerate(file):
+                if i==0:
+                    if v==0:
+                        self.t.append(float(line[line.index("t = ") + 4:]))
+                # Get var data
+                else:
+                    temp = line.split()
+                    self.frame[self.final._getXIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])][self.final._getYIndexFromLine(i, self.final.c['nx'], self.final.c['ny'])] = float(temp[0])
+
+        return self.frame
+    
+    def _updateImage(self, f, v, im):
+        """
+        Given an index, update the given image.
+        
+        Parameters
+        ----------
+        f : int 
+            Frame number (indexing from 0)
+        v : int 
+            Variable number (index from self.variables)
+        im : matplotlib.image.AxesImage
+            Image to update data with new frame
+            
+        Returns
+        -------
+        im : matplotlib.image.AxesImage
+            New frame image
+            
+        Notes
+        -----
+        This is the function to be called iteratively from 
+        matplotlib.animation.FuncAnimation. The extra variables (v, im) should 
+        be passed in with the fargs argument.
+        """
+        self._fetchFrame(f, v)
+        im.set_data(self.frame[:, :].T)
+        im.set_interpolation('bicubic')
+        im.set_clim(self.vmin, self.vmax)
+        return im
+        
 
 
+    def animate(self, filename, v=0, form='.gif', vmin=0.1, vmax=1.5):
+        """
+        Build and save an animation of a single variable. 
+        
+        Parameters
+        ----------
+        v : int 
+            Variable number (index from self.variables)
+        form : str
+            Format to save file. Currently choose from .gif (default) or .mp4
+            
+        Notes
+        -----
+        Save the image in the same directory as animation.py. Normally this
+        will be the Src/ directory.
+        """
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+    
+        ext = [self.final.c['xmin'],
+               self.final.c['xmax'],
+               self.final.c['ymin'],
+               self.final.c['ymax']]
+        
+        self.vmin = vmin
+        self.vmax = vmax
+    
+    
+        im = ax.imshow(np.zeros((animClass.final.c['nx'], animClass.final.c['ny'])).T, 
+                       interpolation='bicubic',
+                       animated=True,
+                       extent=ext,
+                       vmin=vmin,
+                       vmax=vmax,
+                       cmap=cm.CMRmap,
+                       origin='lower')
+    
+        fig.tight_layout()
 
+        # Create animation
+        ani = animation.FuncAnimation(fig, 
+                                      animClass._updateImage, 
+                                      animClass.Nframes,
+                                      interval=50, 
+                                      fargs=(v, im))
+        
+        # Save the result
+        if form == '.gif':
+            writer = animation.writers['pillow'](fps=20)
+            ani.save(filename+'.gif', writer=writer, dpi=200)
+        else:
+            writer = animation.writers['ffmpeg'](fps=20)
+            ani.save(filename+'.mp4', writer=writer, dpi=200)
+        
+        
 if __name__ == '__main__':
     
-#     Get data
     animClass = Anim()
-
-    
-    # Animate density
-    var = animClass.variables.index('rho\n')
-#    N = animClass.final.c['Ng']
-    ##### For some reason this doesnt work when inside a function. ########
-    ##### Not a disaster atm so will leave it like this            ########
-    
-    fig = plt.figure()
-    fig.set_size_inches(8, 5)
-    # ims is a list of lists, each row is a list of artists to draw in the
-    # current frame; here we are just animating one artist, the image, in
-    # each frame
-    ims = []
-    for i in range(animClass.Nframes):
-        
-        im = plt.imshow(animClass.frame[i][var][:, :, 0].T, 
-                        interpolation='bicubic', 
-                        animated=True,
-                        extent=[0, 8, 0, 4],
-                        vmin=0.1, vmax=1.6,
-                        origin='lower')
-        ims.append([im])
-    
-    ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True,
-                                    repeat_delay=75)
-    
-#    plt.colorbar()
-    ani.save('METHOD.gif', writer='imagemagick', fps=15)
-    
-    
+    animClass.animate('demoInterp')
     
