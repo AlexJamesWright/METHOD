@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore', "No labelled objects found. ")
 
 # Change this to the relative path to the data you want to plot
 # File names must start with e.g. `primitive`
-UsualDirectory = '/scratch/ajw1e16/METHODDatFixedSourceHR/Data/TimeSeries/UserDef/'
+UsualDirectory = '../Data/TimeSeries/UserDef/'
 
 class Anim(object):
 
