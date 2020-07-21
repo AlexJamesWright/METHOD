@@ -22,7 +22,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 [![Documentation Status](https://readthedocs.org/projects/method/badge/?version=latest)](https://method.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/105871037.svg)](http://doi.org/10.5281/zenodo.1404697)
 
-![alt text](https://github.com/AlexJamesWright/METHOD/blob/master/HighResKHI.gif "High resolution Kelvin-Helmholtz instability")
+![alt text](https://github.com/AlexJamesWright/METHOD/blob/master/METHODAdvert.gif "METHOD Advert: kudos to pyro2 for the inspo")
 
 
 # Multifluid Electromagneto-HydroDynamics
