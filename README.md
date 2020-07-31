@@ -230,8 +230,8 @@ NOTE: The second variable must be included and be the number of variables you wi
 
 ## Authors
 
-[Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk
-[Ania Brown](https://github.com/aniabrown)
+[Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk <br>
+[Ania Brown](https://github.com/aniabrown) <br>
 [Ian Hawke](https://cmg.soton.ac.uk/people/ih3/)
 ---------------------------------------------
 ---------------------------------------------
