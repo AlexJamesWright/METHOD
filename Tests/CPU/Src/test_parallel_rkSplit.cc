@@ -18,9 +18,9 @@
 */
 
 
-#if 1
+#if 0
 // RKOTVSingleFluid
-TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowOTVSF)
+TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowOTVSF)
 {
 
   /*
@@ -55,16 +55,16 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowOTVSF)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/CPU");
-  strcpy(save.app, "RK2SrmhdOutflowOTVSF");
+  strcpy(save.app, "RKSplitSrmhdOutflowOTVSF");
 
   save.saveCons();
   save.savePrims();
   save.saveAux();
   save.saveConsts();
 }
+#endif 
 
-
-
+#if 1
 // RKRandomInstabilitySingleFluid
 TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowKHRandomInstabilitySF)
 {
