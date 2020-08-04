@@ -22,7 +22,7 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 [![Documentation Status](https://readthedocs.org/projects/method/badge/?version=latest)](https://method.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/105871037.svg)](http://doi.org/10.5281/zenodo.1404697)
 
-![alt text](https://github.com/AlexJamesWright/METHOD/blob/master/HighResKHI.gif "High resolution Kelvin-Helmholtz instability")
+![alt text](https://github.com/AlexJamesWright/METHOD/blob/master/METHODAdvert.gif "METHOD Advert: kudos to pyro2 for the inspo")
 
 
 # Multifluid Electromagneto-HydroDynamics
@@ -230,8 +230,8 @@ NOTE: The second variable must be included and be the number of variables you wi
 
 ## Authors
 
-[Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk
-[Ania Brown](https://github.com/aniabrown)
+[Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk <br>
+[Ania Brown](https://github.com/aniabrown) <br>
 [Ian Hawke](https://cmg.soton.ac.uk/people/ih3/)
 ---------------------------------------------
 ---------------------------------------------

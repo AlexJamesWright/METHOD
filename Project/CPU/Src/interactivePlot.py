@@ -24,7 +24,7 @@ appendix = ''
 
 class InteractivePlot(object):
 
-    def __init__(self, DatDirectory=None, append=None):
+    def __init__(self, DatDirectory=None, append=None, states=True):
         if DatDirectory is None:
             self.DatDir = FinalDirectory
         else:
@@ -33,13 +33,19 @@ class InteractivePlot(object):
             self.appendix = appendix
         else:
             self.appendix = append
-        self.gatherData()
+        self.gatherData(states)
         print("Ready!")
 
-    def gatherData(self):
+    def gatherData(self, states):
         """
         Collects and stores all the data required for plotting the final state of
         the system.
+        
+        Parameters
+        ----------
+        states : bool
+            Load all of the state arrays. If false, only the constants are
+            loaded to save time for animation.
 
         Notes
         -----
@@ -109,83 +115,83 @@ class InteractivePlot(object):
         print("{} primitive vectors".format(c['Nprims']))
         print("{} auxiliary vectors".format(c['Naux']))
 
-
-        # Now gather conserved data
-        self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
-        print("Fetching conserved variables...")
-        with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get cons var labels
-                if i==0:
-                    consLabels = line.split()[2:]
-                    # Get cons var data
-                else:
-                    temp = line.split()
-                    for k in range(c['nz']):
-                        self.cons[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
-
-        # Clean up labels (remove the commas)
-        self.cleanConsLabels = []
-        for i in range(len(consLabels)-1):
-            self.cleanConsLabels.append(consLabels[i][:-1])
-        self.cleanConsLabels.append(consLabels[-1])
-
-        with suppress(FileNotFoundError):
-            # Now get primitive variables if  and store the data in array...
-            self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
-            print("Fetching primitive variables...")
-            with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
-                for i, line in enumerate(f):
-                    # Get primitive var labels
-                    if i==0:
-                        primLabels = line.split()[2:]
-                    # Get primitive var data
-                    else:
-                        temp = line.split()
-                        for k in range(c['nz']):
-                            self.prims[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
-            # Clean up labels (remove the commas)
-            self.cleanPrimLabels = []
-            for i in range(len(primLabels)-1):
-                self.cleanPrimLabels.append(primLabels[i][:-1])
-            self.cleanPrimLabels.append(primLabels[-1])
-
-        with suppress(FileNotFoundError):
-            # And finally the aux vars if available
-            self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
-            print("Fetching auxiliary variables...")
-            with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
+        if states:
+            # Now gather conserved data
+            self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
+            print("Fetching conserved variables...")
+            with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
                 for i, line in enumerate(f):
                     # Get cons var labels
                     if i==0:
-                        auxLabels = line.split()[2:]
-                    # Get cons var data
+                        consLabels = line.split()[2:]
+                        # Get cons var data
                     else:
                         temp = line.split()
                         for k in range(c['nz']):
-                            self.aux[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
+                            self.cons[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+    
             # Clean up labels (remove the commas)
-            self.cleanAuxLabels = []
-            for i in range(len(auxLabels)-1):
-                self.cleanAuxLabels.append(auxLabels[i][:-1])
-            self.cleanAuxLabels.append(auxLabels[-1])
-        
-        with suppress(FileNotFoundError):
-            # Grab domain data
-            self.x = np.zeros(c['nx'])
-            self.y = np.zeros(c['ny'])
-            self.z = np.zeros(c['nz'])
-            coords = [self.x, self.y, self.z]
-            print("Fetching domain coordinates...")
-            with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
-                for coord, (i, line) in zip(coords, enumerate(f)):
-                    temp = line.split()
-                    print(len(temp))
-                    for k, val in enumerate(temp):
-                        coord[k] = float(val)
+            self.cleanConsLabels = []
+            for i in range(len(consLabels)-1):
+                self.cleanConsLabels.append(consLabels[i][:-1])
+            self.cleanConsLabels.append(consLabels[-1])
+    
+            with suppress(FileNotFoundError):
+                # Now get primitive variables if  and store the data in array...
+                self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
+                print("Fetching primitive variables...")
+                with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
+                    for i, line in enumerate(f):
+                        # Get primitive var labels
+                        if i==0:
+                            primLabels = line.split()[2:]
+                        # Get primitive var data
+                        else:
+                            temp = line.split()
+                            for k in range(c['nz']):
+                                self.prims[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+                # Clean up labels (remove the commas)
+                self.cleanPrimLabels = []
+                for i in range(len(primLabels)-1):
+                    self.cleanPrimLabels.append(primLabels[i][:-1])
+                self.cleanPrimLabels.append(primLabels[-1])
+    
+            with suppress(FileNotFoundError):
+                # And finally the aux vars if available
+                self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
+                print("Fetching auxiliary variables...")
+                with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
+                    for i, line in enumerate(f):
+                        # Get cons var labels
+                        if i==0:
+                            auxLabels = line.split()[2:]
+                        # Get cons var data
+                        else:
+                            temp = line.split()
+                            for k in range(c['nz']):
+                                self.aux[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+                # Clean up labels (remove the commas)
+                self.cleanAuxLabels = []
+                for i in range(len(auxLabels)-1):
+                    self.cleanAuxLabels.append(auxLabels[i][:-1])
+                self.cleanAuxLabels.append(auxLabels[-1])
+            
+            with suppress(FileNotFoundError):
+                # Grab domain data
+                self.x = np.zeros(c['nx'])
+                self.y = np.zeros(c['ny'])
+                self.z = np.zeros(c['nz'])
+                coords = [self.x, self.y, self.z]
+                print("Fetching domain coordinates...")
+                with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
+                    for coord, (i, line) in zip(coords, enumerate(f)):
+                        temp = line.split()
+                        print(len(temp))
+                        for k, val in enumerate(temp):
+                            coord[k] = float(val)
 
 
 
@@ -398,7 +404,7 @@ class InteractivePlot(object):
             plt.xlabel(axisLabel)
             plt.ylabel(r'$q_{}(x)$'.format(i+1))
             plt.xlim([c['xmin'], c['xmax']])
-            plt.ylim((ylower, yupper))
+#            plt.ylim((ylower, yupper))
             plt.legend(loc='lower center', fontsize=10)
             plt.show()
 
@@ -740,7 +746,12 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
 
-    Plot.plotSlice()
+#    Plot.plotSlice()
 #    Plot.plotSingleFluidCurrentSheetAgainstExact()
 #    Plot.plotAdvectionAgainstInitial()
+#    Plot.plotHeatMaps()
+    
+    plt.figure()
+    plt.imshow(np.log(Plot.prims[4, :, :, 0].T), extent=[0, 8, 0, 4], origin='lower')
+    plt.show()
     
