@@ -19,6 +19,86 @@
 
 
 #if 1
+// RKOTVSingleFluidPeriodic
+TEST(RK2OutputConsistentWithSerial, RK2SrmhdPeriodicOTVSF)
+{
+
+  /*
+    The following was used to gather data to compare the parallel
+     version with. No tests are run in the serial version of this test
+  */
+
+  double cfl(0.6);
+  int Ng(4);
+  double gamma(2.0);
+
+  ParallelEnv env(0, NULL, 2, 2, 1, 1);
+  Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma);
+  SRMHD model(&d);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  ParallelPeriodic bcs(&d, &env);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
+  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  // sim.evolve();
+  sim.updateTime();
+  // sim.updateTime();
+
+
+  // Save data in test directory
+  strcpy(save.dir, "../TestData/CPU");
+  strcpy(save.app, "RK2SrmhdPeriodicOTVSF");
+
+  save.saveCons();
+  save.savePrims();
+  save.saveAux();
+  save.saveConsts();
+}
+// RKOTVSingleFluidOutflow
+TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowOTVSF)
+{
+
+  /*
+    The following was used to gather data to compare the parallel
+     version with. No tests are run in the serial version of this test
+  */
+
+  double cfl(0.6);
+  int Ng(4);
+  double gamma(2.0);
+
+  ParallelEnv env(0, NULL, 2, 2, 1, 1);
+  Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env, cfl, Ng, gamma);
+  SRMHD model(&d);
+  Weno3 weno(&d);
+  FVS fluxMethod(&d, &weno, &model);
+  ParallelOutflow bcs(&d, &env);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
+  RK2 timeInt(&d, &model, &bcs, &fluxMethod);
+  ParallelSaveData save(&d, &env);
+  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  // sim.evolve();
+  sim.updateTime();
+  // sim.updateTime();
+
+
+  // Save data in test directory
+  strcpy(save.dir, "../TestData/CPU");
+  strcpy(save.app, "RK2SrmhdOutflowOTVSF");
+
+  save.saveCons();
+  save.savePrims();
+  save.saveAux();
+  save.saveConsts();
+}
+
+
 // RKRandomInstabilitySingleFluid
 TEST(RK2OutputConsistentWithSerial, RK2SrmhdOutflowKHRandomInstabilitySF)
 {
