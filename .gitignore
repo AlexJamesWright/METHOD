@@ -1,7 +1,24 @@
 # Ignore any object files or executables
 *.o
 main
-test_*
+test_boundaryConds
+test_cminpack
+test_fvs
+test_id
+test_imex
+test_initFunc
+test_rk2
+test_simulation
+test_srmhd
+test_srrmhd
+test_twoFluidEMHD
+test_REGIME
+test_RKPlus
+test_parallel_rk2
+test_parallel_rkSplit
+test_rkSplit
+test_weno
+
 test_*.o
 !test_*.cc
 gtest_main.a
