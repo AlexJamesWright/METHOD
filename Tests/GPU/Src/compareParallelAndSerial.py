@@ -45,9 +45,9 @@ class CompareParallelAndSerial(object):
     Ncons = []
     Nprims = []
     Naux = []
-    Nx = []
-    Ny = []
-    Nz = []
+    nx = []
+    ny = []
+    nz = []
     Ng = []
     xbounds = []
     ybounds = []
@@ -75,20 +75,15 @@ class CompareParallelAndSerial(object):
             self.Ncons.append(self.Serials[i].c['Ncons'])
             self.Nprims.append(self.Serials[i].c['Nprims'])
             self.Naux.append(self.Serials[i].c['Naux'])
-            self.Nx.append(self.Serials[i].c['Nx'])
-            self.Ny.append(self.Serials[i].c['Ny'])
-            self.Nz.append(self.Serials[i].c['Nz'])
+            self.nx.append(self.Serials[i].c['nx'])
+            self.ny.append(self.Serials[i].c['ny'])
+            self.nz.append(self.Serials[i].c['nz'])
             self.Ng.append(self.Serials[i].c['Ng'])
 
-            self.xbounds.append((self.Ng[-1], self.Nx[-1] - self.Ng[-1]))
-            if (self.Ny[-1] > 1):
-                self.ybounds.append((self.Ng[-1], self.Ny[-1] - self.Ng[-1]))
-            else:
-                self.ybounds.append((0, 1))
-            if (self.Nz[-1] > 1):
-                self.zbounds.append((self.Ng[-1], self.Nz[-1] - self.Ng[-1]))
-            else:
-                self.zbounds.append((0, 1))
+            # Bounds within arrays which do not include ghost cells
+            self.xbounds.append((0, self.nx[-1]))
+            self.ybounds.append((0, self.ny[-1]))
+            self.zbounds.append((0, self.nz[-1]))
 
 
 

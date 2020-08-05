@@ -104,9 +104,10 @@ class InteractivePlot(object):
         print("{} conserved vectors".format(c['Ncons']))
         print("{} primitive vectors".format(c['Nprims']))
         print("{} auxiliary vectors".format(c['Naux']))
+        print(f"Domain extent is {c['nx']}, {c['ny']}, {c['nz']}")
 
         # Now gather conserved data
-        self.cons = np.zeros([c['Ncons'], c['Nx'], c['Ny'], c['Nz']])
+        self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
         print("Fetching conserved variables...")
         with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
             for i, line in enumerate(f):
@@ -128,7 +129,7 @@ class InteractivePlot(object):
 
         with suppress(FileNotFoundError):
             # Now get primitive variables if  and store the data in array...
-            self.prims = np.zeros([c['Nprims'], c['Nx'], c['Ny'], c['Nz']])
+            self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
             print("Fetching primitive variables...")
             with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
                 for i, line in enumerate(f):
@@ -149,7 +150,7 @@ class InteractivePlot(object):
 
         with suppress(FileNotFoundError):
             # And finally the aux vars if available
-            self.aux = np.zeros([c['Naux'], c['Nx'], c['Ny'], c['Nz']])
+            self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
             print("Fetching auxiliary variables...")
             with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
                 for i, line in enumerate(f):
