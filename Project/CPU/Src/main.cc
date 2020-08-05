@@ -1,5 +1,7 @@
-// Serial main
-#include "simData.h"
+// CPU main
+#include "parallelBoundaryConds.h"
+#include "fluxVectorSplitting.h"
+#include "parallelSaveData.h"
 #include "simulation.h"
 #include "initFunc.h"
 #include "simData.h"
@@ -7,20 +9,14 @@
 #include "Euler.h"
 #include "weno.h"
 
-#include <cstdio>
-#include <cstdlib>
 #include <ctime>
-#include <iostream>
 #include <cstring>
-#include <omp.h>
-
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
 
-  const double MU(1000);
   // Set up domain
   int Ng(5);
   int nx(800);
@@ -55,7 +51,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   Euler model(&data);
 
-  Weno3 weno(&data);
+  Weno7 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -65,23 +61,24 @@ int main(int argc, char *argv[]) {
 
   FancyMETHODData init(&data);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveData save(&data, &env, 0);
+  ParallelSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
   // Time execution of programme
-  //double startTime(omp_get_wtime());
+  clock_t startTime(clock());
 
   // Run until end time and save results
   sim.evolve(output, safety);
 
 
-  //double timeTaken(omp_get_wtime()- startTime);
+  double timeTaken(double(clock() - startTime)/(double)CLOCKS_PER_SEC);
 
   save.saveAll();
-  //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  if (env.rank==0) printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
 
   return 0;
 

@@ -80,12 +80,7 @@ int main(int argc, char *argv[]) {
   double startTime(omp_get_wtime());
 
   // Run until end time and save results
-  // sim.evolve(output, safety);
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
+  sim.evolve(output, safety);
 
   double timeTaken(omp_get_wtime()- startTime);
 
