@@ -57,10 +57,8 @@ TESTS = test_simulation 		\
 				test_weno						\
 				test_RKPlus
 
-PARALLEL_TESTS = test_parallel_rk2 \
-				 test_parallel_rkSplit \
-				 #test_parallel_imex \
-				 test_parallel_fvs
+PARALLEL_TESTS = test_parallel_rk2     \
+				 				 test_parallel_rkSplit
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.

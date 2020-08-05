@@ -353,6 +353,28 @@ class PerturbedBrioWu2DSingleFluid : public InitialFunc
 };
 
 
+//! <b> Fancy initial data </b>
+/*!
+  @oar
+    Initial data for the GitHub home page. Inspiration from Pyro2 Zingale.
+*/
+class FancyMETHODData : public InitialFunc
+{
+  public:
+    FancyMETHODData(Data * data);
+
+    bool inM(double x, double y);
+    bool inE(double x, double y);
+    bool inT(double x, double y);
+    bool inH(double x, double y);
+    bool inO(double x, double y);
+    bool inD(double x, double y);
+
+    bool inMETHOD(double x, double y);
+
+    virtual ~FancyMETHODData() { }     //!< Destructor
+};
+
 
 
 #endif

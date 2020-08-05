@@ -2,13 +2,9 @@
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "srmhd.h"
-#include "srrmhd.h"
-#include "boundaryConds.h"
-#include "rkSplit.h"
-#include "SSP2.h"
-#include "serialSaveData.h"
-#include "fluxVectorSplitting.h"
+#include "simData.h"
+#include "RKPlus.h"
+#include "Euler.h"
 #include "weno.h"
 
 #include <cstdio>
@@ -26,54 +22,48 @@ int main(int argc, char *argv[]) {
 
   const double MU(1000);
   // Set up domain
-  int Ng(4);
-  int nx(256);
-  int ny(512);
+  int Ng(5);
+  int nx(800);
+  int ny(400);
   int nz(0);
-  double xmin(-0.5);
-  double xmax(0.5);
-  double ymin(-1.0);
-  double ymax(1.0);
-  double zmin(-1.5);
-  double zmax(1.5);
-  double endTime(3.0);
-  double cfl(0.1);
-  double gamma(4.0/3.0);
-  double sigma(300);
-  double cp(1.0);
-  double mu1(-MU);
-  double mu2(MU);
-  int frameSkip(180);
+  double xmin(0.0);
+  double xmax(8.0);
+  double ymin(0.0);
+  double ymax(4.0);
+  double zmin(0.0);
+  double zmax(1.0);
+  double endTime(30.0);
+  double gamma(2.0);
+  double cfl(0.5);
+  double cp(1);
+  double mu1(-1);
+  double mu2(1);
   bool output(true);
-  int safety(180);
+  int frameSkip(50);
+  int safety(frameSkip);
+  int reportItersPeriod(1);
+  double sigma(50);
+  double nxRanks(4);
+  double nyRanks(1);
+  double nzRanks(1);
 
-
-  char * ptr(0);
-  //! Overwrite any variables that have been passed in as main() arguments
-  for (int i(0); i < argc; i++) {
-    if (strcmp(argv[i], "sigma") == 0) {
-      sigma = (double)strtol(argv[i+1], &ptr, 10);
-    }
-  }
-
-  SerialEnv env(&argc, &argv, 1, 1, 1);
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
-
+            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  Euler model(&data);
 
   Weno3 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
-  Flow bcs(&data);
+  ParallelOutflow bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  FancyMETHODData init(&data);
 
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
@@ -85,12 +75,8 @@ int main(int argc, char *argv[]) {
   //double startTime(omp_get_wtime());
 
   // Run until end time and save results
-  // sim.evolve(output, safety);
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
-  sim.updateTime();
+  sim.evolve(output, safety);
+
 
   //double timeTaken(omp_get_wtime()- startTime);
 

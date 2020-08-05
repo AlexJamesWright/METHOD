@@ -883,3 +883,238 @@ PerturbedBrioWu2DSingleFluid::PerturbedBrioWu2DSingleFluid(Data * data) : Initia
     }
   }
 }
+
+
+bool FancyMETHODData::inM(double x, double y)
+{
+  if (y>=x+0.49 && y<=x+0.77 && y<=2.5 && y>=2.02 && y>=3.55-x && y<=3.83-x ) return true;
+
+  // // Negative diagonal
+  if (y>=3.55-x && y<=3.85-x && y<=2.5 && y>=2.16) return true;
+  // Positive diagonal
+  if (y>=x+0.49 && y<=x+0.79 && y<=2.5 && y>=2.16) return true;
+
+  // Trunk left
+  if (y <= 2.5 && y >= 1.5 && x>=1.03 && x<=1.33)
+  {
+    return true;
+  }
+  // Trunk right
+  else if (y <= 2.5 && y >= 1.5 && x>=1.73 && x<=2.03)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inE(double x, double y)
+{
+  // Trunk
+  if (y <= 2.5 && y >= 1.5 && x>=2.11 && x<=2.44)
+  {
+    return true;
+  }
+  // Hat
+  else if (y <= 2.5 && y >= 2.29 && x>=2.11 && x<=3.01)
+  {
+    return true;
+  }
+  // Belt
+  else if (y <= 2.1 && y >= 1.9 && x>=2.11 && x<=2.76)
+  {
+    return true;
+  }
+  // Shoes
+  else if (y <= 1.71 && y >= 1.5 && x>=2.11 && x<=3.01)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inT(double x, double y)
+{
+  // Trunk
+  if (y <= 2.5 && y >= 1.5 && x>=3.43 && x<=3.69)
+  {
+    return true;
+  }
+  // Hat
+  else if (y <= 2.5 && y >= 2.29 && x>=3.09 && x<=4.03)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inH(double x, double y)
+{
+  // Trunk left
+  if (y <= 2.5 && y >= 1.5 && x>=4.11 && x<=4.42)
+  {
+    return true;
+  }
+  // Trunk right
+  else if (y <= 2.5 && y >= 1.5 && x>=4.72 && x<=5.03)
+  {
+    return true;
+  }
+  // Belt
+  else if (y <= 2.11 && y >= 1.89 && x>=4.11 && x<=5.01)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inO(double x, double y)
+{
+  // Cut off top left corner
+  if (y >= x-2.61-0.1) return false;
+
+  // Cut off top right corner
+  if (y >= 8.45-x-0.1) return false;
+
+  // Cut off bottom left corner
+  if (y <= 6.61-x+0.1) return false;
+
+  // Cut off bottom right corner
+  if (y <= x-4.45+0.1) return false;
+
+  // Trunk left
+  if (y <= 2.5 && y >= 1.5 && x>=5.11 && x<=5.37)
+  {
+    return true;
+  }
+  // Trunk right
+  else if (y <= 2.5 && y >= 1.5 && x>=5.69 && x<=5.95)
+  {
+    return true;
+  }
+  // Shoes
+  else if (y <= 1.72 && y >= 1.5 && x>=5.11 && x<=5.95)
+  {
+    return true;
+  }
+  // Hat
+  else if (y <= 2.5 && y >= 2.28 && x>=5.11 && x<=5.95)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inD(double x, double y)
+{
+
+  // Cut off outer-right corners
+  if ( y >= 9.2-x) return false;
+  if ( y <= x-5.2) return false;
+
+
+  // Fill in inner-right corners
+
+  // Trunk left
+  if (y <= 2.5 && y >= 1.5 && x>=6.05 && x<=6.27)
+  {
+    return true;
+  }
+  // Trunk right
+  else if (y <= 2.5 && y >= 1.5 && x>=6.62 && x<=6.95)
+  {
+    return true;
+  }
+  // Shoes
+  else if (y <= 1.76 && y >= 1.5 && x>=6.05 && x<=6.95)
+  {
+    return true;
+  }
+  // Hat
+  else if (y <= 2.5 && y >= 2.24 && x>=6.05 && x<=6.95)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool FancyMETHODData::inMETHOD(double x, double y)
+{
+  return inM(x, y) || inE(x, y) || inT(x, y) || inH(x, y) || inO(x, y) || inD(x, y);
+}
+
+FancyMETHODData::FancyMETHODData(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->xmin != 0.0 || d->xmax != 8.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0.0, 8.0]\n");
+  if (d->ymin != 0.0 || d->ymax != 4.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 4.0]\n");
+
+  for (int i(0); i<d->Nx; i++) {
+    for (int j(0); j<d->Ny; j++) {
+      for (int k(0); k<d->Nz; k++) {
+        // Background
+        d->prims[ID(0, i, j, k)] = 0.1;
+        d->prims[ID(4, i, j, k)] = 0.125;
+
+        // If cell is in METHOD, increase density
+        if (inMETHOD(d->x[i], d->y[j]))
+        {
+          d->prims[ID(0, i, j, k)] = 1.0;
+        }
+
+        // Add a shock coming from the top left
+        if (d->y[j] > d->x[i] + 3)
+        {
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = 0.3;
+          d->prims[ID(2, i, j, k)] = -0.1;
+        }
+        // Add a shock coming from the bottom left
+        if (d->y[j] < -d->x[i] + 1)
+        {
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = 0.2;
+          d->prims[ID(2, i, j, k)] = 0.4;
+        }
+        // Add a shock coming from the top right
+        if (d->y[j] > -d->x[i] + 11)
+        {
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = -0.05;
+          d->prims[ID(2, i, j, k)] = -0.5;
+        }
+        // Add a shock coming from the bottom right
+        if (d->y[j] < d->x[i] - 7)
+        {
+          d->prims[ID(0, i, j, k)] = 0.08;
+          d->prims[ID(4, i, j, k)] = 0.2;
+          d->prims[ID(1, i, j, k)] = -0.1;
+          d->prims[ID(2, i, j, k)] = 0.5;
+        }
+
+      }
+    }
+  }
+}

@@ -46,22 +46,20 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
   d->dt = (dtX < dtY && dtX < dtZ) ? dtX : ((dtY < dtZ) ? dtY : dtZ);
   d->memSet = 1;
 
-  // Calculate the coord of the first physical cell on each process
-  double xminLocal = d->xmin + d->dx * (d->Nx - 2*d->Ng) * env->xRankId;
-  double yminLocal = d->ymin + d->dy * (d->Ny - 2*d->Ng) * env->yRankId;
-  double zminLocal = d->zmin + d->dz * (d->Nz - 2*d->Ng) * env->zRankId;
+  int iOffset = (d->Nx - 2*d->Ng)*env->xRankId;
+  int jOffset = (d->Ny - 2*d->Ng)*env->yRankId;
+  int kOffset = (d->Nz - 2*d->Ng)*env->zRankId;
 
   // Set axes
   for (int i(0); i < d->Nx; i++) {
-    d->x[i] = xminLocal + (i + 0.5 - d->Ng) * d->dx;
+    d->x[i] = d->xmin + (i + iOffset + 0.5 - d->Ng) * d->dx;
   }
   for (int j(0); j < d->Ny; j++) {
-    d->y[j] = yminLocal + (j + 0.5 - d->Ng) * d->dy;
+    d->y[j] = d->ymin + (j + jOffset + 0.5 - d->Ng) * d->dy;
   }
   for (int k(0); k < d->Nz; k++) {
-    d->z[k] = zminLocal + (k + 0.5 - d->Ng) * d->dz;
+    d->z[k] = d->zmin + (k + kOffset + 0.5 - d->Ng) * d->dz;
   }
-
 }
 
 Simulation::~Simulation()
@@ -142,14 +140,7 @@ void Simulation::evolve(bool output, int safety)
 
   // Save initial data
   if (output && save) {
-    this->save->saveVar("rho", 8);
-    this->save->saveVar("vx", 8);
-    this->save->saveVar("vy", 8);
-    this->save->saveVar("vz", 8);
-    this->save->saveVar("p", 8);
-    this->save->saveVar("Bx", 8);
-    this->save->saveVar("By", 8);
-    this->save->saveVar("Bz", 8);
+    this->save->saveVar("rho", 1);
   }
 
   while (d->t < d->endTime) {
@@ -159,33 +150,19 @@ void Simulation::evolve(bool output, int safety)
     // Save data for animation
     if (output && save && d->iters%d->frameSkip==0) {
       // Save initial data
-    this->save->saveVar("rho", 8);
-    this->save->saveVar("vx", 8);
-    this->save->saveVar("vy", 8);
-    this->save->saveVar("vz", 8);
-    this->save->saveVar("p", 8);
-    this->save->saveVar("Bx", 8);
-    this->save->saveVar("By", 8);
-    this->save->saveVar("Bz", 8);
+      this->save->saveVar("rho", 1);
     }
 
     if (safety>0 && d->iters%safety==0) {
       this->save->saveAll();
-      printf("Data saved...\n");
+      if (env->rank==0) printf("Data saved...\n");
     }
   }
 
   // Save final state
   if (output && save) {
     // Save initial data
-    this->save->saveVar("rho", 8);
-    this->save->saveVar("vx", 8);
-    this->save->saveVar("vy", 8);
-    this->save->saveVar("vz", 8);
-    this->save->saveVar("p", 8);
-    this->save->saveVar("Bx", 8);
-    this->save->saveVar("By", 8);
-    this->save->saveVar("Bz", 8);
+    this->save->saveVar("rho", 1);
     }
 
     if (env->rank == 0) {
