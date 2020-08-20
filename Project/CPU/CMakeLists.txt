@@ -13,6 +13,7 @@ target_sources(
       ${CMAKE_CURRENT_LIST_DIR}/Src/RK2.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/rkSplit.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/serialSaveData.cc
+      ${CMAKE_CURRENT_LIST_DIR}/Src/serialSaveDataHDF5.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/serialEnv.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simData.cc
       ${CMAKE_CURRENT_LIST_DIR}/Src/simulation.cc
@@ -51,6 +52,7 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/Include/rkSplit.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/saveData.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/serialSaveData.h
+    ${CMAKE_CURRENT_LIST_DIR}/Include/serialSaveDataHDF5.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/platformEnv.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/serialEnv.h
     ${CMAKE_CURRENT_LIST_DIR}/Include/simData.h
