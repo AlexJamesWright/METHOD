@@ -40,6 +40,12 @@ mkdir Tests/TestData/CPU/Conserved
 mkdir Tests/TestData/CPU/Constants
 mkdir Tests/TestData/CPU/Primitive
 
+mkdir Tests/TestData/Serial
+mkdir Tests/TestData/Serial/Auxiliary
+mkdir Tests/TestData/Serial/Conserved
+mkdir Tests/TestData/Serial/Constants
+mkdir Tests/TestData/Serial/Primitive
+
 mkdir Examples/Data
 mkdir Examples/Data/Final
 mkdir Examples/Data/Final/Auxiliary
