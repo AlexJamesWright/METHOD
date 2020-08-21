@@ -32,8 +32,6 @@ mkdir Tests/TestData/GPU/Auxiliary
 mkdir Tests/TestData/GPU/Conserved
 mkdir Tests/TestData/GPU/Constants
 mkdir Tests/TestData/GPU/Primitive
-
-mkdir Tests/TestData
 mkdir Tests/TestData/CPU
 mkdir Tests/TestData/CPU/Auxiliary
 mkdir Tests/TestData/CPU/Conserved
