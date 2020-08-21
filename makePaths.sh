@@ -26,29 +26,12 @@ mkdir Project/CPU/Data/TimeSeries/Constants
 mkdir Project/CPU/Data/TimeSeries/Primitive
 mkdir Project/CPU/Data/TimeSeries/UserDef
 
-
-mkdir Project/Serial/Data
-mkdir Project/Serial/Data/Final
-mkdir Project/Serial/Data/Final/Auxiliary
-mkdir Project/Serial/Data/Final/Conserved
-mkdir Project/Serial/Data/Final/Primitive
-mkdir Project/Serial/Data/Final/Constants
-mkdir Project/Serial/Data/Final/Domain
-mkdir Project/Serial/Data/TimeSeries
-mkdir Project/Serial/Data/TimeSeries/Auxiliary
-mkdir Project/Serial/Data/TimeSeries/Conserved
-mkdir Project/Serial/Data/TimeSeries/Constants
-mkdir Project/Serial/Data/TimeSeries/Primitive
-mkdir Project/Serial/Data/TimeSeries/UserDef
-
 mkdir Tests/TestData
 mkdir Tests/TestData/GPU
 mkdir Tests/TestData/GPU/Auxiliary
 mkdir Tests/TestData/GPU/Conserved
 mkdir Tests/TestData/GPU/Constants
 mkdir Tests/TestData/GPU/Primitive
-
-mkdir Tests/TestData
 mkdir Tests/TestData/CPU
 mkdir Tests/TestData/CPU/Auxiliary
 mkdir Tests/TestData/CPU/Conserved
