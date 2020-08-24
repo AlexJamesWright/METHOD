@@ -31,6 +31,7 @@ INC_DIR = ./../../Project/GPU/Include
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS = -isystem $(GTEST_DIR)/include
+STDFLAGS = -std=c++11
 
 # Flags passed to the C++ compiler.
 # c++11 is required for the vector looping srmhd
@@ -120,11 +121,11 @@ RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
 
 
 gtest-all.o : $(GTEST_SRCS_)
-	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	@$(CXX) $(CPPFLAGS) $(STDFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc
 
 gtest_main.o : $(GTEST_SRCS_)
-	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+	@$(CXX) $(CPPFLAGS) $(STDFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest_main.cc
 
 gtest.a : gtest-all.o
