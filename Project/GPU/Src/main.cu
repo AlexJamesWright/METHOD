@@ -25,7 +25,6 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 
-  const double MU(1000);
   // Set up domain
   int Ng(4);
   int nx(64);
@@ -65,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Simulation sim(&data);
+  Simulation sim(&data, &env);
 
   KHInstabilitySingleFluid init(&data, 1);
 
