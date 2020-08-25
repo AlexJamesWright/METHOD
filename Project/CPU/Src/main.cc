@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.05);
+  double endTime(0.0005);
   double cfl(0.1);
   double gamma(4.0/3.0);
   double sigma(0);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  KHInstabilitySingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 

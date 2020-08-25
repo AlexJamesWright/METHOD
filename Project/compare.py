@@ -1,4 +1,4 @@
-TOL=10e-15
+TOL=1e-15
 
 time_format_folder="Final"
 vars_folders=["Conserved", "Auxiliary", "Primitive"]
@@ -25,10 +25,8 @@ for index in range(len(vars_folders)):
                                     parallel_val = float(parallel_line)
                                     line_number = line_number + 1
                                     if (abs(serial_val-parallel_val) > TOL):
-                                        print("\n\n!! Error in {} (val={}, line={}), {}, (val={})\n\n".format(serial_filename, serial_val, line_number, parallel_filename, parallel_val))  
+                                        print("\tError in {} (val={}, line={}), {}, (val={})\n".format(serial_filename, serial_val, line_number, parallel_filename, parallel_val))
                                         break
 
         except IOError:
                 print("Could not read file:", filename)
-
-
