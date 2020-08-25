@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(256);
-  int ny(512);
+  int nx(64);
+  int ny(16);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -36,14 +36,10 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(3.0);
+  double endTime(0.05);
   double cfl(0.1);
   double gamma(4.0/3.0);
-  double sigma(300);
-  double cp(1.0);
-  double mu1(-MU);
-  double mu2(MU);
-  int frameSkip(180);
+  double sigma(0);
   bool output(true);
   int safety(180);
 
@@ -57,7 +53,7 @@ int main(int argc, char *argv[]) {
   }
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+            cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
   SRRMHD model(&data);

@@ -23,7 +23,7 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3
 
 # Sources
 SRCS = main.cu \
