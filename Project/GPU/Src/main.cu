@@ -9,6 +9,7 @@
 #include "SSP2.h"
 #include "saveData.h"
 #include "fluxVectorSplitting.h"
+#include "serialEnv.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -42,7 +43,9 @@ int main(int argc, char *argv[]) {
   double sigma(0);
   bool output(true);
   int safety(180);
-
+  int nxRanks(4);
+  int nyRanks(1);
+  int nzRanks(1);
 
   char * ptr(0);
   //! Overwrite any variables that have been passed in as main() arguments
@@ -52,7 +55,9 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime,
+  SerialEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation

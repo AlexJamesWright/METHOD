@@ -1,4 +1,5 @@
 #include "simData.h"
+#include "platformEnv.h"
 #include "cudaErrorCheck.h"
 #include <stdexcept>
 #include <cstdio>
@@ -7,7 +8,8 @@ Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
            double ymin, double ymax,
            double zmin, double zmax,
-           double endTime, double cfl, int Ng,
+           double endTime, PlatformEnv *env,
+           double cfl, int Ng,
            double gamma, double sigma,
            double cp,
            double mu1, double mu2,
@@ -19,16 +21,19 @@ Data::Data(int nx, int ny, int nz,
            zmin(zmin), zmax(zmax),
            endTime(endTime), cfl(cfl), Ng(Ng),
            gamma(gamma), sigma(sigma),
-           memSet(0),
+           memSet(0), bcsSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
            mu1(mu1), mu2(mu2),
            frameSkip(frameSkip)
 {
+  // TODO -- handle nx not dividing perfectly into nxRanks
 
-  this->Nx = nx + 2 * Ng;
-  this->Ny = ny + 2 * Ng;
-  this->Nz = nz + 2 * Ng;
+  // Set Nx to be nx per MPI process + ghost cells
+  this->Nx = nx/env->nxRanks + 2 * Ng;
+  this->Ny = ny/env->nyRanks + 2 * Ng;
+  this->Nz = nz/env->nzRanks + 2 * Ng;
+
   dims = 3;
 
   // Catch 2D case
