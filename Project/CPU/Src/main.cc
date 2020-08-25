@@ -1,7 +1,7 @@
 // CPU main
-#include "parallelBoundaryConds.h"
+#include "boundaryConds.h"
 #include "fluxVectorSplitting.h"
-#include "parallelSaveData.h"
+#include "serialSaveData.h"
 #include "simulation.h"
 #include "initFunc.h"
 #include "simData.h"
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.5);
+  double endTime(0.05);
   double cfl(0.1);
   double gamma(4.0/3.0);
   double sigma(0);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   double nyRanks(1);
   double nzRanks(1);
 
-  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  SerialEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma);
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &weno, &model);
 
-  ParallelFlow bcs(&data, &env);
+  Flow bcs(&data);
 
   Simulation sim(&data, &env);
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  SerialSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
