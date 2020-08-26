@@ -1,14 +1,13 @@
-#include "saveData.h"
+#include "serialSaveData.h"
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
 
 using namespace std;
 
-// Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void SaveData::saveAll(bool timeSeries)
+void SerialSaveData::saveAll(bool timeSeries)
 {
   // Clean directory variable
   dir[0] = '\0';
@@ -31,7 +30,7 @@ void SaveData::saveAll(bool timeSeries)
   this->saveConsts();
 }
 
-void SaveData::saveCons()
+void SerialSaveData::saveCons()
 {
   FILE * f;
 
@@ -89,7 +88,7 @@ void SaveData::saveCons()
 }
 
 
-void SaveData::savePrims()
+void SerialSaveData::savePrims()
 {
   FILE * f;
   char fname[120];
@@ -142,7 +141,7 @@ void SaveData::savePrims()
 
 }
 
-void SaveData::saveAux()
+void SerialSaveData::saveAux()
 {
   FILE * f;
   char fname[120];
@@ -196,7 +195,7 @@ void SaveData::saveAux()
 }
 
 
-void SaveData::saveDomain()
+void SerialSaveData::saveDomain()
 {
   FILE * f;
   char fname[120];
@@ -228,7 +227,7 @@ void SaveData::saveDomain()
 }
 
 
-void SaveData::saveConsts()
+void SerialSaveData::saveConsts()
 {
   FILE * f;
   char fname[120];
@@ -254,7 +253,7 @@ void SaveData::saveConsts()
 }
 
 
-void SaveData::saveVar(string variable, int num)
+void SerialSaveData::saveVar(string variable, int num)
 {
   int cpa(0); // cons=1,prims=2,aux=3
   int Nvar(0); // Variable number

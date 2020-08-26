@@ -7,7 +7,7 @@
 #include "boundaryConds.h"
 #include "rkSplit.h"
 #include "SSP2.h"
-#include "saveData.h"
+#include "serialSaveData.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SaveData save(&data);
+  SerialSaveData save(&data, &env);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

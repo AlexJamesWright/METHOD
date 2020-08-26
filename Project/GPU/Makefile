@@ -42,7 +42,7 @@ SRCS = main.cu \
 			 SSP3.cu \
 			 IMEX3Args.cu \
 			 boundaryConds.cu \
-			 saveData.cu \
+			 serialSaveData.cu \
 			 serialEnv.cu \
 			 fluxVectorSplitting.cu \
 			 srrmhd.cu \
@@ -151,7 +151,7 @@ IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cu $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
-saveData.o : $(MODULE_DIR)/saveData.cu $(INC_DIR)/saveData.h
+serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
 	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
