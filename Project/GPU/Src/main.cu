@@ -37,14 +37,14 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.05);
+  double endTime(0.0005);
   double cfl(0.1);
   double gamma(4.0/3.0);
   double sigma(0);
   bool output(true);
   int safety(180);
-  int nxRanks(1);
-  int nyRanks(1);
+  int nxRanks(2);
+  int nyRanks(2);
   int nzRanks(1);
 
   char * ptr(0);
