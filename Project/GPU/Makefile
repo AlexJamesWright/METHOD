@@ -3,11 +3,11 @@
 
 # Compiler
 
-# We will compile most object files with (NVCC), other than those object files that use MPI. If using MPI, set CC_CPU=mpicc. In that case, the object files which use MPI will be compiled with mpicc. For linking, CC_CPU will be used (this should be set to mpicc if using MPI)
-CC_CPU = mpic++
 CC_GPU = nvcc
 
 USE_MPI=1
+
+MPI_LIBRARY = /local/software/openmpi/3.0.0/gcc-cuda8.0
 
 # Module directory
 MODULE_DIR = ./Src
@@ -23,6 +23,8 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 
 # Cminpack source directory
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
+
+MPI_FLAGS = -lmpi -L${MPI_LIBRARY_PATH}/lib -I${MPI_LIBRARY_PATH}/include
 
 # C++ compiler flags
 CXXFLAGS = -fopenmp -Wall -std=c++11 -O3
@@ -181,28 +183,21 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVect
 
 #parallel sources -- these need to be compiled with the MPI library linked, which can be accomplished by compiling with mpic++
 
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	$(CC_CPU)	$<	$(CXXFLAGS)	-I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	$(CC_CPU)	$<	$(CXXFLAGS) -I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64 
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_DIR)/parallelBoundaryConds.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
-parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(CC_CPU)	$<	$(CXXFLAGS) -I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_DIR)/parallelEnv.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
 #end parallel sources
 
 
-cpu_link.o : $(ENV_OBJS) 
-	$(CC_CPU) $^	-o $@ $(CXXFLAGS) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
-
-# link device code using CC_GPU (g++/mpi++ can't do this)
-gpu_link.o : $(RTFIND_OBJS) $(OBJS)
-	$(CC_GPU) $^	-dlink -o $@ $(NVFLAGS) -lcudadevrt
-
 # Executable
-main : gpu_link.o $(RTFIND_OBJS) $(OBJS) cpu_link.o 
-	$(CC_CPU) $^	-o $@ $(CXXFLAGS) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+main : $(RTFIND_OBJS) $(OBJS) $(ENV_OBJS)
+	$(CC_GPU) $^	-o $@ 	$(NVFLAGS) $(MPI_FLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
