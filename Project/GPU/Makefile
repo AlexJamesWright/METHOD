@@ -2,7 +2,12 @@
 # and links for main.cc
 
 # Compiler
-CC = nvcc
+
+# We will compile most object files with (NVCC), other than those object files that use MPI. If using MPI, set CC_CPU=mpicc. In that case, the object files which use MPI will be compiled with mpicc. For linking, CC_CPU will be used (this should be set to mpicc if using MPI)
+CC_CPU = g++
+CC_GPU = nvcc
+
+USE_MPI=0
 
 # Module directory
 MODULE_DIR = ./Src
@@ -20,10 +25,10 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -Xcompiler -fopenmp -Xcompiler -Wall
+CXXFLAGS = -fopenmp -Wall
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_61 -Xcompiler -fopenmp -Xcompiler -Wall
 
 # Sources
 SRCS = main.cu \
@@ -42,15 +47,26 @@ SRCS = main.cu \
 			 SSP3.cu \
 			 IMEX3Args.cu \
 			 boundaryConds.cu \
-			 serialSaveData.cu \
-			 serialEnv.cu \
 			 fluxVectorSplitting.cu \
 			 srrmhd.cu \
 			 C2PArgs.cu
 
+PARALLEL_SRCS = parallelSaveData.cu \
+	parallelEnv.cu \
+	parallelBoundaryConds.cu
+
+SERIAL_SRCS = serialSaveData.cu \
+	serialEnv.cu
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
+
+
+ifeq ($(USE_MPI), 1)
+	SRCS += ${PARALLEL_SRCS}
+else
+	SRCS += ${SERIAL_SRCS}
+endif
 
 # Objects
 OBJS = ${SRCS:.cu=.o}
@@ -98,72 +114,75 @@ clean :
 #################
 
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_DIR)/C2PArgs.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
 srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h $(INC_DIR)/C2PArgs.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) 
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
-		$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+		$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
 rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
 backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_DIR)/backRKArgs.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
 IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 SSP3.o : $(MODULE_DIR)/SSP3.cu $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cu $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
+# link device code using CC_GPU (g++/mpi++ can't do this)
+gpu_link.o : $(RTFIND_OBJS) $(OBJS)
+	$(CC_GPU) $^	-dlink -o $@ $(NVFLAGS) -lcudadevrt
 
 # Executable
-main : $(RTFIND_OBJS) $(OBJS)
-	@$(CC) $^	-o $@ $(CXXFLAGS) $(NVFLAGS)
+main : gpu_link.o $(RTFIND_OBJS) $(OBJS)
+	$(CC_CPU) $^	-o $@ $(CXXFLAGS) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
