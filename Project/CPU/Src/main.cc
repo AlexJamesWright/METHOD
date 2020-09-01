@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  KHInstabilitySingleFluid init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
