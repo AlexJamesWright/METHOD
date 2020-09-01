@@ -5,9 +5,10 @@
 #include "srmhd.h"
 #include "srrmhd.h"
 #include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "SSP2.h"
-#include "serialSaveData.h"
+#include "parallelSaveData.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 
@@ -42,7 +43,7 @@ int main(int argc, char *argv[]) {
   double sigma(0);
   bool output(true);
   int safety(180);
-  int nxRanks(4);
+  int nxRanks(1);
   int nyRanks(1);
   int nzRanks(1);
 
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  SerialEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma);
@@ -64,15 +65,15 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
+  ParallelFlow bcs(&data, &env);
+
   Simulation sim(&data, &env);
 
   KHInstabilitySingleFluid init(&data, 1);
 
-  Flow bcs(&data);
-
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveData save(&data, &env);
+  ParallelSaveData save(&data, &env);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

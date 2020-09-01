@@ -4,10 +4,10 @@
 # Compiler
 
 # We will compile most object files with (NVCC), other than those object files that use MPI. If using MPI, set CC_CPU=mpicc. In that case, the object files which use MPI will be compiled with mpicc. For linking, CC_CPU will be used (this should be set to mpicc if using MPI)
-CC_CPU = g++
+CC_CPU = mpic++
 CC_GPU = nvcc
 
-USE_MPI=0
+USE_MPI=1
 
 # Module directory
 MODULE_DIR = ./Src
@@ -25,7 +25,7 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 # C++ compiler flags
-CXXFLAGS = -fopenmp -Wall
+CXXFLAGS = -fopenmp -Wall -std=c++11 -O3
 
 # NVIDIA compiler flags
 NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_61 -Xcompiler -fopenmp -Xcompiler -Wall
@@ -61,15 +61,17 @@ SERIAL_SRCS = serialSaveData.cu \
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
 
-
 ifeq ($(USE_MPI), 1)
-	SRCS += ${PARALLEL_SRCS}
+	ENV_SRCS = ${PARALLEL_SRCS}
 else
-	SRCS += ${SERIAL_SRCS}
+	ENV_SRCS = ${SERIAL_SRCS}
 endif
 
 # Objects
 OBJS = ${SRCS:.cu=.o}
+
+# Serial or Parallel CPU files. These cannot contain device code 
+ENV_OBJS = ${ENV_SRCS:.cu=.o}
 
 # Rootfinder objects
 RTFIND_OBJS = $(RTFIND_SRC_DIR)/dogleg.o \
@@ -106,7 +108,7 @@ run : $(RTFIND) $(EXEC)
 	@./$(EXEC)
 
 clean :
-	rm	-f	$(EXEC)	$(OBJS)	*.gch
+	rm	-f	$(EXEC)	$(OBJS)	$(ENV_OBJS) *.gch
 
 
 #################
@@ -170,18 +172,36 @@ boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
+
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
 
+#parallel sources -- these need to be compiled with the MPI library linked, which can be accomplished by compiling with mpic++
+
+parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
+	$(CC_CPU)	$<	$(CXXFLAGS)	-I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
+	$(CC_CPU)	$<	$(CXXFLAGS) -I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64 
+
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
+	$(CC_CPU)	$<	$(CXXFLAGS) -I$(INC_DIR) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+
+#end parallel sources
+
+
+cpu_link.o : $(ENV_OBJS) 
+	$(CC_CPU) $^	-o $@ $(CXXFLAGS) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
+
 # link device code using CC_GPU (g++/mpi++ can't do this)
 gpu_link.o : $(RTFIND_OBJS) $(OBJS)
 	$(CC_GPU) $^	-dlink -o $@ $(NVFLAGS) -lcudadevrt
 
 # Executable
-main : gpu_link.o $(RTFIND_OBJS) $(OBJS)
+main : gpu_link.o $(RTFIND_OBJS) $(OBJS) cpu_link.o 
 	$(CC_CPU) $^	-o $@ $(CXXFLAGS) -lcudart -lcudadevrt -L/local/software/cuda/8.0/lib64
 
 buildRootfinder:
