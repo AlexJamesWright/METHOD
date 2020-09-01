@@ -7,7 +7,7 @@ CC_GPU = nvcc
 
 USE_MPI=1
 
-MPI_LIBRARY = /local/software/openmpi/3.0.0/gcc-cuda8.0
+MPI_LIBRARY_PATH = /local/software/openmpi/3.0.0/gcc-cuda8.0
 
 # Module directory
 MODULE_DIR = ./Src
@@ -24,13 +24,14 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
-MPI_FLAGS = -lmpi -L${MPI_LIBRARY_PATH}/lib -I${MPI_LIBRARY_PATH}/include
+#MPI_FLAGS = -lmpi -L${MPI_LIBRARY_PATH}/lib -I${MPI_LIBRARY_PATH}/include
+MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 
 
 # C++ compiler flags
 CXXFLAGS = -fopenmp -Wall -std=c++11 -O3
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_61 -Xcompiler -fopenmp -Xcompiler -Wall
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52 -Xcompiler -fopenmp -Xcompiler -Wall
 
 # Sources
 SRCS = main.cu \
@@ -139,7 +140,7 @@ simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) 
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(MPI_FLAGS)
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
