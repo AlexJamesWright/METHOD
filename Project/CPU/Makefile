@@ -75,9 +75,9 @@ ifeq ($(USE_OMP), 1)
     OMP_FLAGS = -fopenmp
 endif
 
-ifeq($(USE_HDF), 1)
-    export HDF5_CXX = $(CC)
-    export HDF5_CLINKER = $(CC)
+ifeq ($(USE_HDF), 1)
+    export HDF5_CXX := $(CC)
+    export HDF5_CLINKER := $(CC)
     CC = h5c++
 endif
 
@@ -195,7 +195,13 @@ boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h

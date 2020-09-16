@@ -37,11 +37,19 @@ runMultipleSims.sh
 cleanData.sh
 
 .cache
-
 ProfileParallel.nvvp
 
 slurm*
 
+# Don't track the data files!
 Data
+Examples/Data*
 
+# Ignore the build directories
 build
+
+# Don't track files from the docker mount
+dockermount
+# Don't track files from the virtual environment or IDE
+venv
+.idea

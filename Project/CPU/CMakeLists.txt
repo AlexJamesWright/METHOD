@@ -1,4 +1,12 @@
-add_library(Cmin "")
+project(METHOD)
+add_library(Cmin "" ../../Examples/h5test.cpp)
+
+# Added HDF5 to Cmake for Clion
+find_package(HDF5)
+if(HDF5_FOUND)
+    include_directories(${HDF5_INCLUDE_DIR})
+    set(_hdf5_libs hdf5 hdf5_cpp)
+endif()
 
 target_sources(
     Cmin

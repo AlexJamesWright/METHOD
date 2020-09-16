@@ -1,5 +1,5 @@
-#ifndef PARALLELSAVEDATA_H
-#define PARALLELSAVEDATA_H
+#ifndef PARALLELSAVEDATAHDF5_H
+#define PARALLELSAVEDATAHDF5_H
 
 #include <string>
 #include <iostream>
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//! <b> Class used to save simulation data using multiple processes</b>
+//! <b> Class used to save simulation data to HDF5  using multiple processes</b>
 /*!
   @par
   Write outputs through the simple system of collecting all simulation data onto process 0
@@ -24,7 +24,7 @@ using namespace std;
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
   and the values of all prims, aux and cons variables.
 */
-class ParallelSaveData : public SaveData
+class ParallelSaveDataHDF5 : public SaveData
 {
   public:
       ParallelEnv * env;     //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
@@ -100,9 +100,9 @@ class ParallelSaveData : public SaveData
       @param test integar flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
-    ParallelSaveData(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) { }
+    ParallelSaveDataHDF5(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) { }
 
-    virtual ~ParallelSaveData() { }     //!< Destructor
+    virtual ~ParallelSaveDataHDF5() { }     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!

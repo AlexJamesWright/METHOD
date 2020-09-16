@@ -1,4 +1,4 @@
-#include "parallelSaveData.h"
+#include "parallelSaveDataHDF5.h"
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -17,7 +17,7 @@ using namespace std;
 #define ID_FULL_1D(variable, idx) ((variable)*(d->nx) + (idx))
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
-void ParallelSaveData::saveAll(bool timeSeries)
+void ParallelSaveDataHDF5::saveAll(bool timeSeries)
 {
   // Clean directory variable
   dir[0] = '\0';
@@ -50,7 +50,7 @@ void ParallelSaveData::saveAll(bool timeSeries)
 
 }
 
-void ParallelSaveData::packStateVectorBuffer(double *buffer, double *stateVector, int nVars){
+void ParallelSaveDataHDF5::packStateVectorBuffer(double *buffer, double *stateVector, int nVars){
   // Prepare send buffer, which doesn't include ghost cells, by copying from local state vectors
   if (d->dims==3){
     for (int var(0); var < nVars; var++) {
@@ -79,7 +79,7 @@ void ParallelSaveData::packStateVectorBuffer(double *buffer, double *stateVector
   }
 }
 
-void ParallelSaveData::copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars){
+void ParallelSaveDataHDF5::copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars){
   // This requires proc0 to have xRankId=yRankId=zRankId=0
   if (d->dims==3){
     for (int var(0); var < nVars; var++) {
@@ -111,7 +111,7 @@ void ParallelSaveData::copyMasterStateVectorToFullStateVector(double *fullStateV
   }
 }
 
-void ParallelSaveData::sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank){
+void ParallelSaveDataHDF5::sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank){
    // MPI message vars
    int tag = 101;
    MPI_Status status;
@@ -122,7 +122,7 @@ void ParallelSaveData::sendStateVectorBufferToMaster(double *buffer, int numCell
    }
 }
 
-void ParallelSaveData::unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank){
+void ParallelSaveDataHDF5::unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank){
   // Unpack send buffer, which don't include ghost cells, into the global state vector
 
   // Get (x,y,z) coords of rank that sent data to proc0
@@ -167,7 +167,7 @@ void ParallelSaveData::unpackStateVectorBuffer(double *buffer, double *stateVect
   }
 }
 
-void ParallelSaveData::writeStateVectorToFile(FILE *f, double *fullStateVector, int nVars){
+void ParallelSaveDataHDF5::writeStateVectorToFile(FILE *f, double *fullStateVector, int nVars){
   if (d->dims==3){
     for (int var(0); var < nVars; var++) {
       for (int i(0); i < d->nx; i++) {
@@ -198,7 +198,7 @@ void ParallelSaveData::writeStateVectorToFile(FILE *f, double *fullStateVector, 
   }
 }
 
-void ParallelSaveData::saveCons()
+void ParallelSaveDataHDF5::saveCons()
 {
   FILE * f;
 
@@ -210,7 +210,7 @@ void ParallelSaveData::saveCons()
 
   // Allocate buffers for gathering distributed state vectors onto master process
   // We do this here rather than in saveAll to allow saveCons to be called independently
-  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // We don't want to do this in the ParallelSaveDataHDF5 constructor as we don't want to use up this large
   // amount of memory until it's needed.
   int numCellsInBuffer = d->Ncons * (d->Nx-(2*d->Ng));
   if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
@@ -256,7 +256,7 @@ void ParallelSaveData::saveCons()
   free(fullStateVector);
 }
 
-void ParallelSaveData::savePrims()
+void ParallelSaveDataHDF5::savePrims()
 {
   FILE * f;
   char fname[120];
@@ -267,7 +267,7 @@ void ParallelSaveData::savePrims()
 
   // Allocate buffers for gathering distributed state vectors onto master process
   // We do this here rather than in saveAll to allow savePrims to be called independently
-  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // We don't want to do this in the ParallelSaveDataHDF5 constructor as we don't want to use up this large
   // amount of memory until it's needed.
   int numCellsInBuffer = d->Nprims * (d->Nx-(2*d->Ng));
   if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
@@ -306,7 +306,7 @@ void ParallelSaveData::savePrims()
   free(fullStateVector);
 }
 
-void ParallelSaveData::saveAux()
+void ParallelSaveDataHDF5::saveAux()
 {
   FILE * f;
   char fname[120];
@@ -317,7 +317,7 @@ void ParallelSaveData::saveAux()
 
   // Allocate buffers for gathering distributed state vectors onto master process
   // We do this here rather than in saveAll to allow saveAux to be called independently
-  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // We don't want to do this in the ParallelSaveDataHDF5 constructor as we don't want to use up this large
   // amount of memory until it's needed.
   int numCellsInBuffer = d->Naux * (d->Nx-(2*d->Ng));
   if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));
@@ -358,7 +358,7 @@ void ParallelSaveData::saveAux()
 }
 
 
-void ParallelSaveData::saveDomain()
+void ParallelSaveDataHDF5::saveDomain()
 {
   FILE * f;
   char fname[120];
@@ -390,7 +390,7 @@ void ParallelSaveData::saveDomain()
 }
 
 
-void ParallelSaveData::saveConsts()
+void ParallelSaveDataHDF5::saveConsts()
 {
   FILE * f;
   char fname[120];
@@ -417,7 +417,7 @@ void ParallelSaveData::saveConsts()
 }
 
 
-void ParallelSaveData::saveVar(string variable, int num)
+void ParallelSaveDataHDF5::saveVar(string variable, int num)
 {
   int cpa(0); // cons=1,prims=2,aux=3
   int Nvar(0); // Variable number
@@ -462,7 +462,7 @@ void ParallelSaveData::saveVar(string variable, int num)
 
   // Allocate buffers for gathering distributed state vectors onto master process
   // We do this here rather than in saveAll to allow savePrims to be called independently
-  // We don't want to do this in the ParallelSaveData constructor as we don't want to use up this large
+  // We don't want to do this in the ParallelSaveDataHDF5 constructor as we don't want to use up this large
   // amount of memory until it's needed.
   int numCellsInBuffer = (d->Nx-(2*d->Ng));
   if (d->dims > 1) numCellsInBuffer *= (d->Ny - (2*d->Ng));

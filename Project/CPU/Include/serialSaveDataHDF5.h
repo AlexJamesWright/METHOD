@@ -1,18 +1,20 @@
-#ifndef SERIALSAVEDATA_H
-#define SERIALSAVEDATA_H
+#ifndef SERIALSAVEDATAHDF5_H
+#define SERIALSAVEDATAHDF5_H
 
 #include <string>
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <utility>
+#include "H5Cpp.h"
 #include "simData.h"
 #include "saveData.h"
 #include "serialEnv.h"
 
 using namespace std;
 
-//! <b> Class used to save simulation data using a single process</b>
+//! <b> Class used to save simulation data to HDF5 using a single process</b>
 /*!
   @par
   Class is initialized with the data that is to be saved. Saves the simulation
@@ -20,42 +22,58 @@ using namespace std;
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
   and the values of all prims, aux and cons variables.
 */
-class SerialSaveData : public SaveData
+class SerialSaveDataHDF5 : public SaveData
 {
 
   public:
 
-    SerialEnv * env; //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
+    SerialEnv * env;    //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
+    string filename;    //!< Filename for the HDF5 file. Defaults to 'data.hdf5'.
+    H5::H5File *file = nullptr;  //!< HDF5 file to write to.
+    int file_iteration = 0; //!< The simulation iteration this file was opened for.
+
+    //! The level of detail to output to file
+    enum OutputDetail {
+      OUTPUT_ALL,       //!< All conserved, primitive, auxiliary and user-defined data
+      OUTPUT_REDUCED,   //!< Skip auxiliary data
+      OUTPUT_MINIMAL    //!< Only conserved and primitive data
+    } detail;
 
     //! Saves the conserved vector state
-    void saveCons();
+    void saveCons() override;
 
     //! Saves the primitive vector state
-    void savePrims();
+    void savePrims() override;
 
     //! Saves the auxiliary vector state
-    void saveAux();
+    void saveAux() override;
 
     //! Saves the domain coordinates
-    void saveDomain();
+    void saveDomain() override;
 
     //! Saves the constant data
-    void saveConsts();
+    void saveConsts() override;
 
     //! Constructor
     /*!
       @par
         The constructor take a pointer to the data class which the user wants
-      to save. All this data is automatically saved in the Data directory, located
-      in the Project folder.
+      to save.
 
       @param *data pointer to the Data class
-      @param test integar flagging if we are in the 'Examples' directory or not,
+      @param *env pointer to the Serial Environment containing information on bounds etc.
+      @param test integer flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
+      @param filename String describing the file to create. Can ignore
     */
-    SerialSaveData(Data * data, SerialEnv * env, int test=0) : SaveData(data, test), env(env) { }
+    SerialSaveDataHDF5(
+            Data * data, SerialEnv * env, int test=0, string filename="data", OutputDetail detail=OUTPUT_ALL
+    ) : SaveData(data, test), env(env), filename(filename), detail(detail) {
+      // Remove any pre-existing checkpoint file
+      std::remove((filename+".checkpoint.hdf5").c_str());
+    }
 
-    virtual ~SerialSaveData() { }     //!< Destructor
+    virtual ~SerialSaveDataHDF5() { }     //!< Destructor
 
     //! Saves all cons, prims, aux and constant data
     /*!
@@ -65,7 +83,7 @@ class SerialSaveData : public SaveData
 
       @param[in] timeSeries flags whether the saved data is final or transient
     */
-    void saveAll(bool timeSeries=false);
+    void saveAll(bool timeSeries=false) override;
 
     //! Saves user specified variable
     /*!
@@ -75,8 +93,10 @@ class SerialSaveData : public SaveData
       @param[in] variable Defines the variable the user wants to save. Should match a variable label
       @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
     */
-    void saveVar(string variable, int num=1);
+    void saveVar(string variable, int num=1) override;
 
+    void openCheckpointFile();
+    void writeDataSetDouble(const H5::Group *group, const char *name, const int *var, const double *data);
 };
 
 #endif
