@@ -8,6 +8,11 @@ if(HDF5_FOUND)
     set(_hdf5_libs hdf5 hdf5_cpp)
 endif()
 
+find_package(MPI)
+if(MPI_FOUND)
+    include_directories(${MPI_INCLUDE_PATH})
+endif()
+
 target_sources(
     Cmin
     PRIVATE

@@ -6,19 +6,17 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <utility>
+#include "H5Cpp.h"
 #include "simData.h"
 #include "saveData.h"
 #include "parallelEnv.h"
 
 using namespace std;
 
-//! <b> Class used to save simulation data to HDF5  using multiple processes</b>
+//! <b> Class used to save simulation data to HDF5 using a single process</b>
 /*!
   @par
-  Write outputs through the simple system of collecting all simulation data onto process 0
-  and writing out from process 0. This is easy to code but has the downside of limiting
-  the problem size to one that will fit onto one node.
-
   Class is initialized with the data that is to be saved. Saves the simulation
   data in the Data directory, located within the Project folder. All data is
   saved automatically, including all constant data (xmin, ymax, endTime etc) and
@@ -26,104 +24,72 @@ using namespace std;
 */
 class ParallelSaveDataHDF5 : public SaveData
 {
-  public:
-      ParallelEnv * env;     //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
 
-  private:
+public:
+  ParallelEnv * env;    //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
+  string filename;    //!< Filename for the HDF5 file. Defaults to 'data.hdf5'.
+  H5::H5File *file = nullptr;  //!< HDF5 file to write to.
+  int file_iteration = 0; //!< The simulation iteration this file was opened for.
 
-    /*!
-        For each particular state vector (cons, prims, aux) packs a buffer containing all cells in a subdomain
-      (not including ghost values) to be sent to process 0
-      @param[out] *buffer pointer to the buffer to pack
-      @param[in] *stateVector pointer to cons, prims or aux array
-      @param[in] nVars number of variables in the cons, prims or aux array
-     */
-    void packStateVectorBuffer(double *buffer, double *stateVector, int nVars);
+  //! The level of detail to output to file
+  enum OutputDetail {
+    OUTPUT_ALL,       //!< All conserved, primitive, auxiliary and user-defined data
+    OUTPUT_REDUCED,   //!< Skip auxiliary data
+    OUTPUT_MINIMAL    //!< Only conserved and primitive data
+  } detail;
 
-    /*!
-        For each subdomain, send a buffer containing the non-ghost cells in that subdomain to a buffer on process 0.
-      @param[in, out] *buffer pointer to the buffer to send or receive
-      @param[in] numCellsSent number of cells in the buffer
-      @param[in] rank global id of the process sending its buffer to process 0
-     */
-    void sendStateVectorBufferToMaster(double *buffer, int numCellsSent, int rank);
+  //! Saves the conserved vector state
+  void saveCons() override;
 
-    /*!
-        For each particular state vector (cons, prims, aux) unpacks a buffer containing all cells
-      (not including ghost values) received from a particular subdomain into a vector containing
-      the full simulation domain
-      @param[in] *buffer pointer to the buffer to unpack
-      @param[in, out] *stateVector pointer to cons, prims or aux array of size equal to the full simulation domain
-      @param[in] rank global id of the process that sent its buffer to process 0
-     */
-    void unpackStateVectorBuffer(double *buffer, double *stateVector, int nVars, int rank);
+  //! Saves the primitive vector state
+  void savePrims() override;
 
-    /*!
-        Process 0 already holds the values for its own subdomain, so does not need to send them anywhere.
-      Instead, it needs to copy its subdomain values (cons, prims, aux) to the vector containing
-      the full simulation domain
-      @param[in, out] *fullStateVector pointer to cons, prims or aux array of size equal to the full simulation domain
-      @param[in] *stateVector pointer to cons, prims or aux array for process 0's subdomain
-      @param[in] nVars number of variables in the cons, prims or aux array
-     */
-    void copyMasterStateVectorToFullStateVector(double *fullStateVector, double *stateVector, int nVars);
+  //! Saves the auxiliary vector state
+  void saveAux() override;
 
-    // TODO -- docstring
-    void writeStateVectorToFile(FILE *f, double *fullStateVector, int nVars);
+  //! Saves the domain coordinates
+  void saveDomain() override;
 
-  public:
+  //! Saves the constant data
+  void saveConsts() override;
 
-    //! Saves the conserved vector state
-    void saveCons();
+  //! Constructor
+  /*!
+    @param *data pointer to the Data class
+    @param *env pointer to the Parallel Environment containing information on bounds etc.
+    @param filename String describing the file to create. Can ignore
+  */
+  ParallelSaveDataHDF5(
+      Data * data, ParallelEnv * env, string filename="data", OutputDetail detail=OUTPUT_ALL
+  ) : SaveData(data, 0), env(env), filename(filename), detail(detail) {
+    // Remove any pre-existing checkpoint file
+    std::remove((filename+".checkpoint.hdf5").c_str());
+  }
 
-    //! Saves the primitive vector state
-    void savePrims();
+  virtual ~ParallelSaveDataHDF5() { }     //!< Destructor
 
-    //! Saves the auxiliary vector state
-    void saveAux();
+  //! Saves all cons, prims, aux and constant data
+  /*!
+    @par
+      This calls the other member functions to save their respective
+    simulation data.
 
-    //! Saves the domain coordinates
-    void saveDomain();
+    @param[in] timeSeries flags whether the saved data is final or transient
+  */
+  void saveAll(bool timeSeries=false) override;
 
-    //! Saves the constant data
-    void saveConsts();
+  //! Saves user specified variable
+  /*!
+    @par
+      Function saves the data for the variable specified by the string `var`
 
+    @param[in] variable Defines the variable the user wants to save. Should match a variable label
+    @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
+  */
+  void saveVar(string variable, int num=1) override;
 
-    //! Constructor
-    /*!
-      @par
-        The constructor take a pointer to the data class which the user wants
-      to save. All this data is automatically saved in the Data directory, located
-      in the Project folder.
-
-      @param *data pointer to the Data class
-      @param test integar flagging if we are in the 'Examples' directory or not,
-      Only used for running the given examples, can ignore otherwise.
-    */
-    ParallelSaveDataHDF5(Data * data, ParallelEnv * env, int test=0) : SaveData(data, test), env(env) { }
-
-    virtual ~ParallelSaveDataHDF5() { }     //!< Destructor
-
-    //! Saves all cons, prims, aux and constant data
-    /*!
-      @par
-        This calls the other member functions to save their respective
-      simulation data.
-
-      @param[in] timeSeries flags whether the saved data is final or transient
-    */
-    void saveAll(bool timeSeries=false);
-
-    //! Saves user specified variable
-    /*!
-      @par
-        Function saves the data for the variable specified by the string `var`
-
-      @param[in] variable Defines the variable the user wants to save. Should match a variable label
-      @param[in] num number of user-specified variables to save in total (required for consistent numbering of files)
-    */
-    void saveVar(string variable, int num=1);
-
+  void openCheckpointFile();
+  void writeDataSetDouble(const H5::Group *group, const char *name, const int *var, const double *data);
 };
 
 #endif

@@ -11,6 +11,10 @@ using namespace H5;
 /*!
  * /brief Opens a group if it exists or creates a new one
  *
+ * This is a helper function that opens a group if it exists,
+ * or creates one if it does not. Exists to future-proof checkpointing
+ * that may involve re-using files.
+ *
  * @param group The group the subgroup belongs to/should belong to
  * @param name The name of the subgroup
  */
@@ -25,6 +29,10 @@ Group selectGroup(Group *group, const char *name) {
 
 /*!
  * /brief Writes to a new or existing integer attribute
+ *
+ * This is a helper function that writes to an attribute if it already exists,
+ * or creates a new one if it doesn't. Exists to future-proof checkpointing
+ * that may involve re-using files.
  *
  * @param group The group the attribute belongs to
  * @param name The name of the attribute
@@ -69,6 +77,8 @@ void writeAttributeDouble(const Group *group, const char *name, const double *va
  * Writing out individual variables happens before the final checkpoint write.
  * So therefore, when we want to write out a final file, there may or may not be an existing
  * checkpoint file for this cycle full of user-defined outputs.
+ *
+ * TODO: If the checkpoint files have the same dimensions, we should keep and overwrite.
  */
 void SerialSaveDataHDF5::openCheckpointFile() {
   // Is there currently a file open?
@@ -78,7 +88,7 @@ void SerialSaveDataHDF5::openCheckpointFile() {
       // If not, close the open file, delete the file with the name we want to write to on disk,
       // then open a new one
       // TODO: Check to see if the dimensions are the same to avoid deleting/reallocating
-      // Ideally, we would only create a new file if we expected the dataspaces required to differ
+      // Ideally, we would only create a new file if we expected the data-spaces required to differ
       delete this->file;
       string filename_full = this->filename+".checkpoint."+to_string(this->d->t)+".hdf5";
       std::remove(filename_full.c_str());
@@ -114,6 +124,7 @@ void SerialSaveDataHDF5::writeDataSetDouble(const H5::Group *group, const char *
   DataSet data_set;
   hsize_t lengths[3];
   int buffer_size; // The length of the buffer
+
   // We iterate over the subset of the data that is not the ghost cells.
   // However, in 1-2d models, some axes have no ghost cells, so we
   int iterator_starts[3] = {
@@ -127,7 +138,7 @@ void SerialSaveDataHDF5::writeDataSetDouble(const H5::Group *group, const char *
       d->Ng + d->nz
   };
 
-  // So now, we set the dataspace size. We also need to create a buffer to write to, that excludes the ghost cells.
+  // So now, we set the data-space size. We also need to create a buffer to write to, that excludes the ghost cells.
   // So we calculate the size it needs to be, excluding ghost cells.
   if(d->dims == 3){
     lengths[0] = d->nx;
@@ -170,7 +181,6 @@ void SerialSaveDataHDF5::writeDataSetDouble(const H5::Group *group, const char *
       for (int j(iterator_starts[1]); j < iterator_ends[1]; j++) {
         for (int k(iterator_starts[2]); k < iterator_ends[2]; k++) {
           buffer[buffer_position++] = data[ID(*var, i, j, k)];
-//          printf("%d %d %d - %f\n", i, j, k, data[ID(*var, i, j, k)]);
         }
       }
     }
@@ -197,20 +207,6 @@ void SerialSaveDataHDF5::writeDataSetDouble(const H5::Group *group, const char *
  */
 void SerialSaveDataHDF5::saveAll(bool timeSeries)
 {
-  // Clean directory variable
-  dir[0] = '\0';
-  // Determine the directory to write files to
-  if (test)
-    strcpy(dir, "../../");
-  if (!timeSeries && strcmp(dir, "Data/Final")!=0) {
-    strcat(dir, "Data/Final");
-    app[0]=0;
-  }
-  else {
-    strcat(dir, "Data/TimeSeries");
-    sprintf(app, "%d", Nouts++);
-  }
-
   if(timeSeries) {
     // If we're doing a timeseries/checkpoint output, things may be complicated
     // as saveVars may have written some of the variables to file already!
@@ -238,61 +234,12 @@ void SerialSaveDataHDF5::saveAll(bool timeSeries)
   if(this->detail == OUTPUT_ALL) this->saveAux();
 }
 
+
+/*!
+ * /brief Saves conserved variables
+ */
 void SerialSaveDataHDF5::saveCons()
 {
-  FILE * f;
-
-  char fname[120];
-  strcpy(fname, dir);
-  strcat(fname, "/Conserved/cons");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");
-
-  f = fopen(fname, "w");
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open '%s' for writing.\n", fname);
-    exit(1);
-  }
-
-  // File is open, write data
-  fprintf(f, "cons = ");
-  for (int i(0); i < d->Ncons-1; i++) {
-    fprintf(f, "%s, ", d->consLabels[i].c_str());
-  }
-  fprintf(f, "%s\n", d->consLabels[d->Ncons-1].c_str());
-
-  if (d->dims==3){
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
-            fprintf(f, "%.16f", d->cons[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
-            fprintf(f, "\n");
-          }
-        }
-      }
-    }
-  } else if (d->dims==2){
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          fprintf(f, "%.16f ", d->cons[ID(var, i + d->Ng, j + d->Ng, 0)]);
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else {
-    for (int var(0); var < d->Ncons; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        fprintf(f, "%.16f ", d->cons[ID(var, i + d->Ng, 0, 0)]);
-        fprintf(f, "\n");
-      }
-    }
-  }
-
-  fclose(f);
-
   try {
     Group conserved = selectGroup(this->file, "Conserved");
     writeAttributeInt(&conserved, "Ncons", &d->Ncons);
@@ -313,57 +260,11 @@ void SerialSaveDataHDF5::saveCons()
 }
 
 
+/*!
+ * /brief Saves primitive variables
+ */
 void SerialSaveDataHDF5::savePrims()
 {
-  FILE * f;
-  char fname[120];
-  strcpy(fname, dir);
-  strcat(fname, "/Primitive/prims");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");  f = fopen(fname, "w");
-
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open '%s' for writing.\n", fname);
-    exit(1);
-  }
-
-  // File is open, write data
-  fprintf(f, "prims = ");
-  for (int i(0); i < d->Nprims-1; i++) fprintf(f, "%s, ", d->primsLabels[i].c_str());
-  fprintf(f, "%s\n", d->primsLabels[d->Nprims-1].c_str());
-
-  if (d->dims==3){
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
-            fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
-          }
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else if (d->dims==2){
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, j + d->Ng, 0)]);
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else {
-    for (int var(0); var < d->Nprims; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        fprintf(f, "%.16f ", d->prims[ID(var, i + d->Ng, 0, 0)]);
-        fprintf(f, "\n");
-      }
-    }
-  }
-
-  fclose(f);
-
   try {
     Group primitive = selectGroup(this->file, "Primitive");
     writeAttributeInt(&primitive, "Nprims", &d->Nprims);
@@ -382,62 +283,17 @@ void SerialSaveDataHDF5::savePrims()
   }
 }
 
+
+/*!
+ * /brief Save auxiliary variables
+ */
 void SerialSaveDataHDF5::saveAux()
 {
-  FILE * f;
-  char fname[120];
-  strcpy(fname, dir);
-  strcat(fname, "/Auxiliary/aux");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");  f = fopen(fname, "w");
-
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open '%s' for writing.\n", fname);
-    exit(1);
-  }
-
-  // File is open, write data
-  fprintf(f, "aux = ");
-  for (int i(0); i < d->Naux-1; i++) fprintf(f, "%s, ", d->auxLabels[i].c_str());
-  fprintf(f, "%s\n", d->auxLabels[d->Naux-1].c_str());
-
-  if (d->dims==3){
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          for (int k(0); k < d->Nz-(2*d->Ng); k++) {
-            fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, j + d->Ng, k + d->Ng)]);
-          }
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else if (d->dims==2){
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        for (int j(0); j < d->Ny-(2*d->Ng); j++) {
-          fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, j + d->Ng, 0)]);
-          fprintf(f, "\n");
-        }
-      }
-    }
-  } else {
-    for (int var(0); var < d->Naux; var++) {
-      for (int i(0); i < d->Nx-(2*d->Ng); i++) {
-        fprintf(f, "%.16f ", d->aux[ID(var, i + d->Ng, 0, 0)]);
-        fprintf(f, "\n");
-      }
-    }
-  }
-
-  fclose(f);
-
   try {
     Group auxiliary = selectGroup(this->file, "Auxiliary");
     writeAttributeInt(&auxiliary, "Naux", &d->Naux);
 
-    for(int var(0); var < d->Ncons; var++) {
+    for(int var(0); var < d->Naux; var++) {
       this->writeDataSetDouble(&auxiliary, d->auxLabels[var].c_str(), &var, d->aux);
     }
   }
@@ -452,33 +308,11 @@ void SerialSaveDataHDF5::saveAux()
 }
 
 
+/*!
+ * /brief Save domain information
+ */
 void SerialSaveDataHDF5::saveDomain()
 {
-  FILE * f;
-  char fname[120];
-  strcpy(fname, dir);
-  strcat(fname, "/Domain/domain");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");  f = fopen(fname, "w");
-
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open '%s' for writing.\n", fname);
-    exit(1);
-  }
-
-  // File is open, write data
-  for (int i(0); i < d->Nx; i++)
-    fprintf(f, "%.16f ", d->x[i]);
-  fprintf(f, "\n");
-  for (int j(0); j < d->Ny; j++)
-    fprintf(f, "%.16f ", d->y[j]);
-  fprintf(f, "\n");
-  for (int k(0); k < d->Nz; k++)
-    fprintf(f, "%.16f ", d->z[k]);
-  fprintf(f, "\n");
-  fclose(f);
-
   try {
     Group domain = selectGroup(this->file, "Domain");
     writeAttributeInt(&domain, "nx", &d->nx);
@@ -500,7 +334,7 @@ void SerialSaveDataHDF5::saveDomain()
     writeAttributeDouble(&domain, "dy", &d->dy);
     writeAttributeDouble(&domain, "dz", &d->dz);
 
-    // Create the X bounds: Create the dataspace to store it, then the dataset
+    // Create the X bounds: Create the data-space to store it, then the dataset
     DataSet data_set_x;
     if(domain.nameExists("x")){
       data_set_x = domain.openDataSet("x");
@@ -547,6 +381,9 @@ void SerialSaveDataHDF5::saveDomain()
 }
 
 
+/*!
+ * /brief Save constants
+ */
 void SerialSaveDataHDF5::saveConsts()
 {
   try {
@@ -566,28 +403,6 @@ void SerialSaveDataHDF5::saveConsts()
   {
     H5::GroupIException::printErrorStack();
   }
-
-  FILE * f;
-  char fname[120];
-  strcpy(fname, dir);
-  strcat(fname, "/Constants/constants");
-  strcat(fname, app);
-  strcat(fname, ".dat\0");  f = fopen(fname, "w");
-
-  // Ensure file is open
-  if (f == NULL) {
-    printf("Error: could not open 'constants.dat' for writing.\n");
-    exit(1);
-  }
-
-  fprintf(f, "constants = nx, ny, nz, Nx, Ny, Nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, cfl, Ng, gamma, sigma, ");
-  fprintf(f, "Ncons, Nprims, Naux, cp, dt, t, dx, dy, dz\n");
-  fprintf(f, "%d %d %d %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %d %.16f %.16f %d %d %d %.16f %.16f %.16f %.16f %.16f %.16f\n",
-          d->nx, d->ny, d->nz, d->Nx, d->Ny, d->Nz, d->xmin, d->xmax, d->ymin, d->ymax, d->zmin, d->zmax, d->endTime, d->cfl, d->Ng,
-          d->gamma, d->sigma, d->Ncons, d->Nprims, d->Naux, d->cp, d->dt, d->t, d->dx, d->dy, d->dz);
-
-  fclose(f);
-
 }
 
 

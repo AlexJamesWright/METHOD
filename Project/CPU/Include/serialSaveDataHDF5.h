@@ -56,19 +56,13 @@ class SerialSaveDataHDF5 : public SaveData
 
     //! Constructor
     /*!
-      @par
-        The constructor take a pointer to the data class which the user wants
-      to save.
-
       @param *data pointer to the Data class
       @param *env pointer to the Serial Environment containing information on bounds etc.
-      @param test integer flagging if we are in the 'Examples' directory or not,
-      Only used for running the given examples, can ignore otherwise.
       @param filename String describing the file to create. Can ignore
     */
     SerialSaveDataHDF5(
-            Data * data, SerialEnv * env, int test=0, string filename="data", OutputDetail detail=OUTPUT_ALL
-    ) : SaveData(data, test), env(env), filename(filename), detail(detail) {
+            Data * data, SerialEnv * env, string filename="data", OutputDetail detail=OUTPUT_ALL
+    ) : SaveData(data, 0), env(env), filename(filename), detail(detail) {
       // Remove any pre-existing checkpoint file
       std::remove((filename+".checkpoint.hdf5").c_str());
     }

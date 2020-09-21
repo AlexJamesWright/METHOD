@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 //  double startTime(omp_get_wtime());
 
   // Run until end time and save results
-  sim.evolve(output, 40); //FIXME: Temporary
+  sim.evolve(output);
 
 //  double timeTaken(omp_get_wtime() - startTime);
 
