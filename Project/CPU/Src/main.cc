@@ -6,6 +6,7 @@
 #include "initFunc.h"
 #include "simData.h"
 #include "SSP2.h"
+#include "RK2.h"
 #include "Euler.h"
 #include "weno.h"
 
@@ -19,7 +20,7 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(64);
-  int ny(16);
+  int ny(8);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
   Weno3 weno(&data);
 
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   KHInstabilitySingleFluid init(&data, 1);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SerialSaveData save(&data, &env, 0);
 

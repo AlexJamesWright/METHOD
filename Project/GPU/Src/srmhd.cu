@@ -14,7 +14,6 @@
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
-#include <omp.h>
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -44,6 +43,7 @@ SRMHD::SRMHD(Data * data) : Model(data)
   // Solutions for C2P all cells
   cudaHostAlloc((void **)&solution, sizeof(double)*2*data->Nx*data->Ny*data->Nz,
                 cudaHostAllocPortable);
+  //solution = (double *) malloc(sizeof(double)*2*data->Nx*data->Ny*data->Nz);
 
   smartGuesses = 0;
 
@@ -91,11 +91,8 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
   // Generate flux vector
   // Fx: flux in x-direction
   if (dir == 0) {
-    #pragma omp parallel for
     for (int i=0; i < d->Nx; i++) {
-      #pragma omp parallel for
       for (int j=0; j < d->Ny; j++) {
-        #pragma omp parallel for
         for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(1, i, j, k)];
@@ -137,11 +134,8 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 
   // Fy: flux in y-direction
   else if (dir==1) {
-    #pragma omp parallel for
     for (int i=0; i < d->Nx; i++) {
-      #pragma omp parallel for
       for (int j=0; j < d->Ny; j++) {
-        #pragma omp parallel for
         for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(2, i, j, k)];
@@ -183,11 +177,8 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 
   // Fz: flux in z-direction
   else {
-    #pragma omp parallel for
     for (int i=0; i < d->Nx; i++) {
-      #pragma omp parallel for
       for (int j=0; j < d->Ny; j++) {
-        #pragma omp parallel for
         for (int k=0; k < d->Nz; k++) {
           // D
           f[ID(0, i, j, k)] = cons[ID(0, i, j, k)] * prims[ID(3, i, j, k)];
@@ -238,7 +229,6 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
 void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
 
-  #pragma omp parallel for
   for (int var=0; var < this->data->Ncons; var++) {
     if (var == 8) {
       // phi
@@ -258,13 +248,9 @@ void SRMHD::sourceTermSingleCell(double *cons, double *prims, double *aux, doubl
 void SRMHD::sourceTerm(double *cons, double *prims, double *aux, double *source)
 {
 
-  #pragma omp parallel for
   for (int i=0; i < this->data->Nx; i++) {
-    #pragma omp parallel for
     for (int j=0; j < this->data->Ny; j++) {
-      #pragma omp parallel for
       for (int k=0; k < this->data->Nz; k++) {
-        #pragma omp parallel for
         for (int var=0; var < this->data->Ncons; var++) {
           if (var == 8) {
             // phi
@@ -335,7 +321,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   double sol[2];                      // Guess and solution vector
   double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
-  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.4e-8;   // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
 
@@ -422,9 +408,9 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
   // Solutions
-  double * solution;
-  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
-                cudaHostAllocPortable);
+  //double * solution;
+  //cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
+                //cudaHostAllocPortable);
 
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
@@ -432,7 +418,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   double sol[2];                      // Guess and solution vector
   double res[2];                      // Residual/fvec vector
   int info;                           // Rootfinder flag
-  const double tol = 1.49011612e-8;   // Tolerance of rootfinder
+  const double tol = 1.49011612e-7;   // Tolerance of rootfinder
   const int lwa = 19;                 // Length of work array = n * (3*n + 13) / 2
   double wa[lwa];                     // Work array
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
@@ -542,11 +528,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
 
-  #pragma omp parallel for
   for (int i=0; i < d->Nx; i++) {
-    #pragma omp parallel for
     for (int j=0; j < d->Ny; j++) {
-      #pragma omp parallel for
       for (int k=0; k < d->Nz; k++) {
         // W
         aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
@@ -598,7 +581,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     } // End j-loop
   } // End i-loop
 
-  cudaFreeHost(solution);
 
 }
 

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(64);
-  int ny(16);
+  int ny(8);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
   double sigma(0);
   bool output(true);
   int safety(180);
-  int nxRanks(2);
-  int nyRanks(2);
+  int nxRanks(1);
+  int nyRanks(1);
   int nzRanks(1);
 
   char * ptr(0);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
             cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
-  SRRMHD model(&data);
+  SRMHD model(&data);
 
   FVS fluxMethod(&data, &model);
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
   KHInstabilitySingleFluid init(&data, 1);
 
-  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveData save(&data, &env);
 
