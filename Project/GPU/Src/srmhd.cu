@@ -14,16 +14,21 @@
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include "cudaErrorCheck.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+#define IDCons(var, idx, jdx, kdx) ( (var) + (idx)*(d->Ncons)*(d->Nz)*(d->Ny) + (jdx)*(d->Ncons)*(d->Nz) + (kdx)*(d->Ncons)  )
+#define IDPrims(var, idx, jdx, kdx) ( (var) + (idx)*(d->Nprims)*(d->Nz)*(d->Ny) + (jdx)*(d->Nprims)*(d->Nz) + (kdx)*(d->Nprims)  )
+#define IDAux(var, idx, jdx, kdx) ( (var) + (idx)*(d->Naux)*(d->Nz)*(d->Ny) + (jdx)*(d->Naux)*(d->Nz) + (kdx)*(d->Naux)  )
 
 __device__
 int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int iflag);
 
 int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag);
 
-
+__global__
+static void getPrimitiveVarsParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
 
 SRMHD::SRMHD() : Model()
 {
@@ -65,11 +70,14 @@ SRMHD::SRMHD(Data * data) : Model(data)
   this->data->auxLabels.push_back("bsq"); this->data->auxLabels.push_back("vsq");
   this->data->auxLabels.push_back("BS");  this->data->auxLabels.push_back("Bsq");
   this->data->auxLabels.push_back("Ssq");
+
+  c2pArgs = new C2PArgs(this->data);
 }
 
 SRMHD::~SRMHD()
 {
   cudaFreeHost(solution);
+  delete c2pArgs;
 }
 
 
@@ -403,7 +411,8 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   old values for the prims and aux vectors.
   Output is the current values of cons, prims and aux.
 */
-void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
+/*
+void SRMHD::getPrimitiveVarsCPU(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
@@ -583,7 +592,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
 
 }
-
+*/
 
 
 
@@ -700,7 +709,7 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
 //! Need a structure to pass to C2P hybrd rootfind to hold the current cons values
 typedef struct
 {
-  double guess[9];
+  double guess[8];
   double gamma;
 } getPrimVarsArgs;
 
@@ -731,6 +740,178 @@ int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int ifl
 
   return 0;
 }
+
+void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
+{
+  // Syntax
+  Data * d(this->data);
+
+  // First need to copy data to the device
+  // A single cell requires all cons variables and aux10 to start the guessing
+  // Rearrange data into host arrays ready for copying
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Ncons; var++) {
+          c2pArgs->cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
+        }
+        c2pArgs->guess_h[ID(0, i, j, k)] = aux[ID(10, i, j, k)];
+      }
+    }
+  }
+
+  // Data is in correct order, now stream data to the device
+  for (int i(0); i < c2pArgs->Nstreams; i++) {
+    // Which cell is at the left bound?
+    int lcell(i * c2pArgs->streamWidth);
+    // Which cell is at the right bound?
+    int rcell(lcell + c2pArgs->streamWidth);
+    if (rcell > d->Ncells) rcell = d->Ncells;
+    // Memory size to copy in
+    int width(rcell - lcell);
+    int inMemsize(width * sizeof(double));
+
+    // Send stream's data
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->cons_d[i], c2pArgs->cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell, inMemsize, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+
+
+    // Call kernel and operate on data
+    getPrimitiveVarsParallel <<< c2pArgs->bpg, c2pArgs->tpb,
+        c2pArgs->tpb * c2pArgs->cellMem, c2pArgs->stream[i] >>> (c2pArgs->cons_d[i],
+        c2pArgs->prims_d[i], c2pArgs->aux_d[i], c2pArgs->guess_d[i], i, d->gamma, d->sigma, d->Ncons,
+        d->Nprims, d->Naux, c2pArgs->streamWidth, width);
+
+
+    // Copy all data back
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->prims_h + lcell*d->Nprims, c2pArgs->prims_d[i], inMemsize*d->Nprims, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->aux_h + lcell*d->Naux, c2pArgs->aux_d[i], inMemsize*d->Naux, cudaMemcpyDeviceToHost, c2pArgs->stream[i]) );
+  }
+  gpuErrchk( cudaDeviceSynchronize() );
+
+  // Rearrange data back into arrays
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        for (int var(0); var < d->Nprims; var++) {
+          prims[ID(var, i, j, k)] = c2pArgs->prims_h[IDPrims(var, i, j, k)];
+        }
+        for (int var(0); var < d->Naux; var++) {
+          aux[ID(var, i, j, k)] = c2pArgs->aux_h[IDAux(var, i, j, k)];
+        }
+      }
+    }
+  }
+}
+
+// /*!
+//     This is the device version of the getPrimitiveVars that takes a streams data
+//     and computes the rest of the prims and aux vars. This is called when
+//     SRRMHD::getPrimitiveVars is required, i.e. all cells need to be found.
+// */
+__global__
+static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
+{
+  // First need thread indicies
+  const int tID(threadIdx.x);                     //!< thread index (in block)
+  const int lID(tID + blockIdx.x * blockDim.x);   //!< local index (in stream)
+  // const int gID(lID + stream * origWidth);        //!< global index (in domain)
+  // Allocate shared memory
+  extern __shared__ double sharedArray [];
+  double * cons = &sharedArray[tID * (Ncons + Nprims + Naux)];
+  double * prims = &cons[Ncons];
+  double * aux = &prims[Nprims];
+
+  // Hybrd1 set-up
+  double sol[2];                      // Guess and solution vector
+  double res[2];                      // Residual/fvec vector
+  int info;                           // Rootfinder flag
+  double wa[19];                     // Work array
+
+  if (lID < streamWidth) {
+
+
+    // Load conserved vector into shared memory, and the initial guess
+    for (int i(0); i < Ncons; i++) cons[i] = streamCons[lID * Ncons + i];
+
+
+  
+  
+    // Update known values
+    // Bx, By, Bz
+    prims[5] = cons[5];
+    prims[6] = cons[6];
+    prims[7] = cons[8];
+  
+    // BS
+    aux[10] = cons[5] * cons[1] + cons[6] * cons[2] + cons[7] * cons[3];
+    // Bsq
+    aux[11] = cons[5] * cons[5] + cons[6] * cons[6] + cons[7] * cons[7];
+    // Ssq
+    aux[12] = cons[1] * cons[1] + cons[2] * cons[2] + cons[3] * cons[3];
+  
+  
+
+    // Set args for rootfind
+    getPrimVarsArgs GPVAArgs = {cons[0], cons[1], cons[2], cons[3], cons[4], cons[6], cons[7], cons[8], gamma};
+  
+    // Guesses of solution
+    sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+    sol[1] = prims[0] * aux[0] / (1 - sol[0]);
+  
+  
+    // Solve residual = 0
+    if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-7, wa, 19))!=1)
+    {
+      printf("C2P single cell failed at lID %d, hybrd returns info=%d\n", lID, info);
+    }
+    if (lID == 0){
+       printf("IN LANE %f\n", prims[5]); 
+       printf("GPU GAMMA %f\n", gamma);
+       printf("sol %f %f res %f %f\n", sol[0], sol[1], res[0], res[1]);
+    }
+    // W
+    aux[1] = 1 / sqrt(1 - sol[0]);
+    // rho
+    prims[0] = cons[0] / aux[1];
+    // h
+    aux[0] = sol[1] / (prims[0] * aux[1] * aux[1]);
+    // p
+    prims[4] = (aux[0] - 1) * prims[0] *
+                               (gamma - 1) / gamma;
+    // e
+    aux[2] = prims[4] / (prims[0] * (gamma - 1));
+    // vx, vy, vz
+    prims[1] = (cons[5] * aux[10] + cons[1] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+    prims[2] = (cons[6] * aux[10] + cons[2] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+    prims[3] = (cons[7] * aux[10] + cons[3] * sol[1]) / (sol[1] * (aux[11] + sol[1]));
+    // vsq
+    aux[9] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
+    // c
+    aux[3] = sqrt(aux[2] * gamma * (gamma - 1) /   aux[0]);
+    // b0
+    aux[4] = aux[1] * (cons[5] * prims[1] + cons[6] * prims[2] + cons[7] * prims[3]);
+    // bx, by, bz
+    aux[5] = cons[5] / aux[1] + aux[4] * prims[1];
+    aux[6] = cons[6] / aux[1] + aux[4] * prims[2];
+    aux[7] = cons[7] / aux[1] + aux[4] * prims[3];
+    // bsq
+    aux[8] = (prims[5] * prims[5] + prims[6] * prims[6] + prims[7] * prims[7] +
+                             aux[4] * aux[4]) / (aux[1] * aux[1]);
+  
+
+
+  }
+
+  // Copy data back from shared memory into device arrays
+  for (int i(0); i < Nprims; i++) streamPrims[lID * Nprims + i] = prims[i];
+  for (int i(0); i < Naux; i++) streamAux[lID * Naux + i] = aux[i];
+
+}
+
+
+
 __device__
 void SRMHD_D::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux)
 {
