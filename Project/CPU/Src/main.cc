@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(64);
+  int nx(16);
   int ny(8);
   int nz(0);
   double xmin(-0.5);
