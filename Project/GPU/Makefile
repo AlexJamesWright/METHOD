@@ -28,10 +28,10 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 
 
 # C++ compiler flags
-CXXFLAGS = -fopenmp -Wall -std=c++11 -O3
+CXXFLAGS = -fopenmp -Wall -std=c++11 -O0 -lineinfo -g
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52 -Xcompiler -fopenmp -Xcompiler -Wall
+NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O0 -arch=sm_52 -Xcompiler -fopenmp -Xcompiler -Wall -lineinfo -g -G
 
 # Sources
 SRCS = main.cu \
