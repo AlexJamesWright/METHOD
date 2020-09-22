@@ -400,7 +400,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
 
 }
 
-
+#if 0
 //! Solve for the primitive and auxiliary variables
 /*!
     Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
@@ -411,15 +411,14 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
   old values for the prims and aux vectors.
   Output is the current values of cons, prims and aux.
 */
-/*
-void SRMHD::getPrimitiveVarsCPU(double *cons, double *prims, double *aux)
+void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
   // Solutions
-  //double * solution;
-  //cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
-                //cudaHostAllocPortable);
+  double * solution;
+  cudaHostAlloc((void **)&solution, sizeof(double)*2*d->Nx*d->Ny*d->Nz,
+                cudaHostAllocPortable);
 
   // Hybrd1 set-up
   Args args;                          // Additional arguments structure
@@ -590,10 +589,11 @@ void SRMHD::getPrimitiveVarsCPU(double *cons, double *prims, double *aux)
     } // End j-loop
   } // End i-loop
 
+  cudaFreeHost(solution);
+
 
 }
-*/
-
+#endif
 
 
 
@@ -702,15 +702,24 @@ void SRMHD::primsToAll(double *cons, double *prims, double *aux)
   } // End i-loop
 }
 
-#define Bsq (args->guess[5] * args->guess[5] + args->guess[6] * args->guess[6] + args->guess[7] + args->guess[7])
-#define Ssq (args->guess[1] * args->guess[1] + args->guess[2] * args->guess[2] + args->guess[3] + args->guess[3])
-#define BS  (args->guess[5] * args->guess[1] + args->guess[6] * args->guess[2] + args->guess[7] + args->guess[3])
-
 //! Need a structure to pass to C2P hybrd rootfind to hold the current cons values
+/*
 typedef struct
 {
   double guess[8];
   double gamma;
+} getPrimVarsArgs;
+*/
+
+typedef struct
+{
+  double
+  D,    //!< Relativistic energy for a single cell
+  g,    //!< Adiabatic index, gamma
+  Bsq,  //!< Squared magnitude of magnetic field for a single cell
+  Ssq,  //!< Square magnitude of momentum for a single cell
+  BS,   //!< Scalar product of magnetic field and momentum vector for a single cell
+  tau;  //!< Kinetic energy for a single cell
 } getPrimVarsArgs;
 
 __device__
@@ -724,23 +733,25 @@ int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int ifl
     fvec[0] = fvec[1] = 1e6;
     return 0;
   }
-
-
+  double Bsq(args->Bsq);
+  double Ssq(args->Ssq);
+  double BS(args->BS);
   double W(1 / sqrt(1 - x[0]));
-  double rho(args->guess[0] / W);
+  double rho(args->D / W);
   double h(x[1] / (rho * W * W));
-  double pr((h - 1) * rho * (args->gamma - 1) / args->gamma);
+  double pr((h - 1) * rho * (args->g - 1) / args->g);
   if (pr < 0 || rho < 0 || h < 0 || W < 1) {
     fvec[0] = fvec[1] = 1e6;
     return 0;
   }
   // Values should be OK
   fvec[0] = (x[1] + Bsq) * (x[1] + Bsq) * x[0] - (2 * x[1] + Bsq) * BS * BS / (x[1] * x[1]) - Ssq;
-  fvec[1] = x[1] + Bsq - pr - Bsq / (2 * W * W) - BS * BS / (2 * x[1] * x[1]) - args->guess[0] - args->guess[4];
+  fvec[1] = x[1] + Bsq - pr - Bsq / (2 * W * W) - BS * BS / (2 * x[1] * x[1]) - args->D - args->tau;
 
   return 0;
 }
 
+#if 1
 void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
@@ -755,7 +766,26 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         for (int var(0); var < d->Ncons; var++) {
           c2pArgs->cons_h[IDCons(var, i, j, k)] = cons[ID(var, i, j, k)];
         }
-        c2pArgs->guess_h[ID(0, i, j, k)] = aux[ID(10, i, j, k)];
+      }
+    }
+  }
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Nprims; var++) {
+          c2pArgs->prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        for (int var(0); var < d->Naux; var++) {
+          c2pArgs->aux_h[IDAux(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
       }
     }
   }
@@ -773,6 +803,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(c2pArgs->cons_d[i], c2pArgs->cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->prims_d[i], c2pArgs->prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->aux_d[i], c2pArgs->aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
     gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell, inMemsize, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
 
 
@@ -804,6 +836,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 }
+#endif
 
 // /*!
 //     This is the device version of the getPrimitiveVars that takes a streams data
@@ -834,6 +867,8 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
 
     // Load conserved vector into shared memory, and the initial guess
     for (int i(0); i < Ncons; i++) cons[i] = streamCons[lID * Ncons + i];
+    for (int i(0); i < Nprims; i++) prims[i] = streamPrims[lID * Nprims + i];
+    for (int i(0); i < Naux; i++) aux[i] = streamAux[lID * Naux + i];
 
 
   
@@ -851,10 +886,14 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
     // Ssq
     aux[12] = cons[1] * cons[1] + cons[2] * cons[2] + cons[3] * cons[3];
   
-  
-
     // Set args for rootfind
-    getPrimVarsArgs GPVAArgs = {cons[0], cons[1], cons[2], cons[3], cons[4], cons[6], cons[7], cons[8], gamma};
+    getPrimVarsArgs GPVAArgs;
+    GPVAArgs.D = cons[0];
+    GPVAArgs.g = gamma;
+    GPVAArgs.BS = aux[10];
+    GPVAArgs.Bsq = aux[11];
+    GPVAArgs.Ssq = aux[12];
+    GPVAArgs.tau = cons[4];
   
     // Guesses of solution
     sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
@@ -862,12 +901,15 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
   
   
     // Solve residual = 0
-    if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-7, wa, 19))!=1)
+    if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-7, wa, 19))!=1 && lID==68)
     {
       printf("C2P single cell failed at lID %d, hybrd returns info=%d\n", lID, info);
     }
-    if (lID == 0){
-       printf("IN LANE %f\n", prims[5]); 
+    if (lID == 68){
+       printf("IN LANE %d\n", lID); 
+       printf("prims: %f %f %f\n", prims[3], prims[4], prims[5]);
+       printf("cons: %f %f %f\n", cons[3], cons[4], cons[5]);
+       printf("args: %f %f %f\n", aux[10], aux[11], aux[12]);
        printf("GPU GAMMA %f\n", gamma);
        printf("sol %f %f res %f %f\n", sol[0], sol[1], res[0], res[1]);
     }
@@ -937,7 +979,13 @@ void SRMHD_D::getPrimitiveVarsSingleCell(double *cons, double *prims, double *au
 
 
   // Set args for rootfind
-  getPrimVarsArgs GPVAArgs = {cons[0], cons[1], cons[2], cons[3], cons[4], cons[6], cons[7], cons[8], args->gamma};
+  getPrimVarsArgs GPVAArgs;
+  GPVAArgs.D = cons[0];
+  GPVAArgs.g = args->gamma;
+  GPVAArgs.BS = aux[10];
+  GPVAArgs.Bsq = aux[11];
+  GPVAArgs.Ssq = aux[12];
+  GPVAArgs.tau = cons[4];
 
   // Guesses of solution
   sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];

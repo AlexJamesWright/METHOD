@@ -446,9 +446,17 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         sol[1] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] /
                  (1 - sol[0]);
 
+
         // Solve residual = 0
         info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                           tol, wa, lwa);
+        if (i==4 && j==4 && k==0){
+            printf("CPU, IN LANE (%d,%d,%d)\n", i, j, k);
+            printf("prims: %f %f %f\n", prims[ID(3, i, j, k)], prims[ID(4, i, j, k)], prims[ID(5, i, j, k)]);
+            printf("cons: %f %f %f\n", cons[ID(3, i, j, k)], cons[ID(4, i, j, k)], cons[ID(5, i, j, k)]);
+            printf("args: %f %f %f\n", aux[ID(10, i, j, k)], aux[ID(11, i, j, k)], aux[ID(12, i, j, k)]);
+            printf("sol %f %f res %f %f\n", sol[0], sol[1], res[0], res[1]);
+        }
         // If root find fails, add failed cell to the list
         if (info!=1) {
           Failed fail = {i, j, k};
