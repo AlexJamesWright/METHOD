@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
   double sigma(0);
   bool output(true);
   int safety(180);
-  int nxRanks(1);
-  int nyRanks(1);
+  int nxRanks(2);
+  int nyRanks(2);
   int nzRanks(1);
 
   char * ptr(0);

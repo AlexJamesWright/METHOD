@@ -878,7 +878,7 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
     // Bx, By, Bz
     prims[5] = cons[5];
     prims[6] = cons[6];
-    prims[7] = cons[8];
+    prims[7] = cons[7];
   
     // BS
     aux[10] = cons[5] * cons[1] + cons[6] * cons[2] + cons[7] * cons[3];
