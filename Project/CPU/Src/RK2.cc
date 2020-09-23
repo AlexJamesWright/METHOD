@@ -38,12 +38,9 @@ void RK2::predictorStep(double * cons, double * prims, double * aux, double dt)
 
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-  //for (int i(d->is); i < d->ie; i++) {
-    //for (int j(d->js); j < d->je; j++) {
-      //for (int k(d->ks); k < d->ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         for (int var(0); var < d->Naux; var++) {
           p1aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
         }
@@ -59,12 +56,9 @@ void RK2::predictorStep(double * cons, double * prims, double * aux, double dt)
 
   // First stage approximation
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-    //for (int i(d->is); i < d->ie; i++) {
-      //for (int j(d->js); j < d->je; j++) {
-        //for (int k(d->ks); k < d->ke; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           p1cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)] - dt * args1[ID(var, i, j, k)];
         }
       }
@@ -85,12 +79,9 @@ void RK2::correctorStep(double * cons, double * prims, double * aux, double dt)
 
   // Construct solution
   for (int var(0); var < d->Ncons; var++) {
-    for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ny; j++) {
-        for (int k(0); k < d->Nz; k++) {
-    //for (int i(d->is); i < d->ie; i++) {
-      //for (int j(d->js); j < d->je; j++) {
-        //for (int k(d->ks); k < d->ke; k++) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
           cons[ID(var, i, j, k)] = 0.5 * (cons[ID(var, i, j, k)] + p1cons[ID(var, i, j, k)] -
                                       dt * args2[ID(var, i, j, k)]);
         }

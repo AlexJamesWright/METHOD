@@ -401,6 +401,7 @@ void SRMHD::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux,
 }
 
 #if 0
+// CPU VERSION
 //! Solve for the primitive and auxiliary variables
 /*!
     Method outlined in Anton 2010, `Relativistic Magnetohydrodynamcis:
@@ -904,14 +905,6 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
     if ((info = __cminpack_func__(hybrd1) (SRMHDresidualParallel, &GPVAArgs, 2, sol, res, 1.49011612e-7, wa, 19))!=1 && lID==68)
     {
       printf("C2P single cell failed at lID %d, hybrd returns info=%d\n", lID, info);
-    }
-    if (lID == 68){
-       printf("IN LANE %d\n", lID); 
-       printf("prims: %f %f %f\n", prims[3], prims[4], prims[5]);
-       printf("cons: %f %f %f\n", cons[3], cons[4], cons[5]);
-       printf("args: %f %f %f\n", aux[10], aux[11], aux[12]);
-       printf("GPU GAMMA %f\n", gamma);
-       printf("sol %f %f res %f %f\n", sol[0], sol[1], res[0], res[1]);
     }
     // W
     aux[1] = 1 / sqrt(1 - sol[0]);

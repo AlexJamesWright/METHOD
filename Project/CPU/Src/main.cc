@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
   const double MU(1000);
   // Set up domain
   int Ng(4);
-  int nx(16);
-  int ny(8);
+  int nx(64);
+  int ny(16);
   int nz(0);
   double xmin(-0.5);
   double xmax(0.5);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.00005);
+  double endTime(0.0005);
   double cfl(0.1);
   double gamma(4.0/3.0);
   double sigma(0);

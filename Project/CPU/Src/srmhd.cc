@@ -404,14 +404,9 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   std::vector<Failed> fails;          // Vector of failed structs. Stores location of failed cons2prims cells.
 
   // Loop through domain solving and setting the prim and aux vars
-  //for (int i(d->is); i < d->ie; i++) {
-    //for (int j(d->js); j < d->je; j++) {
-      //for (int k(d->ks); k < d->ke; k++) {
-
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         // Update possible values
         // Bx, By, Bz
         prims[ID(5, i, j, k)] = cons[ID(5, i, j, k)];
@@ -450,13 +445,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         // Solve residual = 0
         info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                           tol, wa, lwa);
-        if (i==4 && j==4 && k==0){
-            printf("CPU, IN LANE (%d,%d,%d)\n", i, j, k);
-            printf("prims: %f %f %f\n", prims[ID(3, i, j, k)], prims[ID(4, i, j, k)], prims[ID(5, i, j, k)]);
-            printf("cons: %f %f %f\n", cons[ID(3, i, j, k)], cons[ID(4, i, j, k)], cons[ID(5, i, j, k)]);
-            printf("args: %f %f %f\n", aux[ID(10, i, j, k)], aux[ID(11, i, j, k)], aux[ID(12, i, j, k)]);
-            printf("sol %f %f res %f %f\n", sol[0], sol[1], res[0], res[1]);
-        }
         // If root find fails, add failed cell to the list
         if (info!=1) {
           Failed fail = {i, j, k};
@@ -473,8 +461,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
   } // End i-loop
 
 
-
-/*
 
   // ################################## Smart guessing ########################### //
   // Are there any failures?
@@ -519,14 +505,10 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       // }
     }
   }
-*/
 
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-  //for (int i(d->is); i < d->ie; i++) {
-    //for (int j(d->js); j < d->je; j++) {
-      //for (int k(d->ks); k < d->ke; k++) {
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
         // W
         aux[ID(1, i, j, k)] = 1 / sqrt(1 - solution[ID(0, i, j, k)]);
         // rho
