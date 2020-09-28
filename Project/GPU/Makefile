@@ -1,13 +1,18 @@
 # Make file for the main function. Builds all modules
 # and links for main.cc
 
-# Compiler
+# -------------- PARAMETERS FOR USERS TO EDIT --------------------
 
-CC_GPU = nvcc
-
+# if USE_MPI=1, need to use parallel versions of objects, such as ParallelEnv, ParallelSaveData etc
 USE_MPI=1
 
-MPI_LIBRARY_PATH = /local/software/openmpi/3.0.0/gcc-cuda8.0
+# find location of MPI libraries to link on your local system using 'mpicc -show'
+MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 
+
+# -------------- END PARAMETERS FOR USERS TO EDIT --------------------
+
+# Compiler
+CC_GPU = nvcc
 
 # Module directory
 MODULE_DIR = ./Src
@@ -25,7 +30,6 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
 #MPI_FLAGS = -lmpi -L${MPI_LIBRARY_PATH}/lib -I${MPI_LIBRARY_PATH}/include
-MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 
 
 # C++ compiler flags
 CXXFLAGS = -fopenmp -Wall -std=c++11 -O3 -lineinfo
