@@ -21,6 +21,7 @@
 #define IDCons(var, idx, jdx, kdx) ( (var) + (idx)*(d->Ncons)*(d->Nz)*(d->Ny) + (jdx)*(d->Ncons)*(d->Nz) + (kdx)*(d->Ncons)  )
 #define IDPrims(var, idx, jdx, kdx) ( (var) + (idx)*(d->Nprims)*(d->Nz)*(d->Ny) + (jdx)*(d->Nprims)*(d->Nz) + (kdx)*(d->Nprims)  )
 #define IDAux(var, idx, jdx, kdx) ( (var) + (idx)*(d->Naux)*(d->Nz)*(d->Ny) + (jdx)*(d->Naux)*(d->Nz) + (kdx)*(d->Naux)  )
+#define IDGuess(guessId, Nguess, idx, jdx, kdx) ( (guessId) + (idx)*(Nguess)*(d->Nz)*(d->Ny) + (jdx)*(Nguess)*(d->Nz) + (kdx)*(Nguess)  )
 
 __device__
 int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int iflag);
@@ -28,7 +29,7 @@ int SRMHDresidualParallel(void *p, int n, const double *x, double *fvec, int ifl
 int SRMHDresidual(void *p, int n, const double *x, double *fvec, int iflag);
 
 __global__
-static void getPrimitiveVarsParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth);
+static void getPrimitiveVarsParallel(double *cons, double *prims, double *aux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int nGuess, int origWidth, int streamWidth);
 
 SRMHD::SRMHD() : Model()
 {
@@ -771,22 +772,16 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 
+  // Copy 5 values required for the initial guess. They are stored in the following format:
+  // guess_h = {prims[0], prims[1], prims[2], prims[3], aux[0]}
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Nprims; var++) {
-          c2pArgs->prims_h[IDPrims(var, i, j, k)] = prims[ID(var, i, j, k)];
-        }
-      }
-    }
-  }
-
-  for (int i(0); i < d->Nx; i++) {
-    for (int j(0); j < d->Ny; j++) {
-      for (int k(0); k < d->Nz; k++) {
-        for (int var(0); var < d->Naux; var++) {
-          c2pArgs->aux_h[IDAux(var, i, j, k)] = aux[ID(var, i, j, k)];
-        }
+        c2pArgs->guess_h[IDGuess(0, c2pArgs->nGuessSRMHD, i, j, k)] = prims[ID(0, i, j, k)];
+        c2pArgs->guess_h[IDGuess(1, c2pArgs->nGuessSRMHD, i, j, k)] = prims[ID(1, i, j, k)];
+        c2pArgs->guess_h[IDGuess(2, c2pArgs->nGuessSRMHD, i, j, k)] = prims[ID(2, i, j, k)];
+        c2pArgs->guess_h[IDGuess(3, c2pArgs->nGuessSRMHD, i, j, k)] = prims[ID(3, i, j, k)];
+        c2pArgs->guess_h[IDGuess(4, c2pArgs->nGuessSRMHD, i, j, k)] = aux[ID(0, i, j, k)];
       }
     }
   }
@@ -804,16 +799,15 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 
     // Send stream's data
     gpuErrchk( cudaMemcpyAsync(c2pArgs->cons_d[i], c2pArgs->cons_h + lcell*d->Ncons, inMemsize*d->Ncons, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
-    gpuErrchk( cudaMemcpyAsync(c2pArgs->prims_d[i], c2pArgs->prims_h + lcell*d->Nprims, inMemsize*d->Nprims, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
-    gpuErrchk( cudaMemcpyAsync(c2pArgs->aux_d[i], c2pArgs->aux_h + lcell*d->Naux, inMemsize*d->Naux, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
-    gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell, inMemsize, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
+    gpuErrchk( cudaMemcpyAsync(c2pArgs->guess_d[i], c2pArgs->guess_h + lcell*c2pArgs->nGuessSRMHD, inMemsize*c2pArgs->nGuessSRMHD, cudaMemcpyHostToDevice, c2pArgs->stream[i]) );
 
 
     // Call kernel and operate on data
+    //! TODO -- remove prims and aux -- all values that are needed are contained in guess
     getPrimitiveVarsParallel <<< c2pArgs->bpg, c2pArgs->tpb,
         c2pArgs->tpb * c2pArgs->cellMem, c2pArgs->stream[i] >>> (c2pArgs->cons_d[i],
         c2pArgs->prims_d[i], c2pArgs->aux_d[i], c2pArgs->guess_d[i], i, d->gamma, d->sigma, d->Ncons,
-        d->Nprims, d->Naux, c2pArgs->streamWidth, width);
+        d->Nprims, d->Naux, c2pArgs->nGuessSRMHD, c2pArgs->streamWidth, width);
 
 
     // Copy all data back
@@ -845,7 +839,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
 //     SRRMHD::getPrimitiveVars is required, i.e. all cells need to be found.
 // */
 __global__
-static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, double *streamAux, double *guess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int origWidth, int streamWidth)
+static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, double *streamAux, double *streamGuess, int stream, double gamma, double sigma, int Ncons, int Nprims, int Naux, int Nguess, int origWidth, int streamWidth)
 {
   // First need thread indicies
   const int tID(threadIdx.x);                     //!< thread index (in block)
@@ -856,6 +850,8 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
   double * cons = &sharedArray[tID * (Ncons + Nprims + Naux)];
   double * prims = &cons[Ncons];
   double * aux = &prims[Nprims];
+  //! TODO -- could probably put guess in registers rather than shared memory
+  double * guess = &aux[Nguess];
 
   // Hybrd1 set-up
   double sol[2];                      // Guess and solution vector
@@ -868,8 +864,7 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
 
     // Load conserved vector into shared memory, and the initial guess
     for (int i(0); i < Ncons; i++) cons[i] = streamCons[lID * Ncons + i];
-    for (int i(0); i < Nprims; i++) prims[i] = streamPrims[lID * Nprims + i];
-    for (int i(0); i < Naux; i++) aux[i] = streamAux[lID * Naux + i];
+    for (int i(0); i < Nguess; i++) guess[i] = streamGuess[lID * Nguess + i];
 
 
   
@@ -897,8 +892,8 @@ static void getPrimitiveVarsParallel(double *streamCons, double *streamPrims, do
     GPVAArgs.tau = cons[4];
   
     // Guesses of solution
-    sol[0] = prims[1] * prims[1] + prims[2] * prims[2] + prims[3] * prims[3];
-    sol[1] = prims[0] * aux[0] / (1 - sol[0]);
+    sol[0] = guess[1] * guess[1] + guess[2] * guess[2] + guess[3] * guess[3];
+    sol[1] = guess[0] * guess[4] / (1 - sol[0]);
   
   
     // Solve residual = 0
