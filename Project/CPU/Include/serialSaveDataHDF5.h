@@ -7,13 +7,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <utility>
-#include "H5Cpp.h"
+#include "hdf5.h"
 #include "simData.h"
 #include "saveData.h"
 #include "serialEnv.h"
 
 using namespace std;
 
+#include "hdf5.h"
 //! <b> Class used to save simulation data to HDF5 using a single process</b>
 /*!
   @par
@@ -29,7 +30,7 @@ class SerialSaveDataHDF5 : public SaveData
 
     SerialEnv * env;    //!< Pointer to PlatformEnv class containing platform specific info such as MPI details
     string filename;    //!< Filename for the HDF5 file. Defaults to 'data.hdf5'.
-    H5::H5File *file = nullptr;  //!< HDF5 file to write to.
+    hid_t file = 0;     //!< HDF5 file to write to.
     int file_iteration = 0; //!< The simulation iteration this file was opened for.
 
     //! The level of detail to output to file
@@ -89,8 +90,33 @@ class SerialSaveDataHDF5 : public SaveData
     */
     void saveVar(string variable, int num=1) override;
 
+    //! Opens a new HDF5 file
+    /*!
+     * @par
+     *    Function opens a new HDF5 file with a specified filename, and closes any current one.
+     *
+     * @param[in] name Filename to create
+     */
+    void openFile(const char *name);
+
+    //! Tries to open a checkpoint file
+    /*!
+     * @par
+     *    If there is not already a checkkpoint file open for this iteration, opens a new one
+     */
     void openCheckpointFile();
-    void writeDataSetDouble(const H5::Group *group, const char *name, const int *var, const double *data);
+
+    //! Writes a new dataset
+    /*!
+     * @par
+     *    Saves a new dataset double to file
+     *
+     * @param group Root location to save to
+     * @param name Name of the new dataset
+     * @param var Which variable to save within the data array
+     * @param data Pointer to the data array (cons, prims, aux etc.)
+     */
+    void writeDataSetDouble(const hid_t *group, const char *name, const int *var, const double *data);
 };
 
 #endif

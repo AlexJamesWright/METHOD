@@ -18,10 +18,11 @@ ParallelEnv::ParallelEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 
 	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Info_create(&this->mpiInfo);
 
 	if (rank==0){
         printf("Running in multi-process mode with %d processes\n", nProc);
-    }
+  }
 
 	this->nxRanks = nxRanks;
 	this->nyRanks = nyRanks;

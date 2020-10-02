@@ -38,8 +38,8 @@ SRCS = simulation.cc \
 			 srmhd.cc \
 			 initFunc.cc \
 			 simData.cc \
-			 wenoUpwinds.cc 				\
-			 weno.cc 								\
+			 wenoUpwinds.cc \
+			 weno.cc \
 			 RK2.cc \
 			 rkSplit.cc \
 			 boundaryConds.cc \
@@ -69,7 +69,12 @@ endif
 ifeq ($(USE_HDF), 1)
     export HDF5_CXX := $(CC)
     export HDF5_CLINKER := $(CC)
-    CC = h5c++
+
+    ifeq ($(USE_OMP), 1)
+		CC = h5pcc.openmpi
+    else
+    	CC = h5c++
+    endif
 endif
 
 # Headers

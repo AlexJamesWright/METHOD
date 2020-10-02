@@ -5,7 +5,6 @@
 #include "srmhd.h"
 #include "parallelBoundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveDataHDF5.h"
 #include "platformEnv.h"
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveDataHDF5 save(&data, &env, "data", ParallelSaveDataHDF5::OUTPUT_ALL);
+  ParallelSaveDataHDF5 save(&data, &env, "data_parallel", ParallelSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -83,6 +82,7 @@ int main(int argc, char *argv[]) {
 
   save.saveAll();
   //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+  if(env.rank==0) printf("\nCompleted %d iterations.\n", data.iters);
 
   return 0;
 

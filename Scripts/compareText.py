@@ -1,11 +1,22 @@
+"""
+compareText.py
+
+This script compares two different directories of text files to see if one differs from the other.
+It will throw an error if the datasets differ by more than a small tolerance.
+
+This script has not been tested on TimeSeries-format files.
+
+Usage:
+    python3 compareText.py [a_directory] [b_directory]
+"""
 import sys
 
-TOL=10e-15
+TOL = 10e-15
 
 time_format_folder="Final"
-vars_folders=["Conserved", "Auxiliary", "Primitive"]
-vars_files=["cons", "aux", "prims"]
-extension=".dat"
+vars_folders = ["Conserved", "Auxiliary", "Primitive"]
+vars_files = ["cons", "aux", "prims"]
+extension = ".dat"
 
 for index in range(len(vars_folders)):
     a_filename = "/".join([sys.argv[1], time_format_folder, vars_folders[index], vars_files[index]])

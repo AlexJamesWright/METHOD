@@ -1,9 +1,22 @@
+"""
+text2hdf.py
+
+This script converts text-format output to HDF-format output, for comparison.
+
+This script does not yet work on TimeSeries format outputs.
+
+Usage:
+    python3 text2hdf.py [directory] [Optional: output_filename.hdf5]
+
+Authors:
+    Sam Mangham (github:smangham)
+"""
 import h5py
 import sys
 import numpy as np
 from pathlib import Path
 from typing import List, Union, Tuple
-from h5py import Group, File
+from h5py import File
 
 final_constants: Path = Path('Final/Constants/constants.dat')
 final_domain: Path = Path('Final/Domain/domain.dat')
@@ -43,16 +56,16 @@ final_directories: dict = {
 }
 
 # Take input directory from the command line, and check it's one!
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
     raise NotADirectoryError("Please provide an input directory")
 directory: Path = Path(sys.argv[1])
 if not directory.is_dir():
     raise NotADirectoryError("Please provide an input directory.")
 
 # Create an HDF5 file, and create the two groups within it
-hdf5: File = h5py.File(directory.with_suffix('.hdf5'), 'w')
-final: Group = hdf5.create_group('Final')
-timeseries: Group = hdf5.create_group('TimeSeries')
+hdf5: File = h5py.File(
+    sys.argv[2] if len(sys.argv) == 3 else directory.with_suffix('.converted.hdf5'), 'w'
+)
 
 # Now we want to start with the Final data; let's look up the constants
 with open(directory/final_constants) as f:
@@ -63,34 +76,34 @@ with open(directory/final_constants) as f:
     # Create dictionary of constants
     constants: dict = dict(zip(names, values))
 
+
 # Deciding on the data shape is more complex as it may or may be only 1 or 2-d.
 # The capital values ('NZ') include ghost cells. Lower case values ('nz') do not.
-data_shape: Tuple[int, int, int] = (
-    constants['nx'], constants['ny'] if constants['ny'] else 1, constants['nz'] if constants['nz'] else 1
-)
-data_length = data_shape[0]*data_shape[1]*data_shape[2]
-ghost_cells: Tuple[int, int, int] = (
-    (constants['Nx']-constants['nx'])//2,
-    (constants['Ny']-constants['ny'])//2 if constants['ny'] else 0,
-    (constants['Nz']-constants['nz'])//2 if constants['nz'] else 0,
-)
+if constants['nz']:
+    data_shape: Tuple[int, int, int] = (constants['nx'], constants['ny'], constants['nz'])
+elif constants['ny']:
+    data_shape: Tuple[int, int] = (constants['nx'], constants['ny'])
+else:
+    data_shape: Tuple[int] = (constants['nx'])
+
+data_length: int = np.product(data_shape)
 
 # Now we write the constants as HDF5 attributes
 for constant in constants_root:
-    final.attrs.create(constant, constants[constant])
+    hdf5.attrs.create(constant, constants[constant])
 
-# Domain info is stored in its own format. We want to read that out.
-with open(directory/final_domain) as f:
-    domain = final.create_group('Domain')
-    for constant in constants_domain:
-        domain.attrs.create(constant, constants[constant])
+# Domain info is stored in its own format. We want to read that out. However, parallel files do not contain it
+domain = hdf5.create_group('Domain')
+for constant in constants_domain:
+    domain.attrs.create(constant, constants[constant])
 
+try:
     domain.create_dataset(
         name='x',
         data=np.genfromtxt(
             directory/final_domain,
             skip_header=0, max_rows=1
-        ).T[ghost_cells[0]:-ghost_cells[0]]
+        ).T[constants['Ng']:-constants['Ng']]
     )
 
     # Y and Z may be single element, in which case there is no domain
@@ -100,7 +113,7 @@ with open(directory/final_domain) as f:
             data=np.genfromtxt(
                 directory/final_domain,
                 skip_header=1, max_rows=1
-            ).T[ghost_cells[1]:-ghost_cells[1]]
+            ).T[constants['Ng']:-constants['Ng']]
         )
 
     if constants['nz']:
@@ -109,11 +122,15 @@ with open(directory/final_domain) as f:
             data=np.genfromtxt(
                 directory/final_domain,
                 skip_header=2, max_rows=1
-            ).T[ghost_cells[2]:-ghost_cells[2]]
+            ).T[constants['Ng']:-constants['Ng']]
         )
 
+except Exception as e:
+    print("No domain information! OK if this is a parallel text output.")
+
+
 for subdirectory, details in final_directories.items():
-    subgroup = final.create_group(subdirectory)
+    subgroup = hdf5.create_group(subdirectory)
     for constant in details['constants']:
         subgroup.attrs.create(constant, constants[constant])
 

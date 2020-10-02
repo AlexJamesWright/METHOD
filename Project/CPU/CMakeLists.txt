@@ -1,12 +1,8 @@
 project(METHOD)
-add_library(Cmin "" ../../Examples/h5test.cpp)
+add_library(Cmin "")
 
-# Added HDF5 to Cmake for Clion
-find_package(HDF5)
-if(HDF5_FOUND)
-    include_directories(${HDF5_INCLUDE_DIR})
-    set(_hdf5_libs hdf5 hdf5_cpp)
-endif()
+# HDF5 CMake scripts don't work properly. This is hard-coded.
+include_directories(/usr/include/hdf5/openmpi)
 
 find_package(MPI)
 if(MPI_FOUND)

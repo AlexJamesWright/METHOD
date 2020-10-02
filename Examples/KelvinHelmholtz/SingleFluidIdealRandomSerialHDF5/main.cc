@@ -5,7 +5,6 @@
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
-#include "saveData.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 #include "serialSaveDataHDF5.h"
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, 1, "data_serial");
+  SerialSaveDataHDF5 save(&data, &env, "data_serial", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

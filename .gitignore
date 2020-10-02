@@ -25,6 +25,7 @@ gtest_main.a
 gtest.a
 
 *.dat
+*.hdf5
 
 Doxumentation/html/*
 
@@ -44,6 +45,7 @@ slurm*
 # Don't track the data files!
 Data
 Examples/Data*
+Scripts/Data*
 
 # Ignore the build directories
 build

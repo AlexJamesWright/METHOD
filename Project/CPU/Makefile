@@ -78,7 +78,12 @@ endif
 ifeq ($(USE_HDF), 1)
     export HDF5_CXX := $(CC)
     export HDF5_CLINKER := $(CC)
-    CC = h5c++
+
+    ifeq($(USE_OMP), 1)
+		CC = h5pcc.openmpi
+    else
+    	CC = h5c++
+    endif
 endif
 
 # Headers

@@ -2,70 +2,29 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
-#include "H5Cpp.h"
+#include "hdf5.h"
+#include "hdf5_hl.h"
 
 using namespace std;
-using namespace H5;
 
 
 /*!
- * /brief Opens a group if it exists or creates a new one
+ * /brief Opens a HDF5 file
  *
- * This is a helper function that opens a group if it exists,
- * or creates one if it does not. Exists to future-proof checkpointing
- * that may involve re-using files.
+ * This bundles up closing any existing open checkpoint file, removing the old file with the same name,
+ * then recording the iteration this file was opened on (for reusing checkpoint files later in the same
+ * cycle).
  *
- * @param group The group the subgroup belongs to/should belong to
- * @param name The name of the subgroup
+ * TODO: If there is an existing file, if it has the same dimensions, we should overwrite it and not remove it.
+ *
+ * @param name Name of the file to open
  */
-Group selectGroup(Group *group, const char *name) {
-  if(!group->nameExists(name)){
-    return group->createGroup(name);
-  } else {
-    return group->openGroup(name);
-  }
-}
+void SerialSaveDataHDF5::openFile(const char *name) {
+  if(this->file) H5Fclose(this->file);
 
-
-/*!
- * /brief Writes to a new or existing integer attribute
- *
- * This is a helper function that writes to an attribute if it already exists,
- * or creates a new one if it doesn't. Exists to future-proof checkpointing
- * that may involve re-using files.
- *
- * @param group The group the attribute belongs to
- * @param name The name of the attribute
- * @param value The value of the attribute
- */
-void writeAttributeInt(const Group *group, const char *name, const int *value) {
-  Attribute attribute;
-  if(group->attrExists(name)){
-    attribute = group->openAttribute(name);
-  } else {
-    DataSpace data_space(H5S_SCALAR);
-    attribute = group->createAttribute(name, PredType::NATIVE_INT, data_space);
-  }
-  attribute.write(PredType::NATIVE_INT, value);
-}
-
-
-/*!
- * /brief Writes to a new or existing double attribute
- *
- * @param group The group the attribute belongs to
- * @param name The name of the attribute
- * @param value The value of the attribute
- */
-void writeAttributeDouble(const Group *group, const char *name, const double *value) {
-  Attribute attribute;
-  if(group->attrExists(name)){
-    attribute = group->openAttribute(name);
-  } else {
-    DataSpace data_space(H5S_SCALAR);
-    attribute = group->createAttribute(name, PredType::NATIVE_DOUBLE, data_space);
-  }
-  attribute.write(PredType::NATIVE_DOUBLE, value);
+  std::remove(name);
+  this->file = H5Fcreate(name, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  this->file_iteration = this->d->iters;
 }
 
 
@@ -77,31 +36,27 @@ void writeAttributeDouble(const Group *group, const char *name, const double *va
  * Writing out individual variables happens before the final checkpoint write.
  * So therefore, when we want to write out a final file, there may or may not be an existing
  * checkpoint file for this cycle full of user-defined outputs.
- *
- * TODO: If the checkpoint files have the same dimensions, we should keep and overwrite.
  */
 void SerialSaveDataHDF5::openCheckpointFile() {
-  // Is there currently a file open?
   if(this->file) {
-    // Was it opened this cycle?
+    // If there's currently a checkpoint file, was it opened this cycle?
     if (this->file_iteration != this->d->iters) {
       // If not, close the open file, delete the file with the name we want to write to on disk,
       // then open a new one
-      // TODO: Check to see if the dimensions are the same to avoid deleting/reallocating
-      // Ideally, we would only create a new file if we expected the data-spaces required to differ
-      delete this->file;
       string filename_full = this->filename+".checkpoint."+to_string(this->d->t)+".hdf5";
-      std::remove(filename_full.c_str());
-      this->file = new H5::H5File(filename_full, H5F_ACC_TRUNC);
-      this->file_iteration = this->d->iters;
-      Group user_def = selectGroup(this->file, "UserDef");
+      this->openFile(filename_full.c_str());
+      hid_t user_def = H5Gcreate(this->file, "UserDef", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      H5Gclose(user_def);
+    } else {
+      // Then the checkpoint file was opened this cycle, and we can write to it
     }
+
   } else {
+    // If there's no existing checkpoint file, we need to create a new one.
     string filename_full = this->filename+".checkpoint."+to_string(this->d->t)+".hdf5";
-    std::remove(filename_full.c_str());
-    this->file = new H5::H5File(filename_full, H5F_ACC_TRUNC);
-    this->file_iteration = this->d->iters;
-    Group user_def = selectGroup(this->file, "UserDef");
+    this->openFile(filename_full.c_str());
+    hid_t user_def = H5Gcreate(this->file, "UserDef", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5Gclose(user_def);
   }
 }
 
@@ -109,8 +64,7 @@ void SerialSaveDataHDF5::openCheckpointFile() {
 /*!
  * /brief Writes an HDF5 dataset to file
  *
- * Creates the dataset if it doesn't exist, writes over it if it does.
- * TODO: Test to see if the dataset is the same size, if so deallocate and reallocate.
+ * Prepares the buffer for writing to file, and writes a dataset.
  *
  * @param group The group within the file (or the file itself for root datasets)
  * @param name The name the dataset should have
@@ -118,82 +72,39 @@ void SerialSaveDataHDF5::openCheckpointFile() {
  *  with the 1st dimension being the variable. This argument indicates which variable is being output.
  * @param data The pointer to the data array.
  */
-void SerialSaveDataHDF5::writeDataSetDouble(const H5::Group *group, const char *name, const int *var,
+void SerialSaveDataHDF5::writeDataSetDouble(const hid_t *group, const char *name, const int *var,
                                             const double *data) {
-  DataSpace data_space;
-  DataSet data_set;
-  hsize_t lengths[3];
-  int buffer_size; // The length of the buffer
-
-  // We iterate over the subset of the data that is not the ghost cells.
-  // However, in 1-2d models, some axes have no ghost cells, so we
-  int iterator_starts[3] = {
-      d->Ng,
-      d->Ng,
-      d->Ng
-  };
-  int iterator_ends[3] = {
-      d->Ng + d->nx,
-      d->Ng + d->ny,
-      d->Ng + d->nz
-  };
 
   // So now, we set the data-space size. We also need to create a buffer to write to, that excludes the ghost cells.
   // So we calculate the size it needs to be, excluding ghost cells.
-  if(d->dims == 3){
-    lengths[0] = d->nx;
-    lengths[1] = d->ny;
-    lengths[2] = d->nz;
-    buffer_size = d->nx * d->ny * d->nz;
+  hsize_t lengths[d->dims];
 
-  } else if(d->dims == 2) {
-    lengths[0] = d->nx;
-    lengths[1] = d->ny;
-    buffer_size = d->nx * d->ny;
-    iterator_starts[2] = 0;
-    iterator_ends[2] = 1;
+  lengths[0] = d->ie - d->is;
+  unsigned long buffer_size = lengths[0]; // The length of the buffer
 
-  } else {
-    lengths[0] = d->nx;
-    buffer_size = d->nx;
-    iterator_starts[1] = 0;
-    iterator_ends[1] = 1;
-    iterator_starts[2] = 0;
-    iterator_ends[2] = 1;
+  if(d->dims > 1) {
+    lengths[1] = d->je - d->js;
+    buffer_size *= lengths[1];
+  }
+  if(d->dims > 2) {
+    lengths[2] = d->ke - d->ks;
+    buffer_size = lengths[2];
   }
 
-  try {
-    // Does the file already contain this dataset? If not, create the space for it.
-    if(group->nameExists(name)) {
-      data_set = group->openDataSet(name);
-    } else {
-      data_space = DataSpace(d->dims, lengths);  // I think this is me trying to be too Pythonic?
-      data_set = group->createDataSet(name, PredType::NATIVE_DOUBLE, data_space);
-    }
+  // Now create the buffer to store the data in
+  double buffer[buffer_size];
+  int buffer_position(0);
 
-    // Now create the buffer to store the data in
-    double buffer[buffer_size];
-    int buffer_position(0);
-
-    // Consider the efficiency of this! std::copy would probably be better but maybe the compiler
-    // will vectorise this. I prefer the consistency of a single set of loops over having 1 per dimension.
-    for (int i(iterator_starts[0]); i < iterator_ends[0]; i++) {
-      for (int j(iterator_starts[1]); j < iterator_ends[1]; j++) {
-        for (int k(iterator_starts[2]); k < iterator_ends[2]; k++) {
-          buffer[buffer_position++] = data[ID(*var, i, j, k)];
-        }
+  // Consider the efficiency of this! std::copy would probably be better but maybe the compiler
+  // will vectorise this. I prefer the consistency of a single set of loops over having 1 per dimension.
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        buffer[buffer_position++] = data[ID(*var, i, j, k)];
       }
     }
-    data_set.write(&buffer, PredType::NATIVE_DOUBLE);
   }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
-  }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5LTmake_dataset_double(*group, name, d->dims, lengths, buffer);
 }
 
 
@@ -217,14 +128,7 @@ void SerialSaveDataHDF5::saveAll(bool timeSeries)
   } else {
     string filename_full = this->filename+".hdf5";
     std::cout << "Saving final output '" << filename_full << "'\n";
-
-    // Delete the old output file; we can't guarantee the dimensions are the same
-    // TODO: Check to see if the dimensions are the same to avoid deleting/reallocating
-    std::remove(filename_full.c_str());
-
-    // Close the old file and open the new one
-    delete this->file;
-    this->file = new H5::H5File(filename_full, H5F_ACC_TRUNC);
+    this->openFile(filename_full.c_str());
   }
 
   this->saveConsts();
@@ -232,6 +136,9 @@ void SerialSaveDataHDF5::saveAll(bool timeSeries)
   this->savePrims();
   if(this->detail != OUTPUT_MINIMAL) this->saveCons();
   if(this->detail == OUTPUT_ALL) this->saveAux();
+
+  // If this isn't a timeseries, then this is the final save and the file should be closed.
+  if(!timeSeries)H5Fclose(this->file);
 }
 
 
@@ -240,23 +147,13 @@ void SerialSaveDataHDF5::saveAll(bool timeSeries)
  */
 void SerialSaveDataHDF5::saveCons()
 {
-  try {
-    Group conserved = selectGroup(this->file, "Conserved");
-    writeAttributeInt(&conserved, "Ncons", &d->Ncons);
-
-    // For each one of the conserved variables, write it to disk
-    for(int var(0); var < d->Ncons; var++) {
-      this->writeDataSetDouble(&conserved, d->consLabels[var].c_str(), &var, d->cons);
-    }
+  hid_t group = H5Gcreate(this->file, "Conserved", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5LTset_attribute_int(group, ".", "Ncons", &d->Ncons, 1);
+  // For each one of the conserved variables, write it to disk
+  for(int var(0); var < d->Ncons; var++) {
+    this->writeDataSetDouble(&group, d->consLabels[var].c_str(), &var, d->cons);
   }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
-  }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5Gclose(group);
 }
 
 
@@ -265,22 +162,13 @@ void SerialSaveDataHDF5::saveCons()
  */
 void SerialSaveDataHDF5::savePrims()
 {
-  try {
-    Group primitive = selectGroup(this->file, "Primitive");
-    writeAttributeInt(&primitive, "Nprims", &d->Nprims);
+  hid_t group = H5Gcreate(this->file, "Primitive", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5LTset_attribute_int(group, ".", "Nprims", &d->Nprims, 1);
 
-    for(int var(0); var < d->Nprims; var++) {
-      this->writeDataSetDouble(&primitive, d->primsLabels[var].c_str(), &var, d->prims);
-    }
+  for(int var(0); var < d->Nprims; var++) {
+    this->writeDataSetDouble(&group, d->primsLabels[var].c_str(), &var, d->prims);
   }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
-  }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5Gclose(group);
 }
 
 
@@ -289,22 +177,13 @@ void SerialSaveDataHDF5::savePrims()
  */
 void SerialSaveDataHDF5::saveAux()
 {
-  try {
-    Group auxiliary = selectGroup(this->file, "Auxiliary");
-    writeAttributeInt(&auxiliary, "Naux", &d->Naux);
+  hid_t group = H5Gcreate(this->file, "Auxiliary", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5LTset_attribute_int(group, ".", "Naux", &d->Naux, 1);
 
-    for(int var(0); var < d->Naux; var++) {
-      this->writeDataSetDouble(&auxiliary, d->auxLabels[var].c_str(), &var, d->aux);
-    }
+  for(int var(0); var < d->Naux; var++) {
+    this->writeDataSetDouble(&group, d->auxLabels[var].c_str(), &var, d->aux);
   }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
-  }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5Gclose(group);
 }
 
 
@@ -313,71 +192,38 @@ void SerialSaveDataHDF5::saveAux()
  */
 void SerialSaveDataHDF5::saveDomain()
 {
-  try {
-    Group domain = selectGroup(this->file, "Domain");
-    writeAttributeInt(&domain, "nx", &d->nx);
-    writeAttributeInt(&domain, "ny", &d->ny);
-    writeAttributeInt(&domain, "nz", &d->nz);
-    writeAttributeInt(&domain, "Nx", &d->Nx);
-    writeAttributeInt(&domain, "Ny", &d->Ny);
-    writeAttributeInt(&domain, "Nz", &d->Nz);
-    writeAttributeInt(&domain, "Ng", &d->Ng);
-    writeAttributeDouble(&domain, "xmin", &d->xmin);
-    writeAttributeDouble(&domain, "xmax", &d->xmax);
-    writeAttributeDouble(&domain, "ymin", &d->ymin);
-    writeAttributeDouble(&domain, "ymax", &d->ymax);
-    writeAttributeDouble(&domain, "zmin", &d->zmin);
-    writeAttributeDouble(&domain, "zmax", &d->zmax);
-    writeAttributeDouble(&domain, "endTime", &d->endTime);
-    writeAttributeDouble(&domain, "dt", &d->dt);
-    writeAttributeDouble(&domain, "dx", &d->dx);
-    writeAttributeDouble(&domain, "dy", &d->dy);
-    writeAttributeDouble(&domain, "dz", &d->dz);
+  hid_t group = H5Gcreate(this->file, "Domain", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5LTset_attribute_int(group, ".", "nx", &d->nx, 1);
+  H5LTset_attribute_int(group, ".", "ny", &d->ny, 1);
+  H5LTset_attribute_int(group, ".", "nz", &d->nz, 1);
+  H5LTset_attribute_int(group, ".", "Nx", &d->Nx, 1);
+  H5LTset_attribute_int(group, ".", "Ny", &d->Ny, 1);
+  H5LTset_attribute_int(group, ".", "Nz", &d->Nz, 1);
+  H5LTset_attribute_int(group, ".", "Ng", &d->Ng, 1);
+  H5LTset_attribute_double(group, ".", "xmin", &d->xmin, 1);
+  H5LTset_attribute_double(group, ".", "ymin", &d->ymin, 1);
+  H5LTset_attribute_double(group, ".", "zmin", &d->zmin, 1);
+  H5LTset_attribute_double(group, ".", "xmax", &d->xmax, 1);
+  H5LTset_attribute_double(group, ".", "ymax", &d->ymax, 1);
+  H5LTset_attribute_double(group, ".", "zmax", &d->zmax, 1);
+  H5LTset_attribute_double(group, ".", "dx", &d->dx, 1);
+  H5LTset_attribute_double(group, ".", "dy", &d->dy, 1);
+  H5LTset_attribute_double(group, ".", "dz", &d->dz, 1);
+  H5LTset_attribute_double(group, ".", "endTime", &d->endTime, 1);
+  H5LTset_attribute_double(group, ".", "dt", &d->dt, 1);
 
-    // Create the X bounds: Create the data-space to store it, then the dataset
-    DataSet data_set_x;
-    if(domain.nameExists("x")){
-      data_set_x = domain.openDataSet("x");
-    } else {
-      hsize_t dims_x[1] = {(hsize_t) d->nx};
-      DataSpace data_space_x(1, dims_x);
-      data_set_x = domain.createDataSet("x", PredType::NATIVE_DOUBLE, data_space_x);
-    }
-    // We don't want to write out the ghost cells, so using the `is` start pointer, we write from there
-    data_set_x.write(&d->x[d->Ng], PredType::NATIVE_DOUBLE);
+  hsize_t length(d->nx);
+  H5LTmake_dataset_double(group, "x", 1, &length, &d->x[d->Ng]);
 
-    if (d->ny) {
-      DataSet data_set_y;
-      if(domain.nameExists("y")) {
-        data_set_y = domain.openDataSet("y");
-      } else {
-        hsize_t dims_y[1] = {(hsize_t) d->ny};
-        DataSpace data_space_y(1, dims_y);
-        data_set_y = domain.createDataSet("y", PredType::NATIVE_DOUBLE, data_space_y);
-      }
-      data_set_y.write(&d->y[d->Ng], PredType::NATIVE_DOUBLE);
-    }
-
-    if (d->nz) {
-      DataSet data_set_z;
-      if(domain.nameExists("y")) {
-        data_set_z = domain.openDataSet("z");
-      } else {
-        hsize_t dims_z[1] = {(hsize_t) d->nz};
-        DataSpace data_space_z(1, dims_z);
-        data_set_z = domain.createDataSet("z", PredType::NATIVE_DOUBLE, data_space_z);
-      }
-      data_set_z.write(&d->z[d->Ng], PredType::NATIVE_DOUBLE);
-    }
+  if (d->ny) {
+    length = d->ny;
+    H5LTmake_dataset_double(group, "y", 1, &length, &d->y[d->Ng]);
   }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
+  if (d->nz) {
+    length = d->nz;
+    H5LTmake_dataset_double(group, "z", 1, &length, &d->z[d->Ng]);
   }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5Gclose(group);
 }
 
 
@@ -386,23 +232,11 @@ void SerialSaveDataHDF5::saveDomain()
  */
 void SerialSaveDataHDF5::saveConsts()
 {
-  try {
-    writeAttributeInt(this->file, "Nprims", &d->Nprims);
-    writeAttributeInt(this->file, "Naux", &d->Naux);
-    writeAttributeDouble(this->file, "cfl", &d->cfl);
-    writeAttributeDouble(this->file, "gamma", &d->gamma);
-    writeAttributeDouble(this->file, "sigma", &d->sigma);
-    writeAttributeDouble(this->file, "cp", &d->cp);
-    writeAttributeDouble(this->file, "t", &d->t);
-  }
-  catch(FileIException &error)
-  {
-    H5::FileIException::printErrorStack();
-  }
-  catch(GroupIException &error)
-  {
-    H5::GroupIException::printErrorStack();
-  }
+  H5LTset_attribute_double(this->file, ".", "cfl", &d->cfl, 1);
+  H5LTset_attribute_double(this->file, ".", "gamma", &d->gamma, 1);
+  H5LTset_attribute_double(this->file, ".", "sigma", &d->sigma, 1);
+  H5LTset_attribute_double(this->file, ".", "cp", &d->cp, 1);
+  H5LTset_attribute_double(this->file, ".", "t", &d->t, 1);
 }
 
 
@@ -418,7 +252,7 @@ void SerialSaveDataHDF5::saveConsts()
  */
 void SerialSaveDataHDF5::saveVar(string variable, int num)
 {
-  int found_var(0); // Variable number
+  int found_var(-1); // Variable number
   double *data;  // Pointer to the data array containing the variable
 
   // Determine which variable the user wants saved
@@ -430,7 +264,7 @@ void SerialSaveDataHDF5::saveVar(string variable, int num)
     }
   }
 
-  if (!found_var) {
+  if (found_var < 0) {
     for (int var(0); var < d->Nprims; var++) {
       if (strcmp(d->primsLabels[var].c_str(), variable.c_str()) == 0) {
           found_var=var;
@@ -440,7 +274,7 @@ void SerialSaveDataHDF5::saveVar(string variable, int num)
     }
   }
 
-  if (!found_var) {
+  if (found_var < 0) {
     for (int var(0); var < d->Naux; var++) {
       if (strcmp(d->auxLabels[var].c_str(), variable.c_str()) == 0) {
           found_var=var;
@@ -450,12 +284,13 @@ void SerialSaveDataHDF5::saveVar(string variable, int num)
     }
   }
 
-  if (!found_var) {
+  if (found_var < 0) {
     printf("Error: Could not find user specified variable '%s'\n", variable.c_str());
     exit(1);
   }
 
   this->openCheckpointFile();
-  Group user_def = selectGroup(this->file, "UserDef");
+  hid_t user_def = H5Gopen1(this->file, "UserDef");
   writeDataSetDouble(&user_def, variable.c_str(), &found_var, data);
+  H5Gclose(user_def);
 }
