@@ -17,7 +17,17 @@
 
 # Compiler
 CC = g++
-MPICC = mpic++
+##MPICC = mpic++
+MPICC = g++
+
+#use `mpic++ -show` to find library and include flags
+MPI_FLAGS = -I/local/software/mpich/3.2.1/gcc/include -L/local/software/mpich/3.2.1/gcc/lib -lmpi -lmpicxx
+#use `h5pcc -show` to find library and include flags. On Iridis, also use `echo $HDF5_INC_DIR`
+HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+#HDF5_FLAGS = $(shell hfcc -show)
+
+$(value $HDF5_FLAGS)
+
 
 
 # Points to the root of Google Test, relative to where this file is.
@@ -60,6 +70,10 @@ TESTS = test_simulation 		\
 PARALLEL_TESTS = test_parallel_rk2     \
 				 				 test_parallel_rkSplit
 
+HDF5_TESTS = test_hdf5_rk2
+
+HDF5_PARALLEL_TESTS = test_hdf5_parallel_rk2
+
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -70,13 +84,42 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
+test_serial : $(RTFIND) $(TESTS) $(HDF5_TESTS)
 	# Run all serial tests
 	$(foreach exe, $(TESTS), ./$(exe);)
+
+	# Convert text outputs from serial tests to HDF5 for comparison with HDF5 tests
+	python ../../Scripts/dirText2hdf.py ../TestData/Serial/ ../TestData/SerialTextToHDF5
+	
+        # Run all serial HDF5 tests
+	$(foreach exe, $(HDF5_TESTS), ./$(exe);)
+
+
+
+
+test_parallel : $(RTFIND) $(PARALLEL_TESTS) $(HDF5_PARALLEL_TESTS)
 	# Run all parallel tests
 	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+	
+	# Convert text outputs from parallel tests to HDF5 for comparison with HDF5 tests
+	python ../../Scripts/dirText2hdf.py ../TestData/CPU/ ../TestData/CPUTextToHDF5
+        
+	# Run all parallel HDF5 tests
+	$(foreach exe, $(HDF5_PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+
 	# Run tests that compare outputs of TestData/Serial and TestData/Parallel
-	py.test -v Src/compareParallelAndSerial.py
+	#py.test -v Src/compareParallelAndSerial.py
+
+
+test_hdf5: test_serial test_parallel
+        # Compare parallel tests with HDF5 tests
+	$(eval comparison_full_files = $(wildcard ../TestData/CPUHDF5/*))
+	$(eval comparison_files = $(notdir $(comparison_full_files)))
+	$(foreach file, $(comparison_files) , python ../../Scripts/compareHDF5.py ../TestData/CPUTextToHDF5/$(file) ../TestData/CPUHDF5/$(file))
+	# Compare serial tests with HDF5 tests
+	$(foreach file, $(comparison_files) , python ../../Scripts/compareHDF5.py ../TestData/SerialTextToHDF5/$(file) ../TestData/SerialHDF5/$(file))
+
+test : test_hdf5 test_serial test_parallel
 
 all : $(RTFIND) $(TESTS)
 
@@ -84,7 +127,8 @@ buildRootfinder:
 	cd $(RTFIND_DIR) && $(MAKE)	objects
 
 # TODO -- add back in test_fvs, test_imex when working
-compare : test_rk2 test_rkSplit test_parallel_rk2 test_parallel_rkSplit
+# TODO -- add in hdf5 tests
+compare : test_rk2 test_rkSplit test_parallel_rk2 test_parallel_rkSplit test_hdf5_rk2 test_hdf5_parallel_rk2
 	./test_rk2
 	./test_rkSplit
 	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
@@ -213,8 +257,14 @@ test_fvs : wenoUpwinds.o srmhd.o test_fvs.o fluxVectorSplitting.o boundaryConds.
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialSaveData.cc -I$(INC_DIR)
 
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
+	@$(CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialSaveDataHDF5.cc -I$(INC_DIR)
+
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	@$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
+	@$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
+
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
+	@$(MPICC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveDataHDF5.cc -I$(INC_DIR)
 
 # Platform env
 serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
@@ -331,28 +381,49 @@ test_REGIME : wenoUpwinds.o srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkS
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
+# serial HDF5 tests
 
+test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cc $(INC_DIR)/RK2.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_hdf5_rk2 : wenoUpwinds.o test_hdf5_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveDataHDF5.o $(RTFIND_OBJS) gtest_main.a
+	$(CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
+
+
+# parallel tests
 
 # main func used for testing parallel tests. Serial tests can use the default gtest_main
 main.o : $(TEST_DIR)/main.cpp $(INC_DIR)/parallelEnv.h
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
 
 parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelEnv.cc -I$(INC_DIR)
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelEnv.cc -I$(INC_DIR)
 
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	@$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
+	@$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
 
 test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cc $(INC_DIR)/RK2.h \
                         $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rk2 : main.o wenoUpwinds.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_DIR)/rkSplit.h \
                         $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rkSplit : main.o test_parallel_rkSplit.o weno.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
-	$(MPICC) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+	$(MPICC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
+# parallel HDF5 tests
+test_hdf5_parallel_rk2.o : $(TEST_DIR)/test_hdf5_parallel_rk2.cc $(INC_DIR)/RK2.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_hdf5_parallel_rk2 : main.o wenoUpwinds.o test_hdf5_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveDataHDF5.o $(RTFIND_OBJS) gtest.a
+	$(CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+
+
