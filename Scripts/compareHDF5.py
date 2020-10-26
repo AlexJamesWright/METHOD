@@ -37,15 +37,15 @@ def compare(file1, file2):
     )
     
     try:
-        a_file = h5py.File(sys.argv[1], 'r')
+        a_file = h5py.File(file1, 'r')
     except IOError:
-        print("Error: Could not read file:", sys.argv[1])
+        print("Error: Could not read file:", file1)
         exit(1)
     
     try:
-        b_file = h5py.File(sys.argv[2], 'r')
+        b_file = h5py.File(file2, 'r')
     except IOError:
-        print("Error: Could not read file:", sys.argv[2])
+        print("Error: Could not read file:", file2)
         exit(1)
     
     # First, we look at the top-level groups: Are they the same?
@@ -53,8 +53,8 @@ def compare(file1, file2):
     if len(group_difference):
         print(
             "Error: Root groups differ!\n"
-            " - "+sys.argv[1]+": "+', '.join(a_file.keys())+"\n"
-            " - "+sys.argv[2]+": "+', '.join(b_file.keys())
+            " - "+file1+": "+', '.join(a_file.keys())+"\n"
+            " - "+file2+": "+', '.join(b_file.keys())
         )
         exit(1)
     
@@ -65,8 +65,8 @@ def compare(file1, file2):
     if len(attribute_difference):
         print(
             "Error: Root attributes differ!\n"
-            " - "+sys.argv[1]+": "+a_file.attrs.keys()+"\n"
-            " - "+sys.argv[2]+": "+b_file.attrs.keys()
+            " - "+file1+": "+a_file.attrs.keys()+"\n"
+            " - "+file2+": "+b_file.attrs.keys()
         )
         exit(1)
     
@@ -77,8 +77,8 @@ def compare(file1, file2):
                 warnings_found = True
                 print(
                     "Warning: root attribute '"+attribute_name+"' values differ!\n",
-                    " - "+sys.argv[1]+": "+a_attribute+"\n"
-                    " - "+sys.argv[2]+": "+b_attribute
+                    " - "+file1+": "+a_attribute+"\n"
+                    " - "+file2+": "+b_attribute
                 )
     
     # For each group, compare the attributes and dataset values
@@ -88,8 +88,8 @@ def compare(file1, file2):
         if len(attribute_difference):
             print(
                 "Error: "+group_name+" attributes differ!\n"
-                " - "+sys.argv[1]+": "+', '.join(a_group.attrs.keys())+"\n"
-                " - "+sys.argv[2]+": "+', '.join(b_group.attrs.keys())
+                " - "+file1+": "+', '.join(a_group.attrs.keys())+"\n"
+                " - "+file2+": "+', '.join(b_group.attrs.keys())
             )
             exit(1)
     
@@ -100,16 +100,16 @@ def compare(file1, file2):
                     warnings_found = True
                     print(
                         "Warning: "+group_name+" attribute '"+attribute_name+"' values differ!\n"
-                        " - "+sys.argv[1]+": "+a_attribute+"\n"
-                        " - "+sys.argv[2]+": "+b_attribute
+                        " - "+file1+": "+a_attribute+"\n"
+                        " - "+file2+": "+b_attribute
                     )
     
         dataset_difference: set = set(a_group.keys()) - set(b_group.keys()) - set(whitelist_datasets)
         if len(attribute_difference):
             print(
                 "Error: "+group_name+" datasets differ!\n"
-                " - "+sys.argv[1]+": "+', '.join(a_group.keys())+"\n"
-                " - "+sys.argv[2]+": "+', '.join(b_group.keys())
+                " - "+file1+": "+', '.join(a_group.keys())+"\n"
+                " - "+file2+": "+', '.join(b_group.keys())
             )
             exit(1)
     
@@ -120,8 +120,8 @@ def compare(file1, file2):
                     warnings_found = True
                     print(
                         "Error: "+group_name+" datasets "+dataset_name+" shapes differ!\n"
-                        " - "+sys.argv[1]+": "+str(a_dataset.shape)+"\n"
-                        " - "+sys.argv[2]+": "+str(b_dataset.shape)
+                        " - "+file1+": "+str(a_dataset.shape)+"\n"
+                        " - "+file2+": "+str(b_dataset.shape)
                     )
     
                 elif not np.allclose(a_dataset, b_dataset, atol=1e-16):
@@ -131,7 +131,8 @@ def compare(file1, file2):
                     )
     
     if not warnings_found:
-        print("Files "+sys.argv[1]+" and "+sys.argv[2]+" are the same to within tolerances")
+        print("Files "+file1+" and "+file2+" are the same to within tolerances")
+        return 1
 
 
 if __name__ == "__main__":

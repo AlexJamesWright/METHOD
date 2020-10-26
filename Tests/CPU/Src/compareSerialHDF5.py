@@ -23,11 +23,12 @@ def test_compareSerialHDF5():
    print("Running tests...")
 
    # For each file, determine the appendix and use the CompareHDF5 script 
-   for i, serfile in enumerate(directory1.glob("Auxiliary/*")):
+   for serfile in directory2.glob("*"):
        appendix = serfile.stem
        appendix = appendix.strip('aux')
-       file1 = directory1 / appendix / ".hdf5"
-       file1 = directory2 / appendix / ".hdf5"
-       assert(compare(file1, file2))
+       file1 = directory1 / (appendix + ".hdf5")
+       file2 = directory2 / (appendix + ".hdf5")
+       print(file1, file2)
+       assert(compare(str(file1), str(file2)))
 
 
