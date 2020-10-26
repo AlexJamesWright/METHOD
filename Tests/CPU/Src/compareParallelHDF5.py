@@ -16,7 +16,7 @@ from pathlib import Path
 from compareHDF5 import compare
 
 
-def test_compareSerialHDF5():
+def test_compareParallelHDF5():
    directory1: Path = Path("../TestData/CPUTextToHDF5/")
    directory2: Path = Path("../TestData/CPUHDF5/")
 

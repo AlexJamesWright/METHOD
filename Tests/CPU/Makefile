@@ -131,7 +131,7 @@ compare : test_rk2 test_rkSplit test_parallel_rk2 test_parallel_rkSplit test_hdf
 	py.test -v Src/compareParallelAndSerial.py
 
 clean :
-	rm -f $(TESTS) $(PARALLEL_TESTS) gtest.a gtest_main.a *.o
+	rm -f $(TESTS) $(PARALLEL_TESTS) $(HDF5_TESTS) $(HDF5_PARALLEL_TESTS) gtest.a gtest_main.a *.o
 
 # Builds gtest.a and gtest_main.a.
 
