@@ -84,40 +84,36 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-test_serial : $(RTFIND) $(TESTS) $(HDF5_TESTS)
+test_serial : $(RTFIND) $(TESTS)
 	# Run all serial tests
 	$(foreach exe, $(TESTS), ./$(exe);)
 
+test_parallel : $(RTFIND) $(PARALLEL_TESTS) 
+	# Run all parallel tests
+	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+
+	# Run tests that compare outputs of TestData/Serial and TestData/Parallel
+	py.test -v Src/compareParallelAndSerial.py
+
+
+test_hdf5: test_serial test_parallel $(HDF5_TESTS) $(HDF5_PARALLEL_TESTS)
 	# Convert text outputs from serial tests to HDF5 for comparison with HDF5 tests
 	python ../../Scripts/dirText2hdf.py ../TestData/Serial/ ../TestData/SerialTextToHDF5
 	
-        # Run all serial HDF5 tests
-	$(foreach exe, $(HDF5_TESTS), ./$(exe);)
-
-
-
-
-test_parallel : $(RTFIND) $(PARALLEL_TESTS) $(HDF5_PARALLEL_TESTS)
-	# Run all parallel tests
-	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
-	
 	# Convert text outputs from parallel tests to HDF5 for comparison with HDF5 tests
 	python ../../Scripts/dirText2hdf.py ../TestData/CPU/ ../TestData/CPUTextToHDF5
-        
+
+	# Run all serial HDF5 tests
+	$(foreach exe, $(HDF5_TESTS), ./$(exe);)
+
 	# Run all parallel HDF5 tests
 	$(foreach exe, $(HDF5_PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
 
-	# Run tests that compare outputs of TestData/Serial and TestData/Parallel
-	#py.test -v Src/compareParallelAndSerial.py
-
-
-test_hdf5: test_serial test_parallel
         # Compare parallel tests with HDF5 tests
-	$(eval comparison_full_files = $(wildcard ../TestData/CPUHDF5/*))
-	$(eval comparison_files = $(notdir $(comparison_full_files)))
-	$(foreach file, $(comparison_files) , python ../../Scripts/compareHDF5.py ../TestData/CPUTextToHDF5/$(file) ../TestData/CPUHDF5/$(file))
+	py.test -v Src/compareParallelHDF5.py
+
 	# Compare serial tests with HDF5 tests
-	$(foreach file, $(comparison_files) , python ../../Scripts/compareHDF5.py ../TestData/SerialTextToHDF5/$(file) ../TestData/SerialHDF5/$(file))
+	py.test -v Src/compareSerialHDF5.py
 
 test : test_hdf5 test_serial test_parallel
 
