@@ -61,11 +61,11 @@ TESTS = test_simulation \
 				test_cminpack \
 				test_boundaryConds \
 				test_twoFluidEMHD \
-#				test_srrmhd \
-#				test_fvs \
-#				test_id \
-#				test_rk2 \
-#				test_imex
+				test_srrmhd \
+				test_fvs \
+				test_id \
+				test_rk2 \
+				test_imex
 
 
 PARALLEL_TESTS = test_parallel_srmhd     \
@@ -227,7 +227,7 @@ test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cu \
                      $(INC_DIR)/srrmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_srrmhd.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
-test_srrmhd : srrmhd.o C2PArgs.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o serialSaveData.o serialEnv.o $(RTFIND_OBJS) gtest_main.a
+test_srrmhd : srrmhd.o boundaryConds.o C2PArgs.o test_srrmhd.o simData.o fluxVectorSplitting.o initFunc.o simulation.o weno.o serialSaveData.o serialEnv.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
 
 # TwoFluidEMHD Model
