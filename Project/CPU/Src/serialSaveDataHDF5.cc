@@ -149,10 +149,14 @@ void SerialSaveDataHDF5::saveCons()
 {
   hid_t group = H5Gcreate(this->file, "Conserved", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   H5LTset_attribute_int(group, ".", "Ncons", &d->Ncons, 1);
+
   // For each one of the conserved variables, write it to disk
+  string varOrder;
   for(int var(0); var < d->Ncons; var++) {
     this->writeDataSetDouble(&group, d->consLabels[var].c_str(), &var, d->cons);
+    varOrder += d->consLabels[var] + ',';
   }
+  H5LTset_attribute_string(group, ".", "varOrder", varOrder.c_str());
   H5Gclose(group);
 }
 
@@ -165,9 +169,12 @@ void SerialSaveDataHDF5::savePrims()
   hid_t group = H5Gcreate(this->file, "Primitive", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   H5LTset_attribute_int(group, ".", "Nprims", &d->Nprims, 1);
 
+  string varOrder;
   for(int var(0); var < d->Nprims; var++) {
     this->writeDataSetDouble(&group, d->primsLabels[var].c_str(), &var, d->prims);
+    varOrder += d->primsLabels[var] + ',';
   }
+  H5LTset_attribute_string(group, ".", "varOrder", varOrder.c_str());
   H5Gclose(group);
 }
 
@@ -180,9 +187,12 @@ void SerialSaveDataHDF5::saveAux()
   hid_t group = H5Gcreate(this->file, "Auxiliary", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   H5LTset_attribute_int(group, ".", "Naux", &d->Naux, 1);
 
+  string varOrder;
   for(int var(0); var < d->Naux; var++) {
     this->writeDataSetDouble(&group, d->auxLabels[var].c_str(), &var, d->aux);
+    varOrder += d->auxLabels[var] + ',';
   }
+  H5LTset_attribute_string(group, ".", "varOrder", varOrder.c_str());
   H5Gclose(group);
 }
 
