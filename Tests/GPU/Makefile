@@ -17,7 +17,6 @@
 
 # Compiler
 CC = nvcc
-MPICC = mpic++
 
 #use `mpic++ -show` to find library and include flags
 MPI_FLAGS = -I/local/software/mpich/3.2.1/gcc/include -L/local/software/mpich/3.2.1/gcc/lib -lmpi -lmpicxx
@@ -68,7 +67,7 @@ TESTS = test_simulation \
 				test_imex
 
 
-PARALLEL_TESTS = test_parallel_srmhd     \
+PARALLEL_TESTS = test_parallel_rk2     \
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -80,9 +79,14 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-test : $(RTFIND) $(TESTS)
+test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
+	# Run all parallel tests
+	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+	# Run tests that compare outputs of TestData/GPU and TestData/MPIGPU
+	py.test -v Src/compareParallelAndSerial.py
+
 
 all : $(RTFIND) $(TESTS)
 
@@ -189,7 +193,7 @@ serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/serialSaveData.cu -I$(INC_DIR)
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
-	@$(MPICC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/parallelSaveData.cu -I$(INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelSaveData.cu -I$(INC_DIR)
 
 # Platform env
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
@@ -300,3 +304,28 @@ test_imex.o : $(TEST_DIR)/test_imex.cu
 
 test_imex : IMEX2Args.o C2PArgs.o  SSP2.o IMEX3Args.o  SSP3.o simData.o srrmhd.o srmhd.o C2PArgs.o twoFluidEMHD.o initFunc.o boundaryConds.o serialSaveData.o serialEnv.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
+
+# main func used for testing parallel tests. Serial tests can use the default gtest_main
+main.o : $(TEST_DIR)/main.cu $(INC_DIR)/parallelEnv.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(TEST_DIR)/main.cu -I$(INC_DIR)
+
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_DIR)/parallelEnv.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelEnv.cu -I$(INC_DIR)
+
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_DIR)/parallelBoundaryConds.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cu -I$(INC_DIR)
+
+
+test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cu $(INC_DIR)/RK2.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(TEST_DIR)/test_parallel_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_parallel_rk2 : main.o C2PArgs.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -lpthread $^ -o $@
+
+test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cu $(INC_DIR)/rkSplit.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_parallel_rkSplit : main.o test_parallel_rkSplit.o weno.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -lpthread $^ -o $@

@@ -61,7 +61,7 @@ class CompareParallelAndSerial(object):
 
         # For each file, determine the appendix and use interactivePlot to
         # gather the data
-        for i, serfile in enumerate(glob(fromSpyder+"../TestData/GPU/Conserved/*")):
+        for i, serfile in enumerate(glob(fromSpyder+"../TestData/MPIGPU/Conserved/*")):
             ext = serfile.find('.dat')
             app = serfile.find('Conserved/cons') + len('Conserved.cons')
             appendix = serfile[app:ext]
@@ -69,8 +69,8 @@ class CompareParallelAndSerial(object):
             print("Fetching {} data...".format(appendix))
 
             with HidePrints():
-                self.Serials.append(Plot(fromSpyder+"../TestData/Serial/", appendix))
-                self.Parallels.append(Plot(fromSpyder+"../TestData/GPU/", appendix))
+                self.Serials.append(Plot(fromSpyder+"../TestData/GPU/", appendix))
+                self.Parallels.append(Plot(fromSpyder+"../TestData/MPIGPU/", appendix))
 
             self.Ncons.append(self.Serials[i].c['Ncons'])
             self.Nprims.append(self.Serials[i].c['Nprims'])

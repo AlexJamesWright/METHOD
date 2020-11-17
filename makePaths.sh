@@ -48,6 +48,12 @@ mkdir Tests/TestData/GPU/Conserved
 mkdir Tests/TestData/GPU/Constants
 mkdir Tests/TestData/GPU/Primitive
 
+mkdir Tests/TestData/MPIGPU
+mkdir Tests/TestData/MPIGPU/Auxiliary
+mkdir Tests/TestData/MPIGPU/Conserved
+mkdir Tests/TestData/MPIGPU/Constants
+mkdir Tests/TestData/MPIGPU/Primitive
+
 mkdir Tests/TestData
 mkdir Tests/TestData/CPU
 mkdir Tests/TestData/CPU/Auxiliary
