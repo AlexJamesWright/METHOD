@@ -18,6 +18,8 @@ test_parallel_rk2
 test_parallel_rkSplit
 test_rkSplit
 test_weno
+test_hdf5_parallel_rk2
+test_hdf5_rk2
 
 test_*.o
 !test_*.cc
@@ -44,6 +46,7 @@ slurm*
 
 # Don't track the data files!
 Data
+Tests/TestData
 Examples/Data*
 Scripts/Data*
 
