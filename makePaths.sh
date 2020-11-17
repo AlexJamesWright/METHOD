@@ -39,7 +39,9 @@ mkdir Tests/TestData/CPU/Constants
 mkdir Tests/TestData/CPU/Primitive
 
 mkdir Tests/TestData/SerialHDF5
+mkdir Tests/TestData/SerialTextToHDF5
 mkdir Tests/TestData/CPUHDF5
+mkdir Tests/TestData/CPUTextToHDF5
 
 mkdir Tests/TestData/Serial
 mkdir Tests/TestData/Serial/Auxiliary
