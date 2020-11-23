@@ -16,7 +16,12 @@ module list
 source ../../venv/bin/activate
 
 make clean
-make test
+make gpu_test
+
+# required for GLIBCXX_3.4.21 module to be available for python
+module load gcc/6.4.0
+
+make compare_mpi_test
 
 
 

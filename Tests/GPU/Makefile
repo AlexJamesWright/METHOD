@@ -79,14 +79,17 @@ RTFIND = buildRootfinder
 
 # House-keeping build targets.
 
-test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
+compare_mpi_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS) gpu_test
+	# Run tests that compare outputs of TestData/GPU and TestData/MPIGPU
+	py.test -v Src/compareParallelAndSerial.py
+
+gpu_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
 	# Run all parallel tests
 	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
-	# Run tests that compare outputs of TestData/GPU and TestData/MPIGPU
-	py.test -v Src/compareParallelAndSerial.py
 
+test : gpu_test compare_mpi_test
 
 all : $(RTFIND) $(TESTS)
 
