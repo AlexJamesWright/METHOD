@@ -85,224 +85,71 @@ class CompareParallelAndSerial(object):
             self.ybounds.append((0, self.ny[-1]))
             self.zbounds.append((0, self.nz[-1]))
 
-
-
 # Instantiate the compare class so we have the data
 Compare = CompareParallelAndSerial()
 
 
 # Test functions
 
-# IMEX3
-def test_ConsEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        print(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k])))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-
-def test_PrimsEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Nprims[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-
-def test_AuxEquivalentForSSP3():
-    Obj = Compare.Appendicies.index('SSP3')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Naux[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-
-# IMEX2
-def test_ConsEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-
-def test_PrimsEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Nprims[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-
-def test_AuxEquivalentForSSP2():
-    Obj = Compare.Appendicies.index('SSP2')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Naux[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-
-def test_ConsEquivalentForSSP2FlowKHSingleFluid():
-    Obj = Compare.Appendicies.index('SSP2FlowKHSingleFluid')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-
-def test_PrimsEquivalentForSSP2FlowKHSingleFluid():
-    Obj = Compare.Appendicies.index('SSP2FlowKHSingleFluid')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Nprims[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-
-def test_AuxEquivalentForSSP2FlowKHSingleFluid():
-    Obj = Compare.Appendicies.index('SSP2FlowKHSingleFluid')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Naux[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+def _compareStateVarArrays(serialArray, parallelArray, Obj, nVars):
+   for Nv in range(nVars):
+       for i in range(*Compare.xbounds[Obj]):
+           for j in range(*Compare.ybounds[Obj]):
+               for k in range(*Compare.zbounds[Obj]):
+                   try:
+                       assert(abs((serialArray[Nv, i, j, k] - parallelArray[Nv, i, j, k]) < TOL))
+                   except AssertionError:
+                       print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
+                       assert(abs((serialArray[Nv, i, j, k] - parallelArray[Nv, i, j, k]) < TOL))
 
 
 # RK2
-def test_ConsEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+
+## BrioWuSingleFluid
+
+def test_ConsEquivalentForRK2SrmhdOutflowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-   for Nv in range(Compare.Ncons[Obj]):
-       for i in range(*Compare.xbounds[Obj]):
-           for j in range(*Compare.ybounds[Obj]):
-               for k in range(*Compare.zbounds[Obj]):
-                   try:
-                       assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                   except AssertionError:
-                       print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                       assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
 
-def test_PrimsEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+def test_PrimsEquivalentForRK2SrmhdOutflowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-   for Nv in range(Compare.Nprims[Obj]):
-       for i in range(*Compare.xbounds[Obj]):
-           for j in range(*Compare.ybounds[Obj]):
-               for k in range(*Compare.zbounds[Obj]):
-                   try:
-                       assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
-                   except AssertionError:
-                       print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                       assert(abs((Serial.prims[Nv, i, j, k] - Parallel.prims[Nv, i, j, k]) < TOL))
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
 
-def test_AuxEquivalentForRK2():
-   Obj = Compare.Appendicies.index('RK2')
+def test_AuxEquivalentForRK2SrmhdOutflowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdOutflowBrioWuSF')
    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-   for Nv in range(Compare.Naux[Obj]):
-       for i in range(*Compare.xbounds[Obj]):
-           for j in range(*Compare.ybounds[Obj]):
-               for k in range(*Compare.zbounds[Obj]):
-                   try:
-                       assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
-                   except AssertionError:
-                       print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                       assert(abs((Serial.aux[Nv, i, j, k] - Parallel.aux[Nv, i, j, k]) < TOL))
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
 
-# FVS
-def test_FnetEquivalentForFVS():
-    Obj = Compare.Appendicies.index('FVSFnet')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+def test_ConsEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
 
-def test_FxEquivalentForFVS():
-    Obj = Compare.Appendicies.index('FVSFx')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+def test_PrimsEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
 
-def test_FyEquivalentForFVS():
-    Obj = Compare.Appendicies.index('FVSFy')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+def test_AuxEquivalentForRK2SrmhdPeriodicBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdPeriodicBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
 
-def test_FzEquivalentForFVS():
-    Obj = Compare.Appendicies.index('FVSFz')
-    Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
-    for Nv in range(Compare.Ncons[Obj]):
-        for i in range(*Compare.xbounds[Obj]):
-            for j in range(*Compare.ybounds[Obj]):
-                for k in range(*Compare.zbounds[Obj]):
-                    try:
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
-                    except AssertionError:
-                        print("Error for (Nv, i, j, k) = ({}, {}, {}, {})".format(Nv, i, j, k) + " with diff of {}".format(Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]))
-                        assert(abs((Serial.cons[Nv, i, j, k] - Parallel.cons[Nv, i, j, k]) < TOL))
+def test_ConsEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.cons, Parallel.cons, Obj, Compare.Ncons[Obj])
+
+def test_PrimsEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.prims, Parallel.prims, Obj, Compare.Nprims[Obj])
+
+def test_AuxEquivalentForRK2SrmhdFlowBrioWuSF():
+   Obj = Compare.Appendicies.index('RK2SrmhdFlowBrioWuSF')
+   Serial, Parallel = Compare.Serials[Obj], Compare.Parallels[Obj]
+   _compareStateVarArrays(Serial.aux, Parallel.aux, Obj, Compare.Naux[Obj])
+
+
