@@ -1,7 +1,9 @@
 // Serial main
 #include "simData.h"
+#include "checkpointArgs.h"
 #include "simulation.h"
 #include "initFunc.h"
+#include "initFuncFromCheckpoint.h"
 #include "srmhd.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
@@ -26,8 +28,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  //double endTime(3.0);
-  double endTime(0.0);
+  double endTime(3.0);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -42,8 +43,16 @@ int main(int argc, char *argv[]) {
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+  //const char* filename = "data_t3.checkpoint.hdf5";
+  const char* filename = "data_t0.checkpoint.hdf5";
+
+  //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+  //          cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+
+  CheckpointArgs checkpointArgs(filename, &env);
+  checkpointArgs.endTime=3.0;
+  
+  Data data(checkpointArgs, &env, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -58,7 +67,8 @@ int main(int argc, char *argv[]) {
 
   printf("Seed: %d\n", seed);
 
-  KHRandomInstabilitySingleFluid init(&data, 1, seed);
+  //KHRandomInstabilitySingleFluid init(&data, 1, seed);
+  CheckpointRestart init(&data, filename);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 

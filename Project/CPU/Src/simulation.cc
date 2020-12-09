@@ -36,7 +36,6 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
   d->dz = (d->zmax - d->zmin) / (d->nz);
 
   d->iters = 0;
-  d->t = 0;
   d->alphaX = 1.0;
   d->alphaY = 1.0;
   d->alphaZ = 1.0;
