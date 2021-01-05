@@ -1,6 +1,6 @@
 #include "simData.h"
 #include "parallelCheckpointArgs.h"
-#include "platformEnv.h"
+#include "parallelEnv.h"
 #include <stdexcept>
 #include <cmath>
 #include "hdf5.h"
@@ -8,14 +8,13 @@
 #include <stdexcept>
 
 
-ParallelCheckpointArgs::ParallelCheckpointArgs(const char* name, PlatformEnv *env) : CheckpointArgs
+ParallelCheckpointArgs::ParallelCheckpointArgs(const char* name, ParallelEnv *env) : CheckpointArgs()
 {
 	herr_t error=0, tmpError=-1;
 
         hid_t file_access_property_list = H5Pcreate(H5P_FILE_ACCESS);
         H5Pset_fapl_mpio(file_access_property_list, env->mpiCartesianComm, env->mpiInfo);
 	hid_t file = H5Fopen(name, H5F_ACC_RDONLY, file_access_property_list);
-
 	if (file<0) throw std::runtime_error("Could not open checkpoint restart file. Does it exist? CheckpointArgs requires path to file and extension");
 
 	// Read global file attributes

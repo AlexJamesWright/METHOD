@@ -61,9 +61,7 @@ int
       @param name name of checkpoint file to use for restart, including path and extension
       @param env environment object containing platform details eg MPI ranks
     */
-    CheckpointArgs(
-         const char* name,
-	 PlatformEnv *env);
+    CheckpointArgs() {};
 
 };
 

@@ -14,19 +14,27 @@ ParallelEnv::ParallelEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, i
 {
     int initialized;
     MPI_Initialized(&initialized);
-	if (!initialized && !testing) MPI_Init(argcP, argvP);
+    // TODO -- is testing required? Won't initialize if already initialised anyway
+    if (!initialized && !testing) MPI_Init(argcP, argvP);
+    
+    MPI_Comm_size(MPI_COMM_WORLD, &nProc);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Info_create(&this->mpiInfo);
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Info_create(&this->mpiInfo);
-
-	if (rank==0){
+    if (rank==0){
         printf("Running in multi-process mode with %d processes\n", nProc);
-  }
-
-	this->nxRanks = nxRanks;
-	this->nyRanks = nyRanks;
-	this->nzRanks = nzRanks;
+    }
+    
+    this->nxRanks = nxRanks;
+    this->nyRanks = nyRanks;
+    this->nzRanks = nzRanks;
+    
+    // NOTE: We always set the parallel decomposition to be periodic in all dimensions here, rather than determining
+    // periodicity based on the Bcs object. This is very slightly less efficient for eg Flow bcs, as external processes will 
+    // exchange a small amount of data which is not used, but makes the order in which bcs are created relative to 
+    // PlatformEnv and Data much less strict. This is necessary as parallel checkpoint restart requires the cartesian 
+    // mpi communicator set below to exist before being able to create Data, but bcs require Data to be created first. 
+    setParallelDecomposition(1,1,1);
 }
 
 ParallelEnv::~ParallelEnv()
@@ -92,7 +100,7 @@ void ParallelEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPe
 	ndims = 3;
 
 	// Create MPI communicator in a cartesian grid that matches the domain
-	MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpiCartesianComm);
+	int error = MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpiCartesianComm);
 
 	int coords[3];
 

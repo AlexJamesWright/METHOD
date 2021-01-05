@@ -20,7 +20,7 @@
  * @param data The pointer to the data array.
  */
 void ParallelCheckpointRestart::readDataSetDouble(const hid_t *group, const char *name, const int *var,
-                                            double *varData, PlatformEnv* env) {
+                                            double *varData, ParallelEnv* env) {
   // Syntax
   Data * d(data);
 
@@ -93,7 +93,7 @@ void ParallelCheckpointRestart::readDataSetDouble(const hid_t *group, const char
   }
 }
 
-ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *name, PlatformEnv *env) : InitialFunc(data)
+ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *name, ParallelEnv *env) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
