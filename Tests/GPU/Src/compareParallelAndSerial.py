@@ -58,6 +58,7 @@ class CompareParallelAndSerial(object):
         print("Running tests...")
 
     def getFiles(self):
+        print("TEST!!!!")
 
         # For each file, determine the appendix and use interactivePlot to
         # gather the data

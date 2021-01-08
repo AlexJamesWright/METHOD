@@ -8,6 +8,7 @@ CC = mpic++
 # Whether to use MPI for multi-cpu processing
 USE_MPI = 1
 USE_OMP = 1
+USE_HDF = 1
 
 # Module directory
 MODULE_DIR = ./Src
@@ -57,15 +58,32 @@ SRCS = main.cc 								\
 			 Euler.cc
 
 SERIAL_SRCS = serialSaveData.cc
+ifeq ($(USE_HDF), 1)
+    SERIAL_SRCS += serialSaveDataHDF5.cc
+endif
 
 PARALLEL_SRCS = parallelSaveData.cc \
 				parallelBoundaryConds.cc
+ifeq ($(USE_HDF), 1)
+    PARALLEL_SRCS += parallelSaveDataHDF5.cc
+endif
 
 SRCS += ${PARALLEL_SRCS}
 SRCS += ${SERIAL_SRCS}
 
 ifeq ($(USE_OMP), 1)
     OMP_FLAGS = -fopenmp
+endif
+
+ifeq ($(USE_HDF), 1)
+    export HDF5_CXX := $(CC)
+    export HDF5_CLINKER := $(CC)
+
+    ifeq($(USE_OMP), 1)
+		CC = h5pcc.openmpi
+    else
+    	CC = h5c++
+    endif
 endif
 
 # Headers
@@ -182,7 +200,13 @@ boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h

@@ -7,6 +7,7 @@ int main(int argc, char** argv)
 
     // Create env here to ensure MPI initialisation is handled. Will need to create this object again inside each test
     // -- mpi init will only be called the first time
-    ParallelEnv env(0, NULL, 1, 1, 1);
+    // TODO: Could create object parallelTestingEnv to disambiguate
+    ParallelEnv env(0, NULL, 2, 2, 1);
     return RUN_ALL_TESTS();
 }

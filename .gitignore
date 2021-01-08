@@ -18,6 +18,8 @@ test_parallel_rk2
 test_parallel_rkSplit
 test_rkSplit
 test_weno
+test_hdf5_parallel_rk2
+test_hdf5_rk2
 
 test_*.o
 !test_*.cc
@@ -25,6 +27,7 @@ gtest_main.a
 gtest.a
 
 *.dat
+*.hdf5
 
 Doxumentation/html/*
 
@@ -37,11 +40,21 @@ runMultipleSims.sh
 cleanData.sh
 
 .cache
-
 ProfileParallel.nvvp
 
 slurm*
 
+# Don't track the data files!
 Data
+Tests/TestData
+Examples/Data*
+Scripts/Data*
 
+# Ignore the build directories
 build
+
+# Don't track files from the docker mount
+dockermount
+# Don't track files from the virtual environment or IDE
+venv
+.idea

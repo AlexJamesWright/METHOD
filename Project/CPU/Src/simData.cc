@@ -29,9 +29,34 @@ Data::Data(int nx, int ny, int nz,
            mu1(mu1), mu2(mu2),
            frameSkip(frameSkip),
            reportItersPeriod(reportItersPeriod),
-           functionalSigma(functionalSigma), gam(gam)
+           functionalSigma(functionalSigma), gam(gam), 
+	   t(0)
 {
+	initData(env);
+}
 
+Data::Data(CheckpointArgs args, PlatformEnv *env, double mu1, double mu2,
+         int frameSkip, int reportItersPeriod, int functionalSigma, double gam)
+           :
+           nx(args.nx), ny(args.ny), nz(args.nz),
+           xmin(args.xmin), xmax(args.xmax),
+           ymin(args.ymin), ymax(args.ymax),
+           zmin(args.zmin), zmax(args.zmax),
+           endTime(args.endTime), cfl(args.cfl), Ng(args.Ng),
+           gamma(args.gamma), sigma(args.sigma),
+           memSet(0), bcsSet(0),
+           Ncons(0), Nprims(0), Naux(0),
+           cp(args.cp),
+           mu1(mu1), mu2(mu2),
+           frameSkip(frameSkip),
+           reportItersPeriod(reportItersPeriod),
+           functionalSigma(functionalSigma), gam(gam),
+           t(args.t)
+{
+	initData(env);
+}
+
+void Data::initData(PlatformEnv *env){
   // TODO -- handle nx not dividing perfectly into nxRanks
 
   // Set Nx to be nx per MPI process + ghost cells
