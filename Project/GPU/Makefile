@@ -4,7 +4,7 @@
 # -------------- PARAMETERS FOR USERS TO EDIT --------------------
 
 # if USE_MPI=1, need to use parallel versions of objects, such as ParallelEnv, ParallelSaveData etc
-USE_MPI=1
+USE_MPI=0
 
 # find location of MPI libraries to link on your local system using 'mpicc -show'
 MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 

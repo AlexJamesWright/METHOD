@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Flow bcs(&data, &env);
+  Flow bcs(&data);
 
   Simulation sim(&data, &env);
 
