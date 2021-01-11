@@ -5,9 +5,10 @@
 #include "srmhd.h"
 #include "srrmhd.h"
 #include "boundaryConds.h"
+#include "parallelBoundaryConds.h"
 #include "rkSplit.h"
 #include "SSP2.h"
-#include "serialSaveData.h"
+#include "parallelSaveDataHDF5.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 
@@ -42,6 +43,9 @@ int main(int argc, char *argv[]) {
   double sigma(0);
   bool output(true);
   int safety(180);
+  int nxRanks(2);
+  int nyRanks(2);
+  int nzRanks(1);
 
   char * ptr(0);
   //! Overwrite any variables that have been passed in as main() arguments
@@ -51,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  SerialEnv env(&argc, &argv, 1, 1, 1);
+  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
             cfl, Ng, gamma, sigma);
@@ -61,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   FVS fluxMethod(&data, &model);
 
-  Flow bcs(&data);
+  ParallelFlow bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
@@ -69,7 +73,7 @@ int main(int argc, char *argv[]) {
 
   RK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveData save(&data, &env);
+  ParallelSaveDataHDF5 save(&data, &env, "data_parallel", ParallelSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);

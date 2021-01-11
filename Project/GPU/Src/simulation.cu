@@ -56,7 +56,6 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
   d->dy = (d->ymax - d->ymin) / d->ny;
   d->dz = (d->zmax - d->zmin) / d->nz;
   d->iters = 0;
-  d->t = 0;
   d->alphaX = 1.0;
   d->alphaY = 1.0;
   d->alphaZ = 1.0;
@@ -193,7 +192,7 @@ void Simulation::evolve(bool output, int safety)
     }
 
     if (safety>0 && d->iters%safety==0) {
-      this->save->saveAll();
+      this->save->saveAll(true);
       if (env->rank==0) printf("Data saved...\n");
     }
 

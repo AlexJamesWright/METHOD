@@ -25,8 +25,31 @@ Data::Data(int nx, int ny, int nz,
            Ncons(0), Nprims(0), Naux(0),
            cp(cp),
            mu1(mu1), mu2(mu2),
-           frameSkip(frameSkip)
+           frameSkip(frameSkip), t(0)
 {
+	initData(env);
+}
+
+Data::Data(CheckpointArgs args, PlatformEnv *env, double mu1, double mu2,
+         int frameSkip)
+           :
+           nx(args.nx), ny(args.ny), nz(args.nz),
+           xmin(args.xmin), xmax(args.xmax),
+           ymin(args.ymin), ymax(args.ymax),
+           zmin(args.zmin), zmax(args.zmax),
+           endTime(args.endTime), cfl(args.cfl), Ng(args.Ng),
+           gamma(args.gamma), sigma(args.sigma),
+           memSet(0), bcsSet(0),
+           Ncons(0), Nprims(0), Naux(0),
+           cp(args.cp),
+           mu1(mu1), mu2(mu2),
+           frameSkip(frameSkip),
+           t(args.t)
+{
+	initData(env);
+}
+
+void Data::initData(PlatformEnv *env){
   // TODO -- handle nx not dividing perfectly into nxRanks
 
   // Set Nx to be nx per MPI process + ghost cells
@@ -49,6 +72,17 @@ Data::Data(int nx, int ny, int nz,
     zmin = ymin = -1e20;
     zmax = ymax = 1e20;
     dims = 1;
+  }
+
+  // Set some variables that define the interior cells
+  is = Ng; ie = Nx-Ng;  // i-start, i-end
+  js = Ng; je = Ny-Ng;  // j-start, j-end
+  ks = Ng; ke = Nz-Ng;  // k-start, k-end
+  if (dims<3) {
+    ks = 0; ke = 1;
+  }
+  if (dims<2) {
+    js = 0; je = 1;
   }
 
   // Total number of cells
@@ -95,5 +129,5 @@ Data::Data(int nx, int ny, int nz,
   }
 
   // cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
-
 }
+

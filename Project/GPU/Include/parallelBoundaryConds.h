@@ -30,9 +30,9 @@ class ParallelBcs : public Bcs
       @param[in] *env pointer to ParallelEnv class
       @sa Bcs::Bcs
     */
-    ParallelBcs(Data *data, ParallelEnv *env, int xPeriodic=1, int yPeriodic=1, int zPeriodic=1) : Bcs(data), env(env)
+    ParallelBcs(Data *data, ParallelEnv *env) : Bcs(data), env(env)
     {
-        env->setParallelDecomposition(xPeriodic, yPeriodic, zPeriodic);
+
     }
 
     virtual ~ParallelBcs() { }     //!< Destructor
@@ -165,7 +165,7 @@ class ParallelOutflow : public ParallelBcs
       @param[in] *data pointer to Data class
       @sa ParallelBcs::ParallelBcs
     */
-    ParallelOutflow(Data * data, ParallelEnv *env) : ParallelBcs(data, env, xPeriodic=0, yPeriodic=0, zPeriodic=0) { }
+    ParallelOutflow(Data * data, ParallelEnv *env) : ParallelBcs(data, env) { }
 
     virtual ~ParallelOutflow() { }     //!< Destructor
 
@@ -243,7 +243,7 @@ class ParallelPeriodic : public ParallelBcs
       @param[in] *env pointer to ParallelEnv class
       @sa ParallelBcs::ParallelBcs
     */
-    ParallelPeriodic(Data * data, ParallelEnv * env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=1, zPeriodic=1) { }
+    ParallelPeriodic(Data * data, ParallelEnv * env) : ParallelBcs(data, env) { }
 
     virtual ~ParallelPeriodic() { }     //!< Destructor
 
@@ -276,7 +276,7 @@ class ParallelFlow : public ParallelBcs
       @param[in] *data pointer to Data class
       @sa ParallelBcs::ParallelBcs
     */
-    ParallelFlow(Data * data, ParallelEnv *env) : ParallelBcs(data, env, xPeriodic=1, yPeriodic=0, zPeriodic=0) { }
+    ParallelFlow(Data * data, ParallelEnv *env) : ParallelBcs(data, env) { }
 
     virtual ~ParallelFlow() { }     //!< Destructor
 

@@ -7,6 +7,7 @@
 
 using namespace std;
 
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 /*!
  * /brief Opens a HDF5 file

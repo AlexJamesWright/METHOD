@@ -4,10 +4,23 @@
 # -------------- PARAMETERS FOR USERS TO EDIT --------------------
 
 # if USE_MPI=1, need to use parallel versions of objects, such as ParallelEnv, ParallelSaveData etc
-USE_MPI=0
+USE_MPI=1
+USE_HDF=1
 
-# find location of MPI libraries to link on your local system using 'mpicc -show'
-MPI_FLAGS = -I/usr/include/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich 
+# Compiler used for all compilation objects. This should be the version of the hdf5 
+# compiler available on your system that links the correct mpi libraries if required. Should 
+# be one of h5pcc, h5pcc.openmpi or h5pcc.mpich if using MPI. Should be h5cc otherwise. 
+#CC = h5pcc
+CC = mpic++
+
+# Compiler used by hdf5 for c++. Shouldn't need to change this
+#export HDF5_CXX := mpic++
+#export HDF5_CLINKER := mpic++
+
+HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+
+# this should no longer be needed but leaving them in just in case
+MPI_FLAGS =
 
 # -------------- END PARAMETERS FOR USERS TO EDIT --------------------
 
@@ -37,6 +50,11 @@ CXXFLAGS = -fopenmp -Wall -std=c++11 -O3 -lineinfo
 # NVIDIA compiler flags
 NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52 -Xcompiler -fopenmp -Xcompiler -Wall -lineinfo
 
+
+ifeq ($(USE_MPI), 1)
+	NVFLAGS += -ccbin ${CC}
+endif
+
 # Sources
 SRCS = main.cu \
 			 simulation.cu \
@@ -58,12 +76,21 @@ SRCS = main.cu \
 			 srrmhd.cu \
 			 C2PArgs.cu
 
+
+SERIAL_SRCS = serialSaveData.cu \
+	serialEnv.cu
+
+ifeq ($(USE_HDF), 1)
+    SERIAL_SRCS += serialSaveDataHDF5.cu
+endif
+
 PARALLEL_SRCS = parallelSaveData.cu \
 	parallelEnv.cu \
 	parallelBoundaryConds.cu
 
-SERIAL_SRCS = serialSaveData.cu \
-	serialEnv.cu
+ifeq ($(USE_HDF), 1)
+    PARALLEL_SRCS += parallelSaveDataHDF5.cu
+endif
 
 # Headers
 HDRS = ${SRCS:.cu=.h} cudaErrorCheck.h
@@ -144,7 +171,7 @@ simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/mo
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
 main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(MPI_FLAGS)
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(MPI_FLAGS)
 
 weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -179,6 +206,8 @@ boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cu $(INC_DIR)/serialSaveDataHDF5.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -191,6 +220,9 @@ fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVect
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
 	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cu $(INC_DIR)/parallelSaveDataHDF5.h
+	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_DIR)/parallelBoundaryConds.h
 	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
@@ -202,7 +234,7 @@ parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_DIR)/parallelEnv.h
 
 # Executable
 main : $(RTFIND_OBJS) $(OBJS) $(ENV_OBJS)
-	$(CC_GPU) $^	-o $@ 	$(NVFLAGS) $(MPI_FLAGS)
+	$(CC_GPU) $^	-o $@ 	$(HDF5_FLAGS) $(NVFLAGS) $(MPI_FLAGS)
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
