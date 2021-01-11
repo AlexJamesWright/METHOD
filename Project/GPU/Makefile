@@ -81,7 +81,9 @@ SERIAL_SRCS = serialSaveData.cu \
 	serialEnv.cu
 
 ifeq ($(USE_HDF), 1)
-    SERIAL_SRCS += serialSaveDataHDF5.cu
+    SERIAL_SRCS += serialSaveDataHDF5.cu \
+	initFuncFromCheckpoint.cu \
+	checkpointArgs.cu 
 endif
 
 PARALLEL_SRCS = parallelSaveData.cu \
@@ -89,7 +91,9 @@ PARALLEL_SRCS = parallelSaveData.cu \
 	parallelBoundaryConds.cu
 
 ifeq ($(USE_HDF), 1)
-    PARALLEL_SRCS += parallelSaveDataHDF5.cu
+    PARALLEL_SRCS += parallelSaveDataHDF5.cu \
+	parallelInitFuncFromCheckpoint.cu \
+	parallelCheckpointArgs.cu 
 endif
 
 # Headers
@@ -152,8 +156,17 @@ clean :
 simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
 
+serialCheckpointArgs.o : $(MODULE_DIR)/serialCheckpointArgs.cu $(INC_DIR)/serialCheckpointArgs.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
+
+parallelCheckpointArgs.o : $(MODULE_DIR)/parallelCheckpointArgs.cu $(INC_DIR)/parallelCheckpointArgs.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR) $(MPI_FLAGS)
+
 initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+
+initFuncFromCheckpoint.o : $(MODULE_DIR)/initFuncFromCheckpoint.cu $(INC_DIR)/initFuncFromCheckpoint.h	$(INC_DIR)/simData.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
 
 C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_DIR)/C2PArgs.h	$(INC_DIR)/simData.h
 	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
@@ -228,6 +241,9 @@ parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_DIR)/para
 
 parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_DIR)/parallelEnv.h
 	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+
+parallelInitFuncFromCheckpoint.o : $(MODULE_DIR)/parallelInitFuncFromCheckpoint.cu $(INC_DIR)/parallelInitFuncFromCheckpoint.h	$(INC_DIR)/simData.h
+	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
 
 #end parallel sources
 

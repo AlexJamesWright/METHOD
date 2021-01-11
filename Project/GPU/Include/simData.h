@@ -207,7 +207,7 @@ class Data
       @param mu2 charge mass ratio of species 2
     */
     Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);
+         int frameskip=10);
 
    
 };

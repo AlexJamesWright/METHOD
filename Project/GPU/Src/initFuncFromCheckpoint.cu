@@ -8,6 +8,8 @@
 #include "hdf5.h"
 #include "hdf5_hl.h"
 
+#define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
+
 /*!
  * /brief Writes an HDF5 dataset to file
  *

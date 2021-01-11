@@ -1,7 +1,9 @@
 // Serial main
 #include "simData.h"
+#include "parallelCheckpointArgs.h"
 #include "simulation.h"
 #include "initFunc.h"
+#include "initFuncFromCheckpoint.h"
 #include "srmhd.h"
 #include "srrmhd.h"
 #include "boundaryConds.h"
@@ -57,8 +59,15 @@ int main(int argc, char *argv[]) {
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma);
+  const char* filename = "data_t0.checkpoint.hdf5";
+
+  ParallelCheckpointArgs checkpointArgs(filename, &env);
+  checkpointArgs.endTime=3.0;
+
+  Data data(checkpointArgs, &env);
+
+  //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+            //cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
   SRMHD model(&data);
