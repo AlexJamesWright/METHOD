@@ -83,7 +83,7 @@ SERIAL_SRCS = serialSaveData.cu \
 ifeq ($(USE_HDF), 1)
     SERIAL_SRCS += serialSaveDataHDF5.cu \
 	initFuncFromCheckpoint.cu \
-	checkpointArgs.cu 
+	serialCheckpointArgs.cu 
 endif
 
 PARALLEL_SRCS = parallelSaveData.cu \

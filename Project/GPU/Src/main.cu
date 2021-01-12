@@ -39,7 +39,8 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(-1.5);
   double zmax(1.5);
-  double endTime(0.0005);
+  //double endTime(0.0005);
+  double endTime(0.01);
   double cfl(0.1);
   double gamma(4.0/3.0);
   double sigma(0);
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
   const char* filename = "data_t0.checkpoint.hdf5";
 
   ParallelCheckpointArgs checkpointArgs(filename, &env);
-  checkpointArgs.endTime=3.0;
+  checkpointArgs.endTime=0.1;
 
   Data data(checkpointArgs, &env);
 
