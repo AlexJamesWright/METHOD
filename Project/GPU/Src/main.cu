@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   const char* filename = "data_t0.checkpoint.hdf5";
 
   ParallelCheckpointArgs checkpointArgs(filename, &env);
-  checkpointArgs.endTime=0.1;
+  checkpointArgs.endTime=endTime;
 
   Data data(checkpointArgs, &env);
 

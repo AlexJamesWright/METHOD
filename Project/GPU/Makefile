@@ -7,16 +7,11 @@
 USE_MPI=1
 USE_HDF=1
 
-# Compiler used for all compilation objects. This should be the version of the hdf5 
-# compiler available on your system that links the correct mpi libraries if required. Should 
-# be one of h5pcc, h5pcc.openmpi or h5pcc.mpich if using MPI. Should be h5cc otherwise. 
-#CC = h5pcc
 CC = mpic++
 
-# Compiler used by hdf5 for c++. Shouldn't need to change this
-#export HDF5_CXX := mpic++
-#export HDF5_CLINKER := mpic++
-
+# HDF5 libraries must be linked explicitly like this rather than using the hdf5 compiler h5pcc. 
+# h5pcc should wrap mpicc with the hdf5 libraries included, but appears to interact badly with nvcc
+# The library paths below are found using h5pcc -show
 HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
 
 # this should no longer be needed but leaving them in just in case
