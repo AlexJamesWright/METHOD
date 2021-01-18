@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
             //cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   ParallelCheckpointArgs checkpointArgs(filename, &env);
-  checkpointArgs.endTime=3.0;
+  checkpointArgs.endTime=endTime;
   
   Data data(checkpointArgs, &env, mu1, mu2, frameSkip, reportItersPeriod);
 
