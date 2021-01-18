@@ -9,6 +9,9 @@ from matplotlib import pyplot as plt
 from scipy.special import erf
 from matplotlib import cm
 import warnings
+import h5py
+import netCDF4
+import glob
 from contextlib import suppress
 
 warnings.filterwarnings('ignore', "No labelled objects found. ")
@@ -24,7 +27,8 @@ appendix = ''
 
 class InteractivePlot(object):
 
-    def __init__(self, DatDirectory=None, append=None):
+    def __init__(self, DatDirectory=None, append=None, hdf5=False):
+        self.hdf5=hdf5
         if DatDirectory is None:
             self.DatDir = FinalDirectory
         else:
@@ -64,115 +68,176 @@ class InteractivePlot(object):
                 All links are the same as the constant name in the SimData class.
 
         """
-
+        
         # Dictionary to hold constants
         self.c = {}
         c = self.c
-        # Get constants first
-        print("Fetching constants...")
-        with open(self.DatDir + 'Constants/constants' + self.appendix + '.dat', 'r') as f:
-            for i, line in enumerate(f):
-                if not i==0:
-                    line=line.split()
-                    c['nx'] = int(line[0])
-                    c['ny'] = int(line[1])
-                    if c['ny'] == 0:
-                        c['ny'] = 1
-                    c['nz'] = int(line[2])
-                    if c['nz'] == 0:
-                        c['nz'] = 1
-                    c['Nx'] = int(line[3])
-                    c['Ny'] = int(line[4])
-                    c['Nz'] = int(line[5])
-                    c['xmin'] = float(line[6])
-                    c['xmax'] = float(line[7])
-                    c['ymin'] = float(line[8])
-                    c['ymax'] = float(line[9])
-                    c['zmin'] = float(line[10])
-                    c['zmax'] = float(line[11])
-                    c['endTime'] = float(line[12])
-                    c['cfl'] = float(line[13])
-                    c['Ng'] = int(line[14])
-                    c['gamma'] = float(line[15])
-                    c['sigma'] = float(line[16])
-                    c['Ncons'] = int(line[17])
-                    c['Nprims'] = int(line[18])
-                    c['Naux'] = int(line[19])
-                    c['cp'] = float(line[20])
-                    c['dt'] = float(line[21])
-                    c['t'] = float(line[22])
-                    c['dx'] = float(line[23])
-                    c['dy'] = float(line[24])
-                    c['dz'] = float(line[25])
-
-        print("{} conserved vectors".format(c['Ncons']))
-        print("{} primitive vectors".format(c['Nprims']))
-        print("{} auxiliary vectors".format(c['Naux']))
-
-
-        # Now gather conserved data
-        self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
-        print("Fetching conserved variables...")
-        with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
-            for i, line in enumerate(f):
-                # Get cons var labels
-                if i==0:
-                    consLabels = line.split()[2:]
-                    # Get cons var data
-                else:
-                    temp = line.split()
-                    for k in range(c['nz']):
-                        self.cons[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
-
-        # Clean up labels (remove the commas)
-        self.cleanConsLabels = []
-        for i in range(len(consLabels)-1):
-            self.cleanConsLabels.append(consLabels[i][:-1])
-        self.cleanConsLabels.append(consLabels[-1])
-
-        with suppress(FileNotFoundError):
-            # Now get primitive variables if  and store the data in array...
-            self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
-            print("Fetching primitive variables...")
-            with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
+        
+        if not self.hdf5:
+            # Get constants first
+            print("Fetching constants...")
+            with open(self.DatDir + 'Constants/constants' + self.appendix + '.dat', 'r') as f:
                 for i, line in enumerate(f):
-                    # Get primitive var labels
-                    if i==0:
-                        primLabels = line.split()[2:]
-                    # Get primitive var data
-                    else:
-                        temp = line.split()
-                        for k in range(c['nz']):
-                            self.prims[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
-            # Clean up labels (remove the commas)
-            self.cleanPrimLabels = []
-            for i in range(len(primLabels)-1):
-                self.cleanPrimLabels.append(primLabels[i][:-1])
-            self.cleanPrimLabels.append(primLabels[-1])
-
-        with suppress(FileNotFoundError):
-            # And finally the aux vars if available
-            self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
-            print("Fetching auxiliary variables...")
-            with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
+                    if not i==0:
+                        line=line.split()
+                        c['nx'] = int(line[0])
+                        c['ny'] = int(line[1])
+                        if c['ny'] == 0:
+                            c['ny'] = 1
+                        c['nz'] = int(line[2])
+                        if c['nz'] == 0:
+                            c['nz'] = 1
+                        c['Nx'] = int(line[3])
+                        c['Ny'] = int(line[4])
+                        c['Nz'] = int(line[5])
+                        c['xmin'] = float(line[6])
+                        c['xmax'] = float(line[7])
+                        c['ymin'] = float(line[8])
+                        c['ymax'] = float(line[9])
+                        c['zmin'] = float(line[10])
+                        c['zmax'] = float(line[11])
+                        c['endTime'] = float(line[12])
+                        c['cfl'] = float(line[13])
+                        c['Ng'] = int(line[14])
+                        c['gamma'] = float(line[15])
+                        c['sigma'] = float(line[16])
+                        c['Ncons'] = int(line[17])
+                        c['Nprims'] = int(line[18])
+                        c['Naux'] = int(line[19])
+                        c['cp'] = float(line[20])
+                        c['dt'] = float(line[21])
+                        c['t'] = float(line[22])
+                        c['dx'] = float(line[23])
+                        c['dy'] = float(line[24])
+                        c['dz'] = float(line[25])
+    
+            print("{} conserved vectors".format(c['Ncons']))
+            print("{} primitive vectors".format(c['Nprims']))
+            print("{} auxiliary vectors".format(c['Naux']))
+    
+    
+            # Now gather conserved data
+            self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
+            print("Fetching conserved variables...")
+            with open(self.DatDir + 'Conserved/cons' + self.appendix + '.dat', 'r') as f:
                 for i, line in enumerate(f):
                     # Get cons var labels
                     if i==0:
-                        auxLabels = line.split()[2:]
-                    # Get cons var data
+                        consLabels = line.split()[2:]
+                        # Get cons var data
                     else:
                         temp = line.split()
                         for k in range(c['nz']):
-                            self.aux[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
-
+                            self.cons[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+    
             # Clean up labels (remove the commas)
-            self.cleanAuxLabels = []
-            for i in range(len(auxLabels)-1):
-                self.cleanAuxLabels.append(auxLabels[i][:-1])
-            self.cleanAuxLabels.append(auxLabels[-1])
-
+            self.cleanConsLabels = []
+            for i in range(len(consLabels)-1):
+                self.cleanConsLabels.append(consLabels[i][:-1])
+            self.cleanConsLabels.append(consLabels[-1])
+    
+            with suppress(FileNotFoundError):
+                # Now get primitive variables if  and store the data in array...
+                self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
+                print("Fetching primitive variables...")
+                with open(self.DatDir + 'Primitive/prims' + self.appendix + '.dat', 'r') as f:
+                    for i, line in enumerate(f):
+                        # Get primitive var labels
+                        if i==0:
+                            primLabels = line.split()[2:]
+                        # Get primitive var data
+                        else:
+                            temp = line.split()
+                            for k in range(c['nz']):
+                                self.prims[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+                # Clean up labels (remove the commas)
+                self.cleanPrimLabels = []
+                for i in range(len(primLabels)-1):
+                    self.cleanPrimLabels.append(primLabels[i][:-1])
+                self.cleanPrimLabels.append(primLabels[-1])
+    
+            with suppress(FileNotFoundError):
+                # And finally the aux vars if available
+                self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
+                print("Fetching auxiliary variables...")
+                with open(self.DatDir + 'Auxiliary/aux' + self.appendix +'.dat', 'r') as f:
+                    for i, line in enumerate(f):
+                        # Get cons var labels
+                        if i==0:
+                            auxLabels = line.split()[2:]
+                        # Get cons var data
+                        else:
+                            temp = line.split()
+                            for k in range(c['nz']):
+                                self.aux[self._getVarFromLine(i, c['nx'], c['ny'])][self._getXIndexFromLine(i, c['nx'], c['ny'])][self._getYIndexFromLine(i, c['nx'], c['ny'])][k] = float(temp[k])
+    
+                # Clean up labels (remove the commas)
+                self.cleanAuxLabels = []
+                for i in range(len(auxLabels)-1):
+                    self.cleanAuxLabels.append(auxLabels[i][:-1])
+                self.cleanAuxLabels.append(auxLabels[-1])
+        else:
+            # HDF5 format
+            print(f"Loading hdf5 data...")
+            files = glob.glob(self.DatDir + '/*.hdf5')
+            if len(files) > 1: 
+                raise RuntimeError(f'Multiple hdf5 files in path\n{files}')
+            self.data = h5py.File(files[0], track_order=True)
+            print(f'{files[0]}')
+            
+            # First get constants
+            c['nx'] = int(self.data['Domain'].attrs['nx'])
+            c['ny'] = int(self.data['Domain'].attrs['ny'])
+            if c['ny'] == 0:
+                c['ny'] = 1
+            c['nz'] = int(self.data['Domain'].attrs['nz'])
+            if c['nz'] == 0:
+                c['nz'] = 1
+            c['Ng'] = int(self.data['Domain'].attrs['Ng'])
+            c['Nx'] = int(self.data['Domain'].attrs['Nx'])
+            c['Ny'] = int(self.data['Domain'].attrs['Ny'])
+            c['Nz'] = int(self.data['Domain'].attrs['Nz'])
+            c['xmin'] = float(self.data['Domain'].attrs['xmin'])
+            c['xmax'] = float(self.data['Domain'].attrs['xmax'])
+            c['ymin'] = float(self.data['Domain'].attrs['ymin'])
+            c['ymax'] = float(self.data['Domain'].attrs['ymax'])
+            c['zmin'] = float(self.data['Domain'].attrs['zmin'])
+            c['zmax'] = float(self.data['Domain'].attrs['zmax'])
+            c['endTime'] = float(self.data['Domain'].attrs['endTime'])
+            c['dt'] = float(self.data['Domain'].attrs['dt'])
+            c['dx'] = float(self.data['Domain'].attrs['dx'])
+            c['dy'] = float(self.data['Domain'].attrs['dy'])
+            c['dz'] = float(self.data['Domain'].attrs['dz'])
+            c['gamma'] = float(self.data.attrs['gamma'])
+            c['sigma'] = float(self.data.attrs['sigma'])
+            c['cfl'] = float(self.data.attrs['cfl'])
+            c['cp'] = float(self.data.attrs['cp'])
+            c['t'] = float(self.data.attrs['t'])
+            
+            # Primitive data
+            c['Nprims'] = int(self.data['Primitive'].attrs['Nprims'])
+            self.cleanPrimLabels = str(self.data['Primitive'].attrs['varOrder'])[2:-2].split(',')
+            self.prims = np.zeros([c['Nprims'], c['nx'], c['ny'], c['nz']])
+            for i, label in enumerate(self.cleanPrimLabels):
+                self.prims[i] = self.data['Primitive'][label][:].reshape((c['nx'], c['ny'], c['nz']))
+            
+            # Conserved data
+            if 'Conserved' in self.data.keys():
+                c['Ncons'] = int(self.data['Conserved'].attrs['Ncons'])
+                self.cleanConsLabels = str(self.data['Conserved'].attrs['varOrder'])[2:-2].split(',')
+                self.cons = np.zeros([c['Ncons'], c['nx'], c['ny'], c['nz']])
+                for i, label in enumerate(self.cleanConsLabels):
+                    self.cons[i] = self.data['Conserved'][label][:].reshape((c['nx'], c['ny'], c['nz']))
+            
+            # Aux is a problem...
+            if 'Auxiliary' in self.data.keys():
+                c['Naux'] = int(self.data['Auxiliary'].attrs['Naux'])
+                self.cleanAuxLabels = str(self.data['Auxiliary'].attrs['varOrder'])[2:-2].split(',')
+                self.aux = np.zeros([c['Naux'], c['nx'], c['ny'], c['nz']])
+                for i, label in enumerate(self.cleanAuxLabels):
+                    self.aux[i] = self.data['Auxiliary'][label][:].reshape((c['nx'], c['ny'], c['nz']))
 
 
     def _getVarFromLine(self, line, nx, ny):
@@ -724,7 +789,7 @@ class InteractivePlot(object):
 
 if __name__ == '__main__':
 
-    Plot = InteractivePlot()
+    Plot = InteractivePlot(DatDirectory='/home/alex/Documents/Research/METHOD/Examples/KelvinHelmholtz/SingleFluidIdealRandomSerialHDF5', hdf5=True)
 
-    Plot.plotSlice()
+    Plot.plotHeatMaps()
     

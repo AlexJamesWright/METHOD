@@ -58,7 +58,7 @@ class SaveData
       in the Project folder.
 
       @param *data pointer to the Data class
-      @param test integar flagging if we are in the 'Examples' directory or not,
+      @param test integer flagging if we are in the 'Examples' directory or not,
       Only used for running the given examples, can ignore otherwise.
     */
     SaveData(Data * data, int test=0) : d(data), Nouts(0), Ncount(0), test(test)

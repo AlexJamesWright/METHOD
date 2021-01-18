@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "platformEnv.h"
+#include "checkpointArgs.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -97,7 +98,7 @@ class Data
     //@{
     alphaX, alphaY, alphaZ,//!< Max wave speed in specified direction. As we are evolving EM fields, this is always the speed of light.
     //@}
-    t,                     //!< Current time
+    t=-1,                  //!< Current time
     dt,                    //!< Width of current timestep
     //@{
     dx, dy, dz;            //!< Witdth of specified spatial step
@@ -156,6 +157,17 @@ class Data
     */
     double sigmaFunc(double * cons, double * prims, double * aux, int i=-1, int j=-1, int k=-1);
 
+    //! Initialiser
+    /*!  
+        @par
+        Allocates the memory required for the state arrays and sets the simulation
+      constants to the given values. Does not set initial state, thats done by
+      the initialFunc object. Called automatically from constructors after setting object vars.
+      This is separated from the constructor to avoid duplicated code between the two available
+      constructors for Data.
+     */
+     void initData(PlatformEnv *env);
+
 
     //! Constructor
     /*!
@@ -198,6 +210,19 @@ class Data
          int frameskip=10,
          int reportItersPeriod=1,
          bool funtionalSigma=false, double gam=12);
+
+    //! Constructor
+    /*!
+      @par
+        Allocates the memory required for the state arrays and sets the simulation
+      constants to the given values. Does not set initial state, thats done by
+      the initialFunc object.
+      @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
+      @param mu1 charge mass ratio of species 1
+      @param mu2 charge mass ratio of species 2
+    */
+    Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
+         int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);
 
 };
 

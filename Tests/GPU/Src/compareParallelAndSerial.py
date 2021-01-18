@@ -58,10 +58,12 @@ class CompareParallelAndSerial(object):
         print("Running tests...")
 
     def getFiles(self):
+        print("TEST!!!!")
 
         # For each file, determine the appendix and use interactivePlot to
         # gather the data
         for i, serfile in enumerate(glob(fromSpyder+"../TestData/GPU/Conserved/*")):
+            print("TEST!!!!")
             ext = serfile.find('.dat')
             app = serfile.find('Conserved/cons') + len('Conserved.cons')
             appendix = serfile[app:ext]

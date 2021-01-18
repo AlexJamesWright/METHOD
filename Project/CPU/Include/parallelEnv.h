@@ -20,6 +20,7 @@ class ParallelEnv : public PlatformEnv
 {
 	public:
 		MPI_Comm mpiCartesianComm;  //!< Cartesian MPI communicator that maps processes to the simulation grid
+    MPI_Info mpiInfo;           //!< MPI information channel
 
     //! Constructor -- Initialize global MPI communicator
 		ParallelEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing=0);
