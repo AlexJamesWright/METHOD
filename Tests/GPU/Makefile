@@ -17,9 +17,15 @@
 
 # Compiler
 CC = nvcc
+MPI_CC = mpic++
 
-#use `mpic++ -show` to find library and include flags
-MPI_FLAGS = -I/local/software/mpich/3.2.1/gcc/include -L/local/software/mpich/3.2.1/gcc/lib -lmpi -lmpicxx
+# HDF5 libraries must be linked explicitly like this rather than using the hdf5 compiler h5pcc. 
+# h5pcc should wrap mpicc with the hdf5 libraries included, but appears to interact badly with nvcc
+# The library paths below are found using h5pcc -show
+HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+
+# this should no longer be needed but leaving them in just in case
+MPI_FLAGS =
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -43,12 +49,13 @@ STDFLAGS = -std=c++11
 CXXFLAGS = -D_MWAITXINTRIN_H_INCLUDED \
 					 -D_FORCE_INLINES \
 					 -D__STRICT_ANSI__ \
-					 -Wno-deprecated-gpu-targets \
+					 -Wno-deprecated-gpu-targets
 
 NVFLAGS = -std=c++11 \
 					-rdc=true \
 					-fmad=false \
-					-Wno-deprecated-gpu-targets
+					-Wno-deprecated-gpu-targets \
+					-ccbin ${MPI_CC}
 
 
 
@@ -67,7 +74,9 @@ TESTS = test_simulation \
 				test_imex
 
 
-PARALLEL_TESTS = test_parallel_rk2     \
+PARALLEL_TESTS = test_parallel_rk2    
+
+HDF5_TESTS = test_hdf5_rk2
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -98,7 +107,7 @@ buildRootfinder:
 
 
 clean :
-	rm -f $(TESTS) gtest.a gtest_main.a *.o
+	rm -f $(TESTS) $(PARALLEL_TESTS) gtest.a gtest_main.a *.o
 
 # Builds gtest.a and gtest_main.a.
 
