@@ -49,7 +49,7 @@ STDFLAGS = -std=c++11
 CXXFLAGS = -D_MWAITXINTRIN_H_INCLUDED \
 					 -D_FORCE_INLINES \
 					 -D__STRICT_ANSI__ \
-					 -Wno-deprecated-gpu-targets
+					 -Wno-deprecated-gpu-targets \
 
 NVFLAGS = -std=c++11 \
 					-rdc=true \
@@ -181,6 +181,13 @@ test_rk2.o : $(TEST_DIR)/test_rk2.cu $(INC_DIR)/RK2.h \
 test_rk2 : test_rk2.o C2PArgs.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialSaveData.o serialEnv.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -lpthread $^ -o $@
 
+test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cu $(INC_DIR)/RK2.h \
+	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_hdf5_rk2 : test_hdf5_rk2.o C2PArgs.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialSaveDataHDF5.o serialEnv.o $(RTFIND_OBJS) gtest_main.a
+	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -lpthread $^ -o $@
+
 # Explicit RK split integrator
 rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/rkSplit.cu -I$(INC_DIR)
@@ -203,6 +210,9 @@ test_fvs : srmhd.o C2PArgs.o twoFluidEMHD.o test_fvs.o fluxVectorSplitting.o bou
 # Save data (required for simulation.evolve)
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/serialSaveData.cu -I$(INC_DIR)
+
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cu $(INC_DIR)/serialSaveDataHDF5.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -c $(MODULE_DIR)/serialSaveDataHDF5.cu -I$(INC_DIR)
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelSaveData.cu -I$(INC_DIR)
