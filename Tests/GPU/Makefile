@@ -17,19 +17,24 @@
 
 # Compiler
 CC = nvcc
-MPI_CC = mpic++
+MPI_CC = mpicxx.mpich
+GPU_COMPUTE_CAPABILITY = 61
+
+##DOCKER_ENV = --allow-run-as-root
+DOCKER_ENV = 
 
 # HDF5 libraries must be linked explicitly like this rather than using the hdf5 compiler h5pcc. 
 # h5pcc should wrap mpicc with the hdf5 libraries included, but appears to interact badly with nvcc
 # The library paths below are found using h5pcc -show
-HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+#HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+HDF5_FLAGS = -I/usr/include/hdf5/mpich -L/usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5.a -lsz -lz -lm
 
 # this should no longer be needed but leaving them in just in case
 MPI_FLAGS =
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = ../../../GoogleTest
+GTEST_DIR = ../../GoogleTest
 
 # Where to find user code.
 MODULE_DIR = ./../../Project/GPU/Src
@@ -55,7 +60,8 @@ NVFLAGS = -std=c++11 \
 					-rdc=true \
 					-fmad=false \
 					-Wno-deprecated-gpu-targets \
-					-ccbin ${MPI_CC}
+					-ccbin ${MPI_CC} \
+					-arch=sm_${GPU_COMPUTE_CAPABILITY}
 
 
 
@@ -70,13 +76,12 @@ TESTS = test_simulation \
 				test_srrmhd \
 				test_fvs \
 				test_id \
-				test_rk2 \
+				test_hdf5_rk2 \
 				test_imex
 
 
 PARALLEL_TESTS = test_parallel_rk2    
 
-HDF5_TESTS = test_hdf5_rk2
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -96,7 +101,7 @@ gpu_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
 	# Run all parallel tests
-	$(foreach exe, $(PARALLEL_TESTS), mpirun -np 4 ./$(exe);)
+	$(foreach exe, $(PARALLEL_TESTS), mpirun.mpich -np 4 ${DOCKER_ENV} ./$(exe);)
 
 test : gpu_test compare_mpi_test
 
@@ -183,7 +188,7 @@ test_rk2 : test_rk2.o C2PArgs.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryC
 
 test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cu $(INC_DIR)/RK2.h \
 	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -c $(TEST_DIR)/test_hdf5_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_hdf5_rk2 : test_hdf5_rk2.o C2PArgs.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialSaveDataHDF5.o serialEnv.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) -lpthread $^ -o $@
