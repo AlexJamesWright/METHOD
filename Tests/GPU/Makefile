@@ -95,7 +95,7 @@ RTFIND = buildRootfinder
 
 compare_mpi_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS) gpu_test
 	# Run tests that compare outputs of TestData/GPU and TestData/MPIGPU
-	py.test -v Src/compareParallelAndSerial.py
+	py.test -v Src/compareParallelAndSerialHDF5.py
 
 gpu_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all tests
