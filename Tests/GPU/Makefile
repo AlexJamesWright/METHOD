@@ -80,7 +80,7 @@ TESTS = test_simulation \
 				test_imex
 
 
-PARALLEL_TESTS = test_parallel_rk2    
+PARALLEL_TESTS = test_hdf5_parallel_rk2    
 
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -222,6 +222,9 @@ serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cu $(INC_DIR)/serialSave
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
 	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelSaveData.cu -I$(INC_DIR)
 
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cu $(INC_DIR)/parallelSaveDataHDF5.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(MODULE_DIR)/parallelSaveDataHDF5.cu -I$(INC_DIR)
+
 # Platform env
 serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) -c $(MODULE_DIR)/serialEnv.cu -I$(INC_DIR)
@@ -349,6 +352,13 @@ test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cu $(INC_DIR)/RK2.h \
 
 test_parallel_rk2 : main.o C2PArgs.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(NVFLAGS) $(MPI_FLAGS) -lpthread $^ -o $@
+
+test_hdf5_parallel_rk2.o : $(TEST_DIR)/test_hdf5_parallel_rk2.cu $(INC_DIR)/RK2.h \
+                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) $(MPI_FLAGS) -c $(TEST_DIR)/test_hdf5_parallel_rk2.cu -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+
+test_hdf5_parallel_rk2 : main.o C2PArgs.o test_hdf5_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveDataHDF5.o $(RTFIND_OBJS) gtest.a
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) $(HDF5_FLAGS) $(NVFLAGS) $(MPI_FLAGS) -lpthread $^ -o $@
 
 test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cu $(INC_DIR)/rkSplit.h \
                         $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)

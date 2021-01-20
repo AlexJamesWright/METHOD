@@ -21,6 +21,9 @@ def test_compareSerialHDF5():
    directory2: Path = Path("../TestData/SerialHDF5/")
 
    print("Running tests...")
+   # Double check that the previous steps have actually generated the files we expect
+   assert(len(list(directory2.glob("*")))>0)
+   assert(len(list(directory1.glob("*")))>0)
 
    # For each file, determine the appendix and use the CompareHDF5 script 
    for serfile in directory2.glob("*"):
