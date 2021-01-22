@@ -15,26 +15,36 @@
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.
 
-# Compiler
-CC = nvcc
-MPI_CC = mpicxx.mpich
-GPU_COMPUTE_CAPABILITY = 61
 
-##DOCKER_ENV = --allow-run-as-root
-DOCKER_ENV = 
+# -------------- PARAMETERS FOR USERS TO EDIT --------------------
+
+# The c++ capable mpi compiler. In systems with multiple versions of MPI, the particular version may need to be specified with eg
+# mpicxx.mpich
+MPI_CC = mpic++
+# The script used to launch mpi programs. In systems with multiple versions of MPI, the particular version may need to be 
+# specified with eg mpirun.mpich
+MPIEXEC = mpirun
+# The compute capability of the GPU 
+GPU_COMPUTE_CAPABILITY = 52
 
 # HDF5 libraries must be linked explicitly like this rather than using the hdf5 compiler h5pcc. 
 # h5pcc should wrap mpicc with the hdf5 libraries included, but appears to interact badly with nvcc
 # The library paths below are found using h5pcc -show
-#HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
-HDF5_FLAGS = -I/usr/include/hdf5/mpich -L/usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5.a -lsz -lz -lm
-
-# this should no longer be needed but leaving them in just in case
-MPI_FLAGS =
+HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+# Ubuntu 18.04 mpich example
+#HDF5_FLAGS = -I/usr/include/hdf5/mpich -L/usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5.a -lsz -lz -lm
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = ../../GoogleTest
+GTEST_DIR = ../../../GoogleTest
+
+# -------------- END PARAMETERS USERS ARE LIKELY TO NEED TO EDIT --------------------
+
+# Compiler
+CC = nvcc
+
+# this should no longer be needed but leaving them in just in case
+MPI_FLAGS =
 
 # Where to find user code.
 MODULE_DIR = ./../../Project/GPU/Src
@@ -101,7 +111,7 @@ gpu_test : $(RTFIND) $(TESTS) $(PARALLEL_TESTS)
 	# Run all tests
 	@$(foreach exe, $(TESTS), ./$(exe);)
 	# Run all parallel tests
-	$(foreach exe, $(PARALLEL_TESTS), mpirun.mpich -np 4 ${DOCKER_ENV} ./$(exe);)
+	$(foreach exe, $(PARALLEL_TESTS), ${MPIEXEC} -np 4 ./$(exe);)
 
 test : gpu_test compare_mpi_test
 
