@@ -16,23 +16,34 @@
 # but shouldn't modify.
 
 
-# Compiler used for all compilation objects. This should be the version of the hdf5 
+# -------------- PARAMETERS FOR USERS TO EDIT --------------------
+
+# The c++ capable mpi compiler. In systems with multiple versions of MPI, the particular version may need to be specified with eg
+# mpicxx.mpich
+MPI_CC = mpic++
+# The script used to launch mpi programs. In systems with multiple versions of MPI, the particular version may need to be 
+# specified with eg mpirun.mpich
+MPIEXEC = mpirun
+
+# The hdf5 compiler. This must be the version of the hdf5 
 # compiler available on your system that links the correct mpi libraries. Should 
-# be one of h5pcc, h5pcc.openmpi or h5pcc.mpich
+# be one of h5pcc, h5pcc.openmpi or h5pcc.mpich. 
 CC = h5pcc
-
-# Compiler used by hdf5 for c++. Shouldn't need to change this
-export HDF5_CXX := mpic++
-export HDF5_CLINKER := mpic++
-
-# these should no longer be needed but leaving them in just in case
-MPI_FLAGS =
-HDF5_FLAGS =
-
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 GTEST_DIR = ../../../GoogleTest
+
+# -------------- END PARAMETERS USERS ARE LIKELY TO NEED TO EDIT --------------------
+
+
+# Compiler used by hdf5 for c++. Shouldn't need to change this
+export HDF5_CXX := $(MPI_CC)
+export HDF5_CLINKER := $(MPI_CC)
+
+# these should no longer be needed but leaving them in just in case
+MPI_FLAGS =
+HDF5_FLAGS =
 
 # Where to find user code.
 MODULE_DIR = ./../../Project/CPU/Src
