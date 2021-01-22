@@ -15,6 +15,8 @@ module list
 
 source ../../venv/bin/activate
 
+export PYTHONPATH=$PYTHONPATH:../../Scripts:/home/amb1u19/METHOD_branches/METHOD_dev_hdf5/Scripts
+
 make clean
 make gpu_test
 
