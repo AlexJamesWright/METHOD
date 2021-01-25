@@ -7,20 +7,38 @@
 USE_MPI=1
 USE_HDF=1
 
-CC = mpic++
+# The compute capability of the GPU 
+GPU_COMPUTE_CAPABILITY = 52
 
+# --- IF USE_MPI ---
+# The c++ capable mpi compiler. In systems with multiple versions of MPI, the particular version may need to be specified with eg
+# mpicxx.mpich
+MPI_CC = mpic++
+
+# --- IF USE_HDF ---
 # HDF5 libraries must be linked explicitly like this rather than using the hdf5 compiler h5pcc. 
 # h5pcc should wrap mpicc with the hdf5 libraries included, but appears to interact badly with nvcc
 # The library paths below are found using h5pcc -show
 HDF5_FLAGS = -I/local/software/szip/2.1.1/include -L/local/software/hdf5/1.10.2/gcc/parallel/lib -L/local/software/szip/2.1.1/lib -lsz -lz -ldl -lm -I/local/software/hdf5/1.10.2/gcc/parallel/include -lhdf5 -lhdf5_hl
+# Ubuntu 18.04 mpich example
+#HDF5_FLAGS = -I/usr/include/hdf5/mpich -L/usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5_hl.a /usr/lib/x86_64-linux-gnu/hdf5/mpich/libhdf5.a -lsz -lz -lm
+
+# Points to the root of Google Test, relative to where this file is.
+# Remember to tweak this if you move this file.
+GTEST_DIR = ../../../GoogleTest
+
+# -------------- END PARAMETERS USERS ARE LIKELY TO NEED TO EDIT --------------------
+
+# Compiler
+CC_GPU = nvcc
 
 # this should no longer be needed but leaving them in just in case
 MPI_FLAGS =
 
-# -------------- END PARAMETERS FOR USERS TO EDIT --------------------
+ifneq ($(USE_HDF), 1)
+	HDF5_FLAGS = 
+endif
 
-# Compiler
-CC_GPU = nvcc
 
 # Module directory
 MODULE_DIR = ./Src
@@ -43,11 +61,20 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 CXXFLAGS = -fopenmp -Wall -std=c++11 -O3 -lineinfo
 
 # NVIDIA compiler flags
-NVFLAGS = -std=c++11 -Wno-deprecated-gpu-targets -rdc=true -fmad=false -O3 -arch=sm_52 -Xcompiler -fopenmp -Xcompiler -Wall -lineinfo
+NVFLAGS = -std=c++11 \
+                                        -rdc=true \
+                                        -fmad=false \
+					-O3 \
+                                        -Wno-deprecated-gpu-targets \
+                                        -ccbin ${MPI_CC} \
+                                        -arch=sm_${GPU_COMPUTE_CAPABILITY} \
+					-Xcompiler -Wall \
+					-Xcompiler -fopenmp \
+					-lineinfo
 
 
 ifeq ($(USE_MPI), 1)
-	NVFLAGS += -ccbin ${CC}
+	NVFLAGS += -ccbin ${MPI_CC}
 endif
 
 # Sources

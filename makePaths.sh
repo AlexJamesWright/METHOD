@@ -33,11 +33,15 @@ mkdir Tests/TestData/GPU/Conserved
 mkdir Tests/TestData/GPU/Constants
 mkdir Tests/TestData/GPU/Primitive
 
+mkdir Tests/TestData/GPUHDF5
+
 mkdir Tests/TestData/MPIGPU
 mkdir Tests/TestData/MPIGPU/Auxiliary
 mkdir Tests/TestData/MPIGPU/Conserved
 mkdir Tests/TestData/MPIGPU/Constants
 mkdir Tests/TestData/MPIGPU/Primitive
+
+mkdir Tests/TestData/MPIGPUHDF5
 
 mkdir Tests/TestData
 mkdir Tests/TestData/CPU
@@ -45,6 +49,8 @@ mkdir Tests/TestData/CPU/Auxiliary
 mkdir Tests/TestData/CPU/Conserved
 mkdir Tests/TestData/CPU/Constants
 mkdir Tests/TestData/CPU/Primitive
+
+mkdir Tests/TestData/CPUHDF5
 
 mkdir Tests/TestData/SerialHDF5
 mkdir Tests/TestData/SerialTextToHDF5
@@ -56,6 +62,8 @@ mkdir Tests/TestData/Serial/Auxiliary
 mkdir Tests/TestData/Serial/Conserved
 mkdir Tests/TestData/Serial/Constants
 mkdir Tests/TestData/Serial/Primitive
+
+mkdir Tests/TestData/SerialHDF5
 
 mkdir Examples/Data
 mkdir Examples/Data/Final
