@@ -1,6 +1,6 @@
 // Serial main
 #include "simData.h"
-#include "checkpointArgs.h"
+#include "serialCheckpointArgs.h"
 #include "simulation.h"
 #include "initFunc.h"
 #include "initFuncFromCheckpoint.h"
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
   //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
   //          cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
-  CheckpointArgs checkpointArgs(filename, &env);
+  SerialCheckpointArgs checkpointArgs(filename, &env);
   checkpointArgs.endTime=endTime;
   
   Data data(checkpointArgs, &env, mu1, mu2, frameSkip, reportItersPeriod);

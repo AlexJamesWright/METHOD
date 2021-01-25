@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   int seed(atoi(argv[1]));
   int reportItersPeriod(50);
 
-  ParallelEnv env(&argc, &argv, 2, 1, 1);
+  ParallelEnv env(&argc, &argv, 2, 2, 1);
 
   //const char* filename = "data_t3.checkpoint.hdf5";
   const char* filename = "data_t0.checkpoint.hdf5";
