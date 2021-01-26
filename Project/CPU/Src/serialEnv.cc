@@ -25,35 +25,5 @@ SerialEnv::~SerialEnv()
 
 }
 
-int SerialEnv::isNeighbourExternal(int dimension, int direction)
-{
-    int isExternal = 0;
-    int dimRank = 0;
-    int maxRank = 0;
-
-    if (dimension==0) {
-        dimRank = xRankId;
-        maxRank = nxRanks;
-    } else if (dimension==1) {
-        dimRank = yRankId;
-        maxRank = nyRanks;
-    } else {
-        dimRank = zRankId;
-        maxRank = nzRanks;
-    }
-
-    if (direction==0){
-        isExternal = (dimRank==0);
-    } else {
-        isExternal = (dimRank==maxRank-1);
-    }
-    
-    return isExternal;
-}
-
-void SerialEnv::setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic)
-{
-
-}
 
 
