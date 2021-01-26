@@ -5,14 +5,12 @@
 #include <string>
 #include "parallelEnv.h"
 
-
-//! <b> Wrapper around Data object for populating Data from a checkpoint restart file</b>
+//! <b> Object containing parameters required to populate Data from a restart file in parallel</b>
 /*!
   @par
-    Class contains all the data of the simulation relevant to any of the other
-  modules. Containing it in this way prevents issues of cyclic includes, also
-  results in Simulation as more of an interface than a class that needs to be
-  known to lower objects---good practice. <br>
+      Parameters are read into CheckpointArgs from a checkpoint restart file. These are then used
+      to initialise Data. This is the best way to make sure that simulation parameters are consistent with
+      the restart file being used for initialisation.
 
 */
 class ParallelCheckpointArgs : public CheckpointArgs
@@ -22,9 +20,7 @@ class ParallelCheckpointArgs : public CheckpointArgs
     //! Constructor
     /*!
       @par
-        Allocates the memory required for the state arrays and sets the simulation
-      constants to the given values. Does not set initial state, thats done by
-      the initialFunc object.
+      Reads parameters from a checkpoint restart file into this object for use in Data constructor, using parallel HDF5.
       @param name name of checkpoint file to use for restart, including path and extension
       @param env environment object containing platform details eg MPI ranks
     */
