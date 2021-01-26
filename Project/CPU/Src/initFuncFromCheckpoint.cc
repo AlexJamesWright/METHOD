@@ -8,17 +8,7 @@
 #include "hdf5.h"
 #include "hdf5_hl.h"
 
-/*!
- * /brief Writes an HDF5 dataset to file
- *
- * Prepares the buffer for writing to file, and writes a dataset.
- *
- * @param group The group within the file (or the file itself for root datasets)
- * @param name The name the dataset should have
- * @param var Data is stored in 4-d arrays for each class of data (conserved/primitive/auxiliary),
- *  with the 1st dimension being the variable. This argument indicates which variable is being output.
- * @param data The pointer to the data array.
- */
+
 void CheckpointRestart::readDataSetDouble(const hid_t *group, const char *name, const int *var,
                                             double *varData) {
   // Syntax
