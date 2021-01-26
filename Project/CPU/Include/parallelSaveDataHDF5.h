@@ -14,7 +14,7 @@
 
 using namespace std;
 
-//! <b> Class used to save simulation data to HDF5 using a single process</b>
+//! <b> Class used to save simulation data to HDF5 using multiple processes</b>
 /*!
   @par
   Class is initialized with the data that is to be saved. Saves the simulation
