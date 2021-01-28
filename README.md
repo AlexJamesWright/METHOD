@@ -142,6 +142,7 @@ To build the documentation locally simply go the the `Doxumentation` folder and 
 
 [Alex Wright](http://cmg.soton.ac.uk/people/ajw1e16/)  Email: a.j.wright@soton.ac.uk <br>
 [Ania Brown](https://github.com/aniabrown) <br>
+[Sam Mangham](https://github.com/smangham) <br>
 [Ian Hawke](https://cmg.soton.ac.uk/people/ih3/)
 ---------------------------------------------
 ---------------------------------------------
