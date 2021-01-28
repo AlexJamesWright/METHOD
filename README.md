@@ -133,7 +133,10 @@ Alternatively, if you are unsure of any of the functionality, find the documenta
 To build the documentation locally simply go the the `Doxumentation` folder and run
 
     doxygen
-
+    
+---------------------------------------------
+---------------------------------------------
+<br> <br>
 
 ## Authors
 
@@ -143,5 +146,3 @@ To build the documentation locally simply go the the `Doxumentation` folder and 
 ---------------------------------------------
 ---------------------------------------------
 <br> <br>
-
-\* *due to this cryptic package we have moved bits about and re-ordered various headers and includes. Most of the preprocessor stuff has been deleted (using NVIDIA hardware will result in Cminpack reals defaulting to double precision), some functions have been excluded as they're not needed here, and now for any usage we just include the cminpack.h header file (as opposed to including the CUDA scripts directly).*
