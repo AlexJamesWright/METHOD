@@ -37,6 +37,10 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
+ifeq ($(USE_OMP), 1)
+	OMP_FLAGS = -fopenmp
+endif
+
 # C++ compiler flags
 CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O3 $(OMP_FLAGS) -Wno-unknown-pragmas
 
@@ -83,13 +87,9 @@ endif
 SRCS += ${PARALLEL_SRCS}
 SRCS += ${SERIAL_SRCS}
 
-ifeq ($(USE_OMP), 1)
-    OMP_FLAGS = -fopenmp
-endif
-
 ifeq ($(USE_HDF), 1)
     # Using HDF5 
-    ifeq($(USE_MPI), 1)
+    ifeq ($(USE_MPI), 1)
         export HDF5_CXX := $(MPI_CC)
         export HDF5_CLINKER := $(MPI_CC)
     else
@@ -100,7 +100,7 @@ ifeq ($(USE_HDF), 1)
     CC = $(HDF5_CC)
 else
     # Not using HDF5
-    ifeq($(USE_MPI), 1)
+    ifeq ($(USE_MPI), 1)
         # Compile all sources with the mpi compiler wrapper
         CC = $(MPI_CC)
     endif
