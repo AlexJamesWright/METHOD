@@ -35,7 +35,7 @@ Data::Data(int nx, int ny, int nz,
 	initData(env);
 }
 
-Data::Data(CheckpointArgs args, PlatformEnv *env, double mu1, double mu2,
+Data::Data(DataArgs args, PlatformEnv *env, double mu1, double mu2,
          int frameSkip, int reportItersPeriod, int functionalSigma, double gam)
            :
            nx(args.nx), ny(args.ny), nz(args.nz),

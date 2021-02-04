@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "platformEnv.h"
-#include "checkpointArgs.h"
+#include "dataArgs.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -224,7 +224,7 @@ class Data
       @param frameskip number of timesteps per file output
       @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
-    Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
+    Data(DataArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
          int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);
 
 };
