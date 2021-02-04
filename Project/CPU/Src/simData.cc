@@ -35,8 +35,7 @@ Data::Data(int nx, int ny, int nz,
 	initData(env);
 }
 
-Data::Data(DataArgs args, PlatformEnv *env, double mu1, double mu2,
-         int frameSkip, int reportItersPeriod, int functionalSigma, double gam)
+Data::Data(DataArgs args, PlatformEnv *env)
            :
            nx(args.nx), ny(args.ny), nz(args.nz),
            xmin(args.xmin), xmax(args.xmax),
@@ -47,10 +46,10 @@ Data::Data(DataArgs args, PlatformEnv *env, double mu1, double mu2,
            memSet(0), bcsSet(0),
            Ncons(0), Nprims(0), Naux(0),
            cp(args.cp),
-           mu1(mu1), mu2(mu2),
-           frameSkip(frameSkip),
-           reportItersPeriod(reportItersPeriod),
-           functionalSigma(functionalSigma), gam(gam),
+           mu1(args.mu1), mu2(args.mu2),
+           frameSkip(args.frameSkip),
+           reportItersPeriod(args.reportItersPeriod),
+           functionalSigma(args.functionalSigma), gam(args.gam),
            t(args.t)
 {
 	initData(env);

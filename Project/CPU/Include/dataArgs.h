@@ -13,6 +13,12 @@
       to initialise Data. This is the best way to make sure that simulation parameters are consistent with
       the restart file being used for initialisation.
 
+      Setters are created for each parameter to allow creation of the object using chained named parameters, according
+      to the strategy described in (https://isocpp.org/wiki/faq/ctors#named-parameter-idiom).
+
+      Note that the defaults here should be the same as the defaults set in the Data constructor in simData.h
+      that does not use named parameters. 
+
 */
 class DataArgs 
 {
@@ -32,36 +38,37 @@ class DataArgs
     ymin, ymax,            //!< Positional limits of domain in specified direction
     zmin, zmax,
     //@}
+    frameSkip=10,          //!< Number of timesteps per file output
     endTime,               //!< End time of simulation
-    cfl;                   //!< Courant factor
-    int Ng;                //!< Number of ghost cells
+    cfl=0.5;               //!< Courant factor
+    int Ng=4;              //!< Number of ghost cells
     double
-    gamma,                 //!< Adiabatic index
-    sigma;                 //!< Resistivity
+    gamma=5.0/3.0,         //!< Adiabatic index
+    sigma=1e3;             //!< Resistivity
     int
     //@{
     Ncons, Nprims, Naux;   //!< Number of specified variables
     //@}
     double
-    cp;                    //!< Constant divergence cleaning term
+    cp=0.1;                //!< Constant divergence cleaning term
     double
-    t,                     //!< Current time
+    t=0,                   //!< Current time
     dt;                    //!< Width of current timestep
     int
     //@{
-    Nx, Ny, Nz;      //!< Total number of compute cells in domain in the specified direction
+    Nx, Ny, Nz;            //!< Total number of compute cells in domain in the specified direction
     //@}
 
     // The following Args are never written to a restart file and therefore must always be manually set by the user
     // in all cases. 
     // -------------------------------------------------------------------------
-    double mu1, mu2;              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
+    double mu1=-1.0e4, mu2=1.0e4;              //!< Charge mass ratio of specified fluid species, q/m (for two fluid model)
     int
-    reportItersPeriod;     //!< Period with which time step data is reported to screen during program execution
+    reportItersPeriod=1;     //!< Period with which time step data is reported to screen during program execution
     bool
-    functionalSigma;       //!< Are we using a functional (vs homogeneous) conductivity?
+    functionalSigma=false;       //!< Are we using a functional (vs homogeneous) conductivity?
     double
-    gam;                   //!< Exponent in the functional conductivity
+    gam=12;                   //!< Exponent in the functional conductivity
 
 
     //! Constructor
@@ -70,10 +77,90 @@ class DataArgs
 	reads parameters from a checkpoint restart file into this object for use in Data constructor
     */
     DataArgs() {};
+    
+    DataArgs& sNx(int nx) {
+      this->nx = nx; return *this; 
+    }
 
-    //DataArgs& DataArgs::readonly() {
-      //readonly_ = true; return *this; 
-    //}
+    DataArgs& sNy(int ny) {
+      this->ny = ny; return *this; 
+    }
+
+    DataArgs& sNz(int nz) {
+      this->nz = nz; return *this; 
+    }
+
+    DataArgs& sXmin(double xmin) {
+      this->xmin = xmin; return *this; 
+    }
+
+    DataArgs& sYmin(double ymin) {
+      this->ymin = ymin; return *this; 
+    }
+
+    DataArgs& sZmin(double zmin) {
+      this->zmin = zmin; return *this; 
+    }
+    
+    DataArgs& sXmax(double xmax) {
+      this->xmax = xmax; return *this; 
+    }
+
+    DataArgs& sYmax(double ymax) {
+      this->ymax = ymax; return *this; 
+    }
+
+    DataArgs& sZmax(double zmax) {
+      this->zmax = zmax; return *this; 
+    }
+
+    DataArgs& sEndTime(double endTime) {
+      this->endTime = endTime; return *this; 
+    }
+
+    DataArgs& sCfl(double cfl) {
+      this->cfl = cfl; return *this; 
+    }
+
+    DataArgs& sNg(double Ng) {
+      this->Ng = Ng; return *this; 
+    }
+
+    DataArgs& sGamma(double gamma) {
+      this->gamma = gamma; return *this; 
+    }
+
+    DataArgs& sSigma(double sigma) {
+      this->sigma = sigma; return *this; 
+    }
+
+    DataArgs& sCp(double cp) {
+      this->cp = cp; return *this; 
+    }
+
+    DataArgs& sMu1(double mu1) {
+      this->mu1 = mu1; return *this; 
+    }
+
+    DataArgs& sMu2(double mu2) {
+      this->mu2 = mu2; return *this; 
+    }
+
+    DataArgs& sReportItersPeriod(int reportItersPeriod) {
+      this->reportItersPeriod = reportItersPeriod; return *this; 
+    }
+
+    DataArgs& sfunctionalSigma(bool functionalSigma) {
+      this->functionalSigma = functionalSigma; return *this; 
+    }
+
+    DataArgs& sGam(double gam) {
+      this->gam = gam; return *this; 
+    }
+
+    DataArgs& sFrameSkip(double frameSkip) {
+      this->frameSkip = frameSkip; return *this; 
+    }
 
 };
 

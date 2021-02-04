@@ -169,7 +169,7 @@ class Data
      void initData(PlatformEnv *env);
 
 
-    //! Constructor
+    //! Constructor  -- all vars specified by comma separated list
     /*!
       @par
         Allocates the memory required for the state arrays and sets the simulation
@@ -211,21 +211,16 @@ class Data
          int reportItersPeriod=1,
          bool funtionalSigma=false, double gam=12);
 
-    //! Constructor
+    //! Constructor -- args object created from restart file and/or populated using setter functions
     /*!
       @par
         Allocates the memory required for the state arrays and sets the simulation
       constants to the given values. Does not set initial state, thats done by
       the initialFunc object.
       @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
-      @param mu1 charge mass ratio of species 1
-      @param mu2 charge mass ratio of species 2
       @param env environment object containing platform details eg MPI ranks
-      @param frameskip number of timesteps per file output
-      @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
-    Data(DataArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);
+    Data(DataArgs args, PlatformEnv *env);
 
 };
 
