@@ -14,7 +14,7 @@
       the restart file being used for initialisation.
 
 */
-class SerialCheckpointArgs : public DataArgs
+class SerialCheckpointArgs : public DataArgsBase
 {
   public:
 

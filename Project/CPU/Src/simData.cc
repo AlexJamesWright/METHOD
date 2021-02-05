@@ -35,7 +35,7 @@ Data::Data(int nx, int ny, int nz,
 	initData(env);
 }
 
-Data::Data(DataArgs args, PlatformEnv *env)
+Data::Data(DataArgsBase args, PlatformEnv *env)
            :
            nx(args.nx), ny(args.ny), nz(args.nz),
            xmin(args.xmin), xmax(args.xmax),

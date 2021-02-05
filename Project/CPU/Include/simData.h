@@ -211,7 +211,7 @@ class Data
          int reportItersPeriod=1,
          bool funtionalSigma=false, double gam=12);
 
-    //! Constructor -- args object created from restart file and/or populated using setter functions
+    //! Constructor -- args object created from setter functions
     /*!
       @par
         Allocates the memory required for the state arrays and sets the simulation
@@ -220,7 +220,18 @@ class Data
       @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
       @param env environment object containing platform details eg MPI ranks
     */
-    Data(DataArgs args, PlatformEnv *env);
+    Data(DataArgsBase args, PlatformEnv *env);
+
+    //! Constructor -- args object created from restart file and potentially also populated using setter functions
+    /*!
+      @par
+        Allocates the memory required for the state arrays and sets the simulation
+      constants to the given values. Does not set initial state, thats done by
+      the initialFunc object.
+      @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
+      @param env environment object containing platform details eg MPI ranks
+    */
+    //Data(CheckpointArgs args, PlatformEnv *env);
 
 };
 

@@ -43,10 +43,12 @@ int main(int argc, char *argv[]) {
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
   // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // The DataArgs constructor takes those parameters that are required rather than optional.
   // The chained setter functions can be used to set any of the optional parameters. They can be used in any order and default
   // values will be used for any parameters that are not set
-  DataArgs dataArgs = DataArgs().sNx(nx).sNy(ny).sNz(nz).sXmin(xmin).sXmax(xmax).sYmin(ymin).sYmax(ymax).sZmax(zmax).sEndTime(endTime)
-        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sReportItersPeriod(reportItersPeriod);
+  DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
+        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip)
+	.sReportItersPeriod(reportItersPeriod);
 
   Data data = Data(dataArgs, &env);
 

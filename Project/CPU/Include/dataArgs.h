@@ -6,21 +6,21 @@
 #include "platformEnv.h"
 
 
-//! <b> Object containing parameters required to populate Data from a restart file</b>
+//! <b> Object containing parameters required to populate Data, including from a restart file</b>
 /*!
   @par
-      Parameters are read into DataArgs from a checkpoint restart file. These are then used
+      Parameters can be read into DataArgs from a checkpoint restart file. These are then used
       to initialise Data. This is the best way to make sure that simulation parameters are consistent with
       the restart file being used for initialisation.
 
       Setters are created for each parameter to allow creation of the object using chained named parameters, according
-      to the strategy described in (https://isocpp.org/wiki/faq/ctors#named-parameter-idiom).
+      to the strategy described in (https://isocpp.org/wiki/faq/ctors#named-parameter-idiom). 
 
       Note that the defaults here should be the same as the defaults set in the Data constructor in simData.h
       that does not use named parameters. 
 
 */
-class DataArgs 
+class DataArgsBase
 {
   public:
 
@@ -76,47 +76,31 @@ class DataArgs
       @par 
 	reads parameters from a checkpoint restart file into this object for use in Data constructor
     */
-    DataArgs() {};
-    
-    DataArgs& sNx(int nx) {
-      this->nx = nx; return *this; 
-    }
+    DataArgsBase() {
+    };
 
-    DataArgs& sNy(int ny) {
-      this->ny = ny; return *this; 
-    }
+};
 
-    DataArgs& sNz(int nz) {
-      this->nz = nz; return *this; 
-    }
 
-    DataArgs& sXmin(double xmin) {
-      this->xmin = xmin; return *this; 
-    }
+class DataArgs : public DataArgsBase
+{
+  public:
 
-    DataArgs& sYmin(double ymin) {
-      this->ymin = ymin; return *this; 
-    }
-
-    DataArgs& sZmin(double zmin) {
-      this->zmin = zmin; return *this; 
-    }
-    
-    DataArgs& sXmax(double xmax) {
-      this->xmax = xmax; return *this; 
-    }
-
-    DataArgs& sYmax(double ymax) {
-      this->ymax = ymax; return *this; 
-    }
-
-    DataArgs& sZmax(double zmax) {
-      this->zmax = zmax; return *this; 
-    }
-
-    DataArgs& sEndTime(double endTime) {
-      this->endTime = endTime; return *this; 
-    }
+    //! Constructor
+    /*!
+      @par 
+	reads parameters from a checkpoint restart file into this object for use in Data constructor
+    */
+    DataArgs(int nx, int ny, int nz,
+         double xmin, double xmax,
+         double ymin, double ymax,
+         double zmin, double zmax,
+         double endTime) {
+      this->nx = nx; this->ny = ny; this->nz = nz;
+      this->xmin = xmin; this->ymin = ymin; this->zmin = zmin;
+      this->xmax = xmax; this->ymax = ymax; this->zmax = zmax;
+      this->endTime = endTime;
+    };
 
     DataArgs& sCfl(double cfl) {
       this->cfl = cfl; return *this; 

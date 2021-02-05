@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 
-ParallelCheckpointArgs::ParallelCheckpointArgs(const char* name, ParallelEnv *env) : DataArgs()
+ParallelCheckpointArgs::ParallelCheckpointArgs(const char* name, ParallelEnv *env) : DataArgsBase()
 {
 	herr_t error=0, tmpError=-1;
 
