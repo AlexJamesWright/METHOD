@@ -13,9 +13,6 @@
       to initialise Data. This is the best way to make sure that simulation parameters are consistent with
       the restart file being used for initialisation.
 
-      Setters are created for each parameter to allow creation of the object using chained named parameters, according
-      to the strategy described in (https://isocpp.org/wiki/faq/ctors#named-parameter-idiom). 
-
       Note that the defaults here should be the same as the defaults set in the Data constructor in simData.h
       that does not use named parameters. 
 
@@ -72,16 +69,18 @@ class DataArgsBase
 
 
     //! Constructor
-    /*!
-      @par 
-	reads parameters from a checkpoint restart file into this object for use in Data constructor
-    */
     DataArgsBase() {
     };
 
 };
 
-
+//! <b> Object containing parameters required to populate Data manually (as opposed to from a restart file)</b>
+/*!
+  @par
+      Required parameters must be set in the constructor. 
+      Setters are created for each optional parameter to allow creation of the object using chained 
+      named parameters, according to the strategy described in (https://isocpp.org/wiki/faq/ctors#named-parameter-idiom). 
+*/
 class DataArgs : public DataArgsBase
 {
   public:
@@ -89,7 +88,7 @@ class DataArgs : public DataArgsBase
     //! Constructor
     /*!
       @par 
-	reads parameters from a checkpoint restart file into this object for use in Data constructor
+        Set required parameters to be used by the Data object.
     */
     DataArgs(int nx, int ny, int nz,
          double xmin, double xmax,
