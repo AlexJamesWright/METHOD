@@ -67,6 +67,12 @@ class DataArgsBase
     double
     gam=12;                   //!< Exponent in the functional conductivity
 
+    std::vector<double> 
+    optionalSimArgs;	      //!< Array of optional arguments that depend on the simulation being run
+    std::vector<std::string>
+    optionalSimArgNames;     //!< Names of optionalSimArgs array elements
+    int
+    nOptionalSimArgs=0;      //!< Number of elements to include in optionalSimArgs array
 
     //! Constructor
     DataArgsBase() {
@@ -143,6 +149,15 @@ class DataArgs : public DataArgsBase
 
     DataArgs& sFrameSkip(double frameSkip) {
       this->frameSkip = frameSkip; return *this; 
+    }
+
+    // input arrays are copied to memory on this object. The input arrays are unchanged and their memory remains allocated 
+    // if optionalSimArgs and optionalSimArgNames have already been defined on this object, they are overwritten
+    DataArgs& sOptionalSimArgs(std::vector<double> optionalSimArgs, std::vector<std::string> optionalSimArgNames, int nOptionalSimArgs) {
+      this->nOptionalSimArgs = nOptionalSimArgs;
+      this->optionalSimArgs = optionalSimArgs;
+      this->optionalSimArgNames = optionalSimArgNames;
+      return *this;
     }
 
 };

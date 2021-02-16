@@ -2,8 +2,11 @@
 #include "platformEnv.h"
 #include <stdexcept>
 #include <cmath>
+#include <string>
 
 #define IDn(variable, idx, jdx, kdx) ((variable)*(this->Nx)*(this->Ny)*(this->Nz) + (idx)*(this->Ny)*(this->Nz) + (jdx)*(this->Nz) + (kdx))
+
+using namespace std;
 
 Data::Data(int nx, int ny, int nz,
            double xmin, double xmax,
@@ -50,12 +53,12 @@ Data::Data(DataArgsBase args, PlatformEnv *env)
            frameSkip(args.frameSkip),
            reportItersPeriod(args.reportItersPeriod),
            functionalSigma(args.functionalSigma), gam(args.gam),
-           t(args.t)
+           t(args.t) 
 {
-	initData(env);
+	initData(env, args.nOptionalSimArgs, args.optionalSimArgs, args.optionalSimArgNames);
 }
 
-void Data::initData(PlatformEnv *env){
+void Data::initData(PlatformEnv *env, int nOptionalSimArgs, std::vector<double> optionalSimArgs, std::vector<std::string> optionalSimArgNames){
   // TODO -- handle nx not dividing perfectly into nxRanks
 
   // Set Nx to be nx per MPI process + ghost cells
@@ -101,6 +104,11 @@ void Data::initData(PlatformEnv *env){
   if (this->mu1 > 0.0 or this->mu2 < 0.0) {
     throw std::invalid_argument("Species 1 must have negative charge, mu1 < 0, and species 2 must have positive charge, mu2 > 0.\n");
   }
+
+  // Allocate and initialise optional simulation parameters if we have been passed any
+  this->nOptionalSimArgs = nOptionalSimArgs;
+  this->optionalSimArgs = optionalSimArgs;
+  this->optionalSimArgNames = optionalSimArgNames;
 }
 
 double Data::sigmaFunc(double * cons, double * prims, double * aux, int i, int j, int k)
@@ -117,3 +125,4 @@ double Data::sigmaFunc(double * cons, double * prims, double * aux, int i, int j
       return sigma * pow(cons[IDn(0, i, j, k)], gam);
   }
 }
+

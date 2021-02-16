@@ -109,11 +109,20 @@ class SerialCheckpointArgs : public DataArgsBase
       this->gam = gam; return *this;
     }
 
- 
     SerialCheckpointArgs& sFrameSkip(double frameSkip) {
       this->frameSkip = frameSkip; return *this;
     }
 
+    // input arrays are copied to memory on this object. The input arrays are unchanged and their memory remains allocated
+    // if optionalSimArgs and optionalSimArgNames are already set on this object, they are overwritten
+    SerialCheckpointArgs& sOptionalSimArgs(std::vector<double> optionalSimArgs, std::vector<std::string> optionalSimArgNames, int nOptionalSimArgs) {
+      this->nOptionalSimArgs = nOptionalSimArgs;
+      this->optionalSimArgs = optionalSimArgs;
+      this->optionalSimArgNames = optionalSimArgNames;
+      return *this;
+    } 
 };
 
 #endif
+
+

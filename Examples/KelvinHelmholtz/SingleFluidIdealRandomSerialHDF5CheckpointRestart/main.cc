@@ -11,7 +11,8 @@
 #include "serialEnv.h"
 #include "serialSaveDataHDF5.h"
 #include "weno.h"
-#include <cstring>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -46,6 +47,9 @@ int main(int argc, char *argv[]) {
 
   const char* filename = "data_t0.checkpoint.hdf5";
 
+  const int nOptionalSimArgs = 1;
+  std::vector<double> optionalSimArgs = {seed};
+  std::vector<std::string> optionalSimArgNames = {"seed"};
 
   // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
   // SerialCheckpointArgs sets those parameters that can be read from the restart file, while the chained setter functions 
@@ -53,6 +57,7 @@ int main(int argc, char *argv[]) {
   // any other variables (should only need to overwrite endTime when starting from a restart file)
   SerialCheckpointArgs checkpointArgs = SerialCheckpointArgs(filename, &env).sEndTime(endTime)
 	.sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sReportItersPeriod(reportItersPeriod);
+        //.sOptionalSimArgs(optionalSimArgs, optionalSimArgNames, nOptionalSimArgs);
  
   Data data = Data(checkpointArgs, &env);
 

@@ -113,6 +113,12 @@ class ParallelCheckpointArgs : public DataArgsBase
       this->frameSkip = frameSkip; return *this;
     }
 
+    ParallelCheckpointArgs& sOptionalSimArgs(double *optionalSimArgs, string *optionalSimArgNames, int nOptionalSimArgs) {
+      this->optionalSimArgs = optionalSimArgs;
+      this->optionalSimArgNames = optionalSimArgNames;
+      this->nOptionalSimArgs = nOptionalSimArgs;
+      return *this;
+    }
 
 };
 

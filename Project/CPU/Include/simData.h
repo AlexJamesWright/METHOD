@@ -120,6 +120,12 @@ class Data
     is, js, ks,
     ie, je, ke;            //!< Cell IDs for interior grid points
     //@}
+    std::vector<double>
+    optionalSimArgs;          //!< Array of optional arguments that depend on the simulation being run
+    std::vector<std::string>
+    optionalSimArgNames;     //!< Names of optionalSimArgs array elements
+    int
+    nOptionalSimArgs=0;      //!< Number of elements to include in optionalSimArgs array
 
 
     //! Element ID function
@@ -166,7 +172,7 @@ class Data
       This is separated from the constructor to avoid duplicated code between the two available
       constructors for Data.
      */
-     void initData(PlatformEnv *env);
+     void initData(PlatformEnv *env, int nOptionalSimArgs=0, std::vector<double> optionalSimArgs=std::vector<double>(), std::vector<std::string> optionalSimArgNames=std::vector<std::string>());
 
 
     //! Constructor  -- all vars specified by comma separated list
@@ -221,6 +227,8 @@ class Data
       @param env environment object containing platform details eg MPI ranks
     */
     Data(DataArgsBase args, PlatformEnv *env);
+
+    ~Data() {};
 
 };
 
