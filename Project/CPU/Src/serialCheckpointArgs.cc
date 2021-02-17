@@ -3,12 +3,9 @@
 #include "platformEnv.h"
 #include <stdexcept>
 #include <cmath>
-#include <string>
 #include "hdf5.h"
 #include "hdf5_hl.h"
 #include <stdexcept>
-
-using namespace std;
 
 SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) : DataArgsBase()
 {
@@ -31,11 +28,11 @@ SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) :
 	if (error<0) throw std::runtime_error("Checkpoint restart file is missing some global attributes");
 
         // Read optional file attributes
-	hid_t optional_group = H5Gopen(file, "Optional", H5P_DEFAULT);
-        if (optional_group >= 0){
+	hid_t optionalGroup = H5Gopen(file, "Optional", H5P_DEFAULT);
+        if (optionalGroup >= 0){
           // if the hdf5 file we're using has an optional sim args group. This may not be the case if the
           // file is in an older style
-  	  tmpError = H5LTget_attribute_int(optional_group, ".", "nOptionalSimArgs",  &(this->nOptionalSimArgs));
+  	  tmpError = H5LTget_attribute_int(optionalGroup, ".", "nOptionalSimArgs",  &(this->nOptionalSimArgs));
   
           hid_t attr;
           double optionalArg;
@@ -44,14 +41,16 @@ SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) :
           this->optionalSimArgs.clear();
           this->optionalSimArgNames.clear();
           for (int i(0); i<nOptionalSimArgs; i++){
-            attr = H5Aopen_by_idx(file, ".", H5_INDEX_CRT_ORDER, H5_ITER_INC, i, H5P_DEFAULT, H5P_DEFAULT);
-  	  tmpError = H5Aread(attr,  H5T_NATIVE_DOUBLE, &optionalArg);
-  	  tmpError = H5Aget_name(attr, 256, argName);
+            // read all the optional arguments, skipping the first attribute in this group, which is nOptionalSimArgs
+            // and has already been read
+            attr = H5Aopen_by_idx(optionalGroup, ".", H5_INDEX_CRT_ORDER, H5_ITER_INC, i+1, H5P_DEFAULT, H5P_DEFAULT);
+  	    tmpError = H5Aread(attr,  H5T_NATIVE_DOUBLE, &optionalArg);
+  	    tmpError = H5Aget_name(attr, 256, argName);
             (this->optionalSimArgs).push_back(optionalArg);
             (this->optionalSimArgNames).push_back(argName);
           }
           free(argName);
-          H5Gclose(optional_group);
+          H5Gclose(optionalGroup);
         }
 
 	// Remaining required attributes are stored in the Domain group

@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
   bool output(false);
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
+  int reportItersPeriod(50);
 
   double nxRanks(2);
   double nyRanks(2);
@@ -45,8 +46,19 @@ int main(int argc, char *argv[]) {
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip);
+  const int nOptionalSimArgs = 1;
+  std::vector<double> optionalSimArgs = {seed};
+  std::vector<std::string> optionalSimArgNames = {"seed"}; 
+
+  // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // The DataArgs constructor takes those parameters that are required rather than optional.
+  // The chained setter functions can be used to set any of the optional parameters. They can be used in any order and default
+  // values will be used for any parameters that are not set
+  DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
+        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sSigma(sigma)
+	.sReportItersPeriod(reportItersPeriod).sOptionalSimArgs(optionalSimArgs, optionalSimArgNames, nOptionalSimArgs);
+
+  Data data = Data(dataArgs, &env);
 
   // Choose particulars of simulation
   SRMHD model(&data);

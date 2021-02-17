@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
   // The chained setter functions can be used to set any of the optional parameters. They can be used in any order and default
   // values will be used for any parameters that are not set
   DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
-        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip)
+        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sSigma(sigma)
 	.sReportItersPeriod(reportItersPeriod).sOptionalSimArgs(optionalSimArgs, optionalSimArgNames, nOptionalSimArgs);
 
   Data data = Data(dataArgs, &env);

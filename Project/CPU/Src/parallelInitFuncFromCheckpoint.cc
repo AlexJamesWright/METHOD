@@ -80,13 +80,17 @@ void ParallelCheckpointRestart::readDataSetDouble(const hid_t *group, const char
       }
     }
   }
+
+  H5Pclose(dataset_access_property_list);
+  H5Sclose(dataspace_total);
+  H5Sclose(dataspace_local);
+  H5Dclose(dataset);
 }
 
 ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *name, ParallelEnv *env) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
-
   herr_t error=0;
 
   hid_t file_access_property_list = H5Pcreate(H5P_FILE_ACCESS);
@@ -103,15 +107,16 @@ ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *na
   error = H5LTget_attribute_int(groupCons, ".", "Ncons",  &(NconsFile));
   if (error<0 || NconsFile < d->Ncons) throw std::runtime_error("Too few conserved vars recorded in checkpoint restart file for this model");
 
-  hid_t groupPrims = H5Gopen(file, "Primitive", H5P_DEFAULT);
-  error = H5LTget_attribute_int(groupPrims, ".", "Nprims",  &(NprimsFile));
-  if (error<0 || NconsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
-
   // Read all cons vars
   for(int var(0); var < d->Ncons; var++) {
     readDataSetDouble(&groupCons, d->consLabels[var].c_str(), &var, d->cons, env);
   }
   H5Gclose(groupCons);
+
+  hid_t groupPrims = H5Gopen(file, "Primitive", H5P_DEFAULT);
+  error = H5LTget_attribute_int(groupPrims, ".", "Nprims",  &(NprimsFile));
+  if (error<0 || NconsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
+
 
   // Read all prims vars
   for(int var(0); var < d->Nprims; var++) {
@@ -120,4 +125,5 @@ ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *na
   H5Gclose(groupPrims);
 
   H5Fclose(file);
+  H5Pclose(file_access_property_list);
 }

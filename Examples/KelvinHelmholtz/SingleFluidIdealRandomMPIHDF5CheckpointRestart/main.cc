@@ -70,9 +70,9 @@ int main(int argc, char *argv[]) {
 
   //KHRandomInstabilitySingleFluid init(&data, 1, seed);
   ParallelCheckpointRestart init(&data, filename, &env);
-
+  
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
-
+ 
   ParallelSaveDataHDF5 save(&data, &env, "data_parallel", ParallelSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation

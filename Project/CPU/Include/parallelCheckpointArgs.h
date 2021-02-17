@@ -113,12 +113,15 @@ class ParallelCheckpointArgs : public DataArgsBase
       this->frameSkip = frameSkip; return *this;
     }
 
-    ParallelCheckpointArgs& sOptionalSimArgs(double *optionalSimArgs, string *optionalSimArgNames, int nOptionalSimArgs) {
+    // input arrays are copied to memory on this object. The input arrays are unchanged and their memory remains allocated
+    // if optionalSimArgs and optionalSimArgNames are already set on this object, they are overwritten
+    ParallelCheckpointArgs& sOptionalSimArgs(std::vector<double> optionalSimArgs, std::vector<std::string> optionalSimArgNames, int nOptionalSimArgs) {
+      this->nOptionalSimArgs = nOptionalSimArgs;
       this->optionalSimArgs = optionalSimArgs;
       this->optionalSimArgNames = optionalSimArgNames;
-      this->nOptionalSimArgs = nOptionalSimArgs;
       return *this;
     }
+
 
 };
 
