@@ -50,10 +50,11 @@ ParallelCheckpointArgs::ParallelCheckpointArgs(const char* name, ParallelEnv *en
             tmpError = H5Aget_name(attr, 256, argName);
             (this->optionalSimArgs).push_back(optionalArg);
             (this->optionalSimArgNames).push_back(argName);
+            H5Aclose(attr);
           }
           free(argName);
-          H5Gclose(optionalGroup);
         }
+        H5Gclose(optionalGroup);
 
 	// Remaining required attributes are stored in the Domain group
 	hid_t group = H5Gopen(file, "Domain", H5P_DEFAULT);
