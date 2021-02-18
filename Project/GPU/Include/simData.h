@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <string>
+#include "platformEnv.h"
+#include "checkpointArgs.h"
+
 
 /*!
   Currently (and possibly permanently) a very hacky way of keeping singleCell cons2prims function
@@ -76,6 +79,7 @@ class Data
     sigma;                 //!< Resistivity
     int
     memSet,                //!< Indicator that memory has been allocated for state vectors
+    bcsSet,                //!< Indicator that boundary conditions have been created (before this information about the domain decomposition used in MPI version will not be correct).
     //@{
     Ncons, Nprims, Naux;   //!< Number of specified variables
     //@}
@@ -101,7 +105,7 @@ class Data
     //@{
     alphaX, alphaY, alphaZ,//!< Max wave speed in specified direction. As we are evolving EM fields, this is always the speed of light.
     //@}
-    t,                     //!< Current time
+    t=-1,                     //!< Current time
     dt,                    //!< Width of current timestep
     //@{
     dx, dy, dz;            //!< Witdth of specified spatial step
@@ -119,6 +123,10 @@ class Data
     //@}
     int
     dims,                  //!< Number of dimensions of simulation
+    //@{
+    is, js, ks,
+    ie, je, ke,            //!< Cell IDs for interior grid points
+    //@}
     GPUcount;              //!< Number of NVIDIA devices detected
     cudaDeviceProp
     prop;                  //!< Properties of NVIDIA device (assuming all are same)
@@ -140,6 +148,18 @@ class Data
     int id(int var, int i, int j, int k) {
       return var * this->Nx * this->Ny * this->Nz + i * this->Ny * this->Nz + j * this->Nz + k;
     }
+
+    //! Initialiser
+    /*!  
+        @par
+        Allocates the memory required for the state arrays and sets the simulation
+      constants to the given values. Does not set initial state, thats done by
+      the initialFunc object. Called automatically from constructors after setting object vars.
+      This is separated from the constructor to avoid duplicated code between the two available
+      constructors for Data.
+     */
+     void initData(PlatformEnv *env);
+
 
     //! Constructor
     /*!
@@ -169,12 +189,27 @@ class Data
          double xmin, double xmax,
          double ymin, double ymax,
          double zmin, double zmax,
-         double endTime, double cfl=0.5, int Ng=4,
+         double endTime, PlatformEnv *env,
+         double cfl=0.5, int Ng=4,
          double gamma=5.0/3.0, double sigma=1e3,
          double cp=0.1,
          double mu1=-1.0e4, double mu2=1.0e4,
          int frameskip=10);
 
+    //! Constructor
+    /*!
+      @par
+        Allocates the memory required for the state arrays and sets the simulation
+      constants to the given values. Does not set initial state, thats done by
+      the initialFunc object.
+      @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
+      @param mu1 charge mass ratio of species 1
+      @param mu2 charge mass ratio of species 2
+    */
+    Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
+         int frameskip=10);
+
+   
 };
 
 #endif
