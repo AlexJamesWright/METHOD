@@ -3,7 +3,7 @@
 #include "parallelCheckpointArgs.h"
 #include "simulation.h"
 #include "initFunc.h"
-#include "initFuncFromCheckpoint.h"
+#include "parallelInitFuncFromCheckpoint.h"
 #include "srmhd.h"
 #include "srrmhd.h"
 #include "boundaryConds.h"
@@ -62,13 +62,38 @@ int main(int argc, char *argv[]) {
 
   const char* filename = "data_t0.checkpoint.hdf5";
 
-  ParallelCheckpointArgs checkpointArgs(filename, &env);
-  checkpointArgs.endTime=endTime;
+  //ParallelCheckpointArgs checkpointArgs(filename, &env);
+  //checkpointArgs.endTime=endTime;
 
-  Data data(checkpointArgs, &env);
+  // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // ParallelCheckpointArgs sets those parameters that can be read from the restart file, while the chained setter functions 
+  // that follow can be used to set the additional variables that are not stored in the restart file, as well as override
+  // any other variables (should only need to overwrite endTime when starting from a restart file)
+/*
+  ParallelCheckpointArgs checkpointArgs = ParallelCheckpointArgs(filename, &env).sEndTime(endTime);
 
-  //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            //cfl, Ng, gamma, sigma);
+  Data data = Data(checkpointArgs, &env);
+*/
+
+  const int nOptionalSimArgs = 1;
+  std::vector<double> optionalSimArgs = {100};
+  std::vector<std::string> optionalSimArgNames = {"seed"};
+
+  // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // The DataArgs constructor takes those parameters that are required rather than optional.
+  // The chained setter functions can be used to set any of the optional parameters. They can be used in any order and default
+  // values will be used for any parameters that are not set
+  DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
+        .sCfl(cfl).sNg(Ng).sGamma(gamma).sSigma(sigma)
+        .sOptionalSimArgs(optionalSimArgs, optionalSimArgNames, nOptionalSimArgs);
+  
+  Data data = Data(dataArgs, &env);
+
+  // Create a data object using the old interface
+  /*
+  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+            cfl, Ng, gamma, sigma);
+  */
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -79,7 +104,8 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  KHInstabilitySingleFluid init(&data, 1);
+  //KHInstabilitySingleFluid init(&data, 1);
+  ParallelCheckpointRestart init(&data, filename, &env);
 
   RK2 timeInt(&data, &model, &bcs, &fluxMethod);
 

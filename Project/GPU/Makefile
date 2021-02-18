@@ -62,7 +62,6 @@ NVFLAGS = -std=c++11 \
                                         -fmad=false \
 					-O3 \
                                         -Wno-deprecated-gpu-targets \
-                                        -ccbin ${MPI_CC} \
                                         -arch=sm_${GPU_COMPUTE_CAPABILITY} \
 					-Xcompiler -Wall \
 					-Xcompiler -fopenmp \
