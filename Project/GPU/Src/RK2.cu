@@ -3,11 +3,18 @@
 #include <iostream>
 #include <cstdio>
 
+#include "nvToolsExtCuda.h"
+#include "nvToolsExtCudaRt.h"
+
+
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
 
 void RK2::step(double * cons, double * prims, double * aux, double dt)
 {
+
+  nvtxRangeId_t profile_id1 = nvtxRangeStartA("RK2 step");
+
   // Syntax
   Data * d(this->data);
 
@@ -30,6 +37,7 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
   cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
 
+  nvtxRangeId_t profile_id2 = nvtxRangeStartA("cons2prims");
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
   #pragma omp parallel for
@@ -49,10 +57,14 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
       }
     }
   }
+  nvtxRangeEnd(profile_id2);
 
+  nvtxRangeId_t profile_id3 = nvtxRangeStartA("fluxMethod");
   // Get first approximation of flux contribution
   this->fluxMethod->F(cons, prims, aux, d->f, args1);
+  nvtxRangeEnd(profile_id3);
 
+  nvtxRangeId_t profile_id4 = nvtxRangeStartA("cons2prims 2");
   // First stage approximation
   #pragma omp parallel for
    for (int var=0; var < d->Ncons; var++) {
@@ -75,12 +87,18 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
      printf("RK2 (stage 1) raises exception with following message:\n%s\n", e.what());
      throw e;
    }
+   nvtxRangeEnd(profile_id4);
 
+   nvtxRangeId_t profile_id5 = nvtxRangeStartA("bcs");
    this->bcs->apply(p1cons, p1prims, p1aux);
+   nvtxRangeEnd(profile_id5);
 
+   nvtxRangeId_t profile_id6 = nvtxRangeStartA("fluxMethod 2");
    // Get second approximation of flux contribution
    this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
+   nvtxRangeEnd(profile_id6);
 
+   nvtxRangeId_t profile_id7 = nvtxRangeStartA("construct solution");
    // Construct solution
    #pragma omp parallel for
    for (int var=0; var < d->Ncons; var++) {
@@ -96,7 +114,9 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
        }
      }
    }
+   nvtxRangeEnd(profile_id7);
 
+   nvtxRangeId_t profile_id8 = nvtxRangeStartA("get prims");
    // Determine new prim and aux variables
    try {
      this->model->getPrimitiveVars(cons, prims, aux);
@@ -105,8 +125,12 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
      printf("RK2 (corrector) raises exception with following message:\n%s\n", e.what());
      throw e;
    }
+   nvtxRangeEnd(profile_id8);
+
+   nvtxRangeId_t profile_id9 = nvtxRangeStartA("bcs 2");
    // Apply boundary conditions
    this->bcs->apply(cons, prims, aux);
+   nvtxRangeEnd(profile_id9);
 
    // Free arrays
    cudaFreeHost(p1cons);
@@ -114,4 +138,6 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    cudaFreeHost(p1aux);
    cudaFreeHost(args1);
    cudaFreeHost(args2);
+
+   nvtxRangeEnd(profile_id1);
 }

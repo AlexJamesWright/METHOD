@@ -8,7 +8,7 @@ USE_MPI=1
 USE_HDF=1
 
 # The compute capability of the GPU 
-GPU_COMPUTE_CAPABILITY = 52
+GPU_COMPUTE_CAPABILITY = 61
 
 # --- IF USE_MPI ---
 # The c++ capable mpi compiler. In systems with multiple versions of MPI, the particular version may need to be specified with eg
@@ -56,6 +56,8 @@ RTFIND_SRC_DIR = ./CminpackLibrary/Src
 # C++ compiler flags
 CXXFLAGS = -fopenmp -Wall -std=c++11 -O3 -lineinfo
 
+PROFILE_FLAGS = -lnvToolsExt
+
 # NVIDIA compiler flags
 NVFLAGS = -std=c++11 \
                                         -rdc=true \
@@ -71,6 +73,8 @@ NVFLAGS = -std=c++11 \
 ifeq ($(USE_MPI), 1)
 	NVFLAGS += -ccbin ${MPI_CC}
 endif
+
+NVFLAGS += ${PROFILE_FLAGS}
 
 # Sources
 SRCS = main.cu \
