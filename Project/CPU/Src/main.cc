@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
   int safety(180);
   int frameSkip(1000);
 
-  int nxRanks(4);
-  int nyRanks(4);
+  int nxRanks(2);
+  int nyRanks(2);
   int nzRanks(1);
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);

@@ -138,9 +138,11 @@ void Simulation::evolve(bool output, int safety)
   Data * d(this->data);
 
   // Save initial data
+  /* comment out initial and final save for profiling
   if (output && save) {
     this->save->saveVar("rho", 1);
   }
+ */
 
   while (d->t < d->endTime) {
 
@@ -158,12 +160,13 @@ void Simulation::evolve(bool output, int safety)
     }
   }
 
+  /* comment out initial and final save for profiling
   // Save final state
   if (output && save) {
     // Save initial data
     this->save->saveVar("rho", 1);
     }
-
+*/
     if (env->rank == 0) {
         printf("\n");
     }

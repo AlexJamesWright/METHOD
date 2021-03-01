@@ -12,8 +12,14 @@
 
 void RK2::step(double * cons, double * prims, double * aux, double dt)
 {
-
-  nvtxRangeId_t profile_id1 = nvtxRangeStartA("RK2 step");
+  nvtxEventAttributes_t eventAttrib = {0};
+  eventAttrib.version = NVTX_VERSION;
+  eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+  eventAttrib.colorType = NVTX_COLOR_ARGB;
+  eventAttrib.color = 0;
+  eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
+  eventAttrib.message.ascii = "RK2 step";
+  nvtxRangeId_t profile_id1 = nvtxRangeStartEx(&eventAttrib);
 
   // Syntax
   Data * d(this->data);
@@ -37,7 +43,15 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
   cudaHostAlloc((void **)&args2, sizeof(double) * Ntot * d->Ncons,
                 cudaHostAllocPortable);
 
-  nvtxRangeId_t profile_id2 = nvtxRangeStartA("cons2prims");
+  nvtxEventAttributes_t eventAttrib_2 = {0};
+  eventAttrib_2.version = NVTX_VERSION;
+  eventAttrib_2.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+  eventAttrib_2.colorType = NVTX_COLOR_ARGB;
+  eventAttrib_2.color = 1;
+  eventAttrib_2.messageType = NVTX_MESSAGE_TYPE_ASCII;
+  eventAttrib_2.message.ascii = "cons2prims";
+  nvtxRangeId_t profile_id2 = nvtxRangeStartEx(&eventAttrib_2);
+
   // Cons2prims conversion for p1 estimate stage requires old values to start
   // the rootfind
   #pragma omp parallel for
@@ -64,7 +78,15 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
   this->fluxMethod->F(cons, prims, aux, d->f, args1);
   nvtxRangeEnd(profile_id3);
 
-  nvtxRangeId_t profile_id4 = nvtxRangeStartA("cons2prims 2");
+  nvtxEventAttributes_t eventAttrib_4 = {0};
+  eventAttrib_4.version = NVTX_VERSION;
+  eventAttrib_4.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+  eventAttrib_4.colorType = NVTX_COLOR_ARGB;
+  eventAttrib_4.color = 1;
+  eventAttrib_4.messageType = NVTX_MESSAGE_TYPE_ASCII;
+  eventAttrib_4.message.ascii = "cons2prims 2";
+  nvtxRangeId_t profile_id4 = nvtxRangeStartEx(&eventAttrib_4);
+
   // First stage approximation
   #pragma omp parallel for
    for (int var=0; var < d->Ncons; var++) {
@@ -93,7 +115,15 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    this->bcs->apply(p1cons, p1prims, p1aux);
    nvtxRangeEnd(profile_id5);
 
-   nvtxRangeId_t profile_id6 = nvtxRangeStartA("fluxMethod 2");
+  nvtxEventAttributes_t eventAttrib_6 = {0};
+  eventAttrib_6.version = NVTX_VERSION;
+  eventAttrib_6.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+  eventAttrib_6.colorType = NVTX_COLOR_ARGB;
+  eventAttrib_6.color = 1;
+  eventAttrib_6.messageType = NVTX_MESSAGE_TYPE_ASCII;
+  eventAttrib_6.message.ascii = "fluxMethod 2";
+  nvtxRangeId_t profile_id6 = nvtxRangeStartEx(&eventAttrib_6);
+
    // Get second approximation of flux contribution
    this->fluxMethod->F(p1cons, p1prims, p1aux, d->f, args2);
    nvtxRangeEnd(profile_id6);
@@ -116,7 +146,15 @@ void RK2::step(double * cons, double * prims, double * aux, double dt)
    }
    nvtxRangeEnd(profile_id7);
 
-   nvtxRangeId_t profile_id8 = nvtxRangeStartA("get prims");
+  nvtxEventAttributes_t eventAttrib_8 = {0};
+  eventAttrib_8.version = NVTX_VERSION;
+  eventAttrib_8.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+  eventAttrib_8.colorType = NVTX_COLOR_ARGB;
+  eventAttrib_8.color = 1;
+  eventAttrib_8.messageType = NVTX_MESSAGE_TYPE_ASCII;
+  eventAttrib_8.message.ascii = "get prims";
+  nvtxRangeId_t profile_id8 = nvtxRangeStartEx(&eventAttrib_8);
+
    // Determine new prim and aux variables
    try {
      this->model->getPrimitiveVars(cons, prims, aux);

@@ -5,7 +5,7 @@
 
 # Whether to use MPI for multi-cpu processing
 USE_MPI = 1
-USE_OMP = 0
+USE_OMP = 1
 USE_HDF = 1
 
 # Compiler

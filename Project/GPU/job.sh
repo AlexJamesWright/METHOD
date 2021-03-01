@@ -2,8 +2,10 @@
 
 #SBATCH --ntasks-per-node=1     # Tasks per node
 #SBATCH --nodes=4                # Number of nodes requested
+#SBATCH --cpus-per-task=36 
 #SBATCH --partition=gtx1080
 #SBATCH --time=00:30:00
+####SBATCH --exclusive
 
 module purge
 #module load gcc/6.4.0
@@ -12,10 +14,13 @@ module load cuda/10.0
 
 module list
 nvidia-smi
+lscpu
 
 make clean
 make
 
+export KMP_AFFINITY=verbose
+export OMP_NUM_THREADS=1
 echo "OMP NUM THREADS"
 echo $OMP_NUM_THREADS
 
