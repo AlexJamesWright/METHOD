@@ -45,20 +45,34 @@ Memory requirements:
 Timestep summary:
 * The majority of time in a RK2 timestep is spent in CPU 'useful work', ie not MPI communication
 * Neither MPI communication between CPUs, PCI communication between GPU/CPU, nor GPU compute time is significant in relation to CPU compute time. 
+* The OpenMP parallelisation of these problem areas on the CPU seems to be inefficient -- in the timestep breakdown below it looks like going from 1 thread to 36 threads speeds the cpu code by only roughly 3x. This is bourne out by the timing of the non-GPU code, which is fully MPI parallelised and is quicker than the GPU version. It may be that the CPU node is being shared between multiple GPU jobs for different users, or the OMP parallelisation may be able to be improved. 
+
 * Conclusions: 
-1) further optimisation work should focus on moving more parts of the timestep to the GPU, without worrying too much about the cost of copying data between GPU/CPU at least at first
-2) enabling OpenMP for the GPU version is important. This will parallelise the problem areas on the CPU and can be enabled from current makefiles. Will also need to `export OMP_NUM_THREADS=[threads]` in job submission script.  
+1) further GPU optimisation work should focus on moving more parts of the timestep to the GPU, without worrying too much about the cost of copying data between GPU/CPU at least at first
+2) enabling OpenMP for the GPU version is important. This will parallelise the problem areas on the CPU and can be enabled from current makefiles. Will also need to `export OMP_NUM_THREADS=[threads]` in job submission script. 
+3) It worth looking into and improving the efficiency of the OMP parallelisation if the work cannot be instead moved to the GPU
 
 Timestep breakdown:
 
-4 nodes, each running 1 proc x 1 OMP thread (ie most CPU cores are unused). Timescale: 1 RK2 timestep = 10.31 seconds
+Run A: 4 nodes, each running 1 proc x 1 OMP thread (ie most CPU cores are unused). Timescale: 1 RK2 timestep = 10.31 seconds
+
+Total time for 21 timesteps: 224.44s
+
 See [RK2.cu](Project/GPU/Src/RK2.cu) for exact details on how exactly the code is grouped and annotated to show the different components of the timestep in alternating green and black. In order, the sections are: cons2prims, flux method, cons2prims 2, boundary condition calculation, flux method 2, construct solution, get prims, boundary condition calculation 2.
 
 ![rk2_omp1](rk2_omp1.png)
 
-4 nodes, each running 1 proc x 36 OMP threads. Timescale: 1 RK2 timestep = 3.02 seconds
+Run B: 4 nodes, each running 1 proc x 36 OMP threads. Timescale: 1 RK2 timestep = 3.02 seconds
+
+Total time for 21 timesteps: 65.19s
 
 ![rk2_omp36](rk2_omp36.png)
+
+Run C: 4 nodes, each running 36 MPI procs x 1 OMP threads, no GPU. 
+
+Total time for 21 timesteps: 8.14s
+
+
 ---------------------------------------------
 ---------------------------------------------
 <br> <br>
