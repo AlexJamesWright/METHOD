@@ -24,6 +24,34 @@ MMMMMMMM               MMMMMMMMEEEEEEEEEEEEEEEEEEEEEE      TTTTTTTTTTT      HHHH
 
 ![alt text](https://github.com/AlexJamesWright/METHOD/blob/master/METHODAdvert.gif "METHOD Advert: kudos to pyro2 for the inspo")
 
+# Profiling Branch
+
+## Profiling Methods:
+
+* Code profiled is frozen, located at commit: d8c94fd116cd9667147e875ef654f88ed75d63f2, branch: profiling_feb_2021
+* Profiled the GPU version using the main script in Project/GPU
+* Sim details: 2048x2048, SRMHD, ParallelFlow, KHInstabilitySingleFluid, RK2
+* System used: Iridis 5 (GTX1080Ti GPUs, 40 core Intel Skylake CPUs)
+* Profiler used: nvvp, nvprof
+
+## Profiling Results:
+
+Using 4 nodes, with 1 MPI process per node, 1 GPU per node and either 1 or 36 OMP threads per MPI process
+
+Memory requirements:
+* Each GPU has 12GB memory, each CPU has 192 GB, so need roughly ~10x GPUs to fit the same problem size. For very large problems where the main constraint is fitting in memory rather than time, CPUs likely better than GPUs. 
+* 2048x2048 fits on 4 GPUs, 4096x4094 does not
+
+Timestep breakdown:
+* The majority of time in a RK2 timestep is spent in CPU 'useful work', ie not MPI communication
+* Neither MPI communication between CPUs, PCI communication between GPU/CPU, nor GPU compute time is significant in relation to CPU compute time. 
+* Conclusions: 
+1) further optimisation work should focus on moving more parts of the timestep to the GPU, without worrying too much about the cost of copying data between GPU/CPU at least at first
+2) enabling OpenMP for the GPU version is important. This will parallelise the problem areas on the CPU and can be enabled from current makefiles. Will also need to `export OMP_NUM_THREADS=[threads]` in job submission script.  
+
+---------------------------------------------
+---------------------------------------------
+<br> <br>
 
 # Multifluid Electromagneto-HydroDynamics
 
