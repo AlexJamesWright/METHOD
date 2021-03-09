@@ -42,13 +42,23 @@ Memory requirements:
 * Each GPU has 12GB memory, each CPU has 192 GB, so need roughly ~10x GPUs to fit the same problem size. For very large problems where the main constraint is fitting in memory rather than time, CPUs likely better than GPUs. 
 * 2048x2048 fits on 4 GPUs, 4096x4094 does not
 
-Timestep breakdown:
+Timestep summary:
 * The majority of time in a RK2 timestep is spent in CPU 'useful work', ie not MPI communication
 * Neither MPI communication between CPUs, PCI communication between GPU/CPU, nor GPU compute time is significant in relation to CPU compute time. 
 * Conclusions: 
 1) further optimisation work should focus on moving more parts of the timestep to the GPU, without worrying too much about the cost of copying data between GPU/CPU at least at first
 2) enabling OpenMP for the GPU version is important. This will parallelise the problem areas on the CPU and can be enabled from current makefiles. Will also need to `export OMP_NUM_THREADS=[threads]` in job submission script.  
 
+Timestep breakdown:
+
+4 nodes, each running 1 proc x 1 OMP thread (ie most CPU cores are unused). Timescale: 1 RK2 timestep = 10.31 seconds
+See [RK2.cu](Project/GPU/Src/RK2.cu) for exact details on how exactly the code is grouped and annotated to show the different components of the timestep in alternating green and black. In order, the sections are: cons2prims, flux method, cons2prims 2, boundary condition calculation, flux method 2, construct solution, get prims, boundary condition calculation 2.
+
+![rk2_omp1](rk2_omp1.png)
+
+4 nodes, each running 1 proc x 36 OMP threads. Timescale: 1 RK2 timestep = 3.02 seconds
+
+![rk2_omp36](rk2_omp36.png)
 ---------------------------------------------
 ---------------------------------------------
 <br> <br>
