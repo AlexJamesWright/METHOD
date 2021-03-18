@@ -47,6 +47,8 @@ void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
   float kappa = d->gamma; // Quick hack to use existing variables
   float tau_q = d->sigma;
 
+//  printf("Calling source\n");
+
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
@@ -73,6 +75,9 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
+//  printf("Calling getPrimVars %i %i %i %i %i %i\n",
+//         d->is, d->ie, d->js, d->je, d->ks, d->ke);
+
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
@@ -84,11 +89,31 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
 
   for (int i(d->is+1); i < d->ie-1; i++) {
-    for (int j(d->js+1); j < d->je-1; j++) {
-      for (int k(d->ks+1); k < d->ke-1; k++) {
-        aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
-        aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
-        aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
+    if (d->js+1 > d->je-1) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
+          aux[ID(1, i, j, k)] = 0.0;
+          aux[ID(2, i, j, k)] = 0.0;
+        }
+      }
+    }
+    else {
+      for (int j(d->js+1); j < d->je-1; j++) {
+        if (d->ks+1 > d->ke-1) {
+          for (int k(d->ks); k < d->ke; k++) {
+            aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
+            aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
+            aux[ID(2, i, j, k)] = 0.0;
+          }
+        }
+        else {
+          for (int k(d->ks+1); k < d->ke-1; k++) {
+            aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
+            aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
+            aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
+          }
+        }
       }
     }
   }
@@ -99,6 +124,8 @@ void ToyQ::primsToAll(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
+
+  printf("Calling primsToAll\n");
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -111,8 +138,8 @@ void ToyQ::primsToAll(double *cons, double *prims, double *aux)
   }
 
     for (int i(0); i < d->Nx-1; i++) {
-      for (int j(0); j < d->Nx-1; j++) {
-        for (int k(0); k < d->Nx-1; k++) {
+      for (int j(0); j < d->Ny-1; j++) {
+        for (int k(0); k < d->Nz-1; k++) {
           aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
           aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
           aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
