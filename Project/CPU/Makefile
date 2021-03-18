@@ -55,7 +55,8 @@ SRCS = main.cc 								\
 			 parallelEnv.cc					\
 			 serialEnv.cc						\
 			 RKPlus.cc							\
-			 Euler.cc
+			 Euler.cc								\
+			 toy_q.cc
 
 SERIAL_SRCS = serialSaveData.cc
 ifeq ($(USE_HDF), 1)
@@ -147,6 +148,9 @@ srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+toy_q.o : $(MODULE_DIR)/toy_q.cc $(INC_DIR)/toy_q.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h

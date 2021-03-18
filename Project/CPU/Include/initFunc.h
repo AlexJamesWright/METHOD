@@ -374,4 +374,20 @@ class FancyMETHODData : public InitialFunc
 
 
 
+//! <b> Toy heat model, step function. </b>
+/*!
+      One dimensional test
+*/
+class BlobToyQ : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    BlobToyQ(Data * data);
+
+    virtual ~BlobToyQ() { }     //!< Destructor
+};
+
 #endif
