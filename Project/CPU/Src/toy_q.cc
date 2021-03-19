@@ -35,8 +35,16 @@ ToyQ::~ToyQ()
 
 void ToyQ::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
-  printf("ToyQ model does not implement sourceTermSingleCell\n");
-  exit(1);
+  // printf("ToyQ model does not implement sourceTermSingleCell\n");
+  // exit(1);
+
+  float kappa = this->data->gamma; // Quick hack to use existing variables
+  float tau_q = this->data->sigma;
+
+  source[0] = 0.0;
+  for (int dir(0); dir < 3; dir++) {
+    source[1+dir] = -(kappa * aux[dir] + prims[1+dir]) / tau_q;
+  }
 }
 
 void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
@@ -65,9 +73,13 @@ void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
 void ToyQ::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, int i, int j, int k)
 {
 
-  printf("ToyQ model does not implement getPrimitiveVarsSingleCell\n");
-  exit(1);
-
+  // printf("ToyQ model does not implement getPrimitiveVarsSingleCell\n");
+  // exit(1);
+  for (int nvar(0); nvar < 4; nvar++) {
+    prims[nvar] = cons[nvar];
+  }
+  // Note that this freezes the auxilliary variables - they are noto computed in
+  // this function as they are non-local.
 }
 
 void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)

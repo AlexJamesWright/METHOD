@@ -5,6 +5,7 @@
 #include "toy_q.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
+// #include "backwardsRK.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 #include "serialSaveDataHDF5.h"
@@ -18,7 +19,7 @@ int main(int argc, char *argv[]) {
   // Set up domain
   int Ng(4);
   int nx(256);
-  int ny(256);
+  int ny(4);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -53,9 +54,10 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  Blob2dToyQ init(&data);
+  BlobToyQ init(&data);
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   SerialSaveDataHDF5 save(&data, &env, "data_serial", SerialSaveDataHDF5::OUTPUT_ALL);
 
