@@ -390,4 +390,20 @@ class BlobToyQ : public InitialFunc
     virtual ~BlobToyQ() { }     //!< Destructor
 };
 
+//! <b> Toy heat model, step function. </b>
+/*!
+      Two dimensional test
+*/
+class Blob2dToyQ : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @sa InitialFunc
+    */
+    Blob2dToyQ(Data * data);
+
+    virtual ~Blob2dToyQ() { }     //!< Destructor
+};
+
 #endif

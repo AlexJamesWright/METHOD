@@ -1139,7 +1139,34 @@ BlobToyQ::BlobToyQ(Data * data) : InitialFunc(data)
         }
 
         for (int nvar(1); nvar < 4; nvar++) {
-          d->prims[ID(nvar, i, j, k)] = 1.0;
+          d->prims[ID(nvar, i, j, k)] = 0.0;
+        }
+      }
+    }
+  }
+}
+
+Blob2dToyQ::Blob2dToyQ(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0.0, 1.0]\n");
+  if (d->ymin != 0.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 1.0]\n");
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        if ( (d->x[i]-0.5)*(d->x[i]-0.5) + (d->y[j]-0.5)*(d->y[j]-0.5) < 0.2*0.2 ) {
+          d->prims[ID(0, i, j, k)] = 0.1;
+        }
+        else {
+          d->prims[ID(0, i, j, k)] = 1.0;
+        }
+
+        for (int nvar(1); nvar < 4; nvar++) {
+          d->prims[ID(nvar, i, j, k)] = 0.0;
         }
       }
     }
