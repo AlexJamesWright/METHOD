@@ -129,15 +129,29 @@ void ToyQ::primsToAll(double *cons, double *prims, double *aux)
     }
   }
 
-    for (int i(0); i < d->Nx-1; i++) {
-      for (int j(0); j < d->Ny-1; j++) {
-        for (int k(0); k < d->Nz-1; k++) {
-          aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
-          aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
-          aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
-        }
+  for (int i(1); i < d->Nx-1; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
       }
     }
+  }
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(1); j < d->Ny-1; j++) {
+      for (int k(0); k < d->Nz; k++) {
+        aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
+      }
+    }
+  }
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(1); k < d->Nz-1; k++) {
+        aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
+      }
+    }
+  }
 
 }
 
