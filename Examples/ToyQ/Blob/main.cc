@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(2.0);
+  double endTime(4.0);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
   int frameSkip(10);
   bool output(false);
   int reportItersPeriod(50);
+  int nreports(4);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
@@ -72,23 +73,30 @@ int main(int argc, char *argv[]) {
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   // Time execution of programme
-//  double startTime(omp_get_wtime());
+  //  double startTime(omp_get_wtime());
+
+  for (int n(0); n<nreports; n++) {
+    data.endTime = (n+1)*endTime/(nreports);
+    SerialSaveDataHDF5 save_in_loop(&data, &env, "data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
+    sim.evolve(output);
+    save_in_loop.saveAll();
+  }
 
   // Run until end time and save results
-  sim.evolve(output);
+//   sim.evolve(output);
 
-//  double timeTaken(omp_get_wtime() - startTime);
+//   //  double timeTaken(omp_get_wtime() - startTime);
 
-  save.saveAll();
-//  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
-  printf("\nCompleted %d iterations.\n", data.iters);
+//   save.saveAll();
+// //  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+//   printf("\nCompleted %d iterations.\n", data.iters);
 
-// This bit is to illustrate how we can get multiple outputs
-  data.endTime = 4.0;
-  SerialSaveDataHDF5 save2(&data, &env, "data_serial_2", SerialSaveDataHDF5::OUTPUT_ALL);
-  sim.evolve(output);
-  save2.saveAll();
-  printf("\nCompleted %d iterations.\n", data.iters);
+// // This bit is to illustrate how we can get multiple outputs
+//   data.endTime = 4.0;
+//   SerialSaveDataHDF5 save2(&data, &env, "data_serial_2", SerialSaveDataHDF5::OUTPUT_ALL);
+//   sim.evolve(output);
+//   save2.saveAll();
+//   printf("\nCompleted %d iterations.\n", data.iters);
 
   return 0;
 
