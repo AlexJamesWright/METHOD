@@ -44,6 +44,8 @@ SRCS = simulation.cc \
 			 rkSplit.cc \
 			 backRKArgs.cc \
 			 backwardsRK.cc \
+			 IMEX2Args.cc \
+			 SSP2.cc \
 			 boundaryConds.cc \
 			 fluxVectorSplitting.cc \
 
@@ -164,6 +166,12 @@ backRKArgs.o : $(MODULE_DIR)/backRKArgs.cc $(INC_DIR)/backRKArgs.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 backwardsRK.o : $(MODULE_DIR)/backwardsRK.cc $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(RTFIND_INC_DIR)/cminpack.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
+	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(RTFIND_INC_DIR)/cminpack.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
