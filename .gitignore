@@ -58,3 +58,4 @@ dockermount
 # Don't track files from the virtual environment or IDE
 venv
 .idea
+.vscode
