@@ -2,8 +2,8 @@
 # and links for main.cc
 
 # Compiler
-##CC = mpic++
-CC = g++
+CC = mpic++
+##CC = g++
 
 USE_MPI = 0
 USE_OMP = 0
@@ -77,7 +77,7 @@ ifeq ($(USE_HDF), 1)
     ifeq ($(USE_OMP), 1)
 		CC = h5pcc.openmpi
     else
-    	CC = h5c++
+    	CC = h5pcc
     endif
 endif
 
