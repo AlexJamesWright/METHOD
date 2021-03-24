@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(2048);
+  int nx(256);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(100.0);
+  double endTime(5.0);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
@@ -40,15 +40,25 @@ int main(int argc, char *argv[]) {
   // it seems to fall over regardless of the values.
   // It seems to be the case that above 1024 we need to really reduce gamma - ratio
   // remains fine. Of course, reducing gamma means increasing endTime to see anything.
-  double gamma(0.00001);
-  double sigma(0.000001);
+  //
+  // To summarize, it looks like IMEX fails if tau_q (sigma) is >~ dt/10? This is odd.
+  // This seems to be linked to the tolerance of the root-finder: if the resolution is
+  // high (>1024) then the tolerance needs to come down. By increasing the tolerance an
+  // order of magnitude the resolution can go up to 16k; by increasing it another order
+  // (at which point I get very nervous) it can go up to at least 64k.
+  //
+  // Also, if sqrt(gamma/sigma) = sqrt(kappa/tau_q) is too big, wavespeed will be too
+  // big, and things fail. A factor 50 (leading to a wavespeed ~sqrt(50)~7) seems
+  // around the limit. This may scale a bit with kappa, so don't push it.
+  double gamma(0.0001);
+  double sigma(0.00001);
   double cp(1.0);
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
   bool output(false);
   int reportItersPeriod(50);
-  int nreports(4);
+  int nreports(10);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
