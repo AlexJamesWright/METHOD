@@ -19,7 +19,9 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(256);
+  // int nx(65536);
+  // int nx(32768);
+  int nx(1024);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -28,7 +30,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(5.0);
+  double endTime(1.0);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
@@ -36,29 +38,23 @@ int main(int argc, char *argv[]) {
   // we should not expect them to work with the explicit solver, and indeed
   // it fails very quickly.
   // Note it's the ratio that matters to it being stable with IMEX.
-  // Need gamma/sigma < 10 or so at moderate resolution, but at higher resolution
-  // it seems to fall over regardless of the values.
-  // It seems to be the case that above 1024 we need to really reduce gamma - ratio
-  // remains fine. Of course, reducing gamma means increasing endTime to see anything.
-  //
-  // To summarize, it looks like IMEX fails if tau_q (sigma) is >~ dt/10? This is odd.
-  // This seems to be linked to the tolerance of the root-finder: if the resolution is
-  // high (>1024) then the tolerance needs to come down. By increasing the tolerance an
-  // order of magnitude the resolution can go up to 16k; by increasing it another order
-  // (at which point I get very nervous) it can go up to at least 64k.
-  //
-  // Also, if sqrt(gamma/sigma) = sqrt(kappa/tau_q) is too big, wavespeed will be too
+  // Need gamma/sigma < 10 or so at moderate resolution, o/w wavespeed will be too
   // big, and things fail. A factor 50 (leading to a wavespeed ~sqrt(50)~7) seems
   // around the limit. This may scale a bit with kappa, so don't push it.
-  double gamma(0.0001);
-  double sigma(0.00001);
+  //
+  // There is also an instability at high resolutions or high gamma (kappa).
+  // This seems to be classic Gibbs' oscillations. Smoother initial data might help -
+  // a piecewise linear initial data set isn't smooth enough. This should be fixable
+  // with a better reconstruction, but I haven't been smart enough to code it.
+  double gamma(0.01);
+  double sigma(0.001);
   double cp(1.0);
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
   bool output(false);
   int reportItersPeriod(50);
-  int nreports(10);
+  int nreports(50);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
@@ -84,11 +80,12 @@ int main(int argc, char *argv[]) {
   // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, "data_serial", SerialSaveDataHDF5::OUTPUT_ALL);
+  SerialSaveDataHDF5 save(&data, &env, "1d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
+  save.saveAll();
   // Time execution of programme
   //  double startTime(omp_get_wtime());
 

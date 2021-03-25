@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include "wenoUpwinds.h"
 
 ToyQ::ToyQ() : Model()
 {
@@ -107,6 +108,29 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
       }
     }
   }
+  // for (int i(d->is+2); i < d->ie-2; i++) {
+  //   for (int j(d->js); j < d->je; j++) {
+  //     for (int k(d->ks); k < d->ke; k++) {
+
+  //       double alpha = d->dt / d->dx;
+  //       double Tp0 = prims[ID(0, i-2, j, k)] + alpha * prims[ID(1, i-2, j, k)];
+  //       double Tp1 = prims[ID(0, i-1, j, k)] + alpha * prims[ID(1, i-1, j, k)];
+  //       double Tm1 = prims[ID(0, i-1, j, k)] - alpha * prims[ID(1, i-1, j, k)];
+  //       double Tp2 = prims[ID(0, i  , j, k)] + alpha * prims[ID(1, i  , j, k)];
+  //       double Tm2 = prims[ID(0, i  , j, k)] - alpha * prims[ID(1, i  , j, k)];
+  //       double Tp3 = prims[ID(0, i+1, j, k)] + alpha * prims[ID(1, i+1, j, k)];
+  //       double Tm3 = prims[ID(0, i+1, j, k)] - alpha * prims[ID(1, i+1, j, k)];
+  //       double Tm4 = prims[ID(0, i+2, j, k)] - alpha * prims[ID(1, i+2, j, k)];
+  //       double weno_p_l = weno3_upwind(Tp0, Tp1, Tp2);
+  //       double weno_p_r = weno3_upwind(Tp1, Tp2, Tp3);
+  //       double weno_m_l = weno3_upwind(Tm3, Tm2, Tm1);
+  //       double weno_m_r = weno3_upwind(Tm4, Tm3, Tm2);
+  //       double weno_r = (weno_p_r + weno_m_r) / 2;
+  //       double weno_l = (weno_p_l + weno_m_l) / 2;
+  //       aux[ID(0, i, j, k)] = (weno_r - weno_l)/(d->dx);
+  //     }
+  //   }
+  // }
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js+1); j < d->je-1; j++) {
       for (int k(d->ks); k < d->ke; k++) {
@@ -129,7 +153,7 @@ void ToyQ::primsToAll(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
-  printf("Calling primsToAll\n");
+  // printf("Calling primsToAll\n");
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
