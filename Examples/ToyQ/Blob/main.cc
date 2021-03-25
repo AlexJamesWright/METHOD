@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(1.0);
+  double endTime(0.2);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
@@ -38,16 +38,16 @@ int main(int argc, char *argv[]) {
   // we should not expect them to work with the explicit solver, and indeed
   // it fails very quickly.
   // Note it's the ratio that matters to it being stable with IMEX.
-  // Need gamma/sigma < 10 or so at moderate resolution, o/w wavespeed will be too
-  // big, and things fail. A factor 50 (leading to a wavespeed ~sqrt(50)~7) seems
-  // around the limit. This may scale a bit with kappa, so don't push it.
+  // Need gamma/sigma <~ 1 or so, o/w wavespeed will be too
+  // big, and things fail. At moderate resolution you can get away with
+  // a bigger ratio, but once resolution gets above around 1024 this needs
+  // to be compatible with the CFL limit.
   //
-  // There is also an instability at high resolutions or high gamma (kappa).
-  // This seems to be classic Gibbs' oscillations. Smoother initial data might help -
-  // a piecewise linear initial data set isn't smooth enough. This should be fixable
-  // with a better reconstruction, but I haven't been smart enough to code it.
-  double gamma(0.01);
-  double sigma(0.001);
+  // With really steep initial data there can be minor Gibbs oscillation
+  // effects, but even at crazy resolutions (65k) these are small provided
+  // the CFL limit is met.
+  double gamma(1.0);
+  double sigma(1.0);
   double cp(1.0);
   double mu1(-100);
   double mu2(100);

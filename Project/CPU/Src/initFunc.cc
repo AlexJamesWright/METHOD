@@ -1128,7 +1128,7 @@ BlobToyQ::BlobToyQ(Data * data) : InitialFunc(data)
   double Tmax(1.0);
   double x_l(0.3);
   double x_r(0.7);
-  double transition_width(0.01);
+  double transition_width(0.0000000001);
 
   if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0.0, 1.0]\n");
 //  if (d->ymin != 0.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 1.0]\n");
@@ -1137,18 +1137,19 @@ BlobToyQ::BlobToyQ(Data * data) : InitialFunc(data)
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
 
-        if ((d->x[i] < x_l - transition_width / 2.0) || (d->x[i] > x_r + transition_width / 2.0 )) {
-          d->prims[ID(0, i, j, k)] = Tmin;
-        }
-        else if ((d->x[i] > x_l + transition_width / 2.0) && (d->x[i] < x_r - transition_width / 2.0 )) {
-          d->prims[ID(0, i, j, k)] = Tmax;
-        }
-        else if (d->x[i] < (x_l + x_r) / 2.0) {
-          d->prims[ID(0, i, j, k)] = Tmin + (Tmax - Tmin) * (d->x[i] - x_l + transition_width / 2.0) / transition_width;
-        }
-        else {
-          d->prims[ID(0, i, j, k)] = Tmax + (Tmin - Tmax) * (d->x[i] - x_r + transition_width / 2.0) / transition_width;
-        }
+        // if ((d->x[i] < x_l - transition_width / 2.0) || (d->x[i] > x_r + transition_width / 2.0 )) {
+        //   d->prims[ID(0, i, j, k)] = Tmin;
+        // }
+        // else if ((d->x[i] > x_l + transition_width / 2.0) && (d->x[i] < x_r - transition_width / 2.0 )) {
+        //   d->prims[ID(0, i, j, k)] = Tmax;
+        // }
+        // else if (d->x[i] < (x_l + x_r) / 2.0) {
+        //   d->prims[ID(0, i, j, k)] = Tmin + (Tmax - Tmin) * (d->x[i] - x_l + transition_width / 2.0) / transition_width;
+        // }
+        // else {
+        //   d->prims[ID(0, i, j, k)] = Tmax + (Tmin - Tmax) * (d->x[i] - x_r + transition_width / 2.0) / transition_width;
+        // }
+        d->prims[ID(0, i, j, k)] = Tmin + (Tmax - Tmin) * (tanh((d->x[i]-x_l)/transition_width) + tanh((x_r-d->x[i])/transition_width)) / 2;
 
         for (int nvar(1); nvar < 4; nvar++) {
           d->prims[ID(nvar, i, j, k)] = 0.0;

@@ -65,7 +65,7 @@ void SSP2::step(double * cons, double * prims, double * aux, double dt)
   int lwa(d->Ncons * (3 * d->Ncons + 13) / 2);
   // double tol(0.0000000149011612);
   // double tol(0.000000149011612);
-  double tol(0.0000005);
+  double tol(0.000005);
 
   //########################### STAGE ONE #############################//
 
