@@ -108,7 +108,8 @@ void ParallelSaveDataHDF5::writeDataSetDouble(const hid_t *group, const char *na
 
   // We also need to create a buffer to write to, that excludes the ghost cells.
   // So we calculate the size it needs to be, excluding ghost cells.
-  double buffer[buffer_size];
+  // double buffer[buffer_size];
+  double *buffer = (double *) malloc(buffer_size*sizeof(double));
   int buffer_position(0);
 
   // Consider the efficiency of this! std::copy would probably be better but maybe the compiler
