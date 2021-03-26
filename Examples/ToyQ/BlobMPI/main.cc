@@ -5,9 +5,9 @@
 #include "toy_q.h"
 #include "parallelBoundaryConds.h"
 // #include "boundaryConds.h"
-#include "rkSplit.h"
+// #include "rkSplit.h"
 // #include "backwardsRK.h"
-// #include "SSP2.h"
+#include "SSP2.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveDataHDF5.h"
 #include "platformEnv.h"
@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(1024);
-  int ny(1024);
+  int nx(512);
+  int ny(512);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -29,12 +29,12 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.2);
+  double endTime(10);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
-  double gamma(1.0);
-  double sigma(1.0);
+  double gamma(0.00001);
+  double sigma(0.00001);
   double cp(1.0);
   double mu1(-100);
   double mu2(100);
@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
   // BlobToyQ init(&data);
   Blob2dToyQ init(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
   // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
-  // SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
+  SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
   ParallelSaveDataHDF5 save(&data, &env, "2d/data_parallel0", ParallelSaveDataHDF5::OUTPUT_ALL);
 
