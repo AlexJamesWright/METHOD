@@ -72,7 +72,7 @@ SRRMHD::SRRMHD(Data * data) : Model(data)
 
 
   this->data->consLabels.push_back("D");   this->data->consLabels.push_back("Sx");
-  this->data->consLabels.push_back("Sy");  this->data->consLabels.push_back("Sx");
+  this->data->consLabels.push_back("Sy");  this->data->consLabels.push_back("Sz");
   this->data->consLabels.push_back("tau"); this->data->consLabels.push_back("Bx");
   this->data->consLabels.push_back("By");  this->data->consLabels.push_back("Bz");
   this->data->consLabels.push_back("Ex");  this->data->consLabels.push_back("Ey");

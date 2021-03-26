@@ -21,7 +21,8 @@ class C2PArgs
     bpg,                //!< Blocks per grid
     cellMem,            //!< Memory required for one cell
     Nstreams,           //!< Number of CUDA streams
-    streamWidth;        //!< Number of cells in each stream
+    streamWidth,        //!< Number of cells in each stream
+    nGuessSRMHD;        //!< Number of elements required for the initial guess per cell for the SRMHD model
     double
     //@{
     ** cons_d,

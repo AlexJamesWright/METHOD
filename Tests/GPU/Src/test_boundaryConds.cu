@@ -4,14 +4,16 @@
 #include "srmhd.h"
 #include "simulation.h"
 #include "initFunc.h"
+#include "serialEnv.h"
 
 TEST(Periodic, periodicBoundaryConditions)
 {
-  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Periodic bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
 
   // Set the values of the cons vars to something simple
   for (int var(0); var < d.Ncons; var++) {
@@ -190,11 +192,12 @@ TEST(Periodic, periodicBoundaryConditions)
 TEST(Outflow, outflowBoundaryConditions)
 {
 
-  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4);
+  SerialEnv env(0, NULL, 1, 1, 1);
+  Data d(10, 10, 10, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.4, &env);
   SRMHD model(&d);
-  Simulation sim(&d);
-  OTVortexSingleFluid init(&d);
   Outflow bcs(&d);
+  Simulation sim(&d, &env);
+  OTVortexSingleFluid init(&d);
 
   // Set the values of the cons vars to something simple
   for (int var(0); var < d.Ncons; var++) {
