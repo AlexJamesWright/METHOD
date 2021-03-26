@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 
-CheckpointArgs::CheckpointArgs(const char* name, PlatformEnv *env)
+DataArgs::DataArgs(const char* name, PlatformEnv *env)
 {
 	herr_t error=0, tmpError=-1;
 	hid_t file = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);

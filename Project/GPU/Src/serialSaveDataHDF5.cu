@@ -248,6 +248,16 @@ void SerialSaveDataHDF5::saveConsts()
   H5LTset_attribute_double(this->file, ".", "sigma", &d->sigma, 1);
   H5LTset_attribute_double(this->file, ".", "cp", &d->cp, 1);
   H5LTset_attribute_double(this->file, ".", "t", &d->t, 1);
+
+  // For each one of the optional simulation arguments, write it to disk
+  hid_t group = H5Gcreate(this->file, "Optional", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  H5LTset_attribute_int(group, ".", "nOptionalSimArgs", &d->nOptionalSimArgs, 1);
+  for(int i(0); i < d->nOptionalSimArgs; i++) {
+    string name = d->optionalSimArgNames[i];
+    double arg = d->optionalSimArgs[i];
+    H5LTset_attribute_double(group, ".", name.c_str(), &arg, 1);
+  }
+  H5Gclose(group);
 }
 
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "platformEnv.h"
-#include "checkpointArgs.h"
+#include "dataArgs.h"
 
 
 /*!
@@ -125,8 +125,15 @@ class Data
     dims,                  //!< Number of dimensions of simulation
     //@{
     is, js, ks,
-    ie, je, ke,            //!< Cell IDs for interior grid points
+    ie, je, ke;            //!< Cell IDs for interior grid points
     //@}
+    std::vector<double>
+    optionalSimArgs;          //!< Array of optional arguments that depend on the simulation being run
+    std::vector<std::string>
+    optionalSimArgNames;     //!< Names of optionalSimArgs array elements
+    int
+    nOptionalSimArgs=0;      //!< Number of elements to include in optionalSimArgs array
+    int
     GPUcount;              //!< Number of NVIDIA devices detected
     cudaDeviceProp
     prop;                  //!< Properties of NVIDIA device (assuming all are same)
@@ -158,10 +165,10 @@ class Data
       This is separated from the constructor to avoid duplicated code between the two available
       constructors for Data.
      */
-     void initData(PlatformEnv *env);
+     void initData(PlatformEnv *env, int nOptionalSimArgs=0, std::vector<double> optionalSimArgs=std::vector<double>(), std::vector<std::string> optionalSimArgNames=std::vector<std::string>());
 
 
-    //! Constructor
+    //! Constructor   -- all vars specified by comma separated list
     /*!
       @par
         Allocates the memory required for the state arrays and sets the simulation
@@ -206,8 +213,9 @@ class Data
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
     */
-    Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10);
+    Data(DataArgsBase args, PlatformEnv *env);
+
+    ~Data() {};
 
    
 };
