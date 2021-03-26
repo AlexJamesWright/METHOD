@@ -56,8 +56,6 @@ void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
   float kappa = d->gamma; // Quick hack to use existing variables
   float tau_q = d->sigma;
 
-//  printf("Calling source\n");
-
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
@@ -79,7 +77,7 @@ void ToyQ::getPrimitiveVarsSingleCell(double *cons, double *prims, double *aux, 
   for (int nvar(0); nvar < 4; nvar++) {
     prims[nvar] = cons[nvar];
   }
-  // Note that this freezes the auxilliary variables - they are noto computed in
+  // Note that this freezes the auxilliary variables - they are not computed in
   // this function as they are non-local.
 }
 
@@ -87,9 +85,6 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
 {
   // Syntax
   Data * d(this->data);
-
-//  printf("Calling getPrimVars %i %i %i %i %i %i\n",
-//         d->is, d->ie, d->js, d->je, d->ks, d->ke);
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
@@ -101,38 +96,15 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 
-  for (int i(d->is+1); i < d->ie-1; i++) {
+  for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
         aux[ID(0, i, j, k)] = (prims[ID(0, i+1, j, k)]-prims[ID(0, i-1, j, k)])/(2*d->dx);
       }
     }
   }
-  // for (int i(d->is+2); i < d->ie-2; i++) {
-  //   for (int j(d->js); j < d->je; j++) {
-  //     for (int k(d->ks); k < d->ke; k++) {
-
-  //       double alpha = d->dt / d->dx;
-  //       double Tp0 = prims[ID(0, i-2, j, k)] + alpha * prims[ID(1, i-2, j, k)];
-  //       double Tp1 = prims[ID(0, i-1, j, k)] + alpha * prims[ID(1, i-1, j, k)];
-  //       double Tm1 = prims[ID(0, i-1, j, k)] - alpha * prims[ID(1, i-1, j, k)];
-  //       double Tp2 = prims[ID(0, i  , j, k)] + alpha * prims[ID(1, i  , j, k)];
-  //       double Tm2 = prims[ID(0, i  , j, k)] - alpha * prims[ID(1, i  , j, k)];
-  //       double Tp3 = prims[ID(0, i+1, j, k)] + alpha * prims[ID(1, i+1, j, k)];
-  //       double Tm3 = prims[ID(0, i+1, j, k)] - alpha * prims[ID(1, i+1, j, k)];
-  //       double Tm4 = prims[ID(0, i+2, j, k)] - alpha * prims[ID(1, i+2, j, k)];
-  //       double weno_p_l = weno3_upwind(Tp0, Tp1, Tp2);
-  //       double weno_p_r = weno3_upwind(Tp1, Tp2, Tp3);
-  //       double weno_m_l = weno3_upwind(Tm3, Tm2, Tm1);
-  //       double weno_m_r = weno3_upwind(Tm4, Tm3, Tm2);
-  //       double weno_r = (weno_p_r + weno_m_r) / 2;
-  //       double weno_l = (weno_p_l + weno_m_l) / 2;
-  //       aux[ID(0, i, j, k)] = (weno_r - weno_l)/(d->dx);
-  //     }
-  //   }
-  // }
   for (int i(d->is); i < d->ie; i++) {
-    for (int j(d->js+1); j < d->je-1; j++) {
+    for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
         aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
       }
@@ -140,7 +112,7 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
   }
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
-      for (int k(d->ks+1); k < d->ke-1; k++) {
+      for (int k(d->ks); k < d->ke; k++) {
         aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
       }
     }
