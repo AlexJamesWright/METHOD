@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script submits a Southampton Iridis5 batch job for the cpu tests
+# in Tests/CPU
+
 #SBATCH --ntasks-per-node=4     # Tasks per node
 #SBATCH --nodes=1                # Number of nodes requested
 #SBATCH --time=00:10:00          # walltime
@@ -11,10 +14,17 @@ module load hdf5/1.10.2/gcc/parallel
 #module load hdf5/1.10.2/gcc/serial
 
 module list
-
 source ../../venv/bin/activate
 
-export PYTHONPATH=$PYTHONPATH:../../Scripts:/home/amb1u19/METHOD_branches/METHOD_dev_hdf5/Scripts
+# -------------- PARAMETERS USERS NEED TO EDIT -------------------
+
+# Enter absolute path to METHOD/Scripts directory here
+SCRIPT_DIR=/absolute/path/to/method/root/Scripts
+
+# -----------------------------------------------------------------
+
+# Let python find the scripts for comparing hdf5 files
+export PYTHONPATH=$PYTHONPATH:$SCRIPT_DIR
 
 gcc --version
 make clean

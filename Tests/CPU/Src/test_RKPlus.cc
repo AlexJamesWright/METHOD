@@ -84,9 +84,9 @@ TEST(RKPlus, CalculatesRHSWellNoREGIME)
     }
   }
 
-  delete tempSourceModel;
-  delete tempFluxModel;
-  delete rhsVec;
+  delete[] tempSourceModel;
+  delete[] tempFluxModel;
+  delete[] rhsVec;
 }
 
 TEST(RKPlus, CalculatesRHSWellREGIME)
@@ -131,10 +131,10 @@ TEST(RKPlus, CalculatesRHSWellREGIME)
   }
 
 
-  delete tempSourceREGIME;
-  delete tempSourceModel;
-  delete tempFluxModel;
-  delete rhsVec;
+  delete[] tempSourceREGIME;
+  delete[] tempSourceModel;
+  delete[] tempFluxModel;
+  delete[] rhsVec;
 }
 
 
@@ -160,8 +160,8 @@ TEST(RK2B, Stage1)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU1RHS   = new double[d.Ntot * d.Ncons];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU1RHS   = new double[d.Ntot * d.Ncons]();
 
   // Manually perform stage
   timeInt.rhs(d.cons, d.prims, d.aux, tempU1RHS);
@@ -189,8 +189,8 @@ TEST(RK2B, Stage1)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU1RHS;
+  delete[] tempU1Cons;
+  delete[] tempU1RHS;
 }
 
 
@@ -209,11 +209,11 @@ TEST(RK2B, Stage2)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU2Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU2Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -257,11 +257,11 @@ TEST(RK2B, Stage2)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU2Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU1Cons;
+  delete[] tempU2Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -280,9 +280,9 @@ TEST(RK2B, Step)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Manually do stage2
   for (int i(0); i<d.Nx; i++) {
@@ -314,9 +314,9 @@ TEST(RK2B, Step)
     }
   }
 
-  delete tempCons;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -343,8 +343,8 @@ TEST(RK3, Stage1)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU1RHS   = new double[d.Ntot * d.Ncons];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU1RHS   = new double[d.Ntot * d.Ncons]();
 
   // Manually perform stage
   timeInt.rhs(d.cons, d.prims, d.aux, tempU1RHS);
@@ -372,8 +372,8 @@ TEST(RK3, Stage1)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU1RHS;
+  delete[] tempU1Cons;
+  delete[] tempU1RHS;
 }
 
 
@@ -392,11 +392,11 @@ TEST(RK3, Stage2)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU2Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU2Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -440,11 +440,11 @@ TEST(RK3, Stage2)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU2Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU1Cons;
+  delete[] tempU2Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -463,11 +463,11 @@ TEST(RK3, Stage3)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU2Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU3Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU2Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU3Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1and2, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -513,11 +513,11 @@ TEST(RK3, Stage3)
     }
   }
 
-  delete tempU2Cons;
-  delete tempU3Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU2Cons;
+  delete[] tempU3Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -536,9 +536,9 @@ TEST(RK3, Step)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Manually do stage2
   for (int i(0); i<d.Nx; i++) {
@@ -572,9 +572,9 @@ TEST(RK3, Step)
     }
   }
 
-  delete tempCons;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -601,8 +601,8 @@ TEST(RK4, Stage1)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU1RHS   = new double[d.Ntot * d.Ncons];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU1RHS   = new double[d.Ntot * d.Ncons]();
 
   // Manually perform stage
   timeInt.rhs(d.cons, d.prims, d.aux, tempU1RHS);
@@ -631,8 +631,8 @@ TEST(RK4, Stage1)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU1RHS;
+  delete[] tempU1Cons;
+  delete[] tempU1RHS;
 }
 
 
@@ -651,11 +651,11 @@ TEST(RK4, Stage2)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU1Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU2Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU1Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU2Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -699,11 +699,11 @@ TEST(RK4, Stage2)
     }
   }
 
-  delete tempU1Cons;
-  delete tempU2Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU1Cons;
+  delete[] tempU2Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -722,11 +722,11 @@ TEST(RK4, Stage3)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU2Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU3Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU2Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU3Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1 and 2, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -772,11 +772,11 @@ TEST(RK4, Stage3)
     }
   }
 
-  delete tempU2Cons;
-  delete tempU3Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU2Cons;
+  delete[] tempU3Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -795,11 +795,11 @@ TEST(RK4, Stage4)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU3Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU4Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU3Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU4Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1 and 2 and 3, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -847,11 +847,11 @@ TEST(RK4, Stage4)
     }
   }
 
-  delete tempU3Cons;
-  delete tempU4Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU3Cons;
+  delete[] tempU4Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -870,11 +870,11 @@ TEST(RK4, Stage5)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempU4Cons  = new double[d.Ntot * d.Ncons];
-  double * tempU5Cons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS   = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempU4Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempU5Cons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS   = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Do stage1 and 2 and 3 and 4, should already have been checked
   timeInt.stage1(d.cons, d.prims, d.aux, d.dt);
@@ -926,11 +926,11 @@ TEST(RK4, Stage5)
     }
   }
 
-  delete tempU4Cons;
-  delete tempU5Cons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempU4Cons;
+  delete[] tempU5Cons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -949,9 +949,9 @@ TEST(RK4, Step)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Manually do stage2
   for (int i(0); i<d.Nx; i++) {
@@ -990,9 +990,9 @@ TEST(RK4, Step)
     }
   }
 
-  delete tempCons;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -1080,10 +1080,10 @@ TEST(RK4_10, StageRepeat)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   timeInt.prepare1(d.cons, d.prims, d.aux); // cons=u1cons=u2cons
 
@@ -1127,10 +1127,10 @@ TEST(RK4_10, StageRepeat)
     }
   }
 
-  delete tempCons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -1149,10 +1149,10 @@ TEST(RK4_10, StageFinal)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempRHS  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempRHS  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   timeInt.prepare1(d.cons, d.prims, d.aux); // cons=u1cons=u2cons
 
@@ -1197,10 +1197,10 @@ TEST(RK4_10, StageFinal)
     }
   }
 
-  delete tempCons;
-  delete tempRHS;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempRHS;
+  delete[] tempPrims;
+  delete[] tempAux;
 }
 
 
@@ -1219,9 +1219,9 @@ TEST(RK4_10, Step)
   SerialSaveData save(&d, &env);
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  double * tempCons  = new double[d.Ntot * d.Ncons];
-  double * tempPrims = new double[d.Ntot * d.Nprims];
-  double * tempAux   = new double[d.Ntot * d.Naux];
+  double * tempCons  = new double[d.Ntot * d.Ncons]();
+  double * tempPrims = new double[d.Ntot * d.Nprims]();
+  double * tempAux   = new double[d.Ntot * d.Naux]();
 
   // Manually do stage2
   for (int i(0); i<d.Nx; i++) {
@@ -1261,7 +1261,7 @@ TEST(RK4_10, Step)
     }
   }
 
-  delete tempCons;
-  delete tempPrims;
-  delete tempAux;
+  delete[] tempCons;
+  delete[] tempPrims;
+  delete[] tempAux;
 }

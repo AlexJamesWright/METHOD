@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This script submits a Southampton Iridis5 batch job running on 
+# 4 procs for the example in Examples/KelvinHelmholtz/SingleFluidIdealRandomMPIHDF5
+
+# Note the seed after the ./main command would need removing for non-random cases.
+# (KelvinHelmholtz/SingleFluidIdealMPI)
+
 #SBATCH --ntasks-per-node=4     # Tasks per node
 #SBATCH --nodes=1                # Number of nodes requested
 #SBATCH --time=00:10:00          # walltime
