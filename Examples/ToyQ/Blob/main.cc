@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   // int nx(65536);
   // int nx(32768);
   int nx(1024);
-  int ny(0);
+  int ny(1024);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -73,14 +73,14 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  BlobToyQ init(&data);
-  // Blob2dToyQ init(&data);
+  // BlobToyQ init(&data);
+  Blob2dToyQ init(&data);
 
   // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
   // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, "1d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
+  SerialSaveDataHDF5 save(&data, &env, "2d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 
   for (int n(0); n<nreports; n++) {
     data.endTime = (n+1)*endTime/(nreports);
-    SerialSaveDataHDF5 save_in_loop(&data, &env, "1d/data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
+    SerialSaveDataHDF5 save_in_loop(&data, &env, "2d/data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
     sim.evolve(output);
     save_in_loop.saveAll();
   }
