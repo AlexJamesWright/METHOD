@@ -184,6 +184,7 @@ class Data
       @param ymax maximum value of y domain
       @param zmin minimum value of z domain
       @param zmax maximum value of z domain
+      @param env environment object containing platform details eg MPI ranks
       @param endTime desired end time of the simulation
       @param cfl courant factor
       @param Ng number of ghost cells in each direction
@@ -193,7 +194,6 @@ class Data
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
       @param frameskip number of timesteps per file output
-      @param env environment object containing platform details eg MPI ranks
       @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
     Data(int nx, int ny, int nz,
@@ -220,6 +220,9 @@ class Data
       @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
+      @param env environment object containing platform details eg MPI ranks
+      @param frameskip number of timesteps per file output
+      @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
     Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
          int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);

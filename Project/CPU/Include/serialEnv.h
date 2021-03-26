@@ -19,30 +19,12 @@ class SerialEnv : public PlatformEnv
 {
 	public:
 
-    //! Constructor -- Initialize global MPI communicator
+    // TODO -- should just hard code nxRanks=nyRanks=nzRanks=1 for serialEnv
+    //! Constructor -- record that we are running on only a single process
 		SerialEnv(int *argcP, char **argvP[], int nxRanks, int nyRanks, int nzRanks, int testing=0);
 
     //! Destructor
 		virtual ~SerialEnv();
-
-    //! Check for external boundary
-    /*!
-			@par
-         Returns true if a subdomain is on the external boundary of the simulation grid in a particular direction
-       @param[in] dimension {x=0, y=1, z=2}
-       @param[in] direction direction to look for the external boundary in a particular direction {low=0, high=1}
-    */
-    int isNeighbourExternal(int dimension, int direction);
-
-    //! Create cartesian grid of processes and calculate neighbours along that grid for each process
-    /*!
-			@par
-         Creates the cartesian grid of processes that are responsible for the corresponding subdomains in the simulation grid
-       @param[in] xPeriodic whether the x dimension has periodic boundary conditions
-       @param[in] yPeriodic whether the y dimension has periodic boundary conditions
-       @param[in] zPeriodic whether the z dimension has periodic boundary conditions
-     */
-		void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic);
 };
 
 #endif

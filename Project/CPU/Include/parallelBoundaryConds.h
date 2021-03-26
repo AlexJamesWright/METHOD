@@ -20,11 +20,9 @@ class ParallelBcs : public Bcs
 
     ParallelEnv * env; //!< Pointer to ParallelEnv class containing platform specific info such as MPI details
 
-    int xPeriodic, yPeriodic, zPeriodic;
-
     //! Constructor
     /*!
-        Calls constructor of base class to store the pointer to the Data class and ParallelEnv class.
+        Stores the pointer to the Data class and ParallelEnv class.
 
       @param[in] *data pointer to Data class
       @param[in] *env pointer to ParallelEnv class
@@ -158,10 +156,10 @@ class ParallelOutflow : public ParallelBcs
 {
   public:
     //! Constructor
-    /*!
-        Calls constructor of base class to store the pointer to the Data class.
-
+    /*
+        Calls constructor of base class to store the pointer to the Data class and ParallelEnv class.
       @param[in] *data pointer to Data class
+      @param[in] *env pointer to ParallelEnv class!
       @sa ParallelBcs::ParallelBcs
     */
     ParallelOutflow(Data * data, ParallelEnv *env) : ParallelBcs(data, env) { }
@@ -237,7 +235,6 @@ class ParallelPeriodic : public ParallelBcs
     //! Constructor
     /*!
         Calls constructor of base class to store the pointer to the Data class and ParallelEnv class.
-
       @param[in] *data pointer to Data class
       @param[in] *env pointer to ParallelEnv class
       @sa ParallelBcs::ParallelBcs
@@ -259,7 +256,7 @@ class ParallelPeriodic : public ParallelBcs
 
 };
 
-//! <b> Flow boundary conditions </b>
+//! <b> Flow boundary conditions for a data structure that has been distributed across ranks</b>
 /*!
     Boundary conditions used for the Kelvin Helmholtz instability. The
   x-direction is periodic and y- and z-directions are outflow.
@@ -270,9 +267,9 @@ class ParallelFlow : public ParallelBcs
   public:
     //! Constructor
     /*!
-        Calls constructor of base class to store the pointer to the Data class.
-
+        Calls constructor of base class to store the pointer to the Data class and ParallelEnv class.
       @param[in] *data pointer to Data class
+      @param[in] *env pointer to ParallelEnv class
       @sa ParallelBcs::ParallelBcs
     */
     ParallelFlow(Data * data, ParallelEnv *env) : ParallelBcs(data, env) { }
@@ -281,7 +278,7 @@ class ParallelFlow : public ParallelBcs
 
     //! Application function
     /*!
-        Applies the Outflow boundary conditions to the ghost cells.
+        Applies the Flow boundary conditions to the ghost cells.
 
       @param[in, out] *cons pointer to the conservative (sized) vector
       @param[in, out] *prims optional pointer to the primitive vector
@@ -291,7 +288,7 @@ class ParallelFlow : public ParallelBcs
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
     /*!
-        Applies the Outflow boundary conditions to the ghost cells of subdomains that have an external face along
+        Applies the Flow boundary conditions to the ghost cells of subdomains that have an external face along
         the y dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux
@@ -300,7 +297,7 @@ class ParallelFlow : public ParallelBcs
     void setYBoundary(double *stateVector, int nVars);
 
     /*!
-        Applies the Outflow boundary conditions to the ghost cells of subdomains that have an external face along
+        Applies the Flow boundary conditions to the ghost cells of subdomains that have an external face along
         the z dimension.
 
       @param[in, out] *stateVector pointer to one of cons, prims, aux

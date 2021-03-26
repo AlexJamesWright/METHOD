@@ -41,25 +41,6 @@ class PlatformEnv
 
     //! Destructor
 		virtual ~PlatformEnv() {}
-
-    //! Check for external boundary
-    /*!
-			@par
-         Returns true if a subdomain is on the external boundary of the simulation grid in a particular direction
-       @param[in] dimension {x=0, y=1, z=2}
-       @param[in] direction direction to look for the external boundary in a particular direction {low=0, high=1}
-    */
-    virtual int isNeighbourExternal(int dimension, int direction) = 0;
-
-    //! Create cartesian grid of processes
-    /*!
-			@par
-         Creates the cartesian grid of processes that are responsible for the corresponding subdomains in the simulation grid
-       @param[in] xPeriodic whether the x dimension has periodic boundary conditions
-       @param[in] yPeriodic whether the y dimension has periodic boundary conditions
-       @param[in] zPeriodic whether the z dimension has periodic boundary conditions
-     */
-		virtual void setParallelDecomposition(int xPeriodic, int yPeriodic, int zPeriodic) = 0;
 };
 
 #endif
