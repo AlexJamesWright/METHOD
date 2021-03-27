@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   int Ng(4);
   // int nx(65536);
   // int nx(32768);
-  int nx(1024);
+  int nx(8192);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -33,15 +33,23 @@ int main(int argc, char *argv[]) {
   // The whole point of the C-E expansion is that it works for small
   // tau_q (sigma).
   // The point is also to only use explicit schemes.
-  double gamma(0.00001);
-  double sigma(0.00001);
+  // Remember that the standard von Neumann analysis says
+  // dt < dx^2 / (2 kappa)
+  // and that gamma <-> kappa.
+  // So with dx ~ 1e-3 (1000 points), CFL ~ 1/2, we need gamma < 1e-3.
+  // The 4th derivative term makes it worse - 5e-5 is stable, but not 1e-4.
+  // I would expect this to scale with resolution, but it's still stable at 4096.
+  // It does seem to fail at 16k, but at 8k is still stable. So the scaling with dx
+  // doesn't seem as fast as I expected (more testing needed).
+  double gamma(0.00005);
+  double sigma(0.00005);
   double cp(1.0);
   double mu1(-100);
   double mu2(100);
   int frameSkip(10);
   bool output(false);
   int reportItersPeriod(50);
-  int nreports(50);
+  int nreports(20);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 

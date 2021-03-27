@@ -60,9 +60,9 @@ void ToyQ_CE::sourceTerm(double *cons, double *prims, double *aux, double *sourc
         float d2Ty = (cons[ID(0, i, j+1, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j-1, k)]) / dy2;
         float d2Tz = (cons[ID(0, i, j, k+1)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j, k-1)]) / dz2;
         float d2T = d2Tx + d2Ty + d2Tz;
-        float d4Tx = (cons[ID(0, i+2, j, k)] - 4 * cons[ID(0, i+1, j, k)] + 6 * cons[ID(0, i, j, k)] - cons[ID(0, i-1, j, k)] + cons[ID(0, i-2, j, k)]) / dx4;
-        float d4Ty = (cons[ID(0, i, j+2, k)] - 4 * cons[ID(0, i, j+1, k)] + 6 * cons[ID(0, i, j, k)] - cons[ID(0, i, j-1, k)] + cons[ID(0, i, j-2, k)]) / dy4;
-        float d4Tz = (cons[ID(0, i, j, k+2)] - 4 * cons[ID(0, i, j, k+1)] + 6 * cons[ID(0, i, j, k)] - cons[ID(0, i, j, k-1)] + cons[ID(0, i, j, k-2)]) / dz4;
+        float d4Tx = (cons[ID(0, i+2, j, k)] - 4 * cons[ID(0, i+1, j, k)] + 6 * cons[ID(0, i, j, k)] - 4 * cons[ID(0, i-1, j, k)] + cons[ID(0, i-2, j, k)]) / dx4;
+        float d4Ty = (cons[ID(0, i, j+2, k)] - 4 * cons[ID(0, i, j+1, k)] + 6 * cons[ID(0, i, j, k)] - 4 * cons[ID(0, i, j-1, k)] + cons[ID(0, i, j-2, k)]) / dy4;
+        float d4Tz = (cons[ID(0, i, j, k+2)] - 4 * cons[ID(0, i, j, k+1)] + 6 * cons[ID(0, i, j, k)] - 4 * cons[ID(0, i, j, k-1)] + cons[ID(0, i, j, k-2)]) / dz4;
         float d4T = d4Tx + d4Ty + d4Tz;
         source[ID(0, i, j, k)] = kappa * (d2T + kappa*tau_q*d4T);
       }
