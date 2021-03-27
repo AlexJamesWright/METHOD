@@ -1188,3 +1188,28 @@ Blob2dToyQ::Blob2dToyQ(Data * data) : InitialFunc(data)
     }
   }
 }
+
+BlobToyQ_CE::BlobToyQ_CE(Data * data) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  double Tmin(0.1);
+  double Tmax(1.0);
+  double x_l(0.3);
+  double x_r(0.7);
+  double transition_width(0.0000000001);
+
+  if (d->xmin != 0.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [0.0, 1.0]\n");
+//  if (d->ymin != 0.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [0.0, 1.0]\n");
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      for (int k(0); k < d->Nz; k++) {
+
+        d->prims[ID(0, i, j, k)] = Tmin + (Tmax - Tmin) * (tanh((d->x[i]-x_l)/transition_width) + tanh((x_r-d->x[i])/transition_width)) / 2;
+
+      }
+    }
+  }
+}
