@@ -4,10 +4,10 @@
 #include "model.h"
 #include "simData.h"
 
-//! Non relativistic Euler equations
+//! Toy model for (relativistic) heat equation
 /*!
   @par
-    Standard, idea fluid, non relativistic euler equations, taken from Leveque 14.3
+    Toy model for heat equation: essentially, this is Cattaneo.
 */
 class ToyQ : public Model
 {
