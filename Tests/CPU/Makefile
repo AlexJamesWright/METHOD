@@ -57,7 +57,7 @@ INC_PARAMS = $(foreach d, $(INC_DIRS), -I$d)
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS = -isystem $(GTEST_DIR)/include -Wall -std=c++11
+CPPFLAGS = -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
 # c++11 is required for the vector looping srmhd
@@ -394,7 +394,7 @@ test_REGIME : wenoUpwinds.o srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkS
 
 # serial HDF5 tests
 
-test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cc $(INC_BASE_DIR)/RK2.h \
+test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h \
                         $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
 	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_rk2.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
@@ -409,7 +409,7 @@ test_hdf5_rk2 : wenoUpwinds.o test_hdf5_rk2.o srmhd.o srrmhd.o fluxVectorSplitti
 main.o : $(TEST_DIR)/main.cpp $(INC_BASE_DIR)/Simulation/parallelEnv.h
 	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp $(INC_PARAMS)
 
-parallelEnv.o : $(MODULE_DIR)/Sinulation/parallelEnv.cc $(INC_BASE_DIR)/Simulation/parallelEnv.h
+parallelEnv.o : $(MODULE_DIR)/Simulation/parallelEnv.cc $(INC_BASE_DIR)/Simulation/parallelEnv.h
 	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Simulation/parallelEnv.cc $(INC_PARAMS)
 
 parallelBoundaryConds.o : $(MODULE_DIR)/BoundaryConditions/parallelBoundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/parallelBoundaryConds.h
