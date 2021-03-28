@@ -31,7 +31,7 @@ RTFIND_DIR = ./CminpackLibrary
 # Include directory
 INC_BASE_DIR = ./Include
 INC_DIRS = ./Include/BoundaryConditions ./Include/DataIO ./Include/Flux ./Include/InitialData ./Include/Physics ./Include/Simulation ./Include/TimeIntegrators
-INC_PARAMS = $(foreach d, $(INC_DIR), -I$d)
+INC_PARAMS = $(foreach d, $(INC_DIRS), -I$d)
 $(info  HERERERERE)
 $(info   $(INC_PARAMS))
 # Cminpack include directory
@@ -49,43 +49,43 @@ CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O0 $(OMP_FLAGS) -Wno-unknow
 
 # Sources
 SRCS = main.cc 								\
-			 Simulation/simulation.cc 					\
-			 Physics/srmhd.cc						  	\
-			 Physics/twoFluidEMHD.cc 				\
-			 InitialData/initFunc.cc 						\
-			 Simulation/simData.cc 						\
-			 Flux/wenoUpwinds.cc 				\
-			 Flux/weno.cc 								\
-			 TimeIntegrators/RK2.cc 								\
-			 TimeIntegrators/rkSplit.cc 						\
-			 TimeIntegrators/rkSplit2ndOrder.cc			\
-			 TimeIntegrators/backwardsRK.cc 				\
-			 TimeIntegrators/backRKArgs.cc 					\
-			 TimeIntegrators/SSP2.cc 								\
-			 TimeIntegrators/SSP2322.cc 						\
-			 TimeIntegrators/IMEX2Args.cc 					\
-			 TimeIntegrators/SSP3.cc 								\
-			 TimeIntegrators/IMEX3Args.cc 					\
-			 BoundaryConditions/boundaryConds.cc 			\
-			 Flux/fluxVectorSplitting.cc \
-			 Physics/srrmhd.cc 							\
-			 Physics/REGIME.cc 							\
-			 Physics/hybrid.cc							\
-			 Simulation/parallelEnv.cc					\
-			 Simulation/serialEnv.cc						\
-			 TimeIntegrators/RKPlus.cc							\
-			 Physics/Euler.cc								\
-			 Physics/toy_q.cc
+			 simulation.cc 					\
+			 srmhd.cc						  	\
+			 twoFluidEMHD.cc 				\
+			 initFunc.cc 						\
+			 simData.cc 						\
+			 wenoUpwinds.cc 				\
+			 weno.cc 								\
+			 RK2.cc 								\
+			 rkSplit.cc 						\
+			 rkSplit2ndOrder.cc			\
+			 backwardsRK.cc 				\
+			 backRKArgs.cc 					\
+			 SSP2.cc 								\
+			 SSP2322.cc 						\
+			 IMEX2Args.cc 					\
+			 SSP3.cc 								\
+			 IMEX3Args.cc 					\
+			 boundaryConds.cc 			\
+			 fluxVectorSplitting.cc \
+			 srrmhd.cc 							\
+			 REGIME.cc 							\
+			 hybrid.cc							\
+			 parallelEnv.cc					\
+			 serialEnv.cc						\
+			 RKPlus.cc							\
+			 Euler.cc								\
+			 toy_q.cc
 
-SERIAL_SRCS = DataIO/serialSaveData.cc
+SERIAL_SRCS = serialSaveData.cc
 ifeq ($(USE_HDF), 1)
-    SERIAL_SRCS += DataIO/serialSaveDataHDF5.cc
+    SERIAL_SRCS += serialSaveDataHDF5.cc
 endif
 
-PARALLEL_SRCS = DataIO/parallelSaveData.cc \
-				DataIO/parallelBoundaryConds.cc
+PARALLEL_SRCS = parallelSaveData.cc \
+				parallelBoundaryConds.cc
 ifeq ($(USE_HDF), 1)
-    PARALLEL_SRCS += DataIO/parallelSaveDataHDF5.cc
+    PARALLEL_SRCS += parallelSaveDataHDF5.cc
 endif
 
 SRCS += ${PARALLEL_SRCS}
@@ -175,7 +175,7 @@ toy_q.o : $(MODULE_DIR)/Physics/toy_q.cc $(INC_BASE_DIR)/Physics/toy_q.h
 	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
 simulation.o : $(MODULE_DIR)/Simulation/simulation.cc	$(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h	$(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/DataIO/saveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I./Include/Simulation
 
 main.o : $(MODULE_DIR)/main.cc $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h $(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/InitialData/initFunc.h
 	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
@@ -257,7 +257,7 @@ Euler.o : $(MODULE_DIR)/Physics/Euler.cc $(INC_BASE_DIR)/Physics/Euler.h
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
-	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS)
+	$(CC)	$^	-o $@ $(CXXFLAGS) $(CXXFLAGS) 
 
 buildRootfinder:
 	@cd $(RTFIND_DIR) && $(MAKE)	objects
