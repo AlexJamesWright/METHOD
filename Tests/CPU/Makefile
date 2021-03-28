@@ -50,12 +50,14 @@ HDF5_FLAGS =
 # Where to find user code.
 MODULE_DIR = ./../../Project/CPU/Src
 TEST_DIR = ./Src
-INC_DIR = ./../../Project/CPU/Include
+INC_BASE_DIR = ./../../Project/CPU/Include
+INC_DIRS = ./../../Project/CPU/Include/BoundaryConditions ./../../Project/CPU/Include/DataIO ./../../Project/CPU/Include/Flux ./../../Project/CPU/Include/InitialData ./../../Project/CPU/Include/Physics ./../../Project/CPU/Include/Simulation ./../../Project/CPU/Include/TimeIntegrators
+INC_PARAMS = $(foreach d, $(INC_DIRS), -I$d)
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS = -isystem $(GTEST_DIR)/include
+CPPFLAGS = -isystem $(GTEST_DIR)/include -Wall -std=c++11
 
 # Flags passed to the C++ compiler.
 # c++11 is required for the vector looping srmhd
@@ -200,139 +202,139 @@ gtest_main.a : gtest-all.o gtest_main.o
 
 
 # simData
-simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simData.cc -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/Simulation/simData.cc $(INC_BASE_DIR)/Simulation/simData.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Simulation/simData.cc $(INC_PARAMS)
 
 # Weno reconstruction
-wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+wenoUpwinds.o : $(MODULE_DIR)/Flux/wenoUpwinds.cc $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/weno.cc -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/Flux/weno.cc $(INC_BASE_DIR)/Flux/weno.h $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Flux/weno.cc $(INC_PARAMS)
 
-test_weno.o : $(TEST_DIR)/test_weno.cc $(INC_DIR)/weno.h \
-	                    $(INC_DIR)/wenoUpwinds.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_weno.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_weno.o : $(TEST_DIR)/test_weno.cc $(INC_BASE_DIR)/Flux/weno.h \
+	                    $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_weno.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_weno : test_weno.o weno.o wenoUpwinds.o simData.o serialEnv.o gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Runge-Kutta integrators
-RK2.o	:	$(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/RK2.cc -I$(INC_DIR)
+RK2.o	:	$(MODULE_DIR)/TimeIntegrators/RK2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/TimeIntegrators/RK2.cc $(INC_PARAMS)
 
-test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_DIR)/RK2.h \
-	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_rk2.o : $(TEST_DIR)/test_rk2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h \
+	                    $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rk2.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_rk2 : test_rk2.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Explicit RK split integrator
-rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/rkSplit.cc -I$(INC_DIR)
+rkSplit.o : $(MODULE_DIR)/TimeIntegrators/rkSplit.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/TimeIntegrators/rkSplit.cc $(INC_PARAMS)
 
-test_rkSplit.o : $(TEST_DIR)/test_rkSplit.cc $(INC_DIR)/rkSplit.h \
-	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_rkSplit.o : $(TEST_DIR)/test_rkSplit.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h \
+	                    $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_rkSplit.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_rkSplit : test_rkSplit.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # RKPlus
-RKPlus.o	:	$(MODULE_DIR)/RKPlus.cc $(INC_DIR)/RKPlus.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/RKPlus.cc -I$(INC_DIR)
+RKPlus.o	:	$(MODULE_DIR)/TimeIntegrators/RKPlus.cc $(INC_BASE_DIR)/TimeIntegrators/RKPlus.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/TimeIntegrators/RKPlus.cc $(INC_PARAMS)
 
-test_RKPlus.o : $(TEST_DIR)/test_RKPlus.cc $(INC_DIR)/RKPlus.h \
-	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_RKPlus.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_RKPlus.o : $(TEST_DIR)/test_RKPlus.cc $(INC_BASE_DIR)/TimeIntegrators/RKPlus.h \
+	                    $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_RKPlus.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_RKPlus : test_RKPlus.o REGIME.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RKPlus.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # Flux vector splitting method
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/fluxVectorSplitting.cc -I$(INC_DIR)
+fluxVectorSplitting.o : $(MODULE_DIR)/Flux/fluxVectorSplitting.cc $(INC_BASE_DIR)/Flux/fluxVectorSplitting.h $(INC_BASE_DIR)/Flux/weno.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Flux/fluxVectorSplitting.cc $(INC_PARAMS)
 
 test_fvs.o : $(TEST_DIR)/test_fvs.cc \
-	                    $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_fvs.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	                    $(INC_BASE_DIR)/Physics/srmhd.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_fvs.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_fvs : wenoUpwinds.o srmhd.o test_fvs.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Save data (required for simulation.evolve)
-serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialSaveData.cc -I$(INC_DIR)
+serialSaveData.o : $(MODULE_DIR)/DataIO/serialSaveData.cc $(INC_BASE_DIR)/DataIO/serialSaveData.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/DataIO/serialSaveData.cc $(INC_PARAMS)
 
-serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
-	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialSaveDataHDF5.cc -I$(INC_DIR)
+serialSaveDataHDF5.o : $(MODULE_DIR)/DataIO/serialSaveDataHDF5.cc $(INC_BASE_DIR)/DataIO/serialSaveDataHDF5.h
+	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/DataIO/serialSaveDataHDF5.cc $(INC_PARAMS)
 
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
+parallelSaveData.o : $(MODULE_DIR)/DataIO/parallelSaveData.cc $(INC_BASE_DIR)/DataIO/parallelSaveData.h
+	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/DataIO/parallelSaveData.cc $(INC_PARAMS)
 
-parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
-	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveDataHDF5.cc -I$(INC_DIR)
+parallelSaveDataHDF5.o : $(MODULE_DIR)/DataIO/parallelSaveDataHDF5.cc $(INC_BASE_DIR)/DataIO/parallelSaveDataHDF5.h
+	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/DataIO/parallelSaveDataHDF5.cc $(INC_PARAMS)
 
 # Platform env
-serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialEnv.cc -I$(INC_DIR)
+serialEnv.o : $(MODULE_DIR)/Simulation/serialEnv.cc $(INC_BASE_DIR)/Simulation/serialEnv.h
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Simulation/serialEnv.cc $(INC_PARAMS)
 
 # Simulation
-simulation.o : $(MODULE_DIR)/simulation.cc $(INC_DIR)/simulation.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/simulation.cc -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/Simulation/simulation.cc $(INC_BASE_DIR)/Simulation/simulation.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Simulation/simulation.cc $(INC_PARAMS)
 
 test_simulation.o : $(TEST_DIR)/test_simulation.cc \
-                     $(INC_DIR)/simulation.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+                     $(INC_BASE_DIR)/Simulation/simulation.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_simulation.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_simulation : wenoUpwinds.o simulation.o test_simulation.o simData.o fluxVectorSplitting.o srmhd.o boundaryConds.o initFunc.o RK2.o rkSplit.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # SRMHD Model
-srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srmhd.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srmhd.o : $(MODULE_DIR)/Physics/srmhd.cc $(INC_BASE_DIR)/Physics/srmhd.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Physics/srmhd.cc  $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
 test_srmhd.o : $(TEST_DIR)/test_srmhd.cc \
-                     $(INC_DIR)/srmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+                     $(INC_BASE_DIR)/Physics/srmhd.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srmhd.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_srmhd : wenoUpwinds.o srmhd.o test_srmhd.o simData.o boundaryConds.o fluxVectorSplitting.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # SRRMHD Model
-srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/srrmhd.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srrmhd.o : $(MODULE_DIR)/Physics/srrmhd.cc $(INC_BASE_DIR)/Physics/srrmhd.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Physics/srrmhd.cc  $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
 test_srrmhd.o : $(TEST_DIR)/test_srrmhd.cc \
-                     $(INC_DIR)/srrmhd.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srrmhd.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+                     $(INC_BASE_DIR)/Physics/srrmhd.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_srrmhd.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_srrmhd : wenoUpwinds.o srrmhd.o test_srrmhd.o simData.o fluxVectorSplitting.o boundaryConds.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # TwoFluidEMHD Model
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/twoFluidEMHD.cc  -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+twoFluidEMHD.o : $(MODULE_DIR)/Physics/twoFluidEMHD.cc $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Physics/twoFluidEMHD.cc  $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
 test_twoFluidEMHD.o : $(TEST_DIR)/test_twoFluidEMHD.cc \
-	                    $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_twoFluidEMHD.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	                    $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_twoFluidEMHD.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_twoFluidEMHD : wenoUpwinds.o twoFluidEMHD.o test_twoFluidEMHD.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o rkSplit.o initFunc.o simulation.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # InitialFunc
-initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/initFunc.cc -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/InitialData/initFunc.cc $(INC_BASE_DIR)/InitialData/initFunc.h
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/InitialData/initFunc.cc $(INC_PARAMS)
 
-test_initFunc.o : $(TEST_DIR)/test_initFunc.cc $(INC_DIR)/initFunc.h \
-									$(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_initFunc.o : $(TEST_DIR)/test_initFunc.cc $(INC_BASE_DIR)/InitialData/initFunc.h \
+									$(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_initFunc.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_initFunc : initFunc.o test_initFunc.o weno.o wenoUpwinds.o simData.o boundaryConds.o simulation.o twoFluidEMHD.o srmhd.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
@@ -347,44 +349,44 @@ test_cminpack : test_cminpack.o $(RTFIND_OBJS) gtest_main.a
 
 
 # Boundary Conditions
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/boundaryConds.cc -I$(INC_DIR)
+boundaryConds.o : $(MODULE_DIR)/BoundaryConditions/boundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/BoundaryConditions/boundaryConds.cc $(INC_PARAMS)
 
 
-test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cc $(INC_DIR)/boundaryConds.h \
+test_boundaryConds.o : $(TEST_DIR)/test_boundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h \
 									$(GTEST_HEADERS)
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_boundaryConds.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_boundaryConds : test_boundaryConds.o weno.o wenoUpwinds.o boundaryConds.o simData.o srmhd.o simulation.o initFunc.o weno.o serialEnv.o serialSaveData.o $(RTFIND_OBJS) gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # Imex Schemes
-SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2.o : $(MODULE_DIR)/TimeIntegrators/SSP2.cc $(INC_BASE_DIR)/TimeIntegrators/SSP2.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h $(INC_BASE_DIR)/TimeIntegrators/timeInt.h
+	@$(CC)	$<	-c $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
-	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX2Args.o : $(MODULE_DIR)/TimeIntegrators/IMEX2Args.cc $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h
+	@$(CC)	$<	-c $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-SSP3.o : $(MODULE_DIR)/SSP3.cc $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP3.o : $(MODULE_DIR)/TimeIntegrators/SSP3.cc $(INC_BASE_DIR)/TimeIntegrators/SSP3.h $(INC_BASE_DIR)/TimeIntegrators/IMEX3Args.h $(INC_BASE_DIR)/TimeIntegrators/timeInt.h
+	@$(CC)	$<	-c $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h
-	@$(CC)	$<	-c -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX3Args.o : $(MODULE_DIR)/TimeIntegrators/IMEX3Args.cc $(INC_BASE_DIR)/TimeIntegrators/IMEX3Args.h
+	@$(CC)	$<	-c $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
 test_imex.o : $(TEST_DIR)/test_imex.cc
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_imex.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_imex : wenoUpwinds.o IMEX2Args.o SSP2.o IMEX3Args.o SSP3.o simData.o srrmhd.o initFunc.o boundaryConds.o serialEnv.o serialSaveData.o simulation.o test_imex.o $(RTFIND_OBJS) fluxVectorSplitting.o weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 
 # Resistive subgrid model
-REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
-	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/REGIME.cc -I$(INC_DIR)   -I$(RTFIND_INC_DIR)
+REGIME.o : $(MODULE_DIR)/Physics/REGIME.cc $(INC_BASE_DIR)/Physics/REGIME.h
+	@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Physics/REGIME.cc $(INC_PARAMS)   -I$(RTFIND_INC_DIR)
 
-test_REGIME.o : $(TEST_DIR)/test_REGIME.cc $(INC_DIR)/REGIME.h \
+test_REGIME.o : $(TEST_DIR)/test_REGIME.cc $(INC_BASE_DIR)/Physics/REGIME.h \
 										$(GTEST_HEADERS)
-		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_REGIME.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+		@$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_REGIME.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_REGIME : wenoUpwinds.o srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkSplit.o boundaryConds.o simData.o serialEnv.o serialSaveData.o fluxVectorSplitting.o simulation.o $(RTFIND_OBJS) weno.o gtest_main.a
 	@$(CC)	$(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
@@ -392,9 +394,9 @@ test_REGIME : wenoUpwinds.o srmhd.o test_REGIME.o REGIME.o initFunc.o  RK2.o rkS
 
 # serial HDF5 tests
 
-test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cc $(INC_DIR)/RK2.h \
-                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_hdf5_rk2.o : $(TEST_DIR)/test_hdf5_rk2.cc $(INC_BASE_DIR)/RK2.h \
+                        $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_rk2.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_hdf5_rk2 : wenoUpwinds.o test_hdf5_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o boundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o serialEnv.o serialSaveDataHDF5.o $(RTFIND_OBJS) gtest_main.a
 	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
@@ -404,33 +406,33 @@ test_hdf5_rk2 : wenoUpwinds.o test_hdf5_rk2.o srmhd.o srrmhd.o fluxVectorSplitti
 # parallel tests
 
 # main func used for testing parallel tests. Serial tests can use the default gtest_main
-main.o : $(TEST_DIR)/main.cpp $(INC_DIR)/parallelEnv.h
-	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
+main.o : $(TEST_DIR)/main.cpp $(INC_BASE_DIR)/Simulation/parallelEnv.h
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp $(INC_PARAMS)
 
-parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelEnv.cc -I$(INC_DIR)
+parallelEnv.o : $(MODULE_DIR)/Sinulation/parallelEnv.cc $(INC_BASE_DIR)/Simulation/parallelEnv.h
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/Simulation/parallelEnv.cc $(INC_PARAMS)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
+parallelBoundaryConds.o : $(MODULE_DIR)/BoundaryConditions/parallelBoundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/parallelBoundaryConds.h
+	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/BoundaryConditions/parallelBoundaryConds.cc $(INC_PARAMS)
 
-test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cc $(INC_DIR)/RK2.h \
-                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h \
+                        $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rk2 : main.o wenoUpwinds.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
 	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
-test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_DIR)/rkSplit.h \
-                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h \
+                        $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rkSplit : main.o test_parallel_rkSplit.o weno.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
 	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # parallel HDF5 tests
-test_hdf5_parallel_rk2.o : $(TEST_DIR)/test_hdf5_parallel_rk2.cc $(INC_DIR)/RK2.h \
-                        $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+test_hdf5_parallel_rk2.o : $(TEST_DIR)/test_hdf5_parallel_rk2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h \
+                        $(INC_BASE_DIR)/Physics/twoFluidEMHD.h $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Simulation/simData.h $(GTEST_HEADERS)
+	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_hdf5_parallel_rk2.cc $(INC_PARAMS)  -I$(RTFIND_INC_DIR)
 
 test_hdf5_parallel_rk2 : main.o wenoUpwinds.o test_hdf5_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveDataHDF5.o $(RTFIND_OBJS) gtest.a
 	$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@

@@ -21,7 +21,6 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdPeriodicOTVSF)
      version with. No tests are run in the serial version of this test
   */
 
-  int seed(10);
   double cfl(0.6);
   int Ng(4);
   double gamma(4.0/3.0);
@@ -66,7 +65,6 @@ TEST(RKSplitOutputConsistentWithSerial, RKSplitSrmhdOutflowOTVSF)
      version with. No tests are run in the serial version of this test
   */
 
-  int seed(10);
   double cfl(0.6);
   int Ng(4);
   double gamma(4.0/3.0);
