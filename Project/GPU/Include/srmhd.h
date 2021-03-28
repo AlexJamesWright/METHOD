@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include "deviceArguments.h"
+#include "C2PArgs.h"
 
 
 /*
@@ -99,6 +100,9 @@ class SRMHD : public Model
     int smartGuesses;     //!< Number of smart guess required
 
     double * solution;    //!< Pointer to array to hold solution of C2P for every cell. Size is 2*Nx*Ny*Nz
+
+    // Work array
+    C2PArgs * c2pArgs;
 
 
     SRMHD();     //!< Default constructor

@@ -28,7 +28,8 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(3.0);
+  //double endTime(3.0);
+  double endTime(0.01);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -41,18 +42,18 @@ int main(int argc, char *argv[]) {
   int seed(atoi(argv[1]));
   int reportItersPeriod(50);
 
-  ParallelEnv env(&argc, &argv, 2, 1, 1);
+  ParallelEnv env(&argc, &argv, 2, 2, 1);
 
-  //const char* filename = "data_t3.checkpoint.hdf5";
   const char* filename = "data_t0.checkpoint.hdf5";
 
-  //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            //cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+  // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // ParallelCheckpointArgs sets those parameters that can be read from the restart file, while the chained setter functions 
+  // that follow can be used to set the additional variables that are not stored in the restart file, as well as override
+  // any other variables (should only need to overwrite endTime when starting from a restart file)
+  ParallelCheckpointArgs checkpointArgs = ParallelCheckpointArgs(filename, &env).sEndTime(endTime)
+        .sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sReportItersPeriod(reportItersPeriod);
 
-  ParallelCheckpointArgs checkpointArgs(filename, &env);
-  checkpointArgs.endTime=endTime;
-  
-  Data data(checkpointArgs, &env, mu1, mu2, frameSkip, reportItersPeriod);
+  Data data = Data(checkpointArgs, &env);
 
   // Choose particulars of simulation
   SRMHD model(&data);
@@ -67,11 +68,11 @@ int main(int argc, char *argv[]) {
 
   printf("Seed: %d\n", seed);
 
-  KHRandomInstabilitySingleFluid init(&data, 1, seed);
-  //ParallelCheckpointRestart init(&data, filename, &env);
-
+  //KHRandomInstabilitySingleFluid init(&data, 1, seed);
+  ParallelCheckpointRestart init(&data, filename, &env);
+  
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
-
+ 
   ParallelSaveDataHDF5 save(&data, &env, "data_parallel", ParallelSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation

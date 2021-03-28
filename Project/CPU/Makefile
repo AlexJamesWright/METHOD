@@ -1,14 +1,26 @@
 # Make file for the main function. Builds all modules
 # and links for main.cc
 
-# Compiler
-#CC = g++
-CC = mpic++
+# -------------- PARAMETERS FOR USERS TO EDIT --------------------
 
 # Whether to use MPI for multi-cpu processing
 USE_MPI = 1
-USE_OMP = 1
+USE_OMP = 0
 USE_HDF = 1
+
+# Compiler
+CC = g++
+# --- if USE_MPI ---
+# If using mpi, aditionally specify a c++ capable mpi compiler. In systems with multiple versions of MPI, 
+# the particular version may need to be specified with eg mpicxx.mpich
+MPI_CC = mpic++
+# --- if USE_HDF ---
+# If using hdf5, additionally specify a hdf5 compiler. If using mpi, this must be the version of the hdf5 
+# compiler available on your system that links the correct mpi libraries. Should 
+# be one of h5pcc, h5pcc.openmpi or h5pcc.mpich. 
+HDF5_CC = h5pcc
+
+# -------------- END PARAMETERS USERS ARE LIKELY TO NEED TO EDIT --------------------
 
 # Module directory
 MODULE_DIR = ./Src
@@ -25,8 +37,12 @@ RTFIND_INC_DIR = ./CminpackLibrary/Include
 # Cminpack source directory
 RTFIND_SRC_DIR = ./CminpackLibrary/Src
 
+ifeq ($(USE_OMP), 1)
+	OMP_FLAGS = -fopenmp
+endif
+
 # C++ compiler flags
-CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O3 $(OMP_FLAGS) -Wno-unknown-pragmas
+CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O0 $(OMP_FLAGS) -Wno-unknown-pragmas
 
 # Sources
 SRCS = main.cc 								\
@@ -72,19 +88,24 @@ endif
 SRCS += ${PARALLEL_SRCS}
 SRCS += ${SERIAL_SRCS}
 
-ifeq ($(USE_OMP), 1)
-    OMP_FLAGS = -fopenmp
-endif
-
 ifeq ($(USE_HDF), 1)
-    export HDF5_CXX := $(CC)
-    export HDF5_CLINKER := $(CC)
-
-    ifeq($(USE_OMP), 1)
-		CC = h5pcc.openmpi
+    # Using HDF5 
+    ifeq ($(USE_MPI), 1)
+        export HDF5_CXX := $(MPI_CC)
+        export HDF5_CLINKER := $(MPI_CC)
     else
-    	CC = h5c++
+        export HDF5_CXX := $(CC)
+        export HDF5_CLINKER := $(CC)
     endif
+    # Compile all sources with the hdf5 compiler wrapper 
+    CC = $(HDF5_CC)
+else
+    # Not using HDF5
+    ifeq ($(USE_MPI), 1)
+        # Compile all sources with the mpi compiler wrapper
+        CC = $(MPI_CC)
+    endif
+    # If not using hdf5 or mpi, CC remains as defined at top of Makefile
 endif
 
 # Headers

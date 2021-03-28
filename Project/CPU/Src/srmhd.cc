@@ -441,6 +441,7 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
         sol[1] = prims[ID(0, i, j, k)] * aux[ID(0, i, j, k)] /
                  (1 - sol[0]);
 
+
         // Solve residual = 0
         info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                           tol, wa, lwa);
@@ -458,8 +459,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       } // End k-loop
     } // End j-loop
   } // End i-loop
-
-
 
 
 
@@ -506,7 +505,6 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       // }
     }
   }
-
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {

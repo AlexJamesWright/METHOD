@@ -322,10 +322,8 @@ TEST(RK2OutputConsistentWithSerial, RK2SrmhdFlowBrioWuSF)
   save.saveAux();
   save.saveConsts();
 }
-#endif
 
-#if 0
-TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
+TEST(RK2, RK2OutputConsistentWithSerial)
 {
 
   /*
@@ -334,9 +332,10 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
   */
 
   SerialEnv env(0, NULL, 1, 1, 1, 1);
-  Data d(40, 40, 0, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Data d(30, 30, 30, 0, 1, 0, 1, 0, 1, 0.004, &env);
+  Weno3 weno(&d);
   SRRMHD model(&d);
-  FVS fluxMethod(&d, &model);
+  FVS fluxMethod(&d, &weno, &model);
   Outflow bcs(&d);
   Simulation sim(&d, &env);
   OTVortexSingleFluid init(&d);
@@ -349,11 +348,12 @@ TEST(RK2OutputConsistentWithSerial, RK2SrrmhdOutflowOTVortexSingleFluidRK2)
 
   // Save data in test directory
   strcpy(save.dir, "../TestData/Serial");
-  strcpy(save.app, "RK2SrrmhdOutflowOTVortexSingleFluid");
-
+  strcpy(save.app, "RK2");
   save.saveCons();
   save.savePrims();
   save.saveAux();
   save.saveConsts();
+
 }
+
 #endif

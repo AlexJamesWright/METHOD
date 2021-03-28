@@ -179,19 +179,18 @@ class InteractivePlot(object):
                     self.cleanAuxLabels.append(auxLabels[i][:-1])
                 self.cleanAuxLabels.append(auxLabels[-1])
             
-            with suppress(FileNotFoundError):
-                # Grab domain data
-                self.x = np.zeros(c['nx'])
-                self.y = np.zeros(c['ny'])
-                self.z = np.zeros(c['nz'])
-                coords = [self.x, self.y, self.z]
-                print("Fetching domain coordinates...")
-                with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
-                    for coord, (i, line) in zip(coords, enumerate(f)):
-                        temp = line.split()
-                        print(len(temp))
-                        for k, val in enumerate(temp):
-                            coord[k] = float(val)
+#            with suppress(FileNotFoundError):
+#                # Grab domain data
+#                self.x = np.zeros(c['nx'])
+#                self.y = np.zeros(c['ny'])
+#                self.z = np.zeros(c['nz'])
+#                coords = [self.x, self.y, self.z]
+#                print("Fetching domain coordinates...")
+#                with open(self.DatDir + 'Domain/domain' + self.appendix +'.dat', 'r') as f:
+#                    for coord, (i, line) in zip(coords, enumerate(f)):
+#                        temp = line.split()
+#                        for k, val in enumerate(temp):
+#                            coord[k] = float(val)
 
 
 
@@ -259,7 +258,7 @@ class InteractivePlot(object):
                 The line number the file pointer is pointing to. We want to know which
                 primitive variable this line's data corresponds to.
             nx: int
-                The total number (incl ghost cells) of domain cells in the x-direction.
+                The total number (incl ghost cells)n of domain cells in the x-direction.
             ny: int
                 The total number (incl ghost cells) of domain cells in the y-direction.
 
@@ -329,10 +328,11 @@ class InteractivePlot(object):
 
             if color==None:
                 color = cm.afmhot
-            surf = ax.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto')
+            ext = [self.c['xmin'], self.c['xmax'], self.c['ymin'], self.c['ymax']]
+            surf = ax.imshow(plotVars.T, cmap=color, interpolation='bicubic', aspect='auto', origin='lower', extent=ext)
             ax.set_title(r'Time Evolution for {}: $t = {}$'.format(dataLabels[i], c['t']))
-            ax.set_xlim([0, self.c['nx']])
-            ax.set_ylim([0, self.c['ny']])
+            ax.set_xlim([self.c['xmin'], self.c['xmax']])
+            ax.set_ylim([self.c['ymin'], self.c['ymax']])
             ax.set_xlabel(axisLabel1)
             ax.set_ylabel(axisLabel2)
             fig.colorbar(surf, shrink=0.5, aspect=5)
@@ -746,12 +746,4 @@ if __name__ == '__main__':
 
     Plot = InteractivePlot()
 
-#    Plot.plotSlice()
-#    Plot.plotSingleFluidCurrentSheetAgainstExact()
-#    Plot.plotAdvectionAgainstInitial()
 #    Plot.plotHeatMaps()
-    
-    plt.figure()
-    plt.imshow(np.log(Plot.prims[4, :, :, 0].T), extent=[0, 8, 0, 4], origin='lower')
-    plt.show()
-    

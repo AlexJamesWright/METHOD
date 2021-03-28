@@ -21,8 +21,27 @@ class Bcs
         Constructor simply stores the pointer to the Data class.
 
       @param[in] *data pointer to the Data class
+      @param[in] *env pointer to the PlatformEnv class
     */
-    Bcs(Data * data) : data(data) { }
+    Bcs(Data * data, PlatformEnv * env) : data(data)
+    {
+        data->bcsSet = 1;
+    }
+
+    //TODO -- We may not want to allow creation of Bcs object without env in future
+    //! Constructor store data about simulation (needed for domain)
+    /*!
+        Constructor simply stores the pointer to the Data class.
+
+      @param[in] *data pointer to the Data class
+    */
+
+    Bcs(Data * data) : data(data)
+    {
+        data->bcsSet = 1;
+    }
+
+    virtual ~Bcs() { }     //!< Destructor
 
   public:
 
@@ -75,6 +94,8 @@ class Outflow : public Bcs
     */
     Outflow(Data * data) : Bcs(data) { }
 
+    virtual ~Outflow() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Outflow boundary conditions to the ghost cells.
@@ -85,6 +106,40 @@ class Outflow : public Bcs
       @sa Bcs::apply
     */
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
+};
+
+
+//! <b> Out flow boundary conditions for the rotated 2D Brio-Wu </b>
+/*!
+    Using the conventional outflow BCs for the diagonal BW problem results in
+  shocks entering from along the main diagonal. This class deals with these
+  shocks.
+    Using this.apply behaves as if the BW problem has been rotated, as required.
+*/
+class OutflowRotatedBW : public Bcs
+{
+public:
+  //! Constructor
+  /*!
+  Calls constructor of base class to store the pointer to the Data class.
+
+  @param[in] *data pointer to Data class
+  @sa Bcs::Bcs
+  */
+  OutflowRotatedBW(Data * data) : Bcs(data) { }
+
+  virtual ~OutflowRotatedBW() { }     //!< Destructor
+
+  //! Application function
+  /*!
+  Applies the Outflow boundary conditions to the ghost cells.
+
+  @param[in, out] *cons pointer to the conservative (sized) vector
+  @param[in, out] *prims optional pointer to the primitive vector
+  @param[in, out] *aux optional pointer to the primitive vector
+  @sa Bcs::apply
+  */
+  void apply(double * cons, double * prims = NULL, double * aux = NULL);
 };
 
 
@@ -122,6 +177,8 @@ class Periodic : public Bcs
     */
     Periodic(Data * data) : Bcs(data) { }
 
+    virtual ~Periodic() { }     //!< Destructor
+
     //! Application function
     /*!
         Applies the Periodic boundary conditions to the ghost cells.
@@ -135,16 +192,35 @@ class Periodic : public Bcs
 
 };
 
+//! <b> Flow boundary conditions </b>
 /*!
-  Boundary conditions for the Kelvin Helmholtz instability
-  x-direction is periodic and others are outflow
+    Boundary conditions used for the Kelvin Helmholtz instability. The
+  x-direction is periodic and y- and z-directions are outflow.
 */
 class Flow : public Bcs
 {
 
   public:
+    //! Constructor
+    /*!
+        Calls constructor of base class to store the pointer to the Data class.
+
+      @param[in] *data pointer to Data class
+      @sa Bcs::Bcs
+    */
     Flow(Data * data) : Bcs(data) { }
 
+    virtual ~Flow() { }     //!< Destructor
+
+    //! Application function
+    /*!
+        Applies the Flow boundary conditions to the ghost cells.
+
+      @param[in, out] *cons pointer to the conservative (sized) vector
+      @param[in, out] *prims optional pointer to the primitive vector
+      @param[in, out] *aux optional pointer to the primitive vector
+      @sa Bcs::apply
+    */
     void apply(double * cons, double * prims = NULL, double * aux = NULL);
 
 };

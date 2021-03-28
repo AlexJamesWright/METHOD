@@ -1,11 +1,12 @@
-// Serial main
-#include "parallelBoundaryConds.h"
+// CPU main
+#include "boundaryConds.h"
 #include "fluxVectorSplitting.h"
-#include "parallelSaveData.h"
+#include "serialSaveData.h"
 #include "simulation.h"
 #include "initFunc.h"
 #include "simData.h"
-#include "RKPlus.h"
+#include "SSP2.h"
+#include "RK2.h"
 #include "Euler.h"
 #include "weno.h"
 
@@ -15,55 +16,50 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-
-
+  const double MU(1000);
   // Set up domain
-  int Ng(5);
-  int nx(800);
-  int ny(400);
+  int Ng(4);
+  int nx(64);
+  int ny(16);
   int nz(0);
-  double xmin(0.0);
-  double xmax(8.0);
-  double ymin(0.0);
-  double ymax(4.0);
-  double zmin(0.0);
-  double zmax(1.0);
-  double endTime(30.0);
-  double gamma(2.0);
-  double cfl(0.5);
-  double cp(1);
-  double mu1(-1);
-  double mu2(1);
+  double xmin(-0.5);
+  double xmax(0.5);
+  double ymin(-1.0);
+  double ymax(1.0);
+  double zmin(-1.5);
+  double zmax(1.5);
+  double endTime(0.0005);
+  double cfl(0.1);
+  double gamma(4.0/3.0);
+  double sigma(0);
   bool output(true);
-  int frameSkip(50);
-  int safety(frameSkip);
-  int reportItersPeriod(1);
-  double sigma(50);
-  double nxRanks(4);
+  int safety(180);
+
+  double nxRanks(1);
   double nyRanks(1);
   double nzRanks(1);
 
-  ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  SerialEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+            cfl, Ng, gamma, sigma);
 
   // Choose particulars of simulation
-  Euler model(&data);
+  SRMHD model(&data);
 
-  Weno7 weno(&data);
+  Weno3 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
-  ParallelOutflow bcs(&data, &env);
+  Flow bcs(&data);
 
   Simulation sim(&data, &env);
 
-  FancyMETHODData init(&data);
+  KHInstabilitySingleFluid init(&data, 1);
 
-  RK4 timeInt(&data, &model, &bcs, &fluxMethod);
+  RK2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveData save(&data, &env, 0);
+  SerialSaveData save(&data, &env, 0);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
