@@ -270,7 +270,7 @@ serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSave
 	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/serialSaveDataHDF5.cc -I$(INC_DIR)
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	@$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
+	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveData.cc -I$(INC_DIR)
 
 parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
 	@$(HD5_CC) $(HDF5_FLAGS) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelSaveDataHDF5.cc -I$(INC_DIR)
@@ -405,27 +405,27 @@ test_hdf5_rk2 : wenoUpwinds.o test_hdf5_rk2.o srmhd.o srrmhd.o fluxVectorSplitti
 
 # main func used for testing parallel tests. Serial tests can use the default gtest_main
 main.o : $(TEST_DIR)/main.cpp $(INC_DIR)/parallelEnv.h
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/main.cpp -I$(INC_DIR)
 
 parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelEnv.cc -I$(INC_DIR)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelEnv.cc -I$(INC_DIR)
 
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	@$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
+	@$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(MODULE_DIR)/parallelBoundaryConds.cc -I$(INC_DIR)
 
 test_parallel_rk2.o : $(TEST_DIR)/test_parallel_rk2.cc $(INC_DIR)/RK2.h \
                         $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rk2.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rk2 : main.o wenoUpwinds.o test_parallel_rk2.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 test_parallel_rkSplit.o : $(TEST_DIR)/test_parallel_rkSplit.cc $(INC_DIR)/rkSplit.h \
                         $(INC_DIR)/twoFluidEMHD.h $(INC_DIR)/simulation.h $(INC_DIR)/simData.h $(GTEST_HEADERS)
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/test_parallel_rkSplit.cc -I$(INC_DIR)  -I$(RTFIND_INC_DIR)
 
 test_parallel_rkSplit : main.o test_parallel_rkSplit.o weno.o wenoUpwinds.o srmhd.o srrmhd.o fluxVectorSplitting.o parallelBoundaryConds.o simData.o rkSplit.o RK2.o initFunc.o simulation.o weno.o parallelEnv.o parallelSaveData.o $(RTFIND_OBJS) gtest.a
-	$(CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
+	$(MPI_CC) $(MPI_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -pthread $^ -o $@
 
 # parallel HDF5 tests
 test_hdf5_parallel_rk2.o : $(TEST_DIR)/test_hdf5_parallel_rk2.cc $(INC_DIR)/RK2.h \
