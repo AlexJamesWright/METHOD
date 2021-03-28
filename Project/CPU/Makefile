@@ -29,8 +29,11 @@ MODULE_DIR = ./Src
 RTFIND_DIR = ./CminpackLibrary
 
 # Include directory
-INC_DIR = ./Include
-
+INC_BASE_DIR = ./Include
+INC_DIRS = ./Include/BoundaryConditions ./Include/DataIO ./Include/Flux ./Include/InitialData ./Include/Physics ./Include/Simulation ./Include/TimeIntegrators
+INC_PARAMS = $(foreach d, $(INC_DIR), -I$d)
+$(info  HERERERERE)
+$(info   $(INC_PARAMS))
 # Cminpack include directory
 RTFIND_INC_DIR = ./CminpackLibrary/Include
 
@@ -46,43 +49,43 @@ CXXFLAGS = -Wall -std=c++11 -g -DUSE_MPI=$(USE_MPI) -O0 $(OMP_FLAGS) -Wno-unknow
 
 # Sources
 SRCS = main.cc 								\
-			 simulation.cc 					\
-			 srmhd.cc						  	\
-			 twoFluidEMHD.cc 				\
-			 initFunc.cc 						\
-			 simData.cc 						\
-			 wenoUpwinds.cc 				\
-			 weno.cc 								\
-			 RK2.cc 								\
-			 rkSplit.cc 						\
-			 rkSplit2ndOrder.cc			\
-			 backwardsRK.cc 				\
-			 backRKArgs.cc 					\
-			 SSP2.cc 								\
-			 SSP2322.cc 						\
-			 IMEX2Args.cc 					\
-			 SSP3.cc 								\
-			 IMEX3Args.cc 					\
-			 boundaryConds.cc 			\
-			 fluxVectorSplitting.cc \
-			 srrmhd.cc 							\
-			 REGIME.cc 							\
-			 hybrid.cc							\
-			 parallelEnv.cc					\
-			 serialEnv.cc						\
-			 RKPlus.cc							\
-			 Euler.cc								\
-			 toy_q.cc
+			 Simulation/simulation.cc 					\
+			 Physics/srmhd.cc						  	\
+			 Physics/twoFluidEMHD.cc 				\
+			 InitialData/initFunc.cc 						\
+			 Simulation/simData.cc 						\
+			 Flux/wenoUpwinds.cc 				\
+			 Flux/weno.cc 								\
+			 TimeIntegrators/RK2.cc 								\
+			 TimeIntegrators/rkSplit.cc 						\
+			 TimeIntegrators/rkSplit2ndOrder.cc			\
+			 TimeIntegrators/backwardsRK.cc 				\
+			 TimeIntegrators/backRKArgs.cc 					\
+			 TimeIntegrators/SSP2.cc 								\
+			 TimeIntegrators/SSP2322.cc 						\
+			 TimeIntegrators/IMEX2Args.cc 					\
+			 TimeIntegrators/SSP3.cc 								\
+			 TimeIntegrators/IMEX3Args.cc 					\
+			 BoundaryConditions/boundaryConds.cc 			\
+			 Flux/fluxVectorSplitting.cc \
+			 Physics/srrmhd.cc 							\
+			 Physics/REGIME.cc 							\
+			 Physics/hybrid.cc							\
+			 Simulation/parallelEnv.cc					\
+			 Simulation/serialEnv.cc						\
+			 TimeIntegrators/RKPlus.cc							\
+			 Physics/Euler.cc								\
+			 Physics/toy_q.cc
 
-SERIAL_SRCS = serialSaveData.cc
+SERIAL_SRCS = DataIO/serialSaveData.cc
 ifeq ($(USE_HDF), 1)
-    SERIAL_SRCS += serialSaveDataHDF5.cc
+    SERIAL_SRCS += DataIO/serialSaveDataHDF5.cc
 endif
 
-PARALLEL_SRCS = parallelSaveData.cc \
-				parallelBoundaryConds.cc
+PARALLEL_SRCS = DataIO/parallelSaveData.cc \
+				DataIO/parallelBoundaryConds.cc
 ifeq ($(USE_HDF), 1)
-    PARALLEL_SRCS += parallelSaveDataHDF5.cc
+    PARALLEL_SRCS += DataIO/parallelSaveDataHDF5.cc
 endif
 
 SRCS += ${PARALLEL_SRCS}
@@ -107,9 +110,6 @@ else
     endif
     # If not using hdf5 or mpi, CC remains as defined at top of Makefile
 endif
-
-# Headers
-HDRS = ${SRCS:.cc=.h} cudaErrorCheck.h
 
 # Objects
 OBJS = ${SRCS:.cc=.o}
@@ -156,104 +156,104 @@ clean :
 # Build objects #
 #################
 
-simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/Simulation/simData.cc $(INC_BASE_DIR)/Simulation/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/InitialData/initFunc.cc $(INC_BASE_DIR)/InitialData/initFunc.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cc $(INC_DIR)/twoFluidEMHD.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+twoFluidEMHD.o : $(MODULE_DIR)/Physics/twoFluidEMHD.cc $(INC_BASE_DIR)/Physics/twoFluidEMHD.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srmhd.o : $(MODULE_DIR)/Physics/srmhd.cc $(INC_BASE_DIR)/Physics/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-srrmhd.o : $(MODULE_DIR)/srrmhd.cc $(INC_DIR)/srrmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srrmhd.o : $(MODULE_DIR)/Physics/srrmhd.cc $(INC_BASE_DIR)/Physics/srrmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-toy_q.o : $(MODULE_DIR)/toy_q.cc $(INC_DIR)/toy_q.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+toy_q.o : $(MODULE_DIR)/Physics/toy_q.cc $(INC_BASE_DIR)/Physics/toy_q.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/Simulation/simulation.cc	$(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h	$(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/DataIO/saveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-main.o : $(MODULE_DIR)/main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
+main.o : $(MODULE_DIR)/main.cc $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h $(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/InitialData/initFunc.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
-wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+wenoUpwinds.o : $(MODULE_DIR)/Flux/wenoUpwinds.cc $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/Flux/weno.cc $(INC_BASE_DIR)/Flux/weno.h $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
-		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+RK2.o : $(MODULE_DIR)/TimeIntegrators/RK2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+		$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-RKPlus.o : $(MODULE_DIR)/RKPlus.cc $(INC_DIR)/RKPlus.h
-		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+RKPlus.o : $(MODULE_DIR)/TimeIntegrators/RKPlus.cc $(INC_BASE_DIR)/TimeIntegrators/RKPlus.h
+		$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+rkSplit.o : $(MODULE_DIR)/TimeIntegrators/rkSplit.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-rkSplit2ndOrder.o : $(MODULE_DIR)/rkSplit2ndOrder.cc $(INC_DIR)/rkSplit2ndOrder.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+rkSplit2ndOrder.o : $(MODULE_DIR)/TimeIntegrators/rkSplit2ndOrder.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit2ndOrder.h $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cc $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backwardsRK.o : $(MODULE_DIR)/TimeIntegrators/backwardsRK.cc $(INC_BASE_DIR)/TimeIntegrators/backwardsRK.h $(INC_BASE_DIR)/TimeIntegrators/backRKArgs.h $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-backRKArgs.o : $(MODULE_DIR)/backRKArgs.cc $(INC_DIR)/backRKArgs.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backRKArgs.o : $(MODULE_DIR)/TimeIntegrators/backRKArgs.cc $(INC_BASE_DIR)/TimeIntegrators/backRKArgs.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-SSP2.o : $(MODULE_DIR)/SSP2.cc $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2.o : $(MODULE_DIR)/TimeIntegrators/SSP2.cc $(INC_BASE_DIR)/TimeIntegrators/SSP2.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h $(INC_BASE_DIR)/TimeIntegrators/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-SSP2322.o : $(MODULE_DIR)/SSP2322.cc $(INC_DIR)/SSP2322.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP2322.o : $(MODULE_DIR)/TimeIntegrators/SSP2322.cc $(INC_BASE_DIR)/TimeIntegrators/SSP2322.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h $(INC_BASE_DIR)/TimeIntegrators/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cc $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX2Args.o : $(MODULE_DIR)/TimeIntegrators/IMEX2Args.cc $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-SSP3.o : $(MODULE_DIR)/SSP3.cc $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP3.o : $(MODULE_DIR)/TimeIntegrators/SSP3.cc $(INC_BASE_DIR)/TimeIntegrators/SSP3.h $(INC_BASE_DIR)/TimeIntegrators/IMEX3Args.h $(INC_BASE_DIR)/TimeIntegrators/timeInt.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cc $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX3Args.o : $(MODULE_DIR)/TimeIntegrators/IMEX3Args.cc $(INC_BASE_DIR)/TimeIntegrators/IMEX3Args.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+boundaryConds.o : $(MODULE_DIR)/BoundaryConditions/boundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+serialSaveData.o : $(MODULE_DIR)/DataIO/serialSaveData.cc $(INC_BASE_DIR)/DataIO/serialSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+serialSaveDataHDF5.o : $(MODULE_DIR)/DataIO/serialSaveDataHDF5.cc $(INC_BASE_DIR)/DataIO/serialSaveDataHDF5.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+parallelSaveData.o : $(MODULE_DIR)/DataIO/parallelSaveData.cc $(INC_BASE_DIR)/DataIO/parallelSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+parallelSaveDataHDF5.o : $(MODULE_DIR)/DataIO/parallelSaveDataHDF5.cc $(INC_BASE_DIR)/DataIO/parallelSaveDataHDF5.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/boundaryConds.h
-	$(CC)  $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+parallelBoundaryConds.o : $(MODULE_DIR)/BoundaryConditions/parallelBoundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h
+	$(CC)  $<  -c  $(CXXFLAGS) $(INC_PARAMS)
 
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+fluxVectorSplitting.o : $(MODULE_DIR)/Flux/fluxVectorSplitting.cc $(INC_BASE_DIR)/Flux/fluxVectorSplitting.h $(INC_BASE_DIR)/Flux/weno.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+REGIME.o : $(MODULE_DIR)/Physics/REGIME.cc $(INC_BASE_DIR)/Physics/REGIME.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-hybrid.o : $(MODULE_DIR)/hybrid.cc $(INC_DIR)/hybrid.h $(INC_DIR)/srrmhd.h $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+hybrid.o : $(MODULE_DIR)/Physics/hybrid.cc $(INC_BASE_DIR)/Physics/hybrid.h $(INC_BASE_DIR)/Physics/srrmhd.h $(INC_BASE_DIR)/Physics/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h $(INC_DIR)/platformEnv.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+parallelEnv.o : $(MODULE_DIR)/Simulation/parallelEnv.cc $(INC_BASE_DIR)/Simulation/parallelEnv.h $(INC_BASE_DIR)/Simulation/platformEnv.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h $(INC_DIR)/platformEnv.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+serialEnv.o : $(MODULE_DIR)/Simulation/serialEnv.cc $(INC_BASE_DIR)/Simulation/serialEnv.h $(INC_BASE_DIR)/Simulation/platformEnv.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-Euler.o : $(MODULE_DIR)/Euler.cc $(INC_DIR)/Euler.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+Euler.o : $(MODULE_DIR)/Physics/Euler.cc $(INC_BASE_DIR)/Physics/Euler.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
 # Executable
 main : $(OBJS) $(RTFIND_OBJS)
