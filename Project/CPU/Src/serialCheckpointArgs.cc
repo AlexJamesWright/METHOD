@@ -7,8 +7,7 @@
 #include "hdf5_hl.h"
 #include <stdexcept>
 
-
-SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) : CheckpointArgs()
+SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) : DataArgsBase()
 {
 	herr_t error=0, tmpError=-1;
 	hid_t file = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -27,6 +26,32 @@ SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) :
 	tmpError = H5LTget_attribute_double(file, ".", "t",  &(t));
 	if (tmpError < 0) error = tmpError;
 	if (error<0) throw std::runtime_error("Checkpoint restart file is missing some global attributes");
+
+        // Read optional file attributes
+	hid_t optionalGroup = H5Gopen(file, "Optional", H5P_DEFAULT);
+        if (optionalGroup >= 0){
+          // if the hdf5 file we're using has an optional sim args group. This may not be the case if the
+          // file is in an older style
+  	  tmpError = H5LTget_attribute_int(optionalGroup, ".", "nOptionalSimArgs",  &(this->nOptionalSimArgs));
+  
+          hid_t attr;
+          double optionalArg;
+          char *argName = (char*) malloc(256*sizeof(char));
+          // There should be no way for these arrays to have been written to, but clearing them just in case
+          this->optionalSimArgs.clear();
+          this->optionalSimArgNames.clear();
+          for (int i(0); i<nOptionalSimArgs; i++){
+            // read all the optional arguments, skipping the first attribute in this group, which is nOptionalSimArgs
+            // and has already been read
+            attr = H5Aopen_by_idx(optionalGroup, ".", H5_INDEX_CRT_ORDER, H5_ITER_INC, i+1, H5P_DEFAULT, H5P_DEFAULT);
+  	    tmpError = H5Aread(attr,  H5T_NATIVE_DOUBLE, &optionalArg);
+  	    tmpError = H5Aget_name(attr, 256, argName);
+            (this->optionalSimArgs).push_back(optionalArg);
+            (this->optionalSimArgNames).push_back(argName);
+          }
+          free(argName);
+          H5Gclose(optionalGroup);
+        }
 
 	// Remaining required attributes are stored in the Domain group
 	hid_t group = H5Gopen(file, "Domain", H5P_DEFAULT);
@@ -63,5 +88,6 @@ SerialCheckpointArgs::SerialCheckpointArgs(const char* name, PlatformEnv *env) :
         H5Gclose(group);
         H5Fclose(file);
 }
+
 
 

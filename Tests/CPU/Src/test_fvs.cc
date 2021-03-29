@@ -19,7 +19,7 @@ TEST(FVS, SameFnetAsSerial)
 */
 {
   SerialEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   Weno3 weno(&d);
   FVS fluxMethod(&d, &weno, &model);
@@ -56,7 +56,7 @@ TEST(FVS, SameFnetAsSerial)
 TEST(FVS, SameXReconstructionAsSerial)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   Weno3 weno(&d);
   FVS fluxMethod(&d, &weno, &model);
@@ -95,7 +95,7 @@ TEST(FVS, SameXReconstructionAsSerial)
 TEST(FVS, SameYReconstructionAsSerial)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   Weno3 weno(&d);
   FVS fluxMethod(&d, &weno, &model);
@@ -134,7 +134,7 @@ TEST(FVS, SameYReconstructionAsSerial)
 TEST(FVS, SameZReconstructionAsSerial)
 {
   SerialEnv env(0, NULL, 1, 1, 1);
-  Data d(20, 20, 0, 0, 1, 0, 1, 0, 1, 0.8, &env);
+  Data d(20, 20, 20, 0, 1, 0, 1, 0, 1, 0.8, &env);
   SRMHD model(&d);
   Weno3 weno(&d);
   FVS fluxMethod(&d, &weno, &model);

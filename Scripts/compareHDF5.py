@@ -96,7 +96,15 @@ def compare(file1, file2):
         for attribute_name, a_attribute in a_group.attrs.items():
             if attribute_name not in whitelist_attributes:
                 b_attribute = b_group.attrs[attribute_name]
-                if not np.allclose(a_attribute, b_attribute):
+                if a_attribute.dtype.char == 'S':
+                    if not a_attribute == b_attribute:
+                        warnings_found = True
+                        print(
+                            "Warning: "+group_name+" attribute '"+attribute_name+"' values differ!\n"
+                            " - "+file1+": "+a_attribute+"\n"
+                            " - "+file2+": "+b_attribute
+                        )
+                elif not np.allclose(a_attribute, b_attribute):
                     warnings_found = True
                     print(
                         "Warning: "+group_name+" attribute '"+attribute_name+"' values differ!\n"

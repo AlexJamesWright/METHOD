@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "platformEnv.h"
-#include "checkpointArgs.h"
+#include "dataArgs.h"
 
 // Macro for getting array index
 #define ID(variable, idx, jdx, kdx) ((variable)*(d->Nx)*(d->Ny)*(d->Nz) + (idx)*(d->Ny)*(d->Nz) + (jdx)*(d->Nz) + (kdx))
@@ -120,6 +120,12 @@ class Data
     is, js, ks,
     ie, je, ke;            //!< Cell IDs for interior grid points
     //@}
+    std::vector<double>
+    optionalSimArgs;          //!< Array of optional arguments that depend on the simulation being run
+    std::vector<std::string>
+    optionalSimArgNames;     //!< Names of optionalSimArgs array elements
+    int
+    nOptionalSimArgs=0;      //!< Number of elements to include in optionalSimArgs array
 
 
     //! Element ID function
@@ -166,10 +172,10 @@ class Data
       This is separated from the constructor to avoid duplicated code between the two available
       constructors for Data.
      */
-     void initData(PlatformEnv *env);
+     void initData(PlatformEnv *env, int nOptionalSimArgs=0, std::vector<double> optionalSimArgs=std::vector<double>(), std::vector<std::string> optionalSimArgNames=std::vector<std::string>());
 
 
-    //! Constructor
+    //! Constructor  -- all vars specified by comma separated list
     /*!
       @par
         Allocates the memory required for the state arrays and sets the simulation
@@ -184,6 +190,7 @@ class Data
       @param ymax maximum value of y domain
       @param zmin minimum value of z domain
       @param zmax maximum value of z domain
+      @param env environment object containing platform details eg MPI ranks
       @param endTime desired end time of the simulation
       @param cfl courant factor
       @param Ng number of ghost cells in each direction
@@ -193,7 +200,6 @@ class Data
       @param mu1 charge mass ratio of species 1
       @param mu2 charge mass ratio of species 2
       @param frameskip number of timesteps per file output
-      @param env environment object containing platform details eg MPI ranks
       @param reportItersPeriod period with which time step data is reported to screen during program execution
     */
     Data(int nx, int ny, int nz,
@@ -218,11 +224,11 @@ class Data
       constants to the given values. Does not set initial state, thats done by
       the initialFunc object.
       @param args simulation arguments such as cfl, sigma etc, as read from checkpoint restart file
-      @param mu1 charge mass ratio of species 1
-      @param mu2 charge mass ratio of species 2
+      @param env environment object containing platform details eg MPI ranks
     */
-    Data(CheckpointArgs args, PlatformEnv *env, double mu1=-1.0e4, double mu2=1.0e4,
-         int frameskip=10, int reportItersPeriod=1, int functionalSigma=false, double gam=12);
+    Data(DataArgsBase args, PlatformEnv *env);
+
+    ~Data() {};
 
 };
 

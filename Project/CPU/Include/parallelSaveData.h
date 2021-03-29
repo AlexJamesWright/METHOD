@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//! <b> Class used to save simulation data using multiple processes</b>
+//! <b> Class used to save simulation data to a text format using multiple processes</b>
 /*!
   @par
   Write outputs through the simple system of collecting all simulation data onto process 0

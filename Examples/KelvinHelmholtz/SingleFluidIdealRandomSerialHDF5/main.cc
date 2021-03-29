@@ -10,6 +10,8 @@
 #include "serialSaveDataHDF5.h"
 #include "weno.h"
 #include <cstring>
+#include <vector>
+#include <string>
 
 using namespace std;
 
@@ -27,7 +29,7 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   //double endTime(3.0);
-  double endTime(0.0);
+  double endTime(0.01);
   double cfl(0.6);
   double gamma(4.0/3.0);
   double sigma(10);
@@ -42,8 +44,24 @@ int main(int argc, char *argv[]) {
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+  const int nOptionalSimArgs = 1;
+  std::vector<double> optionalSimArgs = {seed};
+  std::vector<std::string> optionalSimArgNames = {"seed"}; 
+
+  // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
+  // The DataArgs constructor takes those parameters that are required rather than optional.
+  // The chained setter functions can be used to set any of the optional parameters. They can be used in any order and default
+  // values will be used for any parameters that are not set
+  DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
+        .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sSigma(sigma)
+	.sReportItersPeriod(reportItersPeriod).sOptionalSimArgs(optionalSimArgs, optionalSimArgNames, nOptionalSimArgs);
+
+  Data data = Data(dataArgs, &env);
+
+  // The following is an example of creating the Data object without using named parameters -- in this case vars must be specified
+  // in order and all optional parameters before the last optional parameter of interest must be listed
+  //Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+            //cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   SRMHD model(&data);

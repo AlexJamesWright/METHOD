@@ -351,9 +351,6 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
   if (d->nx%2 || d->ny%2 || d->nz%2)
     throw std::invalid_argument("Please ensure even number of cells in each direction for Brio Wu initial data.\n");
 
-  int endX(d->Nx - 1);
-  int endY(d->Ny - 1);
-  int endZ(d->Nz - 1);
   int facX(1);
   int facY(1);
   int facZ(1);
@@ -382,25 +379,79 @@ BrioWuSingleFluid::BrioWuSingleFluid(Data * data, int dir) : InitialFunc(data)
     lBx = 0.5;
     rBx = -0.5;
   }
+  double xLower((d->xmax - d->xmin)/facX + d->xmin);
+  double yLower((d->ymax - d->ymin)/facY + d->ymin);
+  double zLower((d->zmax - d->zmin)/facZ + d->zmin);
+  double xUpper(d->xmax - (d->xmax - d->xmin)/facX);
+  double yUpper(d->ymax - (d->ymax - d->ymin)/facY);
+  double zUpper(d->zmax - (d->zmax - d->zmin)/facZ);
 
-  for (int i(0); i < d->Nx/facX; i++) {
-    for (int j(0); j < d->Ny/facY; j++) {
-      for (int k(0); k < d->Nz/facZ; k++) {
+  if (d->dims==3){
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          for (int k(0); k < d->Nz; k++) {
+            // Left side
+            if ((d->x[i] < xLower) && (d->y[j] < yLower) && (d->z[k] < zLower)){
+                d->prims[ID(0, i, j, k)] = 1;
+                d->prims[ID(4, i, j, k)] = 1;
+                d->prims[ID(5, i, j, k)] = lBx;
+                d->prims[ID(6, i, j, k)] = lBy;
+                d->prims[ID(7, i, j, k)] = lBz;
+            }
+
+            // Right side
+            if ((d->x[i] > xUpper) && (d->y[j] > yUpper) && (d->z[k] > zUpper)){
+                d->prims[ID(0, i, j, k)] = 0.125;
+                d->prims[ID(4, i, j, k)] = 0.1;
+                d->prims[ID(5, i, j, k)] = rBx;
+                d->prims[ID(6, i, j, k)] = rBy;
+                d->prims[ID(7, i, j, k)] = rBz;
+            }
+          }
+        }
+      }
+  } else if (d->dims==2) {
+      for (int i(0); i < d->Nx; i++) {
+        for (int j(0); j < d->Ny; j++) {
+          // Left side
+          if ((d->x[i] < xLower) && (d->y[j] < yLower)){
+              d->prims[ID(0, i, j, 0)] = 1;
+              d->prims[ID(4, i, j, 0)] = 1;
+              d->prims[ID(5, i, j, 0)] = lBx;
+              d->prims[ID(6, i, j, 0)] = lBy;
+              d->prims[ID(7, i, j, 0)] = lBz;
+          }
+
+          // Right side
+          if ((d->x[i] > xUpper) && (d->y[j] > yUpper)){
+              d->prims[ID(0, i, j, 0)] = 0.125;
+              d->prims[ID(4, i, j, 0)] = 0.1;
+              d->prims[ID(5, i, j, 0)] = rBx;
+              d->prims[ID(6, i, j, 0)] = rBy;
+              d->prims[ID(7, i, j, 0)] = rBz;
+          }
+        }
+      }
+  } else {
+      for (int i(0); i < d->Nx; i++) {
         // Left side
-        d->prims[ID(0, i, j, k)] = 1;
-        d->prims[ID(4, i, j, k)] = 1;
-        d->prims[ID(5, i, j, k)] = lBx;
-        d->prims[ID(6, i, j, k)] = lBy;
-        d->prims[ID(7, i, j, k)] = lBz;
+        if (d->x[i] < xLower){
+            d->prims[ID(0, i, 0, 0)] = 1;
+            d->prims[ID(4, i, 0, 0)] = 1;
+            d->prims[ID(5, i, 0, 0)] = lBx;
+            d->prims[ID(6, i, 0, 0)] = lBy;
+            d->prims[ID(7, i, 0, 0)] = lBz;
+        }
 
         // Right side
-        d->prims[ID(0, endX - i, endY - j, endZ - k)] = 0.125;
-        d->prims[ID(4, endX - i, endY - j, endZ - k)] = 0.1;
-        d->prims[ID(5, endX - i, endY - j, endZ - k)] = rBx;
-        d->prims[ID(6, endX - i, endY - j, endZ - k)] = rBy;
-        d->prims[ID(7, endX - i, endY - j, endZ - k)] = rBz;
+        if (d->x[i] > xUpper){
+            d->prims[ID(0, i, 0, 0)] = 0.125;
+            d->prims[ID(4, i, 0, 0)] = 0.1;
+            d->prims[ID(5, i, 0, 0)] = rBx;
+            d->prims[ID(6, i, 0, 0)] = rBy;
+            d->prims[ID(7, i, 0, 0)] = rBz;
+        }
       }
-    }
   }
 }
 
@@ -440,6 +491,14 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
           d->prims[ID(0, i, j, k)] = rho0 - rho1 * tanh((d->y[j] + 0.5)/a);
           d->prims[ID(1, i, j, k)] = - vShear * tanh((d->y[j] + 0.5)/a);
           d->prims[ID(2, i, j, k)] = - A0 * vShear * sin(2*PI*d->x[i]) * (exp(-pow((d->y[j] + 0.5), 2)/(sig*sig)));
+        }
+
+        // If we have electric fields, set to the ideal values
+        if (d->Ncons > 9)
+        {
+          d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
+          d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
+          d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
         }
       }
     }
