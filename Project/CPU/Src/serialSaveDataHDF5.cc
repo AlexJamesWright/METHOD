@@ -93,7 +93,8 @@ void SerialSaveDataHDF5::writeDataSetDouble(const hid_t *group, const char *name
 
   // Now create the buffer to store the data in
   // double buffer[buffer_size];
-  double *buffer = (double *) malloc(buffer_size*sizeof(double));
+  // double *buffer = (double *) malloc(buffer_size*sizeof(double));
+  double * buffer = new double[buffer_size];
   int buffer_position(0);
 
   // Consider the efficiency of this! std::copy would probably be better but maybe the compiler
@@ -106,6 +107,8 @@ void SerialSaveDataHDF5::writeDataSetDouble(const hid_t *group, const char *name
     }
   }
   H5LTmake_dataset_double(*group, name, d->dims, lengths, buffer);
+
+  delete[] buffer;
 }
 
 
