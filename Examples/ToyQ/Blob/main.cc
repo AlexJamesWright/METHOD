@@ -46,15 +46,7 @@ int main(int argc, char *argv[]) {
   // With really steep initial data there can be minor Gibbs oscillation
   // effects, but even at crazy resolutions (65k) these are small provided
   // the CFL limit is met.
-  // double gamma(1.0);
-  // double sigma(1.0);
-  // double cp(1.0);
-  // double mu1(-100);
-  // double mu2(100);
-  // int frameSkip(10);
   bool output(false);
-  // int reportItersPeriod(50);
-
   int nreports(50);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
@@ -68,9 +60,6 @@ int main(int argc, char *argv[]) {
   data_args.sOptionalSimArgs(toy_params, toy_param_names, n_toy_params);
 
   Data data(data_args, &env);
-
-  // Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-  //           cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   ToyQ model(&data);
@@ -97,8 +86,6 @@ int main(int argc, char *argv[]) {
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   save.saveAll();
-  // Time execution of programme
-  //  double startTime(omp_get_wtime());
 
   for (int n(0); n<nreports; n++) {
     data.endTime = (n+1)*endTime/(nreports);

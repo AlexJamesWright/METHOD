@@ -44,8 +44,8 @@ void ToyQ_CE::sourceTerm(double *cons, double *prims, double *aux, double *sourc
   // Syntax
   Data * d(this->data);
 
-  float kappa = d->gamma; // Quick hack to use existing variables
-  float tau_q = d->sigma;
+  float kappa = d->optionalSimArgs[0]; 
+  float tau_q = d->optionalSimArgs[1];
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;

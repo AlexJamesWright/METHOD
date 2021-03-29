@@ -41,20 +41,20 @@ int main(int argc, char *argv[]) {
   // I would expect this to scale with resolution, but it's still stable at 4096.
   // It does seem to fail at 16k, but at 8k is still stable. So the scaling with dx
   // doesn't seem as fast as I expected (more testing needed).
-  double gamma(0.00005);
-  double sigma(0.00005);
-  double cp(1.0);
-  double mu1(-100);
-  double mu2(100);
-  int frameSkip(10);
   bool output(false);
-  int reportItersPeriod(50);
   int nreports(20);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+  DataArgs data_args(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime);
+  data_args.sCfl(cfl);
+  data_args.sNg(Ng);
+  const std::vector<double> toy_params { {0.00005, 0.00005} };
+  const std::vector<std::string> toy_param_names = {"kappa", "tau_q"};
+  const int n_toy_params(2);
+  data_args.sOptionalSimArgs(toy_params, toy_param_names, n_toy_params);
+
+  Data data(data_args, &env);
 
   // Choose particulars of simulation
   ToyQ_CE model(&data);

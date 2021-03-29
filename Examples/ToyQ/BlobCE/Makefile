@@ -42,10 +42,6 @@ SRCS = simulation.cc \
 			 weno.cc 								\
 			 RK2.cc \
 			 rkSplit.cc \
-			 backRKArgs.cc \
-			 backwardsRK.cc \
-			 IMEX2Args.cc \
-			 SSP2.cc \
 			 boundaryConds.cc \
 			 fluxVectorSplitting.cc \
 
