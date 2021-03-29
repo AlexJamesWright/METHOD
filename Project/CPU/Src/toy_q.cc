@@ -39,8 +39,8 @@ void ToyQ::sourceTermSingleCell(double *cons, double *prims, double *aux, double
   // printf("ToyQ model does not implement sourceTermSingleCell\n");
   // exit(1);
 
-  float kappa = this->data->gamma; // Quick hack to use existing variables
-  float tau_q = this->data->sigma;
+  float kappa = this->data->optionalSimArgs[0];
+  float tau_q = this->data->optionalSimArgs[1];
 
   source[0] = 0.0;
   for (int dir(0); dir < 3; dir++) {
@@ -53,8 +53,8 @@ void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
   // Syntax
   Data * d(this->data);
 
-  float kappa = d->gamma; // Quick hack to use existing variables
-  float tau_q = d->sigma;
+  float kappa = d->optionalSimArgs[0]; 
+  float tau_q = d->optionalSimArgs[1];
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {

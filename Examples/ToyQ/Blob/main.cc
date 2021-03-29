@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   // int nx(65536);
   // int nx(32768);
   int nx(1024);
-  int ny(1024);
+  int ny(0);
   int nz(0);
   double xmin(0.0);
   double xmax(1.0);
@@ -46,20 +46,31 @@ int main(int argc, char *argv[]) {
   // With really steep initial data there can be minor Gibbs oscillation
   // effects, but even at crazy resolutions (65k) these are small provided
   // the CFL limit is met.
-  double gamma(1.0);
-  double sigma(1.0);
-  double cp(1.0);
-  double mu1(-100);
-  double mu2(100);
-  int frameSkip(10);
+  // double gamma(1.0);
+  // double sigma(1.0);
+  // double cp(1.0);
+  // double mu1(-100);
+  // double mu2(100);
+  // int frameSkip(10);
   bool output(false);
-  int reportItersPeriod(50);
+  // int reportItersPeriod(50);
+
   int nreports(50);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
-  Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
-            cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
+  DataArgs data_args(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime);
+  data_args.sCfl(cfl);
+  data_args.sNg(Ng);
+  const std::vector<double> toy_params { {1.0, 1.0} };
+  const std::vector<std::string> toy_param_names = {"kappa", "tau_q"};
+  const int n_toy_params(2);
+  data_args.sOptionalSimArgs(toy_params, toy_param_names, n_toy_params);
+
+  Data data(data_args, &env);
+
+  // Data data(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime, &env,
+  //           cfl, Ng, gamma, sigma, cp, mu1, mu2, frameSkip, reportItersPeriod);
 
   // Choose particulars of simulation
   ToyQ model(&data);
@@ -73,14 +84,14 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  // BlobToyQ init(&data);
-  Blob2dToyQ init(&data);
+  BlobToyQ init(&data);
+  // Blob2dToyQ init(&data);
 
   // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
   // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, "2d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
+  SerialSaveDataHDF5 save(&data, &env, "1d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -91,26 +102,10 @@ int main(int argc, char *argv[]) {
 
   for (int n(0); n<nreports; n++) {
     data.endTime = (n+1)*endTime/(nreports);
-    SerialSaveDataHDF5 save_in_loop(&data, &env, "2d/data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
+    SerialSaveDataHDF5 save_in_loop(&data, &env, "1d/data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
     sim.evolve(output);
     save_in_loop.saveAll();
   }
-
-  // Run until end time and save results
-//   sim.evolve(output);
-
-//   //  double timeTaken(omp_get_wtime() - startTime);
-
-//   save.saveAll();
-// //  printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
-//   printf("\nCompleted %d iterations.\n", data.iters);
-
-// // This bit is to illustrate how we can get multiple outputs
-//   data.endTime = 4.0;
-//   SerialSaveDataHDF5 save2(&data, &env, "data_serial_2", SerialSaveDataHDF5::OUTPUT_ALL);
-//   sim.evolve(output);
-//   save2.saveAll();
-//   printf("\nCompleted %d iterations.\n", data.iters);
 
   return 0;
 
