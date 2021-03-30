@@ -103,21 +103,24 @@ void ToyQ::getPrimitiveVars(double *cons, double *prims, double *aux)
       }
     }
   }
-  for (int i(d->is); i < d->ie; i++) {
-    for (int j(d->js); j < d->je; j++) {
-      for (int k(d->ks); k < d->ke; k++) {
-        aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
+  if (d->dims > 1) {
+    for (int i(d->is); i < d->ie; i++) {
+      for (int j(d->js); j < d->je; j++) {
+        for (int k(d->ks); k < d->ke; k++) {
+          aux[ID(1, i, j, k)] = (prims[ID(0, i, j+1, k)]-prims[ID(0, i, j-1, k)])/(2*d->dy);
+        }
+      }
+    }
+    if (d->dims > 2) {
+      for (int i(d->is); i < d->ie; i++) {
+        for (int j(d->js); j < d->je; j++) {
+          for (int k(d->ks); k < d->ke; k++) {
+            aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
+          }
+        }
       }
     }
   }
-  for (int i(d->is); i < d->ie; i++) {
-    for (int j(d->js); j < d->je; j++) {
-      for (int k(d->ks); k < d->ke; k++) {
-        aux[ID(2, i, j, k)] = (prims[ID(0, i, j, k+1)]-prims[ID(0, i, j, k-1)])/(2*d->dz);
-      }
-    }
-  }
-
 }
 
 void ToyQ::primsToAll(double *cons, double *prims, double *aux)
