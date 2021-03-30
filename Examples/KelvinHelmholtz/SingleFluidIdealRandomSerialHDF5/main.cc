@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   SerialEnv env(&argc, &argv, 1, 1, 1);
 
   const int nOptionalSimArgs = 1;
-  std::vector<double> optionalSimArgs = {seed};
+  std::vector<double> optionalSimArgs = {(double)seed};
   std::vector<std::string> optionalSimArgNames = {"seed"}; 
 
   // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  

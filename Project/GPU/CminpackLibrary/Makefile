@@ -17,8 +17,8 @@ SRCS = $(wildcard $(MODULE_DIR)/*.cu)
 OBJS = $(SRCS:.cu=.o)
 
 # Compile rule
-%.o: %.cu $(INC_DIR)/cminpack.h  $(INC_DIR)/cminpackP.h
-	${CC} ${CFLAGS}  -o $@ $< -I$(INC_DIR)
+%.o: %.cu $(INC_BASE_DIR)/cminpack.h  $(INC_BASE_DIR)/cminpackP.h
+	${CC} ${CFLAGS}  -o $@ $< -I$(INC_BASE_DIR)
 
 # Compile all rootfinder objects
 objects : $(OBJS)

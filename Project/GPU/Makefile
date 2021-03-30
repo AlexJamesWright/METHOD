@@ -170,97 +170,97 @@ clean :
 # Build objects #
 #################
 
-simData.o : $(MODULE_DIR)/simData.cu $(INC_DIR)/simData.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/simData.cu $(INC_BASE_DIR)/Simulation/simData.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-serialCheckpointArgs.o : $(MODULE_DIR)/serialCheckpointArgs.cu $(INC_DIR)/serialCheckpointArgs.h
-	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
+serialCheckpointArgs.o : $(MODULE_DIR)/serialCheckpointArgs.cu $(INC_BASE_DIR)/serialCheckpointArgs.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_BASE_DIR)
 
-parallelCheckpointArgs.o : $(MODULE_DIR)/parallelCheckpointArgs.cu $(INC_DIR)/parallelCheckpointArgs.h
-	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR) $(MPI_FLAGS)
+parallelCheckpointArgs.o : $(MODULE_DIR)/parallelCheckpointArgs.cu $(INC_BASE_DIR)/parallelCheckpointArgs.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_BASE_DIR) $(MPI_FLAGS)
 
-initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/initFunc.cu $(INC_BASE_DIR)/InitialData/initFunc.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-initFuncFromCheckpoint.o : $(MODULE_DIR)/initFuncFromCheckpoint.cu $(INC_DIR)/initFuncFromCheckpoint.h	$(INC_DIR)/simData.h
-	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
+initFuncFromCheckpoint.o : $(MODULE_DIR)/initFuncFromCheckpoint.cu $(INC_BASE_DIR)/initFuncFromCheckpoint.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_BASE_DIR)
 
-C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_DIR)/C2PArgs.h	$(INC_DIR)/simData.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+C2PArgs.o : $(MODULE_DIR)/C2PArgs.cu $(INC_BASE_DIR)/C2PArgs.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_DIR)/twoFluidEMHD.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+twoFluidEMHD.o : $(MODULE_DIR)/twoFluidEMHD.cu $(INC_BASE_DIR)/twoFluidEMHD.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_DIR)/srmhd.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
+srmhd.o : $(MODULE_DIR)/srmhd.cu $(INC_BASE_DIR)/srmhd.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
-srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_DIR)/srrmhd.h $(INC_DIR)/C2PArgs.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srrmhd.o : $(MODULE_DIR)/srrmhd.cu $(INC_BASE_DIR)/srrmhd.h $(INC_BASE_DIR)/C2PArgs.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/simulation.cu	$(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h	$(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/DataIO/saveData.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-main.o : $(MODULE_DIR)/main.cu $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(MPI_FLAGS)
+main.o : $(MODULE_DIR)/main.cu $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h $(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/InitialData/initFunc.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR) $(MPI_FLAGS)
 
-weno.o : $(MODULE_DIR)/weno.cu $(INC_DIR)/weno.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/weno.cu $(INC_BASE_DIR)/Flux/weno.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-RK2.o : $(MODULE_DIR)/RK2.cu $(INC_DIR)/RK2.h
-		$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+RK2.o : $(MODULE_DIR)/RK2.cu $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+		$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -Xcompiler -fopenmp
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+rkSplit.o : $(MODULE_DIR)/rkSplit.cu $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -Xcompiler -fopenmp
 
-backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_DIR)/backwardsRK.h $(INC_DIR)/backRKArgs.h $(INC_DIR)/rkSplit.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backwardsRK.o : $(MODULE_DIR)/backwardsRK.cu $(INC_BASE_DIR)/TimeIntegrators/backwardsRK.h $(INC_BASE_DIR)/TimeIntegrators/backRKArgs.h $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_DIR)/backRKArgs.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+backRKArgs.o : $(MODULE_DIR)/backRKArgs.cu $(INC_BASE_DIR)/TimeIntegrators/backRKArgs.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_DIR)/SSP2.h $(INC_DIR)/IMEX2Args.h $(INC_DIR)/timeInt.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
+SSP2.o : $(MODULE_DIR)/SSP2.cu $(INC_BASE_DIR)/TimeIntegrators/SSP2.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h $(INC_BASE_DIR)/timeInt.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR) -Xcompiler -fopenmp
 
-IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_DIR)/IMEX2Args.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX2Args.o : $(MODULE_DIR)/IMEX2Args.cu $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-SSP3.o : $(MODULE_DIR)/SSP3.cu $(INC_DIR)/SSP3.h $(INC_DIR)/IMEX3Args.h $(INC_DIR)/timeInt.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+SSP3.o : $(MODULE_DIR)/SSP3.cu $(INC_BASE_DIR)/SSP3.h $(INC_BASE_DIR)/IMEX3Args.h $(INC_BASE_DIR)/timeInt.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cu $(INC_DIR)/IMEX3Args.h $(INC_DIR)/IMEX2Args.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+IMEX3Args.o : $(MODULE_DIR)/IMEX3Args.cu $(INC_BASE_DIR)/IMEX3Args.h $(INC_BASE_DIR)/TimeIntegrators/IMEX2Args.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -I$(RTFIND_INC_DIR)
 
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_DIR)/boundaryConds.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+boundaryConds.o : $(MODULE_DIR)/boundaryConds.cu $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -Xcompiler -fopenmp
 
-serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_DIR)/serialSaveData.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+serialSaveData.o : $(MODULE_DIR)/serialSaveData.cu $(INC_BASE_DIR)/DataIO/serialSaveData.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cu $(INC_DIR)/serialSaveDataHDF5.h
-	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_DIR)
+serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cu $(INC_BASE_DIR)/DataIO/serialSaveDataHDF5.h
+	$(CC_GPU)	$<	-c	$(HDF5_FLAGS) $(NVFLAGS) -I$(INC_BASE_DIR)
 
-serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_DIR)/serialEnv.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR)
+serialEnv.o : $(MODULE_DIR)/serialEnv.cu $(INC_BASE_DIR)/Simulation/serialEnv.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR)
 
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_DIR) -Xcompiler -fopenmp
+fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cu $(INC_BASE_DIR)/Flux/fluxVectorSplitting.h $(INC_BASE_DIR)/Flux/weno.h
+	$(CC_GPU)	$<	-c	$(NVFLAGS) -I$(INC_BASE_DIR) -Xcompiler -fopenmp
 
 #parallel sources -- these need to be compiled with the MPI library linked, which can be accomplished by compiling with mpic++
 
-parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_DIR)/parallelSaveData.h
-	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cu $(INC_BASE_DIR)/DataIO/parallelSaveData.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_BASE_DIR) $(MPI_FLAGS)
 
-parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cu $(INC_DIR)/parallelSaveDataHDF5.h
-	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cu $(INC_BASE_DIR)/DataIO/parallelSaveDataHDF5.h
+	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_BASE_DIR) $(MPI_FLAGS)
 
-parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_DIR)/parallelBoundaryConds.h
-	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cu $(INC_BASE_DIR)/BoundaryConditions/parallelBoundaryConds.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_BASE_DIR) $(MPI_FLAGS)
 
-parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_DIR)/parallelEnv.h
-	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+parallelEnv.o : $(MODULE_DIR)/parallelEnv.cu $(INC_BASE_DIR)/Simulation/parallelEnv.h
+	$(CC_GPU)	$<	-c $(NVFLAGS)	-I$(INC_BASE_DIR) $(MPI_FLAGS)
 
-parallelInitFuncFromCheckpoint.o : $(MODULE_DIR)/parallelInitFuncFromCheckpoint.cu $(INC_DIR)/parallelInitFuncFromCheckpoint.h	$(INC_DIR)/simData.h
-	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_DIR) $(MPI_FLAGS)
+parallelInitFuncFromCheckpoint.o : $(MODULE_DIR)/parallelInitFuncFromCheckpoint.cu $(INC_BASE_DIR)/parallelInitFuncFromCheckpoint.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC_GPU)	$<	-c $(HDF5_FLAGS) $(NVFLAGS)	-I$(INC_BASE_DIR) $(MPI_FLAGS)
 
 #end parallel sources
 

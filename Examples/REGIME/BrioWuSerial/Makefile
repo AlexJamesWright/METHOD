@@ -17,7 +17,9 @@ MODULE_DIR = ./../../../Project/${PROJECT_TYPE}/Src
 RTFIND_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary
 
 # Include directory
-INC_DIR = ./../../../Project/${PROJECT_TYPE}/Include
+INC_BASE_DIR = ./../../../Project/${PROJECT_TYPE}/Include
+INC_DIRS = ./../../../Project/${PROJECT_TYPE}/Include/BoundaryConditions ./../../../Project/${PROJECT_TYPE}/Include/DataIO ./../../../Project/${PROJECT_TYPE}/Include/Flux ./../../../Project/${PROJECT_TYPE}/Include/InitialData ./../../../Project/${PROJECT_TYPE}/Include/Physics ./../../../Project/${PROJECT_TYPE}/Include/Simulation ./../../../Project/${PROJECT_TYPE}/Include/TimeIntegrators
+INC_PARAMS = $(foreach d, $(INC_DIRS), -I$d)
 
 # Cminpack include directory
 RTFIND_INC_DIR = ./../../../Project/${PROJECT_TYPE}/CminpackLibrary/Include
@@ -114,51 +116,51 @@ clean :
 # Build objects #
 #################
 
-simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+simData.o : $(MODULE_DIR)/Simulation/simData.cc $(INC_BASE_DIR)/Simulation/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+initFunc.o : $(MODULE_DIR)/InitialData/initFunc.cc $(INC_BASE_DIR)/InitialData/initFunc.h	$(INC_BASE_DIR)/Simulation/simData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+srmhd.o : $(MODULE_DIR)/Physics/srmhd.cc $(INC_BASE_DIR)/Physics/srmhd.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR)
 
-simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+simulation.o : $(MODULE_DIR)/Simulation/simulation.cc	$(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h	$(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/DataIO/saveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-main.o : ./main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/initFunc.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
+main.o : ./main.cc $(INC_BASE_DIR)/Simulation/simulation.h $(INC_BASE_DIR)/Physics/model.h $(INC_BASE_DIR)/Simulation/simData.h $(INC_BASE_DIR)/InitialData/initFunc.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
 
-wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+wenoUpwinds.o : $(MODULE_DIR)/Flux/wenoUpwinds.cc $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+weno.o : $(MODULE_DIR)/Flux/weno.cc $(INC_BASE_DIR)/Flux/weno.h $(INC_BASE_DIR)/Flux/wenoUpwinds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
-		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+RK2.o : $(MODULE_DIR)/TimeIntegrators/RK2.cc $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+		$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+rkSplit.o : $(MODULE_DIR)/TimeIntegrators/rkSplit.cc $(INC_BASE_DIR)/TimeIntegrators/rkSplit.h $(INC_BASE_DIR)/TimeIntegrators/RK2.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+boundaryConds.o : $(MODULE_DIR)/BoundaryConditions/boundaryConds.cc $(INC_BASE_DIR)/BoundaryConditions/boundaryConds.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+serialSaveData.o : $(MODULE_DIR)/DataIO/serialSaveData.cc $(INC_BASE_DIR)/DataIO/serialSaveData.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+fluxVectorSplitting.o : $(MODULE_DIR)/Flux/fluxVectorSplitting.cc $(INC_BASE_DIR)/Flux/fluxVectorSplitting.h $(INC_BASE_DIR)/Flux/weno.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
 # Resistive subgrid model
-REGIME.o : $(MODULE_DIR)/REGIME.cc $(INC_DIR)/REGIME.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+REGIME.o : $(MODULE_DIR)/Physics/REGIME.cc $(INC_BASE_DIR)/Physics/REGIME.h
+	$(CC)	$<	-c	$(CXXFLAGS) $(INC_PARAMS)
 
-serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+serialEnv.o : $(MODULE_DIR)/Simulation/serialEnv.cc $(INC_BASE_DIR)/Simulation/serialEnv.h
+	$(CC)   $<  -c  $(CXXFLAGS) $(INC_PARAMS)
 
-parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(CC)   $<  -c  $(CXXFLAGS) -I$(INC_DIR)
+parallelEnv.o : $(MODULE_DIR)/Simulation/parallelEnv.cc $(INC_BASE_DIR)/Simulation/parallelEnv.h
+	$(CC)   $<  -c  $(CXXFLAGS) $(INC_PARAMS)
 
 
 # Executable

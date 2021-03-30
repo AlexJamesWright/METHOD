@@ -17,8 +17,6 @@
 #include <iostream>
 #include <cstring>
 
-#define ID(variable, idx, jdx, kdx) ((variable)*(data.Nx)*(data.Ny)*(data.Nz) + (idx)*(data.Ny)*(data.Nz) + (jdx)*(data.Nz) + (kdx))
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
