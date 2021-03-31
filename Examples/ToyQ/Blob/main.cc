@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   int Ng(4);
   // int nx(65536);
   // int nx(32768);
-  int nx(1024);
+  int nx(256);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(0.2);
+  double endTime(100.0);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   DataArgs data_args(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime);
   data_args.sCfl(cfl);
   data_args.sNg(Ng);
-  const std::vector<double> toy_params { {1.0, 1.0} };
+  const std::vector<double> toy_params { {1.0e-4, 1.0e-4} };
   const std::vector<std::string> toy_param_names = {"kappa", "tau_q"};
   const int n_toy_params(2);
   data_args.sOptionalSimArgs(toy_params, toy_param_names, n_toy_params);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
   // BackwardsRK2 timeInt(&data, &model, &bcs, &fluxMethod);
   SSP2 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, "1d/data_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
+  SerialSaveDataHDF5 save(&data, &env, "1d/data_1em4_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
   for (int n(0); n<nreports; n++) {
     data.endTime = (n+1)*endTime/(nreports);
-    SerialSaveDataHDF5 save_in_loop(&data, &env, "1d/data_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
+    SerialSaveDataHDF5 save_in_loop(&data, &env, "1d/data_1em4_serial"+std::to_string(n+1), SerialSaveDataHDF5::OUTPUT_ALL);
     sim.evolve(output);
     save_in_loop.saveAll();
   }
