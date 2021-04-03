@@ -42,14 +42,14 @@ int main(int argc, char *argv[]) {
   std::string base_imex = base_dir+"data_imex";
   std::string base_ce = base_dir+"data_ce";
 
-  for (int params_n=0; params_n<3; params_n++) {
+  for (int params_n=0; params_n<4; params_n++) {
     double kappa = base_kappa / pow(10, params_n);
     double tau_q = base_tau_q / pow(10, params_n);
     double endTime = base_endTime * pow(10, params_n);
     cout << "Doing params_n " << params_n << " " << kappa << endl;
-    for (int grid_n=0; grid_n<4; grid_n++) {
-    cout << "Doing grid_n " << grid_n << endl;
-      int nx = base_nx * pow(2, grid_n);
+    int nx = base_nx;
+    while ((nx * kappa < 1.0) && (nx < 5000)) {
+      cout << "Resolution " << nx << endl;
 
       DataArgs data_args_imex(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime);
       data_args_imex.sCfl(cfl);
@@ -109,6 +109,8 @@ int main(int argc, char *argv[]) {
       save_imex.saveAll();
       sim_ce.evolve(output);
       save_ce.saveAll();
+
+      nx *= 2;
 
     }
   }
