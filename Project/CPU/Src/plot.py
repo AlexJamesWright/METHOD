@@ -35,8 +35,8 @@ class TimeSeriesData(DataBase):
 
     def __init__(self, datadir):
         super().__init__(datadir)
-        self.__ntimes = None
-        self.__vars   = None
+        self.__ntimes = int()
+        self.__vars   = list()
         
     @property
     def ntimes(self):
@@ -82,43 +82,75 @@ class TimeSeriesData(DataBase):
         """
         return h5py.File(self._files[idx], 'r')
 
+    def _getFileIndexFromTime(self, t):
+        """
+        Get the file index containing the data that is closest to the requested
+        time.
+        """
+        return np.argmin(np.abs(self.ts-t))
+
     def _loadFileFromTime(self, t):
         """
         Load a h5py file for a specific time. If a frame doesnt exist for the 
         exact time requested, it will return the file for the frame that is
         closest.
         """
-        idx = np.argmin(np.abs(self.ts-t))
-        return self._loadFileFromIndex(idx)
+        return self._loadFileFromIndex(self._getFileIndexFromTime(t))
         
     def __getitem__(self, pos):
         """
-        Return the frames 
-        Ordering of indices: variable name, time index, x, y, z
+        Return the frames of a given variable. Slicing can be done via file 
+        index (frame number) or by time sliceing (by providing floats).
+        Ordering of indices: variable name, frame index/time, x, y, z
+        
+        When slicing with times, the range is inclusive of the final time, and 
+        will return all frames within the range provided. The frames with the 
+        closest times to those provided are used in the range. E.g. 
+        
         
         Example
         -------
         
         Return 2D rho data for every time frame
-        
         >>> dat['rho'].shape
             (10, 256, 128)
         Return the 5=0 pressure data for the final 5 frames
-        
         >>> dat['p', -5:, :, 64].shape
             (5, 256)
         """
         if isinstance(pos, str): pos = (pos, slice(None))
         if isinstance(pos[1], slice):
             s =  pos[1]
-            stop  = s.stop  or self.ntimes
-            start = s.start or 0
-            step  = s.step  or 1
-            s = slice(start, stop, step)
-            return np.stack([np.array(self._loadFileFromIndex(d)['UserDef'][pos[0]])[pos[2:]] for d in range(s.start, s.stop)], axis=0)
+            # Index slicing or time slicing?
+            if isinstance(s.start, float) or isinstance(s.stop, float):
+                stop  = self._getFileIndexFromTime(s.stop)+1  or self.ntimes
+                start = self._getFileIndexFromTime(s.start) or 0
+                step  = 1
+                s = slice(start, stop, step)
+                return np.stack([np.array(self._loadFileFromIndex(d)['UserDef'][pos[0]])[pos[2:]] for d in range(s.start, s.stop)], axis=0)
+            else:
+                stop  = s.stop  or self.ntimes
+                start = s.start or 0
+                step  = s.step  or 1
+                s = slice(start, stop, step)
+                return np.stack([np.array(self._loadFileFromIndex(d)['UserDef'][pos[0]])[pos[2:]] for d in range(s.start, s.stop)], axis=0)
         else:
-            return np.array(self._loadFileFromIndex(pos[1])['UserDef'][pos[0]])[pos[2:]]
+            # By index or time?
+            if isinstance(pos[1], float):
+                return np.array(self._loadFileFromTime(pos[1])['UserDef'][pos[0]])[pos[2:]]
+            else:
+                return np.array(self._loadFileFromIndex(pos[1])['UserDef'][pos[0]])[pos[2:]]
         
+    def __repr__(self):
+        if self.vars:
+            s = 'TimeSeriesData object containing:\n'
+            for var in self.vars:
+                s += f"\tVariable `{var}' with shape {self[var].shape}\n"
+        else:
+            s = 'Empty TimeSeriesData object\n'
+        return s
+    
+
 
 # class SingleTimeData(DataBase):
 #     def loadData(self, pattern=''):
