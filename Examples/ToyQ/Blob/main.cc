@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
 
   // Choose particulars of simulation
   ToyQ model(&data);
+  // ToyQFunctional model(&data);
 
   Weno3 weno(&data);
 

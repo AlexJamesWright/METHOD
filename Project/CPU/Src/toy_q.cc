@@ -182,3 +182,59 @@ void ToyQ::fluxVector(double *cons, double *prims, double *aux, double *f, const
     } // End j loop
   } // End i loop
 }
+
+
+/* Model with functional kappa dependence */
+
+ToyQFunctional::ToyQFunctional() : ToyQ()
+{
+}
+
+ToyQFunctional::ToyQFunctional(Data * data) : ToyQ(data)
+{
+}
+
+ToyQFunctional::~ToyQFunctional()
+{
+}
+
+double kappa_of_T(double T, double kappa_0) {
+  return kappa_0 / (0.1 + T + T*T);
+}
+
+double tau_q_of_T(double T, double tau_q_0) {
+  return tau_q_0 / (0.1 + 0.5 * T + T*T);
+}
+
+void ToyQFunctional::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
+{
+  
+  float kappa_0 = this->data->optionalSimArgs[0];
+  float tau_q_0 = this->data->optionalSimArgs[1];
+
+  source[0] = 0.0;
+  for (int dir(0); dir < 3; dir++) {
+    source[1+dir] = -(kappa_of_T(cons[0], kappa_0) * aux[dir] + prims[1+dir]) / tau_q_of_T(cons[0], tau_q_0);
+  }
+}
+
+void ToyQFunctional::sourceTerm(double *cons, double *prims, double *aux, double *source)
+{
+  // Syntax
+  Data * d(this->data);
+
+  float kappa_0 = d->optionalSimArgs[0]; 
+  float tau_q_0 = d->optionalSimArgs[1];
+
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        source[ID(0, i, j, k)] = 0.0;
+        for (int dir(0); dir < 3; dir++) {
+          source[ID(1+dir, i, j, k)] = -(kappa_of_T(cons[ID(0, i, j, k)], kappa_0) * aux[ID(dir, i, j, k)] +
+                                         prims[ID(1+dir, i, j, k)]) / tau_q_of_T(cons[ID(0, i, j, k)], tau_q_0);
+        }
+      }
+    }
+  }
+}

@@ -28,4 +28,23 @@ class ToyQ : public Model
 
 };
 
+//! Toy model for (relativistic) heat equation
+/*!
+  @par
+    Toy model for heat equation: essentially, this is Cattaneo.
+
+    Includes (hard coded) functional dependence of kappa, tau on T.
+*/
+class ToyQFunctional : public ToyQ
+{
+  public:
+    ToyQFunctional();
+    ToyQFunctional(Data * data);
+    virtual ~ToyQFunctional();
+
+    void sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i=-1, int j=-1, int k=-1);
+    void sourceTerm(double *cons, double *prims, double *aux, double *source);
+
+};
+
 #endif
