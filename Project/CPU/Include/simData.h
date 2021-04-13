@@ -120,6 +120,10 @@ class Data
     is, js, ks,
     ie, je, ke;            //!< Cell IDs for interior grid points
     //@}
+    std::vector<int>
+    is_minus, ie_plus,
+    js_minus, je_plus,
+    ks_minus, ke_plus;     //!< Cell IDs for interior grid points plus n.
     std::vector<double>
     optionalSimArgs;          //!< Array of optional arguments that depend on the simulation being run
     std::vector<std::string>
