@@ -109,25 +109,25 @@ void ToyQ_CE::getPrimitiveVars(double *cons, double *prims, double *aux)
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;
-  for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-    for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-      for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+  for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+    for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+      for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
         aux[ID(3, i, j, k)] += (cons[ID(0, i+1, j, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i-1, j, k)]) / dx2;
       }
     }
   }
   if (d->dims > 1) {
-    for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-      for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-        for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+    for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+      for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+        for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
           aux[ID(3, i, j, k)] += (cons[ID(0, i, j+1, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j-1, k)]) / dy2;
         }
       }
     }
     if (d->dims > 2) {
-      for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-        for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-          for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+      for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+        for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+          for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
             aux[ID(3, i, j, k)] += (cons[ID(0, i, j, k+1)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j, k-1)]) / dz2;
           }
         }
@@ -208,25 +208,25 @@ void ToyQ_CE::primsToAll(double *cons, double *prims, double *aux)
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;
-  for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-    for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-      for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+  for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+    for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+      for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
         aux[ID(3, i, j, k)] += (cons[ID(0, i+1, j, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i-1, j, k)]) / dx2;
       }
     }
   }
   if (d->dims > 1) {
-    for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-      for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-        for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+    for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+      for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+        for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
           aux[ID(3, i, j, k)] += (cons[ID(0, i, j+1, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j-1, k)]) / dy2;
         }
       }
     }
     if (d->dims > 2) {
-      for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-        for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-          for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+      for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+        for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+          for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
             aux[ID(3, i, j, k)] += (cons[ID(0, i, j, k+1)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j, k-1)]) / dz2;
           }
         }
@@ -362,9 +362,9 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;
-  for (int i(d->is_minus[1]); i < d->ie_plus[1]; i++) {
-    for (int j(d->js_minus[1]); j < d->je_plus[1]; j++) {
-      for (int k(d->ks_minus[1]); k < d->ke_plus[1]; k++) {
+  for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+    for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+      for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
         double T_l_l = cons[ID(0, i-2, j, k)];
         double T_l = cons[ID(0, i-1, j, k)];
         double T_c = cons[ID(0, i  , j, k)];
@@ -377,9 +377,9 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
     }
   }
   if (d->dims > 1) {
-    for (int i(d->is_minus[1]); i < d->ie_plus[1]; i++) {
-      for (int j(d->js_minus[1]); j < d->je_plus[1]; j++) {
-        for (int k(d->ks_minus[1]); k < d->ke_plus[1]; k++) {
+    for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+      for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+        for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
           double T_l_l = cons[ID(0, i, j-2, k)];
           double T_l = cons[ID(0, i, j-1, k)];
           double T_c = cons[ID(0, i, j, k)];
@@ -392,9 +392,9 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
       }
     }
     if (d->dims > 2) {
-      for (int i(d->is_minus[1]); i < d->ie_plus[1]; i++) {
-        for (int j(d->js_minus[1]); j < d->je_plus[1]; j++) {
-          for (int k(d->ks_minus[1]); k < d->ke_plus[1]; k++) {
+      for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+        for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+          for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
           double T_l_l = cons[ID(0, i, j, k-2)];
           double T_l = cons[ID(0, i, j, k-1)];
           double T_c = cons[ID(0, i, j, k)];
@@ -521,25 +521,25 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;
-  for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-    for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-      for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+  for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+    for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+      for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
         aux[ID(3, i, j, k)] += (cons[ID(0, i+1, j, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i-1, j, k)]) / dx2;
       }
     }
   }
   if (d->dims > 1) {
-    for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-      for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-        for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+    for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+      for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+        for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
           aux[ID(3, i, j, k)] += (cons[ID(0, i, j+1, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j-1, k)]) / dy2;
         }
       }
     }
     if (d->dims > 2) {
-      for (int i(d->is_minus[0]); i < d->ie_plus[0]; i++) {
-        for (int j(d->js_minus[0]); j < d->je_plus[0]; j++) {
-          for (int k(d->ks_minus[0]); k < d->ke_plus[0]; k++) {
+      for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
+        for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
+          for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
             aux[ID(3, i, j, k)] += (cons[ID(0, i, j, k+1)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j, k-1)]) / dz2;
           }
         }
