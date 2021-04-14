@@ -306,8 +306,9 @@ void ToyQ_CE_Functional::sourceTerm(double *cons, double *prims, double *aux, do
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
-        float d4T = aux[ID(4, i, j, k)];
-        source[ID(0, i, j, k)] = d4T;
+        double d2T = aux[ID(3, i, j, k)];
+        double d4T = aux[ID(4, i, j, k)];
+        source[ID(0, i, j, k)] = d2T + d4T;
       }
     }
   }
