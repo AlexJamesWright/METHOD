@@ -1,5 +1,5 @@
 #ifndef INITFUNCFROMCHECKPOINT_H
-#define INITFUNCFROMCHCKPOINT_H
+#define INITFUNCFROMCHECKPOINT_H
 
 #include "simData.h"
 #include "initFunc.h"
