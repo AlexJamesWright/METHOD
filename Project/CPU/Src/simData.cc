@@ -113,6 +113,8 @@ void Data::initData(PlatformEnv *env, int nOptionalSimArgs, std::vector<double> 
     else {
       js_minus.push_back(0);
       je_plus.push_back(1);
+      ks_minus.push_back(0);
+      ke_plus.push_back(1);
     }
   }
 
