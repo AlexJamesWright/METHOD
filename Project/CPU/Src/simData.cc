@@ -96,25 +96,25 @@ void Data::initData(PlatformEnv *env, int nOptionalSimArgs, std::vector<double> 
     js = 0; je = 1;
   }
   for (int l(1); l < Ng; l++) {
-    is_minus.push_back(is-l);
-    ie_plus.push_back(ie+l);
+    this->is_minus.push_back(is-l);
+    this->ie_plus.push_back(ie+l);
     if (dims > 1) {
-      js_minus.push_back(js-l);
-      je_plus.push_back(je+l);
+      this->js_minus.push_back(js-l);
+      this->je_plus.push_back(je+l);
       if (dims > 2) {
-        ks_minus.push_back(ks-l);
-        ke_plus.push_back(ke+l);
+        this->ks_minus.push_back(ks-l);
+        this->ke_plus.push_back(ke+l);
       }
       else {
-        ks_minus.push_back(0);
-        ke_plus.push_back(1);
+        this->ks_minus.push_back(0);
+        this->ke_plus.push_back(1);
       }
     }
     else {
-      js_minus.push_back(0);
-      je_plus.push_back(1);
-      ks_minus.push_back(0);
-      ke_plus.push_back(1);
+      this->js_minus.push_back(0);
+      this->je_plus.push_back(1);
+      this->ks_minus.push_back(0);
+      this->ke_plus.push_back(1);
     }
   }
 
