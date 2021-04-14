@@ -28,4 +28,24 @@ class ToyQ_CE : public Model
 
 };
 
+//! Toy model for (relativistic) heat equation in Chapman Enskog limit
+/*!
+  @par
+    Toy model for heat equation: essentially, this is Cattaneo.
+
+    Includes (hard coded) functional dependence of kappa, tau on T.
+*/
+class ToyQ_CE_Functional : public ToyQ_CE
+{
+  public:
+    ToyQ_CE_Functional();
+    ToyQ_CE_Functional(Data * data);
+    virtual ~ToyQ_CE_Functional();
+
+    void sourceTerm(double *cons, double *prims, double *aux, double *source);
+    void getPrimitiveVars(double *cons, double *prims, double *aux);
+    void primsToAll(double *cons, double *prims, double *aux);
+    
+};
+
 #endif
