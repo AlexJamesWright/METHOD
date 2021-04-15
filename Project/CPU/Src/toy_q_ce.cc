@@ -413,12 +413,12 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
         double T_l_l = cons[ID(0, i-2, j, k)];
-        double T_l = cons[ID(0, i-1, j, k)];
-        double T_c = cons[ID(0, i  , j, k)];
-        double T_r = cons[ID(0, i+1, j, k)];
+        double T_l   = cons[ID(0, i-1, j, k)];
+        double T_c   = cons[ID(0, i  , j, k)];
+        double T_r   = cons[ID(0, i+1, j, k)];
         double T_r_r = cons[ID(0, i+2, j, k)];
         double kappa_l_l = kappa_of_T(T_l_l, kappa_0);
-        double kappa_c = kappa_of_T(T_c, kappa_0);
+        double kappa_c   = kappa_of_T(T_c  , kappa_0);
         double kappa_r_r = kappa_of_T(T_r_r, kappa_0);
         double kd2T_l_l = kappa_l_l * aux[ID(3, i-2, j, k)];
         double kd2T_c   = kappa_c   * aux[ID(3, i  , j, k)];
@@ -481,6 +481,9 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
+  float kappa_0 = d->optionalSimArgs[0]; 
+  float tau_q_0 = d->optionalSimArgs[1];
+
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
       for (int k(0); k < d->Nz; k++) {
@@ -521,26 +524,47 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
   float dx2 = d->dx*d->dx;
   float dy2 = d->dy*d->dy;
   float dz2 = d->dz*d->dz;
-  for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
-    for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
-      for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
-        aux[ID(3, i, j, k)] += (cons[ID(0, i+1, j, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i-1, j, k)]) / dx2;
+  for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+    for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+      for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
+        double T_l_l = cons[ID(0, i-2, j, k)];
+        double T_l = cons[ID(0, i-1, j, k)];
+        double T_c = cons[ID(0, i  , j, k)];
+        double T_r = cons[ID(0, i+1, j, k)];
+        double T_r_r = cons[ID(0, i+2, j, k)];
+        double kappa_l = kappa_of_T(T_l, kappa_0);
+        double kappa_r = kappa_of_T(T_r, kappa_0);
+        aux[ID(3, i, j, k)] += (kappa_r * (T_r_r - T_c) - kappa_l * (T_c - T_l_l)) / (4.0 * dx2);
       }
     }
   }
   if (d->dims > 1) {
-    for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
-      for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
-        for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
-          aux[ID(3, i, j, k)] += (cons[ID(0, i, j+1, k)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j-1, k)]) / dy2;
+    for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+      for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+        for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
+          double T_l_l = cons[ID(0, i, j-2, k)];
+          double T_l = cons[ID(0, i, j-1, k)];
+          double T_c = cons[ID(0, i, j, k)];
+          double T_r = cons[ID(0, i, j+1, k)];
+          double T_r_r = cons[ID(0, i, j+2, k)];
+          double kappa_l = kappa_of_T(T_l, kappa_0);
+          double kappa_r = kappa_of_T(T_r, kappa_0);
+          aux[ID(3, i, j, k)] += (kappa_r * (T_r_r - T_c) - kappa_l * (T_c - T_l_l)) / (4.0 * dy2);
         }
       }
     }
     if (d->dims > 2) {
-      for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
-        for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
-          for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
-            aux[ID(3, i, j, k)] += (cons[ID(0, i, j, k+1)] - 2 * cons[ID(0, i, j, k)] + cons[ID(0, i, j, k-1)]) / dz2;
+      for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
+        for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
+          for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
+          double T_l_l = cons[ID(0, i, j, k-2)];
+          double T_l = cons[ID(0, i, j, k-1)];
+          double T_c = cons[ID(0, i, j, k)];
+          double T_r = cons[ID(0, i, j, k+1)];
+          double T_r_r = cons[ID(0, i, j, k+2)];
+          double kappa_l = kappa_of_T(T_l, kappa_0);
+          double kappa_r = kappa_of_T(T_r, kappa_0);
+          aux[ID(3, i, j, k)] += (kappa_r * (T_r_r - T_c) - kappa_l * (T_c - T_l_l)) / (4.0 * dz2);
           }
         }
       }
@@ -550,7 +574,20 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
-        aux[ID(4, i, j, k)] += (aux[ID(3, i+1, j, k)] - 2 * aux[ID(3, i, j, k)] + aux[ID(3, i-1, j, k)]) / dx2;
+        double T_l_l = cons[ID(0, i-2, j, k)];
+        double T_l   = cons[ID(0, i-1, j, k)];
+        double T_c   = cons[ID(0, i  , j, k)];
+        double T_r   = cons[ID(0, i+1, j, k)];
+        double T_r_r = cons[ID(0, i+2, j, k)];
+        double kappa_l_l = kappa_of_T(T_l_l, kappa_0);
+        double kappa_c   = kappa_of_T(T_c  , kappa_0);
+        double kappa_r_r = kappa_of_T(T_r_r, kappa_0);
+        double kd2T_l_l = kappa_l_l * aux[ID(3, i-2, j, k)];
+        double kd2T_c   = kappa_c   * aux[ID(3, i  , j, k)];
+        double kd2T_r_r = kappa_r_r * aux[ID(3, i+2, j, k)];
+        double tau_l = tau_q_of_T(T_l, tau_q_0);
+        double tau_r = tau_q_of_T(T_r, tau_q_0);
+        aux[ID(4, i, j, k)] += (tau_r * (kd2T_r_r - kd2T_c) - tau_l * (kd2T_c - kd2T_l_l)) / (4.0 * dx2);
       }
     }
   }
@@ -558,7 +595,20 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
     for (int i(d->is); i < d->ie; i++) {
       for (int j(d->js); j < d->je; j++) {
         for (int k(d->ks); k < d->ke; k++) {
-          aux[ID(4, i, j, k)] += (aux[ID(3, i, j+1, k)] - 2 * aux[ID(3, i, j, k)] + aux[ID(3, i, j-1, k)]) / dy2;
+          double T_l_l = cons[ID(0, i, j-2, k)];
+          double T_l   = cons[ID(0, i, j-1, k)];
+          double T_c   = cons[ID(0, i, j  , k)];
+          double T_r   = cons[ID(0, i, j+1, k)];
+          double T_r_r = cons[ID(0, i, j+2, k)];
+          double kappa_l_l = kappa_of_T(T_l_l, kappa_0);
+          double kappa_c = kappa_of_T(T_c, kappa_0);
+          double kappa_r_r = kappa_of_T(T_r_r, kappa_0);
+          double kd2T_l_l = kappa_l_l * aux[ID(3, i, j-2, k)];
+          double kd2T_c   = kappa_c   * aux[ID(3, i, j, k)];
+          double kd2T_r_r = kappa_r_r * aux[ID(3, i, j+2, k)];
+          double tau_l = tau_q_of_T(T_l, tau_q_0);
+          double tau_r = tau_q_of_T(T_r, tau_q_0);
+          aux[ID(4, i, j, k)] += (tau_r * (kd2T_r_r - kd2T_c) - tau_l * (kd2T_c - kd2T_l_l)) / (4.0 * dy2);
         }
       }
     }
@@ -566,7 +616,20 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
       for (int i(d->is); i < d->ie; i++) {
         for (int j(d->js); j < d->je; j++) {
           for (int k(d->ks); k < d->ke; k++) {
-            aux[ID(4, i, j, k)] += (aux[ID(3, i, j, k+1)] - 2 * aux[ID(3, i, j, k)] + aux[ID(3, i, j, k-1)]) / dz2;
+            double T_l_l = cons[ID(0, i, j, k-2)];
+            double T_l   = cons[ID(0, i, j, k-1)];
+            double T_c   = cons[ID(0, i, j, k)];
+            double T_r   = cons[ID(0, i, j, k+1)];
+            double T_r_r = cons[ID(0, i, j, k+2)];
+            double kappa_l_l = kappa_of_T(T_l_l, kappa_0);
+            double kappa_c = kappa_of_T(T_c, kappa_0);
+            double kappa_r_r = kappa_of_T(T_r_r, kappa_0);
+            double kd2T_l_l = kappa_l_l * aux[ID(3, i, j, k-2)];
+            double kd2T_c   = kappa_c   * aux[ID(3, i, j, k)];
+            double kd2T_r_r = kappa_r_r * aux[ID(3, i, j, k+2)];
+            double tau_l = tau_q_of_T(T_l, tau_q_0);
+            double tau_r = tau_q_of_T(T_r, tau_q_0);
+            aux[ID(4, i, j, k)] += (tau_r * (kd2T_r_r - kd2T_c) - tau_l * (kd2T_c - kd2T_l_l)) / (4.0 * dz2);
           }
         }
       }
