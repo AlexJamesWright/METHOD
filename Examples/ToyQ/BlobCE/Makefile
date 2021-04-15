@@ -42,6 +42,7 @@ SRCS = simulation.cc \
 			 weno.cc 								\
 			 RK2.cc \
 			 rkSplit.cc \
+			 RKPlus.cc \
 			 boundaryConds.cc \
 			 fluxVectorSplitting.cc \
 
@@ -157,6 +158,9 @@ RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
 
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+
+RKPlus.o : $(MODULE_DIR)/RKPlus.cc $(INC_DIR)/RKPlus.h
+		$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
 
 backRKArgs.o : $(MODULE_DIR)/backRKArgs.cc $(INC_DIR)/backRKArgs.h
 	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
