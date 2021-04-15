@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   int Ng(4);
   // int nx(65536);
   // int nx(32768);
-  int nx(256);
+  int nx(1024);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(100.0);
+  double endTime(50.0);
   double cfl(0.4);
   // double gamma(0.001);
   // double sigma(0.001);

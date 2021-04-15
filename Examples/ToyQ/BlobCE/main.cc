@@ -5,6 +5,7 @@
 #include "toy_q_ce.h"
 #include "boundaryConds.h"
 #include "rkSplit.h"
+#include "RKPlus.h"
 #include "fluxVectorSplitting.h"
 #include "serialEnv.h"
 #include "serialSaveDataHDF5.h"
@@ -19,7 +20,7 @@ int main(int argc, char *argv[]) {
   int Ng(4);
   // int nx(65536);
   // int nx(32768);
-  int nx(256);
+  int nx(1024);
   int ny(0);
   int nz(0);
   double xmin(0.0);
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
   double ymax(1.0);
   double zmin(0.0);
   double zmax(1.0);
-  double endTime(100.0);
+  double endTime(50.0);
   double cfl(0.4);
   // The whole point of the C-E expansion is that it works for small
   // tau_q (sigma).
@@ -72,7 +73,8 @@ int main(int argc, char *argv[]) {
   // BlobToyQ init(&data);
   BlobToyQ_CE init(&data);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  // RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RK2B timeInt(&data, &model, &bcs, &fluxMethod);
 
   SerialSaveDataHDF5 save(&data, &env, "1d/data_1em4_serial0", SerialSaveDataHDF5::OUTPUT_ALL);
 
