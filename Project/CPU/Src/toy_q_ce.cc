@@ -17,7 +17,7 @@ ToyQ_CE::ToyQ_CE(Data * data) : Model(data)
 {
   this->Ncons = (this->data)->Ncons = 1;
   this->Nprims = (this->data)->Nprims = 1;
-  this->Naux = (this->data)->Naux = 3;
+  this->Naux = (this->data)->Naux = 5;
 
   this->data->consLabels.push_back("T");
 
