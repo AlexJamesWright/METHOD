@@ -45,14 +45,14 @@ void ToyQ_CE::sourceTerm(double *cons, double *prims, double *aux, double *sourc
   // Syntax
   Data * d(this->data);
 
-  float kappa = d->optionalSimArgs[0]; 
-  float tau_q = d->optionalSimArgs[1];
+  double kappa = d->optionalSimArgs[0]; 
+  double tau_q = d->optionalSimArgs[1];
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
       for (int k(d->ks); k < d->ke; k++) {
-        float d2T = aux[ID(3, i, j, k)];
-        float d4T = aux[ID(4, i, j, k)];
+        double d2T = aux[ID(3, i, j, k)];
+        double d4T = aux[ID(4, i, j, k)];
         source[ID(0, i, j, k)] = kappa * (d2T + kappa*tau_q*d4T);
       }
     }
@@ -106,9 +106,9 @@ void ToyQ_CE::getPrimitiveVars(double *cons, double *prims, double *aux)
     }
   }
 
-  float dx2 = d->dx*d->dx;
-  float dy2 = d->dy*d->dy;
-  float dz2 = d->dz*d->dz;
+  double dx2 = d->dx*d->dx;
+  double dy2 = d->dy*d->dy;
+  double dz2 = d->dz*d->dz;
   for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
     for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
       for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
@@ -205,9 +205,9 @@ void ToyQ_CE::primsToAll(double *cons, double *prims, double *aux)
     }
   }
 
-  float dx2 = d->dx*d->dx;
-  float dy2 = d->dy*d->dy;
-  float dz2 = d->dz*d->dz;
+  double dx2 = d->dx*d->dx;
+  double dy2 = d->dy*d->dy;
+  double dz2 = d->dz*d->dz;
   for (int i(d->is_minus.at(0)); i < d->ie_plus.at(0); i++) {
     for (int j(d->js_minus.at(0)); j < d->je_plus.at(0); j++) {
       for (int k(d->ks_minus.at(0)); k < d->ke_plus.at(0); k++) {
@@ -291,11 +291,13 @@ ToyQ_CE_Functional::~ToyQ_CE_Functional()
 }
 
 double kappa_of_T(double T, double kappa_0) {
-  return kappa_0 / (0.1 + T + T*T);
+  // return kappa_0 / (0.1 + T + T*T);
+  return kappa_0 / (1.0 + 1e-4*T);
 }
 
 double tau_q_of_T(double T, double tau_q_0) {
-  return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  // return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  return tau_q_0 / (1.0 + 1e-6*T);
 }
 
 void ToyQ_CE_Functional::sourceTerm(double *cons, double *prims, double *aux, double *source)
@@ -308,7 +310,7 @@ void ToyQ_CE_Functional::sourceTerm(double *cons, double *prims, double *aux, do
       for (int k(d->ks); k < d->ke; k++) {
         double d2T = aux[ID(3, i, j, k)];
         double d4T = aux[ID(4, i, j, k)];
-        source[ID(0, i, j, k)] = d2T + d4T;
+        source[ID(0, i, j, k)] = d2T - d4T;
       }
     }
   }
@@ -319,8 +321,8 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
   // Syntax
   Data * d(this->data);
 
-  float kappa_0 = d->optionalSimArgs[0]; 
-  float tau_q_0 = d->optionalSimArgs[1];
+  double kappa_0 = d->optionalSimArgs[0]; 
+  double tau_q_0 = d->optionalSimArgs[1];
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
@@ -359,9 +361,9 @@ void ToyQ_CE_Functional::getPrimitiveVars(double *cons, double *prims, double *a
     }
   }
 
-  float dx2 = d->dx*d->dx;
-  float dy2 = d->dy*d->dy;
-  float dz2 = d->dz*d->dz;
+  double dx2 = d->dx*d->dx;
+  double dy2 = d->dy*d->dy;
+  double dz2 = d->dz*d->dz;
   for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
     for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
       for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {
@@ -481,8 +483,8 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
   // Syntax
   Data * d(this->data);
 
-  float kappa_0 = d->optionalSimArgs[0]; 
-  float tau_q_0 = d->optionalSimArgs[1];
+  double kappa_0 = d->optionalSimArgs[0]; 
+  double tau_q_0 = d->optionalSimArgs[1];
 
   for (int i(0); i < d->Nx; i++) {
     for (int j(0); j < d->Ny; j++) {
@@ -521,9 +523,9 @@ void ToyQ_CE_Functional::primsToAll(double *cons, double *prims, double *aux)
     }
   }
 
-  float dx2 = d->dx*d->dx;
-  float dy2 = d->dy*d->dy;
-  float dz2 = d->dz*d->dz;
+  double dx2 = d->dx*d->dx;
+  double dy2 = d->dy*d->dy;
+  double dz2 = d->dz*d->dz;
   for (int i(d->is_minus.at(1)); i < d->ie_plus.at(1); i++) {
     for (int j(d->js_minus.at(1)); j < d->je_plus.at(1); j++) {
       for (int k(d->ks_minus.at(1)); k < d->ke_plus.at(1); k++) {

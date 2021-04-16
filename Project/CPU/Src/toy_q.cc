@@ -39,8 +39,8 @@ void ToyQ::sourceTermSingleCell(double *cons, double *prims, double *aux, double
   // printf("ToyQ model does not implement sourceTermSingleCell\n");
   // exit(1);
 
-  float kappa = this->data->optionalSimArgs[0];
-  float tau_q = this->data->optionalSimArgs[1];
+  double kappa = this->data->optionalSimArgs[0];
+  double tau_q = this->data->optionalSimArgs[1];
 
   source[0] = 0.0;
   for (int dir(0); dir < 3; dir++) {
@@ -53,8 +53,8 @@ void ToyQ::sourceTerm(double *cons, double *prims, double *aux, double *source)
   // Syntax
   Data * d(this->data);
 
-  float kappa = d->optionalSimArgs[0]; 
-  float tau_q = d->optionalSimArgs[1];
+  double kappa = d->optionalSimArgs[0]; 
+  double tau_q = d->optionalSimArgs[1];
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
@@ -199,18 +199,20 @@ ToyQFunctional::~ToyQFunctional()
 }
 
 double kappa_of_T(double T, double kappa_0) {
-  return kappa_0 / (0.1 + T + T*T);
+  // return kappa_0 / (0.1 + T + T*T);
+  return kappa_0 / (1.0 + 1e-2*T);
 }
 
 double tau_q_of_T(double T, double tau_q_0) {
-  return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  // return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  return tau_q_0 / (1.0 + 1e-3*T);
 }
 
 void ToyQFunctional::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
 {
   
-  float kappa_0 = this->data->optionalSimArgs[0];
-  float tau_q_0 = this->data->optionalSimArgs[1];
+  double kappa_0 = this->data->optionalSimArgs[0];
+  double tau_q_0 = this->data->optionalSimArgs[1];
 
   source[0] = 0.0;
   for (int dir(0); dir < 3; dir++) {
@@ -223,8 +225,8 @@ void ToyQFunctional::sourceTerm(double *cons, double *prims, double *aux, double
   // Syntax
   Data * d(this->data);
 
-  float kappa_0 = d->optionalSimArgs[0]; 
-  float tau_q_0 = d->optionalSimArgs[1];
+  double kappa_0 = d->optionalSimArgs[0]; 
+  double tau_q_0 = d->optionalSimArgs[1];
 
   for (int i(d->is); i < d->ie; i++) {
     for (int j(d->js); j < d->je; j++) {
