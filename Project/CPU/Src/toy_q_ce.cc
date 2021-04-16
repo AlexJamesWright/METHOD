@@ -291,13 +291,13 @@ ToyQ_CE_Functional::~ToyQ_CE_Functional()
 }
 
 double kappa_of_T(double T, double kappa_0) {
-  // return kappa_0 / (0.1 + T + T*T);
-  return kappa_0 / (1.0 + 1e-4*T);
+  return kappa_0 / (0.1 + T + T*T);
+  // return kappa_0 / (1.0 + 1e-4*T);
 }
 
 double tau_q_of_T(double T, double tau_q_0) {
-  // return tau_q_0 / (0.1 + 0.5 * T + T*T);
-  return tau_q_0 / (1.0 + 1e-6*T);
+  return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  // return tau_q_0 / (1.0 + 1e-6*T);
 }
 
 void ToyQ_CE_Functional::sourceTerm(double *cons, double *prims, double *aux, double *source)
