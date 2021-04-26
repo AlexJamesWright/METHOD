@@ -199,13 +199,17 @@ ToyQFunctional::~ToyQFunctional()
 }
 
 double kappa_of_T(double T, double kappa_0) {
-  return kappa_0 / (0.1 + T + T*T);
+  // return kappa_0 / (0.1 + T + T*T);
   // return kappa_0 / (1.0 + 1e-2*T);
+  double kT = kappa_0 * T;
+  return kT * T / (kT * kT + 0.25); // Andreas' Slides (bulk viscosity!!!)
 }
 
 double tau_q_of_T(double T, double tau_q_0) {
-  return tau_q_0 / (0.1 + 0.5 * T + T*T);
+  // return tau_q_0 / (0.1 + 0.5 * T + T*T);
   // return tau_q_0 / (1.0 + 1e-3*T);
+  double tT = tau_q_0 * T;
+  return tT * T / (tT * tT + 0.25);
 }
 
 void ToyQFunctional::sourceTermSingleCell(double *cons, double *prims, double *aux, double *source, int i, int j, int k)
