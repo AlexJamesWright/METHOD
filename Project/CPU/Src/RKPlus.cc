@@ -4,12 +4,17 @@ RKPlus::RKPlus(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, M
               TimeIntegrator(data, model, bcs, fluxMethod, modelExtension)
 {
   fluxCont = new double[data->Nx*data->Ny*data->Nz*data->Ncons]();
+  old_cons  = new double[data->Nx*data->Ny*data->Nz*data->Ncons]();
+  old_prims = new double[data->Nx*data->Ny*data->Nz*data->Nprims]();
+  old_aux   = new double[data->Nx*data->Ny*data->Nz*data->Naux]();
 }
 
 
 RKPlus::~RKPlus()
 {
   delete fluxCont;
+  delete old_prims;
+  delete old_aux;
 }
 
 void RKPlus::rhs(double * cons, double * prims, double * aux, double * rhsVec)
@@ -142,11 +147,31 @@ void RK2B::step(double * cons, double * prims, double * aux, double dt)
   // Get timestep
   if (dt <= 0) (dt=data->dt);
 
+  // Syntax
+  Data * d(this->data);
+  // Save old solution
+  for (int i(d->is); i < d->ie; i++) {
+    for (int j(d->js); j < d->je; j++) {
+      for (int k(d->ks); k < d->ke; k++) {
+        for (int var(0); var < d->Ncons; var++) {
+          old_cons[ID(var, i, j, k)] = cons[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Nprims; var++) {
+          old_prims[ID(var, i, j, k)] = prims[ID(var, i, j, k)];
+        }
+        for (int var(0); var < d->Ncons; var++) {
+          old_aux[ID(var, i, j, k)] = aux[ID(var, i, j, k)];
+        }
+      }
+    }
+  }
   stage1(cons, prims, aux, dt);
   finalise(u1cons, u1prims, u1aux);
 
   stage2(cons, prims, aux, dt);
   finalise(cons, prims, aux);
+
+  this->model->compute_dt_vars(cons, prims, aux, old_cons, old_prims, old_aux, dt);
 }
 
 

@@ -132,6 +132,11 @@ class Model
     */
     virtual void finalise(double *cons, double *prims, double *aux) { };
 
+    // Testing
+
+    virtual void compute_dt_vars(double *cons, double *prims, double *aux,
+      double *old_cons, double *old_prims, double *old_aux, double dt) { };
+
 };
 
 

@@ -37,6 +37,9 @@ class RKPlus : public TimeIntegrator
   public:
 
     double * fluxCont; //!< Temporary work array to store numerical flux
+    double * old_cons; //!< Temporary work array to store old values of cons
+    double * old_prims; //!< Temporary work array to store old values of prims
+    double * old_aux; //!< Temporary work array to store old values of aux
 
     //! Constructor
     /*!
