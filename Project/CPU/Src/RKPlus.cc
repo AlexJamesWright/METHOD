@@ -9,7 +9,7 @@ RKPlus::RKPlus(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, M
 
 RKPlus::~RKPlus()
 {
-  delete fluxCont;
+  delete[] fluxCont;
 }
 
 void RKPlus::rhs(double * cons, double * prims, double * aux, double * rhsVec)
@@ -73,11 +73,11 @@ RK2B::RK2B(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, Model
 RK2B::~RK2B()
 {
   // Free arrays
-  delete u1cons;
-  delete u1prims;
-  delete u1aux;
-  delete rhs1;
-  delete rhs2;
+  delete[] u1cons;
+  delete[] u1prims;
+  delete[] u1aux;
+  delete[] rhs1;
+  delete[] rhs2;
 }
 
 
@@ -177,15 +177,15 @@ RK3::RK3(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelEx
 RK3::~RK3()
 {
   // Free arrays
-  delete u1cons;
-  delete u1prims;
-  delete u1aux;
-  delete u2cons;
-  delete u2prims;
-  delete u2aux;
-  delete rhs1;
-  delete rhs2;
-  delete rhs3;
+  delete[] u1cons;
+  delete[] u1prims;
+  delete[] u1aux;
+  delete[] u2cons;
+  delete[] u2prims;
+  delete[] u2aux;
+  delete[] rhs1;
+  delete[] rhs2;
+  delete[] rhs3;
 }
 
 
@@ -335,23 +335,23 @@ RK4::RK4(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, ModelEx
 RK4::~RK4()
 {
   // Free arrays
-  delete u1cons;
-  delete u1prims;
-  delete u1aux;
-  delete u2cons;
-  delete u2prims;
-  delete u2aux;
-  delete u3cons;
-  delete u3prims;
-  delete u3aux;
-  delete u4cons;
-  delete u4prims;
-  delete u4aux;
-  delete rhs1;
-  delete rhs2;
-  delete rhs3;
-  delete rhs4;
-  delete rhs5;
+  delete[] u1cons;
+  delete[] u1prims;
+  delete[] u1aux;
+  delete[] u2cons;
+  delete[] u2prims;
+  delete[] u2aux;
+  delete[] u3cons;
+  delete[] u3prims;
+  delete[] u3aux;
+  delete[] u4cons;
+  delete[] u4prims;
+  delete[] u4aux;
+  delete[] rhs1;
+  delete[] rhs2;
+  delete[] rhs3;
+  delete[] rhs4;
+  delete[] rhs5;
 }
 
 
@@ -575,13 +575,13 @@ RK4_10::RK4_10(Data * data, Model * model, Bcs * bcs, FluxMethod * fluxMethod, M
 RK4_10::~RK4_10()
 {
   // Free arrays
-  delete u1cons;
-  delete u1prims;
-  delete u1aux;
-  delete u2cons;
-  delete u2prims;
-  delete u2aux;
-  delete rhs1;
+  delete[] u1cons;
+  delete[] u1prims;
+  delete[] u1aux;
+  delete[] u2cons;
+  delete[] u2prims;
+  delete[] u2aux;
+  delete[] rhs1;
 }
 
 
