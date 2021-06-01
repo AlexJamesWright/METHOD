@@ -88,7 +88,7 @@ void SerialSaveDataHDF5::writeDataSetDouble(const hid_t *group, const char *name
   }
   if(d->dims > 2) {
     lengths[2] = d->ke - d->ks;
-    buffer_size = lengths[2];
+    buffer_size *= lengths[2];
   }
 
   // Now create the buffer to store the data in
