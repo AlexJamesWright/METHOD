@@ -33,6 +33,10 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
 
   d->dx = (d->xmax - d->xmin) / (d->nx);
   d->dy = (d->ymax - d->ymin) / (d->ny);
+  // nz=0 requests a 2D domain (Nz=1, no z-derivatives are ever taken).
+  // dz is still allowed to be +-inf here -- that's harmless, since it only
+  // feeds dtZ below, and +-inf is correctly never picked as the smallest
+  // of dtX/dtY/dtZ. It's d->z[k] itself that must stay finite (see below).
   d->dz = (d->zmax - d->zmin) / (d->nz);
 
   d->iters = 0;
@@ -57,7 +61,7 @@ Simulation::Simulation(Data * data, PlatformEnv *env) : data(data), env(env)
     d->y[j] = d->ymin + (j + jOffset + 0.5 - d->Ng) * d->dy;
   }
   for (int k(0); k < d->Nz; k++) {
-    d->z[k] = d->zmin + (k + kOffset + 0.5 - d->Ng) * d->dz;
+    d->z[k] = (d->nz == 0) ? 0.0 : d->zmin + (k + kOffset + 0.5 - d->Ng) * d->dz;
   }
 }
 
