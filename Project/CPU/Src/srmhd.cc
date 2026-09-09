@@ -489,6 +489,17 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
       }
       sol[0] /= neighbours.size();
       sol[1] /= neighbours.size();
+
+      // args was left over from the last cell of the main i,j,k loop
+      // above -- it does not describe cell (x,y,z). Recompute it here so
+      // the retry solves the failed cell's actual problem.
+      args.D = cons[ID(0, x, y, z)];
+      args.g = d->gamma;
+      args.BS = aux[ID(10, x, y, z)];
+      args.Bsq = aux[ID(11, x, y, z)];
+      args.Ssq = aux[ID(12, x, y, z)];
+      args.tau = cons[ID(4, x, y, z)];
+
       // Solve residual = 0
       info = __cminpack_func__(hybrd1) (&SRMHDresidual, &args, n, sol, res,
                                         tol, wa, lwa);
