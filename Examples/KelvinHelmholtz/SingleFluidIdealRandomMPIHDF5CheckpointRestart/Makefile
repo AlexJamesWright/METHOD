@@ -30,7 +30,7 @@ MPI_CC = mpic++
 # If using hdf5, additionally specify a hdf5 compiler. If using mpi, this must be the version of the hdf5 
 # compiler available on your system that links the correct mpi libraries. Should 
 # be one of h5pcc, h5pcc.openmpi or h5pcc.mpich. 
-HDF5_CC = h5pcc
+HDF5_CC = h5c++
 
 # -------------- END PARAMETERS USERS ARE LIKELY TO NEED TO EDIT --------------------
 
@@ -181,73 +181,73 @@ clean :
 # This may need to be edited when creating new examples depending on the h files needed in the main script
 
 main.o : ./main.cc $(INC_DIR)/simulation.h $(INC_DIR)/model.h $(INC_DIR)/simData.h $(INC_DIR)/parallelCheckpointArgs.h $(INC_DIR)/initFunc.h $(INC_DIR)/parallelInitFuncFromCheckpoint.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $(CXXFLAGS) $<
 
 ## Build all remaining objects. Should only need to update this list if new source files are added to METHOD
 
 simData.o : $(MODULE_DIR)/simData.cc $(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 serialCheckpointArgs.o : $(MODULE_DIR)/serialCheckpointArgs.cc $(INC_DIR)/serialCheckpointArgs.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelCheckpointArgs.o : $(MODULE_DIR)/parallelCheckpointArgs.cc $(INC_DIR)/parallelCheckpointArgs.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 initFunc.o : $(MODULE_DIR)/initFunc.cc $(INC_DIR)/initFunc.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 initFuncFromCheckpoint.o : $(MODULE_DIR)/initFuncFromCheckpoint.cc $(INC_DIR)/initFuncFromCheckpoint.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelInitFuncFromCheckpoint.o : $(MODULE_DIR)/parallelInitFuncFromCheckpoint.cc $(INC_DIR)/parallelInitFuncFromCheckpoint.h	$(INC_DIR)/simData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 
 srmhd.o : $(MODULE_DIR)/srmhd.cc $(INC_DIR)/srmhd.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) -I$(RTFIND_INC_DIR) $<
 
 simulation.o : $(MODULE_DIR)/simulation.cc	$(INC_DIR)/simulation.h $(INC_DIR)/model.h	$(INC_DIR)/simData.h $(INC_DIR)/saveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 wenoUpwinds.o : $(MODULE_DIR)/wenoUpwinds.cc $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 weno.o : $(MODULE_DIR)/weno.cc $(INC_DIR)/weno.h $(INC_DIR)/wenoUpwinds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 RK2.o : $(MODULE_DIR)/RK2.cc $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 rkSplit.o : $(MODULE_DIR)/rkSplit.cc $(INC_DIR)/rkSplit.h $(INC_DIR)/RK2.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 boundaryConds.o : $(MODULE_DIR)/boundaryConds.cc $(INC_DIR)/boundaryConds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelBoundaryConds.o : $(MODULE_DIR)/parallelBoundaryConds.cc $(INC_DIR)/parallelBoundaryConds.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 serialSaveData.o : $(MODULE_DIR)/serialSaveData.cc $(INC_DIR)/serialSaveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 serialSaveDataHDF5.o : $(MODULE_DIR)/serialSaveDataHDF5.cc $(INC_DIR)/serialSaveDataHDF5.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveData.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 serialEnv.o : $(MODULE_DIR)/serialEnv.cc $(INC_DIR)/serialEnv.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelEnv.o : $(MODULE_DIR)/parallelEnv.cc $(INC_DIR)/parallelEnv.h
-	$(CC)	$<	-c	$(CXXFLAGS) -I$(INC_DIR)
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 # -------------- END TO EDIT ----------------------------------------------------
 

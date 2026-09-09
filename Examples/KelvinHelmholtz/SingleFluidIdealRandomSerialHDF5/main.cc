@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
   double zmin(0.0);
   double zmax(1.0);
   //double endTime(3.0);
-  double endTime(0.01);
-  double cfl(0.6);
+  double endTime(0.001);
+  double cfl(0.4);
   double gamma(4.0/3.0);
   double sigma(10);
   double cp(1.0);
@@ -80,10 +80,14 @@ int main(int argc, char *argv[]) {
 
   RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
 
-  SerialSaveDataHDF5 save(&data, &env, "data_serial", SerialSaveDataHDF5::OUTPUT_ALL);
+  SerialSaveDataHDF5 save(&data, &env, "./data_serial", SerialSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+
+  //  save.saveAll();
+
+  // return 0;
 
   // Time execution of programme
 //  double startTime(omp_get_wtime());
