@@ -18,17 +18,17 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(64);
-  int ny(64);
-  int nz(0);
+  int nx(400);
+  int ny(400);
+  int nz(20);
   double xmin(0.0);
   double xmax(1.0);
   double ymin(0.0);
   double ymax(1.0);
   double zmin(0.0);
-  double zmax(1.0);
+  double zmax(0.05);
   double endTime(3.0);
-  double cfl(0.6);
+  double cfl(0.2);
   double gamma(4.0/3.0);
   double sigma(10);
   double cp(1.0);
@@ -40,14 +40,14 @@ int main(int argc, char *argv[]) {
   int seed(atoi(argv[1]));
   int reportItersPeriod(50);
 
-  double nxRanks(2);
+  double nxRanks(4);
   double nyRanks(2);
   double nzRanks(1);
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
   const int nOptionalSimArgs = 1;
-  std::vector<double> optionalSimArgs = {seed};
+  std::vector<double> optionalSimArgs = {static_cast<double>(seed)};
   std::vector<std::string> optionalSimArgNames = {"seed"}; 
 
   // Create an arg object that will contain all parameters needed by the simulation, that will be stored on the Data object.  
@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
   FVS fluxMethod(&data, &weno, &model);
 
   ParallelPeriodic bcs(&data, &env);
+  // ParallelOutflow bcs(&data, &env);
 
   Simulation sim(&data, &env);
 
@@ -87,12 +88,15 @@ int main(int argc, char *argv[]) {
   // Time execution of programme
   //double startTime(omp_get_wtime());
 
+  save.saveAll();
+  // return(0);
   // Run until end time and save results
   sim.evolve(output);
 
   //double timeTaken(omp_get_wtime() - startTime);
 
-  save.saveAll();
+  ParallelSaveDataHDF5 save2(&data, &env, "data_parallel_end", ParallelSaveDataHDF5::OUTPUT_ALL);
+  save2.saveAll();
   //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
   if(env.rank==0) printf("\nCompleted %d iterations.\n", data.iters);
 

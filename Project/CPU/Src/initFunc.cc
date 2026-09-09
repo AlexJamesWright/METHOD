@@ -666,11 +666,11 @@ KHRandomInstabilitySingleFluid::KHRandomInstabilitySingleFluid(Data * data, int 
 
         if (d->y[j] < interface_y_lower || d->y[j] > interface_y_upper ) {
           d->prims[ID(0, i, j, k)] = rho0;
-          d->prims[ID(1, i, j, k)] = vShear;
+          d->prims[ID(1, i, j, k)] = vShear * (1 + 0.1 * cos(40*PI*d->z[k]));
         }
         else {
           d->prims[ID(0, i, j, k)] = rho1;
-          d->prims[ID(1, i, j, k)] = - vShear;
+          d->prims[ID(1, i, j, k)] = - vShear * (1 + 0.1 * cos(20*PI*d->z[k]));
         }
       }
     }

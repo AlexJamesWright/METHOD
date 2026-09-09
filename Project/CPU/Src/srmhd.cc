@@ -197,7 +197,7 @@ void SRMHD::fluxVector(double *cons, double *prims, double *aux, double *f, cons
           // Bz
           f[ID(7, i, j, k)] = cons[ID(8, i, j, k)];
           // Phi
-          f[ID(8, i, j, k)] = prims[ID(6, i, j, k)];
+          f[ID(8, i, j, k)] = prims[ID(7, i, j, k)];
 
         }
       } // End k loop
@@ -494,7 +494,8 @@ void SRMHD::getPrimitiveVars(double *cons, double *prims, double *aux)
                                         tol, wa, lwa);
       if (info != 1) {
         printf("Smart guessing did not work, exiting\n");
-        printf("(%d, %d, %d) failed\n", fail.x, fail.y, fail.z);
+        printf("(%d, %d, %d, %f, %f, %f, %f) failed\n", fail.x, fail.y, fail.z,
+          args.D, args.BS, args.Bsq, args.tau);
         // std::exit(1);
       }
       // else {

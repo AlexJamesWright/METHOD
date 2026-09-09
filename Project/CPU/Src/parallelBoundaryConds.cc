@@ -113,8 +113,8 @@ void ParallelBcs::unpackZBuffer(double *recvFromLeftBuf, double *recvFromRightBu
   Data * d(this->data);
   for (int var(0); var < nVars; var++) {
     for (int i(0); i < d->Nx; i++) {
-      for (int j(0); j < d->Ng; j++) {
-        for (int k(0); k < d->Nz; k++) {
+      for (int j(0); j < d->Ny; j++) {
+        for (int k(0); k < d->Ng; k++) {
 	  // Unpack buffer from right neighbour
           stateVector[ID(var, i, j, d->Nz - d->Ng + k)] = recvFromRightBuf[ID_ZBUFF(var, i, j, k)];
 	  // Unpack buffer from left neighbour
