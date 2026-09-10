@@ -4,7 +4,7 @@
 #include "initFunc.h"
 #include "srmhd.h"
 #include "parallelBoundaryConds.h"
-#include "rkSplit.h"
+#include "RKPlus.h"
 #include "fluxVectorSplitting.h"
 #include "parallelSaveDataHDF5.h"
 #include "platformEnv.h"
@@ -18,17 +18,17 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(400);
-  int ny(400);
-  int nz(20);
+  int nx(200);
+  int ny(200);
+  int nz(100);
   double xmin(0.0);
   double xmax(1.0);
   double ymin(0.0);
   double ymax(1.0);
   double zmin(0.0);
-  double zmax(0.05);
-  double endTime(3.0);
-  double cfl(0.2);
+  double zmax(0.5);
+  double endTime(8.0);
+  double cfl(0.9);
   double gamma(4.0/3.0);
   double sigma(10);
   double cp(1.0);
@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
   if (argc != 2) throw std::invalid_argument("Expected ./main seed!\n");
   int seed(atoi(argv[1]));
   int reportItersPeriod(50);
+  int nreports(8);
 
   double nxRanks(4);
   double nyRanks(2);
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]) {
   // Choose particulars of simulation
   SRMHD model(&data);
 
-  Weno3 weno(&data);
+  Weno5 weno(&data);
 
   FVS fluxMethod(&data, &weno, &model);
 
@@ -78,9 +79,9 @@ int main(int argc, char *argv[]) {
 
   KHRandomInstabilitySingleFluid init(&data, 1, seed);
 
-  RKSplit timeInt(&data, &model, &bcs, &fluxMethod);
+  RK3 timeInt(&data, &model, &bcs, &fluxMethod);
 
-  ParallelSaveDataHDF5 save(&data, &env, "data_parallel", ParallelSaveDataHDF5::OUTPUT_ALL);
+  ParallelSaveDataHDF5 save(&data, &env, "data_parallel0", ParallelSaveDataHDF5::OUTPUT_ALL);
 
   // Now objects have been created, set up the simulation
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
@@ -91,13 +92,22 @@ int main(int argc, char *argv[]) {
   save.saveAll();
   // return(0);
   // Run until end time and save results
-  sim.evolve(output);
+  // sim.evolve(output);
 
   //double timeTaken(omp_get_wtime() - startTime);
 
-  ParallelSaveDataHDF5 save2(&data, &env, "data_parallel_end", ParallelSaveDataHDF5::OUTPUT_ALL);
-  save2.saveAll();
+  // ParallelSaveDataHDF5 save2(&data, &env, "data_parallel_end", ParallelSaveDataHDF5::OUTPUT_ALL);
+  // save2.saveAll();
   //printf("\nRuntime: %.5fs\nCompleted %d iterations.\n", timeTaken, data.iters);
+
+  for (int n(0); n<nreports; n++) {
+    data.endTime = (n+1)*endTime/(nreports);
+    ParallelSaveDataHDF5 save_in_loop(&data, &env, "data_parallel"+std::to_string(n+1), ParallelSaveDataHDF5::OUTPUT_ALL);
+    sim.evolve(output);
+    save_in_loop.saveAll();
+  }
+
+
   if(env.rank==0) printf("\nCompleted %d iterations.\n", data.iters);
 
   return 0;
