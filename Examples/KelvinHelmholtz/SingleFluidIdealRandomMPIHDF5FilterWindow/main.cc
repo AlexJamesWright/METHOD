@@ -92,16 +92,22 @@ int main(int argc, char *argv[]) {
   // window non-uniform in time. Refuse to write a window that starts that early.
   if (data.iters < 30) throw std::runtime_error("tStart too small: window would overlap the slow-start steps");
 
-  // Window: snapshot, then snapStride steps, repeated. updateTime() is used directly
-  // (rather than evolve() with a moving endTime) so that dt is never clipped.
-  data.endTime = tStart + 1e6;
+  // Window: snapStride steps, then a snapshot, repeated nSnap times. updateTime() is used
+  // directly (rather than evolve() with a moving endTime) so dt is never clipped. Taking a
+  // step before the first snapshot means every file's saved dt is the nominal CFL dt (the
+  // spin-up's final step was clipped to tStart), and snapshot 0 is at t ~ tStart + snapStride*dt.
+  // The Lagrangian-filtering reader takes each snapshot's time from Domain/endTime, so set
+  // endTime = t before each save (and restore a far-off endTime before stepping, since
+  // updateTime() clips dt to endTime - t).
   for (int n(0); n<nSnap; n++) {
+    data.endTime = tStart + 1e6;
+    for (int s(0); s<snapStride; s++) sim.updateTime();
+    data.endTime = data.t;
     char name[64];
     snprintf(name, sizeof(name), "data_window_%02d", n);
     ParallelSaveDataHDF5 save_in_loop(&data, &env, name, ParallelSaveDataHDF5::OUTPUT_ALL);
     save_in_loop.saveAll();
     if (env.rank==0) printf("Saved %s at t = %.10f\n", name, data.t);
-    if (n < nSnap-1) for (int s(0); s<snapStride; s++) sim.updateTime();
   }
 
   if(env.rank==0) printf("\nCompleted %d iterations.\n", data.iters);

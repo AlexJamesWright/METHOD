@@ -15,9 +15,11 @@ Purpose
   `nSnap` (default 10) snapshots of all variables (cons, prims, aux):
   `data_window_00.hdf5` ... `data_window_09.hdf5`, one every `snapStride` timesteps.
 
-  - Snapshot 00 is at t = tStart exactly. Every step in the window has the nominal
-  CFL dt, so the snapshots are uniformly spaced in time (spacing = snapStride * dt,
-  recorded in the `Domain/dt` attribute).
+  - Snapshot 00 is snapStride steps after tStart (the spin-up's last step is clipped to land on
+  tStart, so it is not part of the window). Every window step has the nominal CFL dt, so
+  snapshots are uniformly spaced in time (spacing = snapStride * dt). Each file has
+  `Domain/endTime` = its own time `t` (which the Lagrangian-filtering reader uses as the
+  snapshot time) and `Domain/dt` = nominal dt.
 
   - The window is written by calling `Simulation::updateTime()` directly, so dt is
   never clipped to an end time. `main` refuses to run if the window would start
