@@ -1,5 +1,6 @@
 #include "parallelInitFuncFromCheckpoint.h"
 #include <stdexcept>
+#include <vector>
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
@@ -35,11 +36,11 @@ void ParallelCheckpointRestart::readDataSetDouble(const hid_t *group, const char
     lengths_total[2] = d->nz;
     lengths_local[2] = (d->Nz - 2 * d->Ng);
     offsets[2] = (d->Nz - 2 * d->Ng) * env->zRankId;
-    buffer_size = lengths_local[2];
+    buffer_size *= lengths_local[2];
   }
 
   // Now create the buffer to store the data in
-  double buffer[buffer_size];
+  std::vector<double> buffer(buffer_size);     // heap, not a variable-length array: 3D local blocks can be large
 
 
   // Define the total dataspace for this dataset, and create the dataset
@@ -66,7 +67,7 @@ void ParallelCheckpointRestart::readDataSetDouble(const hid_t *group, const char
   H5Dread(
       dataset, H5T_NATIVE_DOUBLE,
       dataspace_local, dataspace_total,
-      dataset_access_property_list, buffer
+      dataset_access_property_list, buffer.data()
   );
 
   int buffer_position(0);
@@ -115,7 +116,7 @@ ParallelCheckpointRestart::ParallelCheckpointRestart(Data * data, const char *na
 
   hid_t groupPrims = H5Gopen(file, "Primitive", H5P_DEFAULT);
   error = H5LTget_attribute_int(groupPrims, ".", "Nprims",  &(NprimsFile));
-  if (error<0 || NconsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
+  if (error<0 || NprimsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
 
 
   // Read all prims vars
