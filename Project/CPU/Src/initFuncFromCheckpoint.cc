@@ -1,5 +1,6 @@
 #include "initFuncFromCheckpoint.h"
 #include <stdexcept>
+#include <vector>
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
@@ -27,13 +28,13 @@ void CheckpointRestart::readDataSetDouble(const hid_t *group, const char *name, 
   }
   if(d->dims > 2) {
     lengths[2] = d->ke - d->ks;
-    buffer_size = lengths[2];
+    buffer_size *= lengths[2];
   }
 
   // Now create the buffer to store the data in
-  double buffer[buffer_size];
+  std::vector<double> buffer(buffer_size);     // heap, not a variable-length array
 
-  H5LTread_dataset_double(*group, name, buffer);
+  H5LTread_dataset_double(*group, name, buffer.data());
 
   int buffer_position(0);
 
@@ -68,7 +69,7 @@ CheckpointRestart::CheckpointRestart(Data * data, const char *name) : InitialFun
 
   hid_t groupPrims = H5Gopen(file, "Primitive", H5P_DEFAULT);
   error = H5LTget_attribute_int(groupPrims, ".", "Nprims",  &(NprimsFile));
-  if (error<0 || NconsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
+  if (error<0 || NprimsFile < d->Nprims) throw std::runtime_error("Too few primitive vars recorded in checkpoint restart file for this model");
 
   // Read all cons vars
   for(int var(0); var < d->Ncons; var++) {
