@@ -216,24 +216,28 @@ class KHInstabilitySingleFluid : public InitialFunc
 
 //! <b> Single-fluid, three-dimensional Kelvin-Helmholtz instability, Cook and Bernuzzi </b>
 /*!
-      Initial data for a fully turbulent 3D special relativistic KHI, as in Cook & Bernuzzi,
+      Initial data for a fully turbulent 3D special relativistic KHI, as used by Cook & Bernuzzi,
     `Subgrid Modelling for Relativistic Magnetohydrodynamics with Machine Learning`
-    (arXiv:2606.21659), section II.5.3, which follows Vigano et al. The primitive variables are
+    (arXiv:2606.21659), section II.5.3, taken from Vigano et al. (arXiv:2004.00870), equations (34)-(38), on the periodic
+    box \f$[-L/2, L/2]^3\f$ with \f$L = 1\f$. The primitive variables are
     \f{align}{
       \rho &= \rho_0 + \rho_1 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l) \\
-      v^x &= v^x_0 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l) + \delta v^x \sin(2\pi n_x x / L_x) \\
+      v^x &= v^x_0 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l) + \delta v^x \sin(2\pi n_x x / L) \\
       v^y &= v^y_0 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l)
-             + \delta v^y \sin(2\pi n_y y / L_y) \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_y^2) \\
-      v^z &= v^z_0 \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_y^2) + \delta v^z \sin(2\pi n_z z / L_z) \\
+             + \delta v^y \sin(2\pi n_y y / L) \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_y^2) \\
+      v^z &= v^z_0 \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_z^2) + \delta v^z \sin(2\pi n_z z / L) \\
       B^x &= B_0, \quad B^y = B^z = 0, \quad p = p_0
     \f}
-    with \f$B_0=0.001, p_0=1, \rho_0=2, \rho_1=1, y_l=0.25, a_l=0.01, v^i_0=0.5, \delta v^x=0.01,
-    \delta v^y=0.1, \delta v^z=0.01, n_x=11, n_y=7, n_z=5, \sigma_y^2=0.01\f$ (the paper also lists
-    \f$\sigma_z^2 = 0.1\f$, which appears in none of its equations and is not used here), on the box
-    \f$[-1, 1]^3\f$ so that \f$L_x = L_y = L_z = 2\f$. The formulas are implemented as written. Note that because of the
-    factors of sgn(y) the density and velocity jump at \f$y = 0\f$ and across the periodic boundary \f$y = \pm 1\f$ as well
-    as at the two smooth layers \f$y = \pm y_l\f$. The paper does not state the equation of state or the
-    domain; the adiabatic index is not checked.
+    with \f$B_0=0.001, p_0=1, \rho_0=2, \rho_1=1, y_l=1/4, a_l=0.01, v^x_0=0.5, v^y_0=0, v^z_0=0.5,
+    \delta v^x=\delta v^z=0.01, \delta v^y=0.1, n_x=11, n_y=7, n_z=5, \sigma_y^2=0.01, \sigma_z^2=0.1\f$.
+
+    Deviations from Cook & Bernuzzi as printed, all following Vigano et al.: they list \f$v^i_0 = 0.5\f$ for every
+    component and use \f$\sigma_y\f$ in the \f$v^z\f$ envelope. A base flow \f$v^y_0 = 0.5\f$ drives head-on flows at
+    \f$y = 0\f$ and across the periodic boundary, and the conserved-to-primitive recovery fails within a few dozen steps;
+    \f$v^y_0 = 0\f$ is the standard value in Vigano et al. (a non-zero value is their strong-shock test). \f$v^z_0\f$ is not
+    among Vigano's standard values; 0.5 is kept from Cook & Bernuzzi. Because of the factors of sgn(y) the density and velocity
+    jump at \f$y = 0\f$ and across the periodic boundary \f$y = \pm L/2\f$ as well as at the smooth layers
+    \f$y = \pm y_l = \pm L/4\f$, as in both papers. The adiabatic index (4/3 in Vigano et al.) is not checked.
 */
 class KHInstabilitySingleFluidCookBernuzzi : public InitialFunc
 {

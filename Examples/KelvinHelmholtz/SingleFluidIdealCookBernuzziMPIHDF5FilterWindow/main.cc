@@ -1,4 +1,4 @@
-// 3D magnetized Kelvin-Helmholtz with the Cook & Bernuzzi initial data (arXiv:2606.21659, II.5.3, on [-1,1]^3):
+// 3D magnetized Kelvin-Helmholtz with the Cook & Bernuzzi / Vigano et al. initial data (arXiv:2606.21659 II.5.3, arXiv:2004.00870) on [-1/2,1/2]^3:
 // spin up without output, then write a window of consecutive timesteps of all variables, suitable for
 // Lagrangian filtering.
 #include "simData.h"
@@ -23,12 +23,12 @@ int main(int argc, char *argv[]) {
   int nx(256);
   int ny(256);
   int nz(256);
-  double xmin(-1.0);
-  double xmax(1.0);
-  double ymin(-1.0);
-  double ymax(1.0);
-  double zmin(-1.0);
-  double zmax(1.0);
+  double xmin(-0.5);
+  double xmax(0.5);
+  double ymin(-0.5);
+  double ymax(0.5);
+  double zmin(-0.5);
+  double zmax(0.5);
   double cfl(0.9);
   double gamma(4.0/3.0);
   double sigma(10);

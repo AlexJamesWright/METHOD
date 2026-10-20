@@ -569,16 +569,20 @@ KHInstabilitySingleFluidCookBernuzzi::KHInstabilitySingleFluidCookBernuzzi(Data 
   Data * d(data);
 
   if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
-  if (d->xmin != -1.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.0, 1.0]\n");
-  if (d->ymin != -1.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [-1.0, 1.0]\n");
-  if (d->zmin != -1.0 || d->zmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected z E [-1.0, 1.0]\n");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
+  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [-0.5, 0.5]\n");
+  if (d->zmin != -0.5 || d->zmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected z E [-0.5, 0.5]\n");
 
-  // Cook & Bernuzzi, arXiv:2606.21659, section II.5.3, equations (52)-(58)
+  // Vigano et al., arXiv:2004.00870, section on the 3D fully turbulent KHI, equations (34)-(38), on [-L/2, L/2]^3 with L = 1.
+  // Cook & Bernuzzi (arXiv:2606.21659, II.5.3) quote the same data but list v^i_0 = 0.5 for every i and use sigma_y in the
+  // envelope of v^z. v^y_0 = 0.5 drives head-on flows at y = 0 and across the periodic boundary and breaks the conserved-to-primitive
+  // recovery within a few dozen steps; in Vigano et al. v^y_0 = 0 is the standard value (non-zero is a strong-shock test) and
+  // the v^z envelope uses sigma_z^2 = 0.1. v^z_0 is not among their standard values; 0.5 is kept from Cook & Bernuzzi.
   const double B0(0.001), p0(1.0), rho0(2.0), rho1(1.0), yl(0.25), al(0.01);
-  const double v0x(0.5), v0y(0.5), v0z(0.5);
+  const double v0x(0.5), v0y(0.0), v0z(0.5);
   const double dvx(0.01), dvy(0.1), dvz(0.01);
   const double nx(11), ny(7), nz(5);
-  const double sigy2(0.01);
+  const double sigy2(0.01), sigz2(0.1);
   const double Lx(d->xmax - d->xmin), Ly(d->ymax - d->ymin), Lz(d->zmax - d->zmin);
 
   for (int i(0); i < d->Nx; i++) {
@@ -587,13 +591,14 @@ KHInstabilitySingleFluidCookBernuzzi::KHInstabilitySingleFluidCookBernuzzi(Data 
       const double sgn((y > 0.0) - (y < 0.0));
       const double ay(fabs(y));
       const double layer(tanh((ay - yl) / al));
-      const double envelope(exp(-(ay - yl) * (ay - yl) / sigy2));
+      const double envelope(exp(-(ay - yl) * (ay - yl) / sigy2));      // v^y perturbation
+      const double envelopeZ(exp(-(ay - yl) * (ay - yl) / sigz2));     // v^z base flow
       for (int k(0); k < d->Nz; k++) {
 
         d->prims[ID(0, i, j, k)] = rho0 + rho1 * sgn * layer;
         d->prims[ID(1, i, j, k)] = v0x * sgn * layer + dvx * sin(2*PI*nx*d->x[i] / Lx);
         d->prims[ID(2, i, j, k)] = v0y * sgn * layer + dvy * sin(2*PI*ny*y / Ly) * sgn * envelope;
-        d->prims[ID(3, i, j, k)] = v0z * sgn * envelope + dvz * sin(2*PI*nz*d->z[k] / Lz);
+        d->prims[ID(3, i, j, k)] = v0z * sgn * envelopeZ + dvz * sin(2*PI*nz*d->z[k] / Lz);
         d->prims[ID(4, i, j, k)] = p0;
 
         // Magnetic Fields
