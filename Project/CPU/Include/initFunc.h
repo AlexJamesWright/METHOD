@@ -214,6 +214,41 @@ class KHInstabilitySingleFluid : public InitialFunc
     virtual ~KHInstabilitySingleFluid() { }     //!< Destructor
 };
 
+//! <b> Single-fluid, three-dimensional Kelvin-Helmholtz instability, Cook and Bernuzzi </b>
+/*!
+      Initial data for a fully turbulent 3D special relativistic KHI, as in Cook & Bernuzzi,
+    `Subgrid Modelling for Relativistic Magnetohydrodynamics with Machine Learning`
+    (arXiv:2606.21659), section II.5.3, which follows Vigano et al. The primitive variables are
+    \f{align}{
+      \rho &= \rho_0 + \rho_1 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l) \\
+      v^x &= v^x_0 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l) + \delta v^x \sin(2\pi n_x x / L_x) \\
+      v^y &= v^y_0 \mathrm{sgn}(y) \tanh((|y| - y_l)/a_l)
+             + \delta v^y \sin(2\pi n_y y / L_y) \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_y^2) \\
+      v^z &= v^z_0 \mathrm{sgn}(y) \exp(-(|y| - y_l)^2/\sigma_y^2) + \delta v^z \sin(2\pi n_z z / L_z) \\
+      B^x &= B_0, \quad B^y = B^z = 0, \quad p = p_0
+    \f}
+    with \f$B_0=0.001, p_0=1, \rho_0=2, \rho_1=1, y_l=0.25, a_l=0.01, v^i_0=0.5, \delta v^x=0.01,
+    \delta v^y=0.1, \delta v^z=0.01, n_x=11, n_y=7, n_z=5, \sigma_y^2=0.01\f$ (the paper also lists
+    \f$\sigma_z^2 = 0.1\f$, which appears in none of its equations and is not used here), on the box
+    \f$[-1, 1]^3\f$ so that \f$L_x = L_y = L_z = 2\f$. The formulas are implemented as written. Note that because of the
+    factors of sgn(y) the density and velocity jump at \f$y = 0\f$ and across the periodic boundary \f$y = \pm 1\f$ as well
+    as at the two smooth layers \f$y = \pm y_l\f$. The paper does not state the equation of state or the
+    domain; the adiabatic index is not checked.
+*/
+class KHInstabilitySingleFluidCookBernuzzi : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] mag Flag for the seed magnetic field B_x = 0.001. Switch 0 for
+      off, or 1 for on (the default).
+      @sa InitialFunc
+    */
+    KHInstabilitySingleFluidCookBernuzzi(Data * data, int mag=1);
+
+    virtual ~KHInstabilitySingleFluidCookBernuzzi() { }     //!< Destructor
+};
+
 //! <b> Single-fluid Kelvin-Helmholtz instability with random interface </b>
 /*!
       Modified from Fjordholm et al. This is a two-dimensional

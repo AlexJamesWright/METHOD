@@ -563,6 +563,59 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
 }
 
 
+KHInstabilitySingleFluidCookBernuzzi::KHInstabilitySingleFluidCookBernuzzi(Data * data, int mag) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -1.0 || d->xmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected x E [-1.0, 1.0]\n");
+  if (d->ymin != -1.0 || d->ymax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected y E [-1.0, 1.0]\n");
+  if (d->zmin != -1.0 || d->zmax != 1.0) throw std::invalid_argument("Domain has incorrect values. Expected z E [-1.0, 1.0]\n");
+
+  // Cook & Bernuzzi, arXiv:2606.21659, section II.5.3, equations (52)-(58)
+  const double B0(0.001), p0(1.0), rho0(2.0), rho1(1.0), yl(0.25), al(0.01);
+  const double v0x(0.5), v0y(0.5), v0z(0.5);
+  const double dvx(0.01), dvy(0.1), dvz(0.01);
+  const double nx(11), ny(7), nz(5);
+  const double sigy2(0.01);
+  const double Lx(d->xmax - d->xmin), Ly(d->ymax - d->ymin), Lz(d->zmax - d->zmin);
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      const double y(d->y[j]);
+      const double sgn((y > 0.0) - (y < 0.0));
+      const double ay(fabs(y));
+      const double layer(tanh((ay - yl) / al));
+      const double envelope(exp(-(ay - yl) * (ay - yl) / sigy2));
+      for (int k(0); k < d->Nz; k++) {
+
+        d->prims[ID(0, i, j, k)] = rho0 + rho1 * sgn * layer;
+        d->prims[ID(1, i, j, k)] = v0x * sgn * layer + dvx * sin(2*PI*nx*d->x[i] / Lx);
+        d->prims[ID(2, i, j, k)] = v0y * sgn * layer + dvy * sin(2*PI*ny*y / Ly) * sgn * envelope;
+        d->prims[ID(3, i, j, k)] = v0z * sgn * envelope + dvz * sin(2*PI*nz*d->z[k] / Lz);
+        d->prims[ID(4, i, j, k)] = p0;
+
+        // Magnetic Fields
+        if (mag) d->prims[ID(5, i, j, k)] = B0;
+
+        const double v2(pow(d->prims[ID(1, i, j, k)], 2) + pow(d->prims[ID(2, i, j, k)], 2) + pow(d->prims[ID(3, i, j, k)], 2));
+        if (v2 >= 1.0) throw std::runtime_error("Cook-Bernuzzi KHI initial data has a superluminal velocity.\n");
+
+        // If we have electric fields, set to the ideal values
+        if (d->Ncons > 9)
+        {
+          d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
+          d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
+          d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
+        }
+
+      }
+    }
+  }
+}
+
+
 KHInstabilityTwoFluid::KHInstabilityTwoFluid(Data * data, int mag) : InitialFunc(data)
 {
   // Syntax
