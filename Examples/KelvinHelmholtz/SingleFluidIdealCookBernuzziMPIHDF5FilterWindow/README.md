@@ -41,3 +41,16 @@ Running
   and reach rules of the filtering pipeline (`make_mhd_config.py`) depend on dx and dt, not on the box size.
 
   - `plot_slices.py` is copied unchanged from the other example; check its slice coordinates assume nothing about [0, 1].
+
+
+Figures
+-------
+  - `plot_fig3.py`: recreation of Fig. 3 of Vigano et al. (density above, B^z below, x-y plane, one column per snapshot;
+  viridis and seismic colour maps). `plot_quantities.py RUN_DIR`: maps in the x-y and x-z planes of rho, p, |v|, W, vorticity,
+  B_x, B_z, |B|, plasma beta, |J|, |E| and the sub-filter magnetic energy (top-hat), the energy history (cf. their Fig. 4),
+  spectra, profiles in y, and the |J| distribution. Both use `viz_common.py` (needs h5py, numpy, scipy, matplotlib).
+  - Periodic checkpoint frames: calling `sim.evolve(output, safety)` writes a full-primitive/conserved checkpoint file
+  `<name>.checkpoint.<t>.hdf5` every `safety` iterations (the main in this directory uses `evolve(output)`, no frames). The
+  last frame of a run is never closed by `saveAll(true)` and may be unreadable; the scripts skip it.
+  - Local run used for the first figures: 128^3 (the N = 128, C = 0 case of the paper), 8 ranks, `tStart = 6`, frames every 100
+  iterations (see the commit message for how it was configured).
