@@ -108,6 +108,18 @@ def main():
                               '--coarse', 'late:' + os.path.join(tmp, 'late.hdf5'), '--out', out],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         assert rc != 0
+        # the scan driver: two frame times, a baseline and a noisy run; the second noisy frame is missing in one run -> skipped
+        for sub in ('fine', 'base', 'run1'):
+            os.makedirs(os.path.join(tmp, sub))
+        for tt in (0.5, 1.0):
+            write(os.path.join(tmp, 'fine', 'frame.checkpoint.%.6f.hdf5' % tt), P, tt)
+            write(os.path.join(tmp, 'base', 'frame.checkpoint.%.6f.hdf5' % tt), Pc, tt, C=ref)
+        write(os.path.join(tmp, 'run1', 'frame.checkpoint.0.500000.hdf5'), Pc, 0.5, C=noisy)
+        out2 = os.path.join(tmp, 'scan')
+        txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_scan.py'), '--fine-dir', os.path.join(tmp, 'fine'),
+                                       '--coarse', 'base:' + os.path.join(tmp, 'base'), 'run1:' + os.path.join(tmp, 'run1'), '--out', out2]).decode()
+        assert os.path.exists(os.path.join(out2, 'summary.txt')) and os.path.exists(os.path.join(out2, 't_0.5000', 'comparison.npz'))
+        assert not os.path.exists(os.path.join(out2, 't_1.0000')) and 'skipped' in txt
     print("compare_coarse: all checks passed")
 
 

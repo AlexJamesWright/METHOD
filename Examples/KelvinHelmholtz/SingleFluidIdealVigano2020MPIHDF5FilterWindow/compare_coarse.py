@@ -200,7 +200,8 @@ def main():
 
     with open(os.path.join(a.out, 'comparison.txt'), 'w') as fh:
         fh.write("\n".join(out) + "\n")
-    np.savez(os.path.join(a.out, 'comparison.npz'), t=t, r=r, labels=np.array([R['label'] for R in runs]),
+    tail = np.array([spec['B_' + R['label']][hi].sum() / spec['B_ref'][hi].sum() for R in runs])
+    np.savez(os.path.join(a.out, 'comparison.npz'), tail=tail, t=t, r=r, labels=np.array([R['label'] for R in runs]),
              **{'err_' + k: np.array(v) for k, v in err.items()}, **{'amp_' + k: np.array(v) for k, v in amp.items()},
              Emag_ref=Emag_ref, Emag=np.array(Em), **{'spec_' + k: v for k, v in spec.items()})
     print("\nWrote comparison.txt, comparison.npz and the figures to %s" % a.out)
