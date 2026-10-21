@@ -90,3 +90,52 @@ def spectrum(fx, fy, fz, dx):
     kmax = N // 2
     E = np.bincount(shell.ravel(), weights=power.ravel(), minlength=kmax + 1)[:kmax + 1]
     return np.arange(kmax + 1), E
+
+
+CONS = ('D', 'Sx', 'Sy', 'Sz', 'tau', 'Bx', 'By', 'Bz')
+
+
+def conserved_from_prims(P, gamma=4.0 / 3.0):
+    """Conserved variables (D, S, tau, B) of ideal SRMHD from primitives, as SRMHD::primsToAll (mu0 = 1, B^2 without 1/2 in h)."""
+    v2 = P['vx'] ** 2 + P['vy'] ** 2 + P['vz'] ** 2
+    W = 1.0 / np.sqrt(1.0 - v2)
+    vB = P['vx'] * P['Bx'] + P['vy'] * P['By'] + P['vz'] * P['Bz']
+    B2 = P['Bx'] ** 2 + P['By'] ** 2 + P['Bz'] ** 2
+    b0 = W * vB
+    bsq = (B2 + b0 ** 2) / W ** 2
+    h = 1.0 + P['p'] / P['rho'] * (gamma / (gamma - 1.0))
+    wtot = (P['rho'] * h + bsq) * W ** 2
+    C = {'D': P['rho'] * W}
+    for a in 'xyz':
+        b_a = P['B' + a] / W + b0 * P['v' + a]
+        C['S' + a] = wtot * P['v' + a] - b0 * b_a
+    C['tau'] = wtot - (P['p'] + bsq / 2.0) - b0 ** 2 - C['D']
+    for a in 'xyz':
+        C['B' + a] = P['B' + a]
+    return C
+
+
+def block_mean(f, r):
+    """Average over r^3 blocks of cells: the conservative restriction of a cell-averaged field to a grid r times coarser."""
+    n = f.shape
+    return f.reshape(n[0] // r, r, n[1] // r, r, n[2] // r, r).mean(axis=(1, 3, 5))
+
+
+def load_cons(path):
+    """Conserved variables stored in a METHOD file (restart frames, data_final), or None."""
+    with h5py.File(path, 'r') as f:
+        if 'Conserved' not in f:
+            return None
+        return {k: f['Conserved'][k][()].astype(np.float64) for k in CONS}
+
+
+def shell_spectrum(fields, dx):
+    """Shell-summed power spectrum sum_i |f_i(k)|^2 of vector/scalar fields on the periodic cube; returns (k, P(k))."""
+    n = fields[0].shape[0]
+    kx = np.fft.fftfreq(n, d=dx) * 2.0 * np.pi
+    K = np.sqrt(kx[:, None, None] ** 2 + kx[None, :, None] ** 2 + kx[None, None, :] ** 2)
+    dk = 2.0 * np.pi / (n * dx)
+    power = sum(np.abs(np.fft.fftn(f)) ** 2 for f in fields) / float(n ** 6)
+    idx = np.rint(K / dk).astype(int)
+    P = np.bincount(idx.ravel(), weights=power.ravel())[:n // 2 + 1]
+    return dk * np.arange(n // 2 + 1), P

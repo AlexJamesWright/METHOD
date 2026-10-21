@@ -54,3 +54,15 @@ Figures
   last frame of a run is never closed by `saveAll(true)` and may be unreadable; the scripts skip it.
   - Local run used for the first figures: 128^3 (the N = 128, C = 0 case of the paper), 8 ranks, `tStart = 6`, frames every 100
   iterations (see the commit message for how it was configured).
+
+Comparing a coarse closure run with the fine run
+------------------------------------------------
+  - `compare_coarse.py --fine FINE_FILE --coarse LABEL:FILE ... [--fine-frames DIR ...] [--out DIR]` (test:
+  `../../../Tests/CompareCoarse`). The fine run (prims or restart frame) is block-averaged by r = N_fine / N_coarse in each direction,
+  which restricts the conserved variables exactly onto the coarse grid and is a top-hat filter of one coarse cell (c = 1/12 in
+  sigma^2 = c dx^2). Each coarse `data_final.hdf5` (run to the SAME time as the fine file; the script refuses a mismatch) is then
+  scored by: relative error of each conserved variable, fluctuation amplitude ratio, resolved magnetic energy, shell spectra of B and
+  S (`spectra.png`), the high-k tail of the B spectrum, mid-plane |B| maps and differences (`slices.png`), and the magnetic energy
+  history against the block-averaged fine frames (`timeseries.png`, from the `diag` lines of the `run.log` beside each file).
+  The first label is the baseline (the run without the closure). Output: `comparison.txt`, `comparison.npz` and the figures.
+  - Lab-frame and flat: the real-data (Lagrangian-filtered 384^3) version swaps in the filtered pickles as the reference.
