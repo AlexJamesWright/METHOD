@@ -79,3 +79,8 @@ Budget of the resolved magnetic energy
   - `energy_budget.py --block R --dirs RUN [...] [--tmin T] [--out FILE]`: from frames, dE/dt = P - X - D with E = int |<B>|^2/2, the production P = int J.(<v> x <B>) by the resolved
   flow, the sub-filter drain X = int J.E_sub (0 for R = 1) and the remainder D (numerical dissipation and discretisation error); all printed as rates per unit time (divided by E) against time.
   Use `--block 3` on the 384^3 run (the filtered fine run) and `--block 1` on a coarse run to compare the closure's X with the coarse run's own D. Frames should be closer in time than 1/(growth rate).
+
+Delay of one run's history against another
+------------------------------------------
+  - `time_shift.py REFERENCE_LOG OTHER_LOG`: from the `diag` lines of two run logs, the times at which each run reaches the same E_kin (falling) and E_mag (rising) levels and their difference.
+  A constant difference is the same evolution, delayed. Between the 384^3 run and the 128^3 baseline: 2.7-3.0 for E_kin, about 4.7 for E_mag (design doc section 11).
