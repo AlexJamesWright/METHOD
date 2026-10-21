@@ -563,7 +563,7 @@ KHInstabilitySingleFluid::KHInstabilitySingleFluid(Data * data, int mag) : Initi
 }
 
 
-KHInstabilitySingleFluidCookBernuzzi::KHInstabilitySingleFluidCookBernuzzi(Data * data, int mag) : InitialFunc(data)
+KHInstabilitySingleFluidVigano2020::KHInstabilitySingleFluidVigano2020(Data * data, int mag) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
@@ -605,7 +605,7 @@ KHInstabilitySingleFluidCookBernuzzi::KHInstabilitySingleFluidCookBernuzzi(Data 
         if (mag) d->prims[ID(5, i, j, k)] = B0;
 
         const double v2(pow(d->prims[ID(1, i, j, k)], 2) + pow(d->prims[ID(2, i, j, k)], 2) + pow(d->prims[ID(3, i, j, k)], 2));
-        if (v2 >= 1.0) throw std::runtime_error("Cook-Bernuzzi KHI initial data has a superluminal velocity.\n");
+        if (v2 >= 1.0) throw std::runtime_error("Vigano2020 KHI initial data has a superluminal velocity.\n");
 
         // If we have electric fields, set to the ideal values
         if (d->Ncons > 9)

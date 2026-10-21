@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Recreation of Fig. 3 of Vigano et al. (arXiv:2004.00870): density (top row) and the z-component of the magnetic field
-B^z (bottom row) in the x-y plane, one column per snapshot, for the 3D KHI of the Cook-Bernuzzi / Vigano initial data.
+B^z (bottom row) in the x-y plane, one column per snapshot, for the 3D KHI of the Vigano et al. (2020) initial data.
 Standard colour map viridis, diverging colour map seismic (B^z, symmetric about zero). The paper does not say which z
 plane it shows; the default is the middle one.
 

@@ -1,4 +1,4 @@
-Continue a run of `../SingleFluidIdealCookBernuzziMPIHDF5FilterWindow` (or any SRMHD 3D run with the same Data layout) from a
+Continue a run of `../SingleFluidIdealVigano2020MPIHDF5FilterWindow` (or any SRMHD 3D run with the same Data layout) from a
 full-output HDF5 file to a later time.
 
     make main

@@ -1,4 +1,4 @@
-// 3D magnetized Kelvin-Helmholtz with the Cook & Bernuzzi / Vigano et al. initial data (arXiv:2606.21659 II.5.3, arXiv:2004.00870) on [-1/2,1/2]^3:
+// 3D magnetized Kelvin-Helmholtz with the Vigano et al. (2020) initial data, as used by Cook & Bernuzzi (arXiv:2004.00870, arXiv:2606.21659 II.5.3), on [-1/2,1/2]^3:
 // spin up without output, then write a window of consecutive timesteps of all variables, suitable for
 // Lagrangian filtering.
 #include "simData.h"
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   Simulation sim(&data, &env);
 
   // Deterministic initial data; mag = 1 switches on the seed field B_x = 0.001
-  KHInstabilitySingleFluidCookBernuzzi init(&data, 1);
+  KHInstabilitySingleFluidVigano2020 init(&data, 1);
 
   RK3 timeInt(&data, &model, &bcs, &fluxMethod);
 

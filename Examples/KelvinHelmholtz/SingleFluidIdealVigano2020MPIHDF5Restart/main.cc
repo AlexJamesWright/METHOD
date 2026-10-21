@@ -1,4 +1,4 @@
-// Continue a 3D Cook-Bernuzzi / Vigano KHI run from a full-output HDF5 file (a window snapshot or a full checkpoint frame:
+// Continue a 3D Vigano2020 KHI run from a full-output HDF5 file (a window snapshot or a full checkpoint frame:
 // it needs the Conserved and Primitive groups), to a later end time, writing full-output frames on the way.
 //
 //   mpirun -np 8 ./main restart_file.hdf5 endTime [frameIters] [finalName]

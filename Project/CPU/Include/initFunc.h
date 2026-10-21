@@ -214,9 +214,9 @@ class KHInstabilitySingleFluid : public InitialFunc
     virtual ~KHInstabilitySingleFluid() { }     //!< Destructor
 };
 
-//! <b> Single-fluid, three-dimensional Kelvin-Helmholtz instability, Cook and Bernuzzi </b>
+//! <b> Single-fluid, three-dimensional Kelvin-Helmholtz instability, Vigano et al. (2020) </b>
 /*!
-      Initial data for a fully turbulent 3D special relativistic KHI, as used by Cook & Bernuzzi,
+      Initial data for a fully turbulent 3D special relativistic KHI from Vigano et al. (arXiv:2004.00870, equations (34)-(38)), as used by Cook & Bernuzzi,
     `Subgrid Modelling for Relativistic Magnetohydrodynamics with Machine Learning`
     (arXiv:2606.21659), section II.5.3, taken from Vigano et al. (arXiv:2004.00870), equations (34)-(38), on the periodic
     box \f$[-L/2, L/2]^3\f$ with \f$L = 1\f$. The primitive variables are
@@ -239,7 +239,7 @@ class KHInstabilitySingleFluid : public InitialFunc
     jump at \f$y = 0\f$ and across the periodic boundary \f$y = \pm L/2\f$ as well as at the smooth layers
     \f$y = \pm y_l = \pm L/4\f$, as in both papers. The adiabatic index (4/3 in Vigano et al.) is not checked.
 */
-class KHInstabilitySingleFluidCookBernuzzi : public InitialFunc
+class KHInstabilitySingleFluidVigano2020 : public InitialFunc
 {
   public:
     /*! Constructor
@@ -248,9 +248,9 @@ class KHInstabilitySingleFluidCookBernuzzi : public InitialFunc
       off, or 1 for on (the default).
       @sa InitialFunc
     */
-    KHInstabilitySingleFluidCookBernuzzi(Data * data, int mag=1);
+    KHInstabilitySingleFluidVigano2020(Data * data, int mag=1);
 
-    virtual ~KHInstabilitySingleFluidCookBernuzzi() { }     //!< Destructor
+    virtual ~KHInstabilitySingleFluidVigano2020() { }     //!< Destructor
 };
 
 //! <b> Single-fluid Kelvin-Helmholtz instability with random interface </b>

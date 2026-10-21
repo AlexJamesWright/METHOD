@@ -1,4 +1,4 @@
-"""Shared helpers for the Cook-Bernuzzi / Vigano KHI plots: reading METHOD snapshots and derived quantities."""
+"""Shared helpers for the Vigano2020 KHI plots: reading METHOD snapshots and derived quantities."""
 import glob
 import os
 import re

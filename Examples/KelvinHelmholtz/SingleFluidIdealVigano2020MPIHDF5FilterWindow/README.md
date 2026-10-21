@@ -5,7 +5,7 @@ Model
 
 Initial data
 ------------
-  - `KHInstabilitySingleFluidCookBernuzzi`: the 3D special-relativistic Kelvin-Helmholtz initial data of Vigano et al.,
+  - `KHInstabilitySingleFluidVigano2020`: the 3D special-relativistic Kelvin-Helmholtz initial data of Vigano et al.,
   arXiv:2004.00870 (Eqs. 34-38), as used by Cook & Bernuzzi, arXiv:2606.21659 (II.5.3), on the periodic box [-1/2, 1/2]^3
   (L = 1). Deterministic, no random seed: shear layers at y = +-1/4 with velocity perturbations in all three directions
   (n_x, n_y, n_z = 11, 7, 5) and a weak seed field B_x = 0.001. gamma = 4/3 here.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Snapshot figures of the quantities used in the filtering work, for one run of the Cook-Bernuzzi / Vigano 3D KHI.
+Snapshot figures of the quantities used in the filtering work, for one run of the Vigano et al. (2020) 3D KHI.
 
     python plot_quantities.py RUN_DIR [CONTINUATION_DIR ...] --snapshot data_window_00.hdf5 --outdir figures --filter-cells 4
 
