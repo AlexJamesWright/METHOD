@@ -25,8 +25,8 @@ Purpose
 
 Running
 -------
-  - `make main`, then `mpirun -np 192 ./main [endTime] [diagIters] [primFrameIters] [restartFrameIters]`; defaults 14.0, 100, 370,
-  1480 iterations. At 384^3 the step is 0.52 dx = 1.35e-3, so 370 iterations are 0.5 and 1480 are 2 time units (0 switches a kind off).
+  - `make main`, then `mpirun -np 192 ./main [endTime] [diagIters] [primFrameIters] [restartFrameIters] [closureC] [densityTerm] [limiter]`;
+  defaults 14.0, 100, 370, 1480 iterations, 0 (no closure), 0, 0. At 384^3 the step is 0.52 dx = 1.35e-3, so 370 iterations are 0.5 and 1480 are 2 time units (0 switches a kind off).
   `submit_run.sh` is a Slurm script (60 h, 192 tasks); it sources `$HOME/METHOD/modules.sh` as in the earlier jobs.
   - Cost (an extrapolation from the 600x600x300 timing, 4e-5 core-s per cell-step; not measured at this size): about 12 s per step
   on 192 cores, 10,300 steps to t = 14, about 30 h.
@@ -36,3 +36,14 @@ Running
   about 12 and the best-developed turbulence is at t ~ 8-12; the onset is expected earlier at higher resolution, so pick the
   window time from the `diag` lines.
   - Tested at 32^3 on 8 ranks (frames, diagnostics, clean exit); not run at 384^3.
+
+
+Sub-filter closure
+------------------
+  - `closureC > 0` switches on `SubfilterGradient` (`Project/CPU/Include/subfilterGradient.h`): the second-order electromotive force, Maxwell
+  stress and Poynting-flux deficits of a coarse run as sources for B, S and tau, with filter variance sigma^2 = closureC dx^2 (see the header for the
+  formulas); `densityTerm = 1` adds the density-weighting term of the EMF; `limiter = 1` zeroes the source where the local energy exchange J.EMF
+  (J = curl B) is negative. The log then also has `closure t=... exchange=... abs=... net/abs=...` lines.
+  - Use it at coarse resolution (the 128^3 case of the paper; this example's 384^3 is the reference).
+  - Tested only on the laptop at 32^3 and 64^3 (see the commit messages and planning/closure_stage2_design.md): stable at small `closureC`,
+  unstable above a threshold unless the limiter is on.

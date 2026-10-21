@@ -61,6 +61,7 @@ SRCS = simulation.cc \
 			 RKPlus.cc \
 			 boundaryConds.cc \
 			 fluxVectorSplitting.cc \
+			 subfilterGradient.cc \
 
 SERIAL_SRCS = serialSaveData.cc \
 			 serialEnv.cc \
@@ -230,6 +231,9 @@ parallelSaveData.o : $(MODULE_DIR)/parallelSaveData.cc $(INC_DIR)/parallelSaveDa
 	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 parallelSaveDataHDF5.o : $(MODULE_DIR)/parallelSaveDataHDF5.cc $(INC_DIR)/parallelSaveDataHDF5.h
+	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
+
+subfilterGradient.o : $(MODULE_DIR)/subfilterGradient.cc $(INC_DIR)/subfilterGradient.h $(INC_DIR)/modelExtension.h
 	$(CC)	-c	$(CXXFLAGS) -I$(INC_DIR) $<
 
 fluxVectorSplitting.o : $(MODULE_DIR)/fluxVectorSplitting.cc $(INC_DIR)/fluxVectorSplitting.h $(INC_DIR)/weno.h
