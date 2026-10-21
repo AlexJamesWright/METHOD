@@ -18,7 +18,7 @@ misses the variance dx_f^2/12 inside one fine cell (1/r^2 of Delta^2/12): on smo
 r = 3), and `scale_c` = scale + 1/r^2 adds the missing part back (1 on smooth fields; test: Tests/CompareCoarse). Printed per frame: R^2 = 1 - |E_true - E_model|^2/|E_true|^2 of the parameter-free
 prediction, the best scale s = <E_true.E_model>/<E_model.E_model> (the c that fits best is s/12 in units of the coarse dx^2), the
 amplitude ratio, the rms sub-filter EMF relative to the resolved E_res = -<v> x <B>, and the energy exchange with the resolved field,
-X = sum J.E_true (J = curl <B>): net/abs and the backscatter fraction (negative part / abs) for the true and the modelled EMF.
+X = sum J.E_true (J = curl <B>; dE_mag/dt = -X from the sub-filter EMF, so X/E_mag is the rate at which it drains the resolved field, to be compared with the growth rate of E_mag): net/abs and the backscatter fraction (negative part / abs) for the true and the modelled EMF.
 
     python apriori_emf.py --block 3 --dirs RUN384 [RUN384_restart ...] [--tmin 1.5] [--every 1] [--out apriori_emf.txt]
 
@@ -105,6 +105,8 @@ def analyse(path, r):  # noqa: C901
     res['X_true'] = exchange(E_true)
     res['X_model'] = exchange(E_model)
     res['X_ratio'] = np.sum(dot(Jm, E_model)) / np.sum(dot(Jm, E_true))
+    # d/dt int |B|^2/2 dV = -int J.E_total dV, so the sub-filter EMF changes the resolved energy at the rate -X; X / E_mag is a rate per unit time
+    res['rate'] = np.sum(dot(Jm, E_true)) / (0.5 * np.sum(dot(Bm, Bm)))
     return res
 
 
@@ -121,8 +123,8 @@ def main():
     for d in a.dirs:
         files += vc.frames(d)
     rows = []
-    hdr = "%-8s %-8s %-8s %-8s %-8s %-8s | %-8s %-8s %-9s | %-9s | %-16s | %-16s | %-8s" % (
-        "t", "R2", "scale", "scale_c", "R2best", "amp", "R2(F)", "scale(F)", "scale_c(F)", "|E|/|Eres|", "net/abs,bs(true)", "net/abs,bs(mod)", "X mod/true")
+    hdr = "%-8s %-8s %-8s %-8s %-8s %-8s | %-8s %-8s %-9s | %-9s | %-16s | %-16s | %-8s %-8s" % (
+        "t", "R2", "scale", "scale_c", "R2best", "amp", "R2(F)", "scale(F)", "scale_c(F)", "|E|/|Eres|", "net/abs,bs(true)", "net/abs,bs(mod)", "X mod/true", "X/Emag")
     lines = [hdr]
     for i, f in enumerate(files):
         if i % a.every:
@@ -131,9 +133,9 @@ def main():
         if not (a.tmin <= res['t'] <= a.tmax):
             continue
         L, F = res['lab'], res['favre']
-        line = "%-8.3f %-8.3f %-8.3f %-8.3f %-8.3f %-8.3f | %-8.3f %-8.3f %-9.3f | %-9.4f | %6.2f %6.2f     | %6.2f %6.2f     | %-8.3f" % (
+        line = "%-8.3f %-8.3f %-8.3f %-8.3f %-8.3f %-8.3f | %-8.3f %-8.3f %-9.3f | %-9.4f | %6.2f %6.2f     | %6.2f %6.2f     | %-8.3f %-8.3f" % (
             res['t'], L['R2'], L['scale'], L['scale_c'], L['R2best'], L['amp'], F['R2'], F['scale'], F['scale_c'], res['rel_size'],
-            res['X_true'][0], res['X_true'][1], res['X_model'][0], res['X_model'][1], res['X_ratio'])
+            res['X_true'][0], res['X_true'][1], res['X_model'][0], res['X_model'][1], res['X_ratio'], res['rate'])
         print(line, flush=True)
         lines.append(line)
     with open(a.out, 'w') as fh:
