@@ -1,0 +1,3 @@
+Synthetic tests of the checkpoint-restart readers in 3D (serial `CheckpointRestart` and parallel `ParallelCheckpointRestart`), with mock `Data` and `ParallelEnv` headers so that only the two real source files
+are compiled (no METHOD build). A global dataset `f(i,j,k) = 1e4 i + 100 j + k` is written as `Conserved/D` and `Primitive/rho` of a synthetic checkpoint and read back on rank grids 1x1x1 to 2x3x2 and serially; every interior cell is checked.
+Built with AddressSanitizer: before the fix of 2026-10-20 (buffer sized by one dimension) the readers abort with a stack-buffer overflow; now all pass. Run `./run.sh` (needs `mpicxx` and parallel HDF5, `h5pcc`).

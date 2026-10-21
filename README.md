@@ -147,3 +147,17 @@ To build the documentation locally simply go the the `Doxumentation` folder and 
 ---------------------------------------------
 ---------------------------------------------
 <br> <br>
+
+
+Sub-filter closure and the Vigano et al. (2020) Kelvin-Helmholtz test (branch `feature/subfilter-gradient-closure`)
+---------------------------------------------------------------------------------------------------------------
+  - `KHInstabilitySingleFluidVigano2020` (`Project/CPU/Include/initFunc.h`): the 3D special-relativistic KHI of Vigano et al., arXiv:2004.00870 (Eqs. 34-38), box [-1/2, 1/2]^3. Deviations from Cook & Bernuzzi's printed
+  listing (v^y_0 = 0 instead of 0.5, sigma_z in the v^z envelope) are explained in the header comment and in the example README.
+  - `SubfilterGradient` (`Include/subfilterGradient.h`, `Src/subfilterGradient.cc`): a `ModelExtension` adding the second-order sub-filter electromotive force, Maxwell stress and Poynting flux of a coarse SRMHD run as sources;
+  formulas in the header; `Include/energyDiagnostics.h`: global energy diagnostics for the log.
+  - 3D checkpoint restart fixed (`initFuncFromCheckpoint.cc`, `parallelInitFuncFromCheckpoint.cc`: the read buffer was one dimension long in 3D).
+  - Examples (`Examples/KelvinHelmholtz/`): `SingleFluidIdealVigano2020MPIHDF5Run` (long run with diagnostics, frames and optional closure; 384^3 on 192 ranks by default), `...Restart` (continue from a full-output file; writes
+  the filtering window with `nSnap`, `snapStride`), `...FilterWindow` (single-pass window; figure scripts `plot_fig3.py`, `plot_quantities.py`).
+  - Tests that need no METHOD build: `Tests/CheckpointRestart3D/run.sh`, `Tests/SubfilterGradient/run.sh`.
+  - Design, validation and results: `planning/closure_stage2_design.md` in the `action_filtering` repository.
+
