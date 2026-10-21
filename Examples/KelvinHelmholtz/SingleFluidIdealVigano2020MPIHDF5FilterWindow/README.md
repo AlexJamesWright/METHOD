@@ -89,3 +89,8 @@ Convergence of the energy histories
 -----------------------------------
   - `convergence_order.py N1:LOG1 N2:LOG2 N3:LOG3 ...`: for each E_kin / E_mag level, fits `t_N = t_inf + A N^-p` to the crossing times of runs at several grids (three or more); prints p, the continuum `t_inf` and how
   late each grid is. The runs: `../SingleFluidIdealVigano2020MPIHDF5ClosureScan/submit_convergence.sh`. Test: `Tests/CompareCoarse/test_convergence_order.py`.
+
+Comparing two run logs (works on a run in progress)
+---------------------------------------------------
+  - `compare_logs.py BASELINE_LOG CLOSURE_LOG [--dt 0.5]`: at matched times, E_mag and E_kin of the closure run relative to the baseline, the same for the perturbation energy (E_mag minus the 5e-7 of the uniform B_x seed, the
+  sensitive measure early on), W_max and the failed-recovery counts of both, and the closure's exchange (`net/abs`, and the rate int J.EMF dV / E_mag) from the `closure` lines.
