@@ -2,7 +2,7 @@
 """
 Snapshot figures of the quantities used in the filtering work, for one run of the Cook-Bernuzzi / Vigano 3D KHI.
 
-    python plot_quantities.py RUN_DIR --snapshot data_window_00.hdf5 --outdir figures --filter-cells 4
+    python plot_quantities.py RUN_DIR [CONTINUATION_DIR ...] --snapshot data_window_00.hdf5 --outdir figures --filter-cells 4
 
 RUN_DIR holds the checkpoint frames (frame.checkpoint.<t>.hdf5, written every `safety` iterations) and the window
 snapshots. Writes, to --outdir:
@@ -28,6 +28,12 @@ import numpy as np
 from matplotlib.colors import LogNorm
 
 from viz_common import axes_of, derived, frames, load, spectrum
+
+
+def load_time(path):
+    import h5py
+    with h5py.File(path, 'r') as f:
+        return float(np.ravel(f.attrs['t'])[0]) if 't' in f.attrs else float(np.ravel(f['Domain'].attrs['endTime'])[0])
 
 
 def field_list(S, D):
@@ -144,19 +150,19 @@ def jcurrent(S, D, out):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    p.add_argument("run_dir")
-    p.add_argument("--snapshot", default="data_window_00.hdf5", help="file name (in RUN_DIR) of the snapshot for the maps")
+    p.add_argument("run_dir", nargs="+", help="one or more run directories (e.g. a run and its continuations); their frames are merged in time")
+    p.add_argument("--snapshot", default="data_window_00.hdf5", help="snapshot for the maps: a path, or a file name in the first RUN_DIR")
     p.add_argument("--outdir", default="figures")
     p.add_argument("--filter-cells", type=int, default=4)
     a = p.parse_args()
     os.makedirs(a.outdir, exist_ok=True)
-    S = load(os.path.join(a.run_dir, a.snapshot))
+    S = load(a.snapshot if os.path.exists(a.snapshot) else os.path.join(a.run_dir[0], a.snapshot))
     D = derived(S, a.filter_cells)
     N = S['P']['rho'].shape
     maps(S, D, 'xy', N[2] // 2, os.path.join(a.outdir, 'maps_xy.png'), a.filter_cells)
     y = axes_of(S)[1]
     maps(S, D, 'xz', int(np.argmin(np.abs(y - 0.25))), os.path.join(a.outdir, 'maps_xz.png'), a.filter_cells)
-    files = frames(a.run_dir)
+    files = sorted((f for d in a.run_dir for f in frames(d)), key=lambda f: load_time(f))
     if files:
         t, em, ek = energy_history(files, os.path.join(a.outdir, 'energy_history.png'))
         print("magnetic energy: %.3g at t = %.3f -> %.3g at t = %.3f; kinetic %.3g -> %.3g" % (em[0], t[0], em[-1], t[-1], ek[0], ek[-1]))
