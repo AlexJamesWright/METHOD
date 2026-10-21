@@ -5,7 +5,7 @@ Times of the 384^3 reference frames, as a comma-separated list for the ClosureSc
     python frame_times.py --dir /scratch/ih3/METHOD_simulations/vigano2020_384_run1 [--tmin 4] [--tmax 14] > times.txt   # from the files
     python frame_times.py --formula [--every 370] [--tmax 14] > times.txt                                                   # before they exist
 
-The files give the exact times (attribute `t`, read without opening the possibly unreadable last frame as data). The formula is for
+The files give the exact times (attribute `t`). While the job runs, the newest frame is still open and unreadable; it is reported on stderr and skipped (the final frame of a finished job is closed properly). The formula is for
 the 384^3 run as set up (cfl 0.9, dx = 1/384, three dimensions, wave speed 1) with its slow start (the first 15 steps are 0.1 dt0 and the
 next 15 are 0.25 dt0): t(n) = dt0 (n - 24.75) for n >= 30, dt0 = 0.9/(384 sqrt 3) = 1.35316e-3. It reproduced the logged
 `diag t=0.10182564 iter=100` to 8 digits; use the files when they exist. Frames are written every 370 iterations.
@@ -13,7 +13,7 @@ next 15 are 0.25 dt0): t(n) = dt0 (n - 24.75) for n >= 30, dt0 = 0.9/(384 sqrt 3
 import argparse
 import glob
 import math
-import re
+import sys
 
 p = argparse.ArgumentParser()
 g = p.add_mutually_exclusive_group(required=True)
@@ -42,6 +42,9 @@ else:
             with h5py.File(f, 'r') as h:
                 times.append(float(np.ravel(h.attrs['t'])[0]))
         except OSError:
-            pass            # the last frame is never closed by METHOD and may be unreadable: it is skipped
+            # the newest frame is left open by METHOD (saveAll(true)) until the next one is written, so it cannot be read yet
+            print("skipped (not readable yet; the newest frame of a running job): %s" % f, file=sys.stderr)
     times.sort()
+if not times:
+    print("no readable frames found", file=sys.stderr)
 print(",".join(repr(t) for t in times if a.tmin <= t <= a.tmax))
