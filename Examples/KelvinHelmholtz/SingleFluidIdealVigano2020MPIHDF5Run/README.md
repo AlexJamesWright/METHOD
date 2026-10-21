@@ -1,0 +1,38 @@
+Model
+-----
+  - Ideal MHD (SRMHD), 3D, gamma = 4/3, WENO5 + RK3
+
+
+Initial data
+------------
+  - `KHInstabilitySingleFluidVigano2020` (Vigano et al., arXiv:2004.00870, Eqs. 34-38; see the `FilterWindow` example's README for
+  the deviations from Cook & Bernuzzi's printed listing) on [-1/2, 1/2]^3. Deterministic.
+
+
+Purpose
+-------
+  - A long run to a chosen end time with what is needed to pick the filtering window afterwards:
+    - energy diagnostics in the log, `diag t=... iter=... Emag=... Ekin=... mass=... Wmax=...`, every `diagIters` iterations (global
+    magnetic energy, kinetic energy rho W (W-1), mass and the largest Lorentz factor), so the growth phase can be read off the
+    log without opening any file;
+    - primitive-variable frames `frame.checkpoint.<t>.hdf5` for plotting (`../SingleFluidIdealVigano2020MPIHDF5FilterWindow/plot_quantities.py`);
+    - restartable frames `restart.checkpoint.<t>.hdf5` (conserved + primitive, no auxiliary variables);
+    - `data_final.hdf5` (everything) at the end.
+  - The filtering window is then written by restarting from the last restart frame before the chosen time, with
+  `../SingleFluidIdealVigano2020MPIHDF5Restart` and `nSnap`, `snapStride` (see its README). The window needs full output
+  (`data_window_NN.hdf5` with auxiliary variables), about 14 GB per snapshot at 384^3.
+
+
+Running
+-------
+  - `make main`, then `mpirun -np 192 ./main [endTime] [diagIters] [primFrameIters] [restartFrameIters]`; defaults 14.0, 100, 370,
+  1480 iterations. At 384^3 the step is 0.52 dx = 1.35e-3, so 370 iterations are 0.5 and 1480 are 2 time units (0 switches a kind off).
+  `submit_run.sh` is a Slurm script (60 h, 192 tasks); it sources `$HOME/METHOD/modules.sh` as in the earlier jobs.
+  - Cost (an extrapolation from the 600x600x300 timing, 4e-5 core-s per cell-step; not measured at this size): about 12 s per step
+  on 192 cores, 10,300 steps to t = 14, about 30 h.
+  - Disk at 384^3: primitive frame about 3.6 GB (28 of them, about 100 GB), restart frame about 7.7 GB (7 of them, about 54 GB), final output
+  about 14 GB. A 30-snapshot window is about 410 GB. Check the quota (2 TB total) before submitting.
+  - Chosen from the 128^3 laptop runs (energy history in `action_filtering/figures`): at 128^3 the magnetic energy grows from t = 5.6 to
+  about 12 and the best-developed turbulence is at t ~ 8-12; the onset is expected earlier at higher resolution, so pick the
+  window time from the `diag` lines.
+  - Tested at 32^3 on 8 ranks (frames, diagnostics, clean exit); not run at 384^3.
