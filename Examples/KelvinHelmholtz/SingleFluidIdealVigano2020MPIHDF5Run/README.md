@@ -32,6 +32,9 @@ Running
   on 192 cores, 10,300 steps to t = 14, about 30 h.
   - Disk at 384^3: primitive frame about 3.6 GB (28 of them, about 100 GB), restart frame about 7.7 GB (7 of them, about 54 GB), final output
   about 14 GB. A 30-snapshot window is about 410 GB. Check the quota (2 TB total) before submitting.
+  The window needs far fewer snapshots than 30: `make_mhd_config.py` requires the half-window (in dx) to cover the filter reach `gamma (1 + sqrt3 v) sqrt(3/5) max(W, L) / 2` plus the meso time-slice offset;
+  with `snapStride = 20` the snapshots are about 10.4 dx apart (dt = 0.52 dx), so 7 snapshots (about 100 GB) give a half-window of 31 dx (enough for W = L = 12 cells at v = 0.87) and 9 (about 130 GB) 42 dx (enough at v = 0.94, the largest
+  Lorentz factors seen, W = 12). Run `make_mhd_config.py` on the first few snapshots to check before committing the disk.
   - Chosen from the 128^3 laptop runs (energy history in `action_filtering/figures`): at 128^3 the magnetic energy grows from t = 5.6 to
   about 12 and the best-developed turbulence is at t ~ 8-12; the onset is expected earlier at higher resolution, so pick the
   window time from the `diag` lines.
