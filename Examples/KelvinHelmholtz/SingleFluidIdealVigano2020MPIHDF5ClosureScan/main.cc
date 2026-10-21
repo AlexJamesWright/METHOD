@@ -4,7 +4,7 @@
 // 384^3 frame of the same time (the fine frames are written every 370 iterations, so their times are not round numbers; see
 // frame_times.py). The step is cut to land on each output time (Simulation::updateTime clips dt at endTime).
 //
-//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes]
+//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks]
 //
 //   endTime      end of the run
 //   closureC     c in sigma^2 = c dx^2; 0 = no closure (the baseline)
@@ -12,6 +12,9 @@
 //   limiter      1 zeroes the closure source where the local J.EMF < 0
 //   diagIters    energy diagnostics (`diag t=... Emag=...` and, with the closure, `closure t=...` lines) every this many iterations; default 20
 //   outputTimes  comma-separated times (no spaces), or a file name holding them separated by commas or white space; default none
+//                ("-" for none, to give the arguments after it)
+//   nGrid        cells per direction (a cube), default 128: for the convergence runs (submit_convergence.sh)
+//   nxRanks nyRanks nzRanks   process layout, default 4 4 4 (their product must equal the number of processes and each must divide nGrid)
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
 // data_final.hdf5 (everything, at endTime).
@@ -60,9 +63,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(128);
-  int ny(128);
-  int nz(128);
+  int nGrid(128);
   double xmin(-0.5);
   double xmax(0.5);
   double ymin(-0.5);
@@ -78,10 +79,10 @@ int main(int argc, char *argv[]) {
   int frameSkip(10);
   int reportItersPeriod(100);
 
-  // The grid must divide evenly: 128 / 4 in each direction (64 ranks)
-  double nxRanks(4);
-  double nyRanks(4);
-  double nzRanks(4);
+  // The grid must divide evenly by the ranks in each direction (default 128 / 4, 64 ranks)
+  int nxRanks(4);
+  int nyRanks(4);
+  int nzRanks(4);
 
   if (argc < 5) {
     printf("usage: mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes]\n");
@@ -92,10 +93,22 @@ int main(int argc, char *argv[]) {
   int closureDensityTerm(atoi(argv[3]));
   int closureLimiter(atoi(argv[4]));
   int diagIters(argc > 5 ? atoi(argv[5]) : 20);
-  vector<double> times(argc > 6 ? parseTimes(argv[6]) : vector<double>());
+  vector<double> times(argc > 6 && strcmp(argv[6], "-") != 0 ? parseTimes(argv[6]) : vector<double>());
+  if (argc > 7) nGrid = atoi(argv[7]);
+  if (argc > 10) {
+    nxRanks = atoi(argv[8]);
+    nyRanks = atoi(argv[9]);
+    nzRanks = atoi(argv[10]);
+  }
+  const int nx(nGrid), ny(nGrid), nz(nGrid);
   times.erase(remove_if(times.begin(), times.end(), [endTime](double t) { return t <= 0.0 || t > endTime; }), times.end());
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  if (env.nProc != nxRanks * nyRanks * nzRanks || nGrid % nxRanks || nGrid % nyRanks || nGrid % nzRanks) {
+    if (env.rank == 0) printf("ERROR: %d processes, layout %d x %d x %d, grid %d^3: the layout must use every process and divide the grid\n", env.nProc, nxRanks, nyRanks, nzRanks, nGrid);
+    fflush(stdout);
+    MPI_Abort(MPI_COMM_WORLD, 1);
+  }
 
   DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
         .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sSigma(sigma)

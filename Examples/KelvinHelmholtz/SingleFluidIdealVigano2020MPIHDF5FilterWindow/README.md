@@ -84,3 +84,8 @@ Delay of one run's history against another
 ------------------------------------------
   - `time_shift.py REFERENCE_LOG OTHER_LOG`: from the `diag` lines of two run logs, the times at which each run reaches the same E_kin (falling) and E_mag (rising) levels and their difference.
   A constant difference is the same evolution, delayed. Between the 384^3 run and the 128^3 baseline: 2.7-3.0 for E_kin, about 4.7 for E_mag (design doc section 11).
+
+Convergence of the energy histories
+-----------------------------------
+  - `convergence_order.py N1:LOG1 N2:LOG2 N3:LOG3 ...`: for each E_kin / E_mag level, fits `t_N = t_inf + A N^-p` to the crossing times of runs at several grids (three or more); prints p, the continuum `t_inf` and how
+  late each grid is. The runs: `../SingleFluidIdealVigano2020MPIHDF5ClosureScan/submit_convergence.sh`. Test: `Tests/CompareCoarse/test_convergence_order.py`.

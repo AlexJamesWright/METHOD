@@ -25,7 +25,7 @@ Running
   `python ../SingleFluidIdealVigano2020MPIHDF5FilterWindow/compare_scan.py --fine-dir <384 run dir> --coarse c=0:<scan>/c0_d0_l0 c=1/12:<scan>/c0.0833333333_d0_l0 ... --out cmp --tmin 4`
   Reads each 384^3 frame (about 3.6 GB) once per time and writes `cmp/summary.txt` (magnetic energy, B-spectrum tail and B_z error against time and
   closure setting) and per-time figures; see `compare_coarse.py` for what each number means.
-  - Usage: `mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes]` (`outputTimes`: a comma list or the name of a
+  - Usage: `mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks]` (`outputTimes`: a comma list or the name of a
   file holding them). Log lines `diag t=... Emag=...`, and with the closure `closure t=... net/abs=...`.
   - Cost (not measured): estimate 1.3 s per step on 64 cores; measured 1.0 s per step on iridis (first runs), about 3500 steps to t = 14, so about 1 h per run; the 64^3 laptop
   runs took 15-18 min each on 8 ranks. Disk: about 134 MB per frame, 28 frames, 3.8 GB per run, about 45 GB for the eleven.
@@ -33,3 +33,15 @@ Running
   dominated by where the eddies are). Expect the coarse run to be most useful past the onset of field growth (the window time chosen from the 384^3 `diag` lines).
   - Tested at 32^3 on 8 ranks (frames at requested times to full precision, closure lines, clean exit), and the comparison chain on 32^3 against 64^3;
   not run at 128^3.
+
+
+Convergence runs (the same problem at other resolutions)
+--------------------------------------------------------
+  - The grid and the process layout are optional trailing arguments (`nGrid`, then `nxRanks nyRanks nzRanks`; defaults 128 and 4 4 4, so the scan is unchanged; `-` for `outputTimes`
+  gives none). `main` refuses a layout that does not use every process or does not divide the grid. `submit_convergence.sh` runs the baseline (no closure) at `N` cells per side to t = 14 with
+  the same output times: `N = 192` on 192 ranks (8 8 3; about 1-2 h), `N = 256` on 128 ranks (8 8 2; about 6-8 h) or 256 ranks (8 8 4; about 4 h); commands in the script header. Estimates from the measured
+  5.0 s per step of the 384^3 run on 192 ranks and 1.0 s per step of the 128^3 baseline on 64 ranks, not measured at these sizes.
+  - The 384^3 grid needs N divisible by 24 on 192 ranks (192, 384, 480, 576); 256 needs a power-of-two rank count.
+  - Analysis: `../SingleFluidIdealVigano2020MPIHDF5FilterWindow/convergence_order.py 128:<log> 192:<log> 256:<log> 384:<log>` fits `t_N = t_inf + A N^-p` to the times at which each run reaches the same E_kin
+  and E_mag levels, giving the order p, the continuum value `t_inf` and how late each grid is (test: `Tests/CompareCoarse/test_convergence_order.py`).
+  - Build `main` for this in its own directory: the queued scan tasks use the `./main` of the scan directory.
