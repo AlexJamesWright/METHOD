@@ -66,3 +66,10 @@ Comparing a coarse closure run with the fine run
   history against the block-averaged fine frames (`timeseries.png`, from the `diag` lines of the `run.log` beside each file).
   The first label is the baseline (the run without the closure). Output: `comparison.txt`, `comparison.npz` and the figures.
   - Lab-frame and flat: the real-data (Lagrangian-filtered 384^3) version swaps in the filtered pickles as the reference.
+
+A-priori test of the closure's EMF on fine frames
+-------------------------------------------------
+  - `apriori_emf.py --block R --dirs RUN [RUN2 ...] [--tmin T] [--every N] [--out FILE]`: for each frame, block-averages the fine primitives over R^3 cells, computes the
+  exact sub-filter EMF of E = -v x B (lab-frame and Favre-weighted) and the closure's second-order prediction (c = 1/12, with and without the density term), and prints R^2, the best
+  scale (and `scale_c`, which adds back the variance inside one fine cell), the size relative to the resolved E, and the energy exchange J.E (net/abs, backscatter fraction) against time.
+  `--block 3` for the 384^3 run (about 4 GB of memory: use a compute node), 2 for a 128^3 run. Test: `Tests/CompareCoarse`.

@@ -23,11 +23,11 @@ import viz_common as vc
 PRIMS = ('rho', 'p', 'vx', 'vy', 'vz', 'Bx', 'By', 'Bz')
 
 
-def smooth(rng, n, amp):
+def smooth(rng, n, amp, kc=4.0):
     f = np.fft.fftn(rng.standard_normal((n, n, n)))
     k = np.fft.fftfreq(n) * n
     K = np.sqrt(k[:, None, None] ** 2 + k[None, :, None] ** 2 + k[None, None, :] ** 2)
-    f *= np.exp(-(K / 4.0) ** 2)
+    f *= np.exp(-(K / kc) ** 2)
     g = np.fft.ifftn(f).real
     return amp * g / g.std()
 
@@ -66,8 +66,30 @@ def check_conversion():
     print("conserved_from_prims: ok")
 
 
+def check_apriori():
+    """On smooth fields the second-order EMF closure must predict the exact block-average EMF of the discrete data up to the within-cell variance."""
+    sys.path.insert(0, EX)
+    import apriori_emf
+    rng = np.random.default_rng(3)
+    n = 64
+    P = {'rho': 1.0 + 0.05 * smooth(rng, n, 1.0, kc=1.5), 'p': 0.5 + 0.0 * smooth(rng, n, 1.0, kc=1.5)}
+    for k in ('vx', 'vy', 'vz'):
+        P[k] = 0.2 * smooth(rng, n, 1.0, kc=1.5)
+    for k in ('Bx', 'By', 'Bz'):
+        P[k] = 0.01 * smooth(rng, n, 1.0, kc=1.5)
+    with tempfile.TemporaryDirectory() as tmp:
+        write(os.path.join(tmp, 'f.hdf5'), P, 1.0)
+        res = apriori_emf.analyse(os.path.join(tmp, 'f.hdf5'), 2)
+    assert res['lab']['R2best'] > 0.999, res['lab']                       # the direction is exact on smooth fields
+    assert abs(res['lab']['scale'] - 0.75) < 0.03, res['lab']            # (r^2 - 1)/r^2 for point values and r = 2
+    assert abs(res['lab']['scale_c'] - 1.0) < 0.03, res['lab']           # with the within-cell variance added back
+    assert res['favre']['R2best'] > 0.99, res['favre']
+    print("apriori_emf: ok (R2 %.3f, scale %.3f)" % (res['lab']['R2'], res['lab']['scale']))
+
+
 def main():
     check_conversion()
+    check_apriori()
     assert np.allclose(vc.block_mean(np.arange(64.0).reshape(4, 4, 4), 2)[0, 0, 0], np.mean([0, 1, 4, 5, 16, 17, 20, 21]))
     rng = np.random.default_rng(1)
     n, r = 32, 2
