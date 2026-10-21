@@ -17,8 +17,8 @@ Running
   1. On iridis, after the 384^3 run has written its frames, get the times: `python frame_times.py --dir <384 run dir> --tmin 4 > times.txt`
   (exact, from the files). Before they exist, `python frame_times.py --formula --tmin 4 > times.txt` gives the same times from the time step
   (checked against a logged `diag` line to 8 digits). Use `--tmin` to skip the early times (the field is flat before t ~ 5).
-  2. `make main`; then in a scratch directory with `main` and `times.txt`: `sbatch submit_scan.sh`. This is a 10-task Slurm array, 64 tasks each,
-  one configuration per task (c = 0, 1/12, 1/6, 1/3, 2/3, 1, 2; c = 1/3 with the density term; c = 1 and 2 with the backscatter limiter),
+  2. `make main`; then in a scratch directory with `main` and `times.txt`: `sbatch submit_scan.sh`. This is an 11-task Slurm array, 64 tasks each,
+  one configuration per task (c = 0, 1/12, 1/6, 1/3, 2/3, 1, 2; c = 1/3 with the density term; c = 1 and 2 with the backscatter limiter; c = 1e-6, the baseline up to rounding, whose difference from c = 0 is the run-to-run noise of the chaotic flow: a closure effect smaller than that is not measurable),
   each in its own directory `c<c>_d<densityTerm>_l<limiter>/` with `run.log`, `frame.checkpoint.<t>.hdf5` and `data_final.hdf5`.
   `submit_scan.sh` sources `$HOME/METHOD/modules.sh` as in the other jobs and requests 6 h per task.
   3. Compare (on the laptop or iridis; needs h5py, numpy, scipy, matplotlib):
@@ -27,8 +27,8 @@ Running
   closure setting) and per-time figures; see `compare_coarse.py` for what each number means.
   - Usage: `mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes]` (`outputTimes`: a comma list or the name of a
   file holding them). Log lines `diag t=... Emag=...`, and with the closure `closure t=... net/abs=...`.
-  - Cost (not measured): about 1.3 s per step on 64 cores (4e-5 core-s per cell-step), about 3600 steps to t = 14, so about 1.5 h per run; the 64^3 laptop
-  runs took 15-18 min each on 8 ranks. Disk: about 134 MB per frame, 28 frames, 3.8 GB per run, about 40 GB for the ten.
+  - Cost (not measured): estimate 1.3 s per step on 64 cores; measured 1.0 s per step on iridis (first runs), about 3500 steps to t = 14, so about 1 h per run; the 64^3 laptop
+  runs took 15-18 min each on 8 ranks. Disk: about 134 MB per frame, 28 frames, 3.8 GB per run, about 45 GB for the eleven.
   - Judge the closure on E_mag(t), the B spectrum and its high-k tail, not on pointwise errors (in the 64^3 rehearsal, design doc section 9, those were
   dominated by where the eddies are). Expect the coarse run to be most useful past the onset of field growth (the window time chosen from the 384^3 `diag` lines).
   - Tested at 32^3 on 8 ranks (frames at requested times to full precision, closure lines, clean exit), and the comparison chain on 32^3 against 64^3;
