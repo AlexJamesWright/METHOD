@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=khi-conv
+#SBATCH --nodes=1               # iridis requires --nodes; a layout with more ranks than a node has cores (192) needs --nodes=2 on the command line
 #SBATCH --ntasks=192            # must equal RX*RY*RZ below (default 8*8*3 for N = 192); override on the command line, see the README
 #SBATCH --cpus-per-task=1
 #SBATCH --time=06:00:00         # N = 192: about 1-2 h (estimate); N = 256 on 128 ranks about 6-8 h: submit with --time=12:00:00
@@ -14,9 +15,9 @@
 # Submit from a directory that holds ./main (built from this example) and times.txt, e.g.
 #     sbatch                                  submit_convergence.sh                       # N = 192 on 192 ranks (8 8 3)
 #     sbatch --ntasks=128 --time=12:00:00 --export=ALL,N=256,RX=8,RY=8,RZ=2 submit_convergence.sh     # N = 256 on 128 ranks
-#     sbatch --ntasks=256 --time=08:00:00 --export=ALL,N=256,RX=8,RY=8,RZ=4 submit_convergence.sh     # N = 256 on 256 ranks
-# No --nodes is requested: a layout of more ranks than one node has cores (192 on iridis) is spread over two nodes. (An earlier version asked for --nodes=1, which
-# made the 256-rank submission fail with "Requested partition configuration not available now".)
+#     sbatch --nodes=2 --ntasks=256 --time=08:00:00 --export=ALL,N=256,RX=8,RY=8,RZ=4 submit_convergence.sh     # N = 256 on 256 ranks
+# --nodes is mandatory on iridis (the submit filter refuses a script without it) and is 1 here; 256 ranks do not fit on one node (an earlier attempt with --nodes=1 and
+# --ntasks=256 failed with "Requested partition configuration not available now"): override with --nodes=2 on the command line.
 # Build this ./main in its OWN directory: the queued scan tasks use the ./main of the scan directory.
 set -euo pipefail
 
