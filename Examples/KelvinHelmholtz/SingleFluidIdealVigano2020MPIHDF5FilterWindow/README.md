@@ -73,3 +73,9 @@ A-priori test of the closure's EMF on fine frames
   exact sub-filter EMF of E = -v x B (lab-frame and Favre-weighted) and the closure's second-order prediction (c = 1/12, with and without the density term), and prints R^2, the best
   scale (and `scale_c`, which adds back the variance inside one fine cell), the size relative to the resolved E, and the energy exchange J.E (net/abs, backscatter fraction) against time.
   `--block 3` for the 384^3 run (about 4 GB of memory: use a compute node), 2 for a 128^3 run. Test: `Tests/CompareCoarse`.
+
+Budget of the resolved magnetic energy
+--------------------------------------
+  - `energy_budget.py --block R --dirs RUN [...] [--tmin T] [--out FILE]`: from frames, dE/dt = P - X - D with E = int |<B>|^2/2, the production P = int J.(<v> x <B>) by the resolved
+  flow, the sub-filter drain X = int J.E_sub (0 for R = 1) and the remainder D (numerical dissipation and discretisation error); all printed as rates per unit time (divided by E) against time.
+  Use `--block 3` on the 384^3 run (the filtered fine run) and `--block 1` on a coarse run to compare the closure's X with the coarse run's own D. Frames should be closer in time than 1/(growth rate).
