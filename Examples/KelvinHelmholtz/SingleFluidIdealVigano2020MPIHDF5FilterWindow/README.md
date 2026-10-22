@@ -94,3 +94,8 @@ Comparing two run logs (works on a run in progress)
 ---------------------------------------------------
   - `compare_logs.py BASELINE_LOG CLOSURE_LOG [--dt 0.5]`: at matched times, E_mag and E_kin of the closure run relative to the baseline, the same for the perturbation energy (E_mag minus the 5e-7 of the uniform B_x seed, the
   sensitive measure early on), W_max and the failed-recovery counts of both, and the closure's exchange (`net/abs`, and the rate int J.EMF dV / E_mag) from the `closure` lines.
+
+Summary of a scan
+-----------------
+  - `scan_summary.py REFERENCE_LOG BASELINE_LOG LABEL:LOG ...`: one line per run: the times at which E_mag reaches 1e-6 and 2e-5 and their delays against the reference, the mean growth rate between them, the time at which
+  E_kin falls to 0.2 and its delay, E_mag at the end relative to the baseline, the failed recoveries and the peak closure drain X/E_mag.
