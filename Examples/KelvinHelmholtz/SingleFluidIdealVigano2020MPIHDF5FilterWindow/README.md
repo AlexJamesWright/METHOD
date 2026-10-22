@@ -134,3 +134,6 @@ Spectra of several runs at equal development (Figs. 5 and 6 of Vigano et al.)
   `compare_slices.py`. Convention of `plot_quantities.py` (shell-summed |f_k|^2/2, k in units of 2 pi/L, v and B), not the paper's shell average of 4 pi k^2 |f|^2 (`--kinetic sqrtrho` uses sqrt(rho) v as the paper does);
   also writes `<out>.npz` (raw spectra) and `<out>_match.txt`. `--compensate`: two rows per figure, the kinetic spectrum times k^(5/3) above and the magnetic one times k^(-3/2) below (a plateau
   is the slope; no guide lines). Test: `Tests/CompareCoarse`.
+  - `spectra_ratio_table.py <out>.npz [--k 4 8 16 32 48] [--ref SUBSTRING] [--csv FILE]`: from the `.npz` of `compare_spectra.py`, the ratio of each run's kinetic and magnetic spectrum to the reference (default: the filtered fine run) at
+  the chosen wavenumbers, per E_kin level, with the frame time of each run from the match file. A ratio below 1 is less power than the reference. The native-grid reference appears as a curve too: its ratio to the filtered one
+  shows how much the block average attenuates the reference near the grid scale.

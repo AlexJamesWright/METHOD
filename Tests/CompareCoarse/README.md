@@ -23,3 +23,5 @@ The equal-E_kin mode of `compare_scan.py` is checked with synthetic logs (coarse
 `compare_slices.py` is smoke-tested on synthetic frames and logs: one figure per level, the match file, and an empty panel (`no frame within`) for a level that no frame of a run is close to.
 
 `compare_spectra.py` is smoke-tested in both layouts (stages and groups) with a reference: the figure, the `.npz` and the match file are written.
+
+`spectra_ratio_table.py` is run on the `.npz` of the stages figure in the smoke test (the table and the CSV are written).
