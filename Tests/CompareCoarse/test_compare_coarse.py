@@ -191,6 +191,15 @@ def main():
                                        'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')]).decode()
         assert os.path.exists(os.path.join(out4, 'slices_ekin_0.6.png')) and os.path.exists(os.path.join(out4, 'slices_match.txt')), txt
         assert 'no frame within' in txt, txt                       # E_kin = 0.01 is never reached by these logs within the frames
+        # compare_spectra.py: stages layout and groups layout, with a reference, one figure and the npz / match files each
+        out5 = os.path.join(tmp, 'spec_stages.png')
+        txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--ekin', '0.6', '0.4', '--ekin-tol', '0.5', '--out', out5, '--reference', os.path.join(tmp, 'sa'),
+                                       '--reference-log', os.path.join(tmp, 'sa', 'run.log'), '--block', '2', 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')]).decode()
+        assert os.path.exists(out5) and os.path.exists(out5[:-4] + '.npz') and os.path.exists(out5[:-4] + '_match.txt'), txt
+        out6 = os.path.join(tmp, 'spec_groups.png')
+        subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--layout', 'groups', '--groups', 'A=base', 'B=lag,base', '--ekin', '0.6', '--ekin-tol', '0.5', '--out', out6,
+                                 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')])
+        assert os.path.exists(out6)
     print("compare_coarse: all checks passed")
 
 

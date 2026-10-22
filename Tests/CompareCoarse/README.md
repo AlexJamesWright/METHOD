@@ -21,3 +21,5 @@ The equal-E_kin mode of `compare_scan.py` is checked with synthetic logs (coarse
 `test_exchange_at_ekin.py` checks `exchange_at_ekin.py` on synthetic logs: a coarse run lagging the fine one by one time unit whose closure exchange is half the exact one at the matched stage must give the same `C_eff` for two different `C`.
 
 `compare_slices.py` is smoke-tested on synthetic frames and logs: one figure per level, the match file, and an empty panel (`no frame within`) for a level that no frame of a run is close to.
+
+`compare_spectra.py` is smoke-tested in both layouts (stages and groups) with a reference: the figure, the `.npz` and the match file are written.

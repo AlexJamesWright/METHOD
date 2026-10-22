@@ -125,3 +125,11 @@ Slices of several runs at equal development
   scale in every panel of a row, the run name and frame time above each column and the variable name beside its colour bar on the right. Runs are paired by E_kin from their `run.log` (the frames of the first crossing of the level, nearest frame; no frame within `--ekin-tol` gives an empty panel), because at
   equal time the runs are at different stages. Only quantities of the resolved grid (no sub-filter energy), no pointwise difference panels (the eddies of runs that differ by noise do not line up). viridis, symmetric seismic for signed
   quantities, log10 values on a linear bar for the strictly positive ones that span decades. `slices_match.txt` lists the frames used and their E_kin mismatch. Test: `Tests/CompareCoarse`.
+
+Spectra of several runs at equal development (Figs. 5 and 6 of Vigano et al.)
+------------------------------------------------------------------------------
+  - `compare_spectra.py --ekin 0.4 0.2 0.1 0.05 --out spectra_stages.png baseline=DIR0 c0.6=DIR1 [...] [--reference DIR384 --reference-log LOG --block 3] [--reference-mode native|filtered|both]`: layout `stages`
+  (default, as Fig. 5): one panel per E_kin level, every run in every panel, kinetic spectra solid and magnetic dashed, one colour per run, the reference black (native grid) and grey (block-averaged onto the grid of the runs),
+  thin black guides k^(-5/3) and k^(3/2) (Kazantsev). `--layout groups --groups "WENO5=baseline,c0.6" "WENO7=w7,w7c0.6" --ekin 0.1` (as Fig. 6): one panel per group at one stage. Frames are paired by E_kin as in
+  `compare_slices.py`. Convention of `plot_quantities.py` (shell-summed |f_k|^2/2, k in units of 2 pi/L, v and B), not the paper's shell average of 4 pi k^2 |f|^2 (`--kinetic sqrtrho` uses sqrt(rho) v as the paper does);
+  also writes `<out>.npz` and `<out>_match.txt`. Test: `Tests/CompareCoarse`.
