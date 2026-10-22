@@ -62,3 +62,5 @@ Higher-order WENO
   Tested at 32^3 on 8 ranks: all three orders run, no failed recoveries, a bad order is refused; E_kin at t = 1 is 0.636, 0.665, 0.721 for WENO5, 7, 9 (less dissipation keeps more of the early kinetic energy).
   - `submit_weno_closure.sh`: the closure with WENO7 and WENO9 (array 0-3: WENO7 and WENO9 at c = 1/8 and 0.6; directories `weno<order>_c<c>`), to test whether a coarse run with more small-scale content needs less `c` to give the
   exact sub-filter exchange (`exchange_at_ekin.py`: `C_eff` 0.6 for WENO5, design doc section 19). Tasks 0-1: WENO7 at c = 1/8 and 0.6; 2-3: WENO9 (not robust on this problem, section 20: do not submit); 4-6: WENO7 noise runs (c = 1e-9, 3e-9, 1e-8) for the spread of the WENO7 baseline.
+  - `wenoOrder` also accepts 11 (Ng = 7); 9 and 11 produce a storm of failed recoveries at t of about 1-3.5 at 128^3 (design doc section 23). `main` takes two more optional arguments, `earlyCfl tEarly` (a smaller CFL number until t = tEarly),
+  and `submit_weno_closure.sh` has the WENO9 and WENO11 baselines (tasks 11 and 12) and the environment variables `EARLYCFL`, `TEARLY` for it.

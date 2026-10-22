@@ -4,7 +4,7 @@
 // 384^3 frame of the same time (the fine frames are written every 370 iterations, so their times are not round numbers; see
 // frame_times.py). The step is cut to land on each output time (Simulation::updateTime clips dt at endTime).
 //
-//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder]
+//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder] [earlyCfl tEarly]
 //
 //   endTime      end of the run
 //   closureC     c in sigma^2 = c dx^2; 0 = no closure (the baseline)
@@ -15,8 +15,10 @@
 //                ("-" for none, to give the arguments after it)
 //   nGrid        cells per direction (a cube), default 128: for the convergence runs (submit_convergence.sh)
 //   nxRanks nyRanks nzRanks   process layout, default 4 4 4 (their product must equal the number of processes and each must divide nGrid)
-//   wenoOrder    5 (default), 7 or 9: the WENO reconstruction (Lax-Friedrichs flux splitting as always); the number of ghost cells follows, Ng = (order + 1) / 2 + 1 (4, 5, 6)
+//   wenoOrder    5 (default), 7, 9 or 11 (9 and 11 are not robust on this problem, design doc sections 20 and 23): the WENO reconstruction (Lax-Friedrichs flux splitting as always); the number of ghost cells follows, Ng = (order + 1) / 2 + 1 (4, 5, 6, 7)
 //                (submit_weno.sh; planning/closure_stage2_design.md section 17)
+//   earlyCfl tEarly   a smaller CFL number (e.g. 0.3) until t = tEarly, then the usual 0.9: the failed conserved-to-primitive recoveries of WENO9 are a transient of the roll-up of the
+//                discontinuous shear layers at t of about 1-3.5 (section 23), the test is whether a gentler start removes them; default 0 0 (off)
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
 // data_final.hdf5 (everything, at endTime).
@@ -104,8 +106,10 @@ int main(int argc, char *argv[]) {
     nzRanks = atoi(argv[10]);
   }
   if (argc > 11) wenoOrder = atoi(argv[11]);
-  if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9) {
-    printf("ERROR: wenoOrder must be 5, 7 or 9\n");
+  const double earlyCfl(argc > 12 ? atof(argv[12]) : 0.0);
+  const double tEarly(argc > 13 ? atof(argv[13]) : 0.0);
+  if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9 && wenoOrder != 11) {
+    printf("ERROR: wenoOrder must be 5, 7, 9 or 11\n");
     return 1;
   }
   Ng = (wenoOrder + 1) / 2 + 1;
@@ -127,7 +131,7 @@ int main(int argc, char *argv[]) {
 
   SRMHD model(&data);
 
-  WenoBase * weno = wenoOrder == 9 ? (WenoBase *) new Weno9(&data) : wenoOrder == 7 ? (WenoBase *) new Weno7(&data) : (WenoBase *) new Weno5(&data);
+  WenoBase * weno = wenoOrder == 11 ? (WenoBase *) new Weno11(&data) : wenoOrder == 9 ? (WenoBase *) new Weno9(&data) : wenoOrder == 7 ? (WenoBase *) new Weno7(&data) : (WenoBase *) new Weno5(&data);
 
   FVS fluxMethod(&data, weno, &model);
 
@@ -160,6 +164,7 @@ int main(int argc, char *argv[]) {
     const double target(next < times.size() ? times[next] : endTime);
     data.endTime = target;
     while (data.t < target - 1e-12) {
+      if (earlyCfl > 0.0) data.cfl = (data.t < tEarly) ? earlyCfl : cfl;      // the gentler start, see the arguments
       sim.updateTime();
       if (diagIters > 0 && data.iters % diagIters == 0) {
         printEnergyDiagnostics(&data, &env);
