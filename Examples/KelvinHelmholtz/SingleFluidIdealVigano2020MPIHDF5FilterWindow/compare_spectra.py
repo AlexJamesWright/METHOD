@@ -5,10 +5,10 @@ Kinetic and magnetic spectra of several runs at equal development, in the layout
     python compare_spectra.py --ekin 0.4 0.2 0.1 0.05 --out spectra_stages.png \
         baseline=DIR0 c0.6=DIR1 w7=DIR2 [...] \
         [--reference DIR384 --reference-log LOG384 --block 3 --reference-label "384^3"] [--reference-mode native|filtered|both]
-    python compare_spectra.py --layout groups --ekin 0.1 --groups "WENO5=baseline,c0.6" "WENO7=w7,w7c0.6" --out spectra_groups.png  baseline=... c0.6=... w7=... w7c0.6=...
+    python compare_spectra.py --layout groups --ekin 0.1 --group "WENO5=baseline,c0.6" --group "WENO7=w7,w7c0.6" --out spectra_groups.png  baseline=... c0.6=... w7=... w7c0.6=...
 
 Layout `stages` (default, as Fig. 5): one figure, one panel per E_kin level (left to right, in the order given), every run in every panel; layout `groups` (as Fig. 6): one figure for the first
---ekin level, one panel per group (`NAME=label1,label2`), the reference in every panel. Kinetic spectra solid, magnetic dashed, one colour per run (viridis; the reference black); thin black
+--ekin level, one panel per `--group NAME=label1,label2` (repeat the flag), the reference in every panel. Kinetic spectra solid, magnetic dashed, one colour per run (viridis; the reference black); thin black
 reference slopes k^-5/3 (solid) and k^3/2 (dots), anchored to the baseline's kinetic and magnetic spectra.
 
 Convention of plot_quantities.py (viz_common.spectrum), not the one of the paper: E(k) = sum over the integer shell k of |f_k|^2 / 2 with f the FFT divided by N^3, k in units of 2 pi / L, for the
@@ -76,7 +76,8 @@ def main():
     p.add_argument('--ekin', nargs='+', type=float, required=True)
     p.add_argument('--out', default='spectra.png')
     p.add_argument('--layout', choices=['stages', 'groups'], default='stages')
-    p.add_argument('--groups', nargs='*', default=[], help='NAME=label1,label2 (layout groups)')
+    p.add_argument('--group', action='append', default=[], help='NAME=label1,label2: one panel of the groups layout; repeat the flag for each panel (put it anywhere)')
+    p.add_argument('--groups', nargs='*', default=[], help='as --group, several in a row; must come AFTER the runs (it takes every following argument)')
     p.add_argument('--reference')
     p.add_argument('--reference-log')
     p.add_argument('--block', type=int, default=1)
@@ -150,10 +151,11 @@ def main():
     if a.layout == 'stages':
         panels = [("$E_{kin}$ = %g" % lv, curves_at(lv, None)) for lv in a.ekin]
     else:
-        if not a.groups:
-            sys.exit("--layout groups needs --groups")
+        allgroups = a.group + a.groups
+        if not allgroups:
+            sys.exit("--layout groups needs --group NAME=label1,label2 (repeat for each panel)")
         panels = []
-        for g in a.groups:
+        for g in allgroups:
             name, labs = g.split('=', 1)
             panels.append((name, curves_at(a.ekin[0], labs.split(','))))
     n = len(panels)

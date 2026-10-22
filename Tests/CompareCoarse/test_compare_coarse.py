@@ -201,7 +201,7 @@ def main():
                                  'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')])
         assert os.path.exists(out5c)
         out6 = os.path.join(tmp, 'spec_groups.png')
-        subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--layout', 'groups', '--groups', 'A=base', 'B=lag,base', '--ekin', '0.6', '--ekin-tol', '0.5', '--out', out6,
+        subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--layout', 'groups', '--group', 'A=base', '--group', 'B=lag,base', '--ekin', '0.6', '--ekin-tol', '0.5', '--out', out6,
                                  'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')])
         assert os.path.exists(out6)
     print("compare_coarse: all checks passed")
