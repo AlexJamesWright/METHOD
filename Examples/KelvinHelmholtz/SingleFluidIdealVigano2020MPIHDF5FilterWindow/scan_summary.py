@@ -9,6 +9,7 @@ REFERENCE_LOG is the fine run (384^3), BASELINE_LOG the coarse run without the c
 E_mag at the end relative to the baseline, the failed recoveries (cumulative, `failed` lines) and the peak of the closure drain X/E_mag. Missing levels are shown as `-`.
 """
 import argparse
+import os
 import re
 
 import numpy as np
@@ -17,13 +18,24 @@ from time_shift import crossing, read
 
 
 def failures(log):
-    return sum(1 for line in open(log) if 'failed' in line)
+    """Number of `failed` lines, counted in chunks (a log of an unstable run can be gigabytes of them)."""
+    n, tail = 0, b''
+    with open(log, 'rb') as fh:
+        while True:
+            chunk = fh.read(1 << 24)
+            if not chunk:
+                return n
+            buf = tail + chunk
+            n += buf.count(b'failed')
+            tail = buf[-5:]
 
 
 def peak_drain(log):
     best = None
     last_E = None
-    for line in open(log):
+    for line in open(log, errors='replace'):
+        if not (line.startswith('diag') or line.startswith('closure')):
+            continue
         m = re.match(r'diag t=\S+ iter=\d+ Emag=(\S+)', line)
         if m:
             last_E = float(m.group(1))
@@ -55,8 +67,12 @@ def main():
     B = read(a.baseline_log)
     print("%-14s %-15s %-15s %-6s %-15s %-9s %-7s %-8s" % ("run", "t(Emag=1e-6) dly", "t(Emag=2e-5) dly", "rate", "t(Ekin=.2) dly", "Emag/base", "fails", "X/E pk"))
     print("%-14s %7.2f %6s   %7.2f %6s  %6.2f   %7.2f %6s" % ("reference", ref[0], "", ref[1], "", np.log(20.0) / (ref[1] - ref[0]), ref[2], ""))
-    items = [("baseline", a.baseline_log, B)] + [(r.split(':', 1)[0], r.split(':', 1)[1], read(r.split(':', 1)[1])) for r in a.runs]
-    for label, log, D in items:
+    items = [("baseline", a.baseline_log, lambda: B)] + [(r.split(':', 1)[0], r.split(':', 1)[1], (lambda p=r.split(':', 1)[1]: read(p))) for r in a.runs]
+    for label, log, load in items:
+        D = load()
+        if len(D) == 0:
+            print("%-14s no diag lines in %s (size %.0f MB)" % (label, log, os.path.getsize(log) / 1e6))
+            continue
         _, _, _, s, ratio = row(D, ref, B[-1, 1])
         pk = peak_drain(log)
         print("%-14s %s  %-9s %-7d %-8s" % (label, s, "%.3f" % ratio if ratio else "-", failures(log), "%.3f" % pk if pk is not None else "-"))

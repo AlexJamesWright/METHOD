@@ -17,10 +17,13 @@ import numpy as np
 
 def read(log):
     rows = []
-    for line in open(log):
-        m = re.match(r'diag t=(\S+) iter=\d+ Emag=(\S+) Ekin=(\S+)', line)
-        if m:
-            rows.append([float(x) for x in m.groups()])
+    with open(log, errors='replace') as fh:
+        for line in fh:
+            if not line.startswith('diag'):          # skip the (possibly millions of) `failed` lines without a regex
+                continue
+            m = re.match(r'diag t=(\S+) iter=\d+ Emag=(\S+) Ekin=(\S+)', line)
+            if m:
+                rows.append([float(x) for x in m.groups()])
     return np.array(rows)
 
 
