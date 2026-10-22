@@ -19,3 +19,5 @@ separately on 32^3: frames written at the requested times to full precision, rea
 The equal-E_kin mode of `compare_scan.py` is checked with synthetic logs (coarse runs lagging by 0.2 in E_kin(t)): frames at 0.7 and 1.2 must be paired with the fine frames at 0.5 and 1.0, frames 6 % off in E_kin are refused at a 1 % tolerance and accepted at 10 %.
 
 `test_exchange_at_ekin.py` checks `exchange_at_ekin.py` on synthetic logs: a coarse run lagging the fine one by one time unit whose closure exchange is half the exact one at the matched stage must give the same `C_eff` for two different `C`.
+
+`compare_slices.py` is smoke-tested on synthetic frames and logs: one figure per level, the match file, and an empty panel (`no frame within`) for a level that no frame of a run is close to.

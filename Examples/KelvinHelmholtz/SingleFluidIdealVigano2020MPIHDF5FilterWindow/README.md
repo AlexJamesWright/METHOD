@@ -117,3 +117,11 @@ Per-step rate of a run
 ----------------------
   - The ClosureScan `main` prints `timing t=... iter=... wall=...` with each `diag` line. `step_rate.py LOG ...` gives the seconds per step (minimum, 10th percentile, median) over the segments and the failed recoveries per step. The elapsed time of a job on a
   shared node is not a cost measure (identical WENO5 runs: 38-104 min); the fastest segments are. (`sbatch --exclusive` gives a clean node, at the price of idle cores and the per-user node limit.)
+
+Slices of several runs at equal development
+-------------------------------------------
+  - `compare_slices.py --ekin 0.4 0.2 0.1 --outdir slices baseline=DIR0 c0.6=DIR1 [...] [--reference DIR384 --reference-log LOG --block 3] [--vars rho,wz,Bz,Bmag,Jmag] [--plane xy|xz|yz] [--index N] [--crop x0 x1 y0 y1]`:
+  one figure per E_kin level (`slices_ekin_<level>.png`), one row per variable, one column per run (the filtered fine run first, if given), panels touching with hairline gaps, one thin colour bar per row, the same colour
+  scale in every panel of a row, labels inside the panels. Runs are paired by E_kin from their `run.log` (the frames of the first crossing of the level, nearest frame; no frame within `--ekin-tol` gives an empty panel), because at
+  equal time the runs are at different stages. Only quantities of the resolved grid (no sub-filter energy), no pointwise difference panels (the eddies of runs that differ by noise do not line up). viridis, symmetric seismic for signed
+  quantities, log10 values on a linear bar for the strictly positive ones that span decades. `slices_match.txt` lists the frames used and their E_kin mismatch. Test: `Tests/CompareCoarse`.

@@ -55,7 +55,7 @@ def tophat(f, cells):
     return uniform_filter(f, size=cells, mode='wrap')
 
 
-def derived(S, filter_cells=4):
+def derived(S, filter_cells=4, subfilter=True):
     """Derived fields used in the figures. Lab-frame, flat metric. J = curl B (displacement current neglected)."""
     P, dx = S['P'], S['dx']
     v2 = P['vx'] ** 2 + P['vy'] ** 2 + P['vz'] ** 2
@@ -66,12 +66,12 @@ def derived(S, filter_cells=4):
     Ez = -(P['vx'] * P['By'] - P['vy'] * P['Bx'])
     Jx, Jy, Jz = curl(P['Bx'], P['By'], P['Bz'], dx)
     wx, wy, wz = curl(P['vx'], P['vy'], P['vz'], dx)
-    # sub-filter magnetic energy <B^2> - |<B>|^2 for a top-hat of `filter_cells` cells (lab frame)
-    Bsub = tophat(B2, filter_cells) - sum(tophat(P[k], filter_cells) ** 2 for k in ('Bx', 'By', 'Bz'))
+    # sub-filter magnetic energy <B^2> - |<B>|^2 for a top-hat of `filter_cells` cells (lab frame; not a resolved quantity, skipped with subfilter=False)
+    Bsub = np.maximum(tophat(B2, filter_cells) - sum(tophat(P[k], filter_cells) ** 2 for k in ('Bx', 'By', 'Bz')), 0.0) if subfilter else None
     D = {'W': W, 'vmag': np.sqrt(v2), 'B2': B2, 'Bmag': np.sqrt(B2), 'beta': P['p'] / np.maximum(0.5 * B2, 1e-300),
          'E2': Ex ** 2 + Ey ** 2 + Ez ** 2, 'Emag': np.sqrt(Ex ** 2 + Ey ** 2 + Ez ** 2),
          'Jmag': np.sqrt(Jx ** 2 + Jy ** 2 + Jz ** 2), 'Jz': Jz, 'wx': wx, 'wy': wy, 'wz': wz,
-         'Bsub': np.maximum(Bsub, 0.0), 'ekin': P['rho'] * W * (W - 1.0), 'emag': 0.5 * B2}
+         'Bsub': Bsub, 'ekin': P['rho'] * W * (W - 1.0), 'emag': 0.5 * B2}
     return D
 
 

@@ -178,6 +178,19 @@ def main():
         assert rc.returncode != 0 and b'no common frame times' in rc.stderr + rc.stdout
         rc = subprocess.run(cmd + ['--ekin-tol', '0.1', '--out', os.path.join(tmp, 'scan_loose')], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         assert rc.returncode == 0, rc.stderr
+        # compare_slices.py: one figure per E_kin level, a column per run (the second run lags by 0.2 in E_kin(t)), an empty panel when no frame is close enough
+        os.makedirs(os.path.join(tmp, 'sa'))
+        os.makedirs(os.path.join(tmp, 'sb'))
+        mklog(os.path.join(tmp, 'sa', 'run.log'), 0.0)
+        mklog(os.path.join(tmp, 'sb', 'run.log'), 0.2)
+        for tt in (0.5, 0.7, 1.0):
+            write(os.path.join(tmp, 'sa', 'frame.checkpoint.%.6f.hdf5' % tt), P, tt)
+            write(os.path.join(tmp, 'sb', 'frame.checkpoint.%.6f.hdf5' % tt), P, tt)
+        out4 = os.path.join(tmp, 'slices')
+        txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_slices.py'), '--ekin', '0.6', '0.01', '--outdir', out4, '--vars', 'rho,wz,Bz,Jmag',
+                                       'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')]).decode()
+        assert os.path.exists(os.path.join(out4, 'slices_ekin_0.6.png')) and os.path.exists(os.path.join(out4, 'slices_match.txt')), txt
+        assert 'no frame within' in txt, txt                       # E_kin = 0.01 is never reached by these logs within the frames
     print("compare_coarse: all checks passed")
 
 
