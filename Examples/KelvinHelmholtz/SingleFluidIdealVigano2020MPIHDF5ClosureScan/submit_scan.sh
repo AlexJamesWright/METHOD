@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=06:00:00         # my estimate for one run to t = 14 is 1.5 h (extrapolated from the laptop and the 384^3 rate, not measured)
 #SBATCH --partition=batch       # set to the partition you use
-#SBATCH --array=0-15
+#SBATCH --array=0-20
 #SBATCH --output=%x-%A_%a.out
 #SBATCH --error=%x-%A_%a.err
 
@@ -32,6 +32,11 @@ CFG=(
   "0.00000001 0 0"         # 13 c = 1e-8  } that are not ordered in c)
   "0.00000003 0 0"         # 14 c = 3e-8  }
   "0.0000001 0 0"          # 15 c = 1e-7  }
+  "0.125 0 0"              # 16 c = 1/8 = the best c of the a-priori test in the developed phase (scale_c 1.41-1.50 over 12), five runs: the last digits
+  "0.1250001 0 0"          # 17 are perturbed (1e-6 relative) so that each takes its own round-off path; compare their mean at equal E_kin with the mean of the
+  "0.1250002 0 0"          # 18 noise runs 10-15 (compare_scan.py --match ekin): the expected effect (a drain of about 10 % of the production) is below the spread of one run
+  "0.1250003 0 0"          # 19
+  "0.1250004 0 0"          # 20
 )
 read -r C DENS LIM <<< "${CFG[$SLURM_ARRAY_TASK_ID]}"
 

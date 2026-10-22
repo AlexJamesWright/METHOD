@@ -21,8 +21,8 @@ Running
   1. On iridis, after the 384^3 run has written its frames, get the times: `python frame_times.py --dir <384 run dir> --tmin 4 > times.txt`
   (exact, from the files). Before they exist, `python frame_times.py --formula --tmin 4 > times.txt` gives the same times from the time step
   (checked against a logged `diag` line to 8 digits). Use `--tmin` to skip the early times (the field is flat before t ~ 5).
-  2. `make main`; then in a scratch directory with `main` and `times.txt`: `sbatch submit_scan.sh`. This is a 16-task Slurm array, 64 tasks each,
-  one configuration per task (c = 0, 1/12, 1/6, 1/3, 2/3, 1, 2; c = 1/3 with the density term; c = 1 and 2 with the backscatter limiter; c = 1e-6, the baseline up to rounding, whose difference from c = 0 is the run-to-run noise of the chaotic flow: a closure effect smaller than that is not measurable; and c = 1e-9 ... 1e-7, tasks 11-15, further samples of that noise),
+  2. `make main`; then in a scratch directory with `main` and `times.txt`: `sbatch submit_scan.sh`. This is a 21-task Slurm array, 64 tasks each,
+  one configuration per task (c = 0, 1/12, 1/6, 1/3, 2/3, 1, 2; c = 1/3 with the density term; c = 1 and 2 with the backscatter limiter; c = 1e-6, the baseline up to rounding, whose difference from c = 0 is the run-to-run noise of the chaotic flow: a closure effect smaller than that is not measurable; and c = 1e-9 ... 1e-7, tasks 11-15, further samples of that noise; c = 1/8, tasks 16-20, five runs at the best c of the a-priori test in the developed phase, the last digits of c perturbed to give independent round-off paths),
   each in its own directory `c<c>_d<densityTerm>_l<limiter>/` with `run.log`, `frame.checkpoint.<t>.hdf5` and `data_final.hdf5`.
   `submit_scan.sh` sources `$HOME/METHOD/modules.sh` as in the other jobs and requests 6 h per task.
   3. Compare (on the laptop or iridis; needs h5py, numpy, scipy, matplotlib):
