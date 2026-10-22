@@ -38,6 +38,7 @@ CFG=(
   "0.1250003 0 0"          # 19
   "0.1250004 0 0"          # 20
 )
+[ -n "${CFG[$SLURM_ARRAY_TASK_ID]+x}" ] || { echo "ERROR: this script has no configuration number $SLURM_ARRAY_TASK_ID (${#CFG[@]} entries: an old copy of submit_scan.sh?)"; exit 1; }
 read -r C DENS LIM <<< "${CFG[$SLURM_ARRAY_TASK_ID]}"
 
 source "$HOME/METHOD/modules.sh"
