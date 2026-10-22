@@ -1,0 +1,79 @@
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include -I./../../../Project/CPU/CminpackLibrary/Include -Wall -std=c++11 -O3  -Wno-unknown-pragmas main.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/simulation.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include -I./../../../Project/CPU/CminpackLibrary/Include ../../../Project/CPU/Src/srmhd.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/initFunc.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/simData.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/wenoUpwinds.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/weno.cc
+make[1]: Nothing to be done for `objects'.
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/RK2.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/rkSplit.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/RKPlus.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/boundaryConds.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/fluxVectorSplitting.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/subfilterGradient.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelSaveData.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelBoundaryConds.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelEnv.cc
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelSaveDataHDF5.cc
+../../../Project/CPU/Src/parallelSaveData.cc:33:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+   33 |     sprintf(app, "%d", Nouts++);
+      |     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+../../../Project/CPU/Src/parallelSaveData.cc:496:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  496 |     sprintf(app, "%d", Nouts);
+      |     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h:278:1: note: 'sprintf' has been explicitly marked deprecated here
+  278 | __deprecated_msg("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.")
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:227:48: note: expanded from macro '__deprecated_msg'
+  227 |         #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))
+      |                                                       ^
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc
+../../../Project/CPU/Src/parallelEnv.cc:103:6: warning: unused variable 'error' [-Wunused-variable]
+  103 |         int error = MPI_Cart_create(MPI_COMM_WORLD, ndims, dims, periods, reorder, &mpiCartesianComm);
+      |             ^~~~~
+1 warning generated.
+2 warnings generated.
+h5c++	-c	-Wall -std=c++11 -O3  -Wno-unknown-pragmas -I./../../../Project/CPU/Include ../../../Project/CPU/Src/parallelCheckpointArgs.cc
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:85:25: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   85 |   hsize_t lengths_local[d->dims];
+      |                         ^~~~~~~
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:85:25: note: implicit use of 'this' pointer is only allowed within the evaluation of a call to a 'constexpr' member function
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:86:25: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   86 |   hsize_t lengths_total[d->dims];
+      |                         ^~~~~~~
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:86:25: note: implicit use of 'this' pointer is only allowed within the evaluation of a call to a 'constexpr' member function
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:87:19: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   87 |   hsize_t offsets[d->dims];
+      |                   ^~~~~~~
+../../../Project/CPU/Src/parallelSaveDataHDF5.cc:87:19: note: implicit use of 'this' pointer is only allowed within the evaluation of a call to a 'constexpr' member function
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:20:25: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   20 |   hsize_t lengths_local[d->dims];
+      |                         ^~~~~~~
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:20:25: note: read of non-constexpr variable 'd' is not allowed in a constant expression
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:15:10: note: declared here
+   15 |   Data * d(data);
+      |          ^
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:21:25: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   21 |   hsize_t lengths_total[d->dims];
+      |                         ^~~~~~~
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:21:25: note: read of non-constexpr variable 'd' is not allowed in a constant expression
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:15:10: note: declared here
+   15 |   Data * d(data);
+      |          ^
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:22:19: warning: variable length arrays in C++ are a Clang extension [-Wvla-cxx-extension]
+   22 |   hsize_t offsets[d->dims];
+      |                   ^~~~~~~
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:22:19: note: read of non-constexpr variable 'd' is not allowed in a constant expression
+../../../Project/CPU/Src/parallelInitFuncFromCheckpoint.cc:15:10: note: declared here
+   15 |   Data * d(data);
+      |          ^
+3 warnings generated.
+3 warnings generated.
+h5c++	main.o simulation.o srmhd.o initFunc.o simData.o wenoUpwinds.o weno.o RK2.o rkSplit.o RKPlus.o boundaryConds.o fluxVectorSplitting.o subfilterGradient.o parallelSaveData.o parallelBoundaryConds.o parallelEnv.o parallelSaveDataHDF5.o parallelInitFuncFromCheckpoint.o parallelCheckpointArgs.o ../../../Project/CPU//CminpackLibrary/Src/dogleg.o ../../../Project/CPU//CminpackLibrary/Src/dpmpar.o ../../../Project/CPU//CminpackLibrary/Src/enorm.o ../../../Project/CPU//CminpackLibrary/Src/fdjac1.o ../../../Project/CPU//CminpackLibrary/Src/hybrd.o ../../../Project/CPU//CminpackLibrary/Src/hybrd1.o ../../../Project/CPU//CminpackLibrary/Src/qform.o ../../../Project/CPU//CminpackLibrary/Src/qrfac.o ../../../Project/CPU//CminpackLibrary/Src/r1mpyq.o ../../../Project/CPU//CminpackLibrary/Src/r1updt.o -o main -Wall -std=c++11 -O3  -Wno-unknown-pragmas -Wall -std=c++11 -O3  -Wno-unknown-pragmas

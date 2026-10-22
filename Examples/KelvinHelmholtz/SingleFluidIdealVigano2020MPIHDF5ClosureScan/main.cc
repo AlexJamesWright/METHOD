@@ -4,7 +4,7 @@
 // 384^3 frame of the same time (the fine frames are written every 370 iterations, so their times are not round numbers; see
 // frame_times.py). The step is cut to land on each output time (Simulation::updateTime clips dt at endTime).
 //
-//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder] [earlyCfl tEarly]
+//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder] [earlyCfl tEarly] [cfl]
 //
 //   endTime      end of the run
 //   closureC     c in sigma^2 = c dx^2; 0 = no closure (the baseline)
@@ -19,6 +19,8 @@
 //                (submit_weno.sh; planning/closure_stage2_design.md section 17)
 //   earlyCfl tEarly   a smaller CFL number (e.g. 0.3) until t = tEarly, then the usual 0.9: the failed conserved-to-primitive recoveries of WENO9 are a transient of the roll-up of the
 //                discontinuous shear layers at t of about 1-3.5 (section 23), the test is whether a gentler start removes them; default 0 0 (off)
+//   cfl          the CFL number of METHOD (dt = cfl dx / (alpha sqrt(3))), default 0.9; the linear stability limit of RK3 falls with the WENO order (strictest case 0.83, 0.72, 0.65, 0.61 for
+//                WENO5, 7, 9, 11; planning/closure_stage2_design.md section 24): about 0.78, 0.70, 0.66 are the equivalents of 0.9 for WENO5
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
 // data_final.hdf5 (everything, at endTime).
@@ -108,6 +110,7 @@ int main(int argc, char *argv[]) {
   if (argc > 11) wenoOrder = atoi(argv[11]);
   const double earlyCfl(argc > 12 ? atof(argv[12]) : 0.0);
   const double tEarly(argc > 13 ? atof(argv[13]) : 0.0);
+  if (argc > 14) cfl = atof(argv[14]);
   if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9 && wenoOrder != 11) {
     printf("ERROR: wenoOrder must be 5, 7, 9 or 11\n");
     return 1;
