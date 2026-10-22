@@ -106,3 +106,9 @@ Ensembles of runs
 -----------------
   - `ensemble_stats.py NAME=LOG1,LOG2,... [NAME=...] [--reference LOG]`: mean, standard deviation and range over a group of nominally identical runs (the noise runs, or the runs at one closure setting) of the time at which E_mag reaches 1e-6 and 2e-5, the growth
   rate between them, the time at which E_kin falls to 0.2, the largest E_mag and E_mag at the end; with two groups, the difference of the means in standard errors.
+
+The closure's exchange against the exact one, at equal E_kin
+------------------------------------------------------------
+  - `exchange_at_ekin.py --fine-log FINE_LOG --exact BUDGET_FILE [...] LABEL=C:RUN_LOG ...`: the closure's own `exchange / E_mag` (from the `closure` lines of a coarse run) at the stage where the coarse E_kin equals the fine E_kin, against the exact
+  sub-filter exchange X/E of the filtered fine run (the `X/E` column of `energy_budget.py --block R` tables); `C_eff = C x exact / closure` is the C that reproduces the exact exchange at that stage (the closure's exchange is proportional to C).
+  An amplitude of a flux, not a level of E_mag, so not limited by the run-to-run timing noise. Test: `Tests/CompareCoarse/test_exchange_at_ekin.py`.
