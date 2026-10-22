@@ -60,3 +60,5 @@ Higher-order WENO
   `submit_weno.sh` runs the 128^3 baseline (no closure) with WENO7 and WENO9 (array 0-1; `weno7_N128_c0`, `weno9_N128_c0`), to test the estimate of planning/closure_stage2_design.md section 17 (effective resolution
   gain of 1.16-1.25 for WENO7 and 1.26-1.42 for WENO9, the field onset delay 7.0 -> about 5.0-5.8, the equal-E_kin E_mag deficit against 384^3 0.33 -> about 0.43-0.5). Cost estimate 3-4 h per run on 64 ranks (not measured).
   Tested at 32^3 on 8 ranks: all three orders run, no failed recoveries, a bad order is refused; E_kin at t = 1 is 0.636, 0.665, 0.721 for WENO5, 7, 9 (less dissipation keeps more of the early kinetic energy).
+  - `submit_weno_closure.sh`: the closure with WENO7 and WENO9 (array 0-3: WENO7 and WENO9 at c = 1/8 and 0.6; directories `weno<order>_c<c>`), to test whether a coarse run with more small-scale content needs less `c` to give the
+  exact sub-filter exchange (`exchange_at_ekin.py`: `C_eff` 0.6 for WENO5, design doc section 19). Submit the WENO7 tasks now and the WENO9 ones after the WENO9 baseline.
