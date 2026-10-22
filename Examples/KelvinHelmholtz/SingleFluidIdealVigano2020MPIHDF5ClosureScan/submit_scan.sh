@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=06:00:00         # my estimate for one run to t = 14 is 1.5 h (extrapolated from the laptop and the 384^3 rate, not measured)
 #SBATCH --partition=batch       # set to the partition you use
-#SBATCH --array=0-10
+#SBATCH --array=0-15
 #SBATCH --output=%x-%A_%a.out
 #SBATCH --error=%x-%A_%a.err
 
@@ -27,6 +27,11 @@ CFG=(
   "1.0 0 1"                # 8  c = 1 with the limiter
   "2.0 0 1"                # 9  c = 2 with the limiter
   "0.000001 0 0"           # 10 c = 1e-6: the baseline up to rounding, a different round-off path = the noise floor of the comparisons
+  "0.000000001 0 0"        # 11 c = 1e-9  } the same, more samples of the noise: each is an independent round-off path of the baseline, to measure how wide the
+  "0.000000003 0 0"        # 12 c = 3e-9  } spread of nominally identical runs is (the scan of c shows differences of up to 3 time units at E_mag = 2e-5
+  "0.00000001 0 0"         # 13 c = 1e-8  } that are not ordered in c)
+  "0.00000003 0 0"         # 14 c = 3e-8  }
+  "0.0000001 0 0"          # 15 c = 1e-7  }
 )
 read -r C DENS LIM <<< "${CFG[$SLURM_ARRAY_TASK_ID]}"
 
