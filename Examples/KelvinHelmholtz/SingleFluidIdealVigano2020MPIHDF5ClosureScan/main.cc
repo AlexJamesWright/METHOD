@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
            nx, ny, nz, endTime, wenoOrder, Ng, closureC, closureDensityTerm, closureLimiter, (int)times.size());
   }
   printEnergyDiagnostics(&data, &env);
+  const double wall0(MPI_Wtime());
 
   // Same loop as Simulation::evolve (without its output), run in segments that end exactly on the output times
   size_t next(0);
@@ -162,6 +163,10 @@ int main(int argc, char *argv[]) {
       sim.updateTime();
       if (diagIters > 0 && data.iters % diagIters == 0) {
         printEnergyDiagnostics(&data, &env);
+        if (env.rank==0) {            // wall clock since the start of the loop: the fastest segments of a run on a shared node give its per-step rate (step_rate.py)
+          printf("timing t=%.8f iter=%d wall=%.3f\n", data.t, data.iters, MPI_Wtime() - wall0);
+          fflush(stdout);
+        }
         if (closure) {
           double local[2] = {closure->lastExchange, closure->lastExchangeAbs}, global[2];
           MPI_Allreduce(local, global, 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);

@@ -112,3 +112,8 @@ The closure's exchange against the exact one, at equal E_kin
   - `exchange_at_ekin.py --fine-log FINE_LOG --exact BUDGET_FILE [...] LABEL=C:RUN_LOG ...`: the closure's own `exchange / E_mag` (from the `closure` lines of a coarse run) at the stage where the coarse E_kin equals the fine E_kin, against the exact
   sub-filter exchange X/E of the filtered fine run (the `X/E` column of `energy_budget.py --block R` tables); `C_eff = C x exact / closure` is the C that reproduces the exact exchange at that stage (the closure's exchange is proportional to C).
   An amplitude of a flux, not a level of E_mag, so not limited by the run-to-run timing noise. Test: `Tests/CompareCoarse/test_exchange_at_ekin.py`.
+
+Per-step rate of a run
+----------------------
+  - The ClosureScan `main` prints `timing t=... iter=... wall=...` with each `diag` line. `step_rate.py LOG ...` gives the seconds per step (minimum, 10th percentile, median) over the segments and the failed recoveries per step. The elapsed time of a job on a
+  shared node is not a cost measure (identical WENO5 runs: 38-104 min); the fastest segments are. (`sbatch --exclusive` gives a clean node, at the price of idle cores and the per-user node limit.)
