@@ -129,8 +129,8 @@ Slices of several runs at equal development
 Spectra of several runs at equal development (Figs. 5 and 6 of Vigano et al.)
 ------------------------------------------------------------------------------
   - `compare_spectra.py --ekin 0.4 0.2 0.1 0.05 --out spectra_stages.png baseline=DIR0 c0.6=DIR1 [...] [--reference DIR384 --reference-log LOG --block 3] [--reference-mode native|filtered|both]`: layout `stages`
-  (default, as Fig. 5): one panel per E_kin level, every run in every panel, kinetic spectra solid and magnetic dashed, one colour per run, the reference black (native grid) and grey (block-averaged onto the grid of the runs),
-  thin black guides k^(-5/3) and k^(3/2) (Kazantsev). `--layout groups --group "WENO5=baseline,c0.6" --group "WENO7=w7,w7c0.6" --ekin 0.1` (repeat `--group` for each panel) (as Fig. 6): one panel per group at one stage. Frames are paired by E_kin as in
+  (default, as Fig. 5): one panel per E_kin level, every run in every panel, kinetic spectra dash-dot and magnetic dashed (the dash pattern of each curve is shifted, so curves lying on top of each other show their colours in turn),
+  one colour per run, the reference black (native grid) and grey (block-averaged onto the grid of the runs), thin solid guides k^(-5/3) and k^(3/2) (Kazantsev); the y-axis is shared by default (`--no-sharey` for independent axes). `--layout groups --group "WENO5=baseline,c0.6" --group "WENO7=w7,w7c0.6" --ekin 0.1` (repeat `--group` for each panel) (as Fig. 6): one panel per group at one stage. Frames are paired by E_kin as in
   `compare_slices.py`. Convention of `plot_quantities.py` (shell-summed |f_k|^2/2, k in units of 2 pi/L, v and B), not the paper's shell average of 4 pi k^2 |f|^2 (`--kinetic sqrtrho` uses sqrt(rho) v as the paper does);
   also writes `<out>.npz` (raw spectra) and `<out>_match.txt`. `--compensate`: two rows per figure, the kinetic spectrum times k^(5/3) above and the magnetic one times k^(-3/2) below (a plateau
   is the slope; no guide lines). Test: `Tests/CompareCoarse`.
