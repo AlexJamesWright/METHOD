@@ -196,6 +196,10 @@ def main():
         txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--ekin', '0.6', '0.4', '--ekin-tol', '0.5', '--out', out5, '--reference', os.path.join(tmp, 'sa'),
                                        '--reference-log', os.path.join(tmp, 'sa', 'run.log'), '--block', '2', 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')]).decode()
         assert os.path.exists(out5) and os.path.exists(out5[:-4] + '.npz') and os.path.exists(out5[:-4] + '_match.txt'), txt
+        out5c = os.path.join(tmp, 'spec_comp.png')                  # compensated: two rows
+        subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--compensate', '--ekin', '0.6', '0.4', '--ekin-tol', '0.5', '--out', out5c,
+                                 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')])
+        assert os.path.exists(out5c)
         out6 = os.path.join(tmp, 'spec_groups.png')
         subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--layout', 'groups', '--groups', 'A=base', 'B=lag,base', '--ekin', '0.6', '--ekin-tol', '0.5', '--out', out6,
                                  'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')])

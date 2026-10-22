@@ -18,6 +18,7 @@ number): the two differ by the number of modes in the shell, so slopes are not c
 Stages are defined by E_kin, not time (the runs are at different stages at equal time): each run's frame is the one whose run-log E_kin is closest to the level (first crossing, then the nearest
 frame; no frame within --ekin-tol, default 0.1, leaves the run out of that panel), as compare_slices.py. The reference (filtered fine run): `native` its spectrum on its own grid, out to its own
 Nyquist; `filtered` after block-averaging its primitives by --block onto the grid of the runs (the top-hat is a poor filter near the Nyquist wavenumber of the coarse grid); `both` (default).
+`--compensate` makes two rows, the kinetic spectrum times k^(5/3) above and the magnetic one times k^(-3/2) below (a plateau is the slope; no guide lines are drawn); the `.npz` always holds the raw spectra.
 Writes the figure and, next to it, `<out>.npz` with the spectra and `<out>_match.txt` with the frames used.
 """
 import argparse
@@ -50,16 +51,21 @@ def spectra_of(path, block, kinetic):
     return k, Ek, Em, S['t']
 
 
-def draw_panel(ax, curves, title, slopes, first):
+def draw_panel(ax, curves, title, slopes, first, which='both', compensate=False):
+    """which: 'both' (kinetic solid, magnetic dashed on one axis), 'kin' or 'mag' (one row of the compensated layout). compensate: multiply by k^(5/3) (kinetic) or k^(-3/2) (magnetic)."""
     for c in curves:
-        ax.loglog(c['k'][1:], c['Ek'][1:], color=c['color'], ls='-', lw=c['lw'], label=c['label'])
-        ax.loglog(c['k'][1:], c['Em'][1:], color=c['color'], ls='--', lw=c['lw'])
-    if slopes is not None:
+        k = c['k'][1:]
+        if which in ('both', 'kin'):
+            ax.loglog(k, c['Ek'][1:] * (k ** (5.0 / 3.0) if compensate else 1.0), color=c['color'], ls='-', lw=c['lw'], label=c['label'])
+        if which in ('both', 'mag'):
+            ax.loglog(k, c['Em'][1:] * (k ** -1.5 if compensate else 1.0), color=c['color'], ls='--', lw=c['lw'], label=c['label'] if which == 'mag' else None)
+    if slopes is not None and not compensate:
         k0, ek0, em0 = slopes
         kk = np.array([k0, 6.0 * k0])
         ax.loglog(kk, ek0 * (kk / k0) ** (-5.0 / 3.0), 'k-', lw=0.7, label='$k^{-5/3}$' if first else None)
         ax.loglog(kk, em0 * (kk / k0) ** 1.5 * 0.35, 'k:', lw=1.2, label='$k^{3/2}$' if first else None)
-    ax.set_title(title, fontsize=10)
+    if title:
+        ax.set_title(title, fontsize=10)
     ax.set_xlabel('k (units of $2\\pi/L$)')
     ax.grid(True, which='major', lw=0.3, alpha=0.4)
 
@@ -79,6 +85,7 @@ def main():
     p.add_argument('--kinetic', choices=['v', 'sqrtrho'], default='v')
     p.add_argument('--ekin-tol', type=float, default=0.1)
     p.add_argument('--sharey', action='store_true')
+    p.add_argument('--compensate', action='store_true', help='two rows: kinetic x k^(5/3) above, magnetic x k^(-3/2) below (a plateau is the slope)')
     p.add_argument('--panel-size', type=float, default=3.4, help='inches per panel')
     p.add_argument('--dpi', type=int, default=130)
     a = p.parse_args()
@@ -150,22 +157,41 @@ def main():
             name, labs = g.split('=', 1)
             panels.append((name, curves_at(a.ekin[0], labs.split(','))))
     n = len(panels)
-    fig, axes = plt.subplots(1, n, figsize=(a.panel_size * n, a.panel_size * 1.05), sharey=a.sharey, squeeze=False, gridspec_kw=dict(wspace=0.04 if a.sharey else 0.22))
-    for i, (ax, (title, curves)) in enumerate(zip(axes[0], panels)):
-        draw_panel(ax, curves, title, slope_anchor(curves), i == 0)
-        if i == 0:
-            ax.set_ylabel('$E(k)$')
-        if a.sharey and i > 0:
-            ax.tick_params(labelleft=False)
     from matplotlib.lines import Line2D
     styles = [Line2D([], [], color='0.3', ls='-', lw=1.3), Line2D([], [], color='0.3', ls='--', lw=1.3)]
-    if a.layout == 'stages':                       # one legend below the panels (the labels carry the frame times of the first panel; see the match file for the others)
-        h, l = axes[0][0].get_legend_handles_labels()
-        fig.legend(h + styles, l + ['kinetic', 'magnetic'], fontsize=8, loc='upper center', ncol=min(len(h) + 2, 6), bbox_to_anchor=(0.5, -0.04), frameon=False)
+    if a.compensate:
+        fig, axes = plt.subplots(2, n, figsize=(a.panel_size * n, a.panel_size * 1.9), sharey='row' if a.sharey else False, sharex='col', squeeze=False,
+                                 gridspec_kw=dict(wspace=0.04 if a.sharey else 0.3, hspace=0.06))
+        for i, (title, curves) in enumerate(panels):
+            draw_panel(axes[0][i], curves, title, None, i == 0, 'kin', True)
+            draw_panel(axes[1][i], curves, None, None, i == 0, 'mag', True)
+            axes[0][i].set_xlabel('')
+            if a.sharey and i > 0:
+                for r in (0, 1):
+                    axes[r][i].tick_params(labelleft=False)
+        axes[0][0].set_ylabel('$k^{5/3}E_K(k)$ (kinetic)')
+        axes[1][0].set_ylabel('$k^{-3/2}E_M(k)$ (magnetic)')
+        if a.layout == 'stages':
+            h, l = axes[0][0].get_legend_handles_labels()
+            fig.legend(h, l, fontsize=8, loc='upper center', ncol=min(len(h), 6), bbox_to_anchor=(0.5, 0.0), frameon=False)
+        else:
+            for i in range(n):
+                axes[0][i].legend(fontsize=7, loc='lower left')
     else:
-        for ax in axes[0]:
-            h, l = ax.get_legend_handles_labels()
-            ax.legend(h + styles, l + ['kinetic', 'magnetic'], fontsize=7, loc='lower left')
+        fig, axes = plt.subplots(1, n, figsize=(a.panel_size * n, a.panel_size * 1.05), sharey=a.sharey, squeeze=False, gridspec_kw=dict(wspace=0.04 if a.sharey else 0.22))
+        for i, (ax, (title, curves)) in enumerate(zip(axes[0], panels)):
+            draw_panel(ax, curves, title, slope_anchor(curves), i == 0)
+            if i == 0:
+                ax.set_ylabel('$E(k)$')
+            if a.sharey and i > 0:
+                ax.tick_params(labelleft=False)
+        if a.layout == 'stages':                       # one legend below the panels (the labels carry the frame times of the first panel; see the match file for the others)
+            h, l = axes[0][0].get_legend_handles_labels()
+            fig.legend(h + styles, l + ['kinetic', 'magnetic'], fontsize=8, loc='upper center', ncol=min(len(h) + 2, 6), bbox_to_anchor=(0.5, -0.04), frameon=False)
+        else:
+            for ax in axes[0]:
+                h, l = ax.get_legend_handles_labels()
+                ax.legend(h + styles, l + ['kinetic', 'magnetic'], fontsize=7, loc='lower left')
     fig.savefig(a.out, dpi=a.dpi, bbox_inches='tight')
     plt.close(fig)
     base = os.path.splitext(a.out)[0]
