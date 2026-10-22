@@ -2,6 +2,7 @@
 """
 Kinetic and magnetic spectra of several runs at equal development, in the layout of Figs. 5 and 6 of Vigano et al., arXiv:2004.00870, with the conventions of plot_quantities.py.
 
+    # a run on a finer grid is brought to the common grid with LABEL=DIR:BLOCK, e.g.  n256=../vigano2020_128_scan_v2/N256_c0:2
     python compare_spectra.py --ekin 0.4 0.2 0.1 0.05 --out spectra_stages.png \
         baseline=DIR0 c0.6=DIR1 w7=DIR2 [...] \
         [--reference DIR384 --reference-log LOG384 --block 3 --reference-label "384^3"] [--reference-mode native|filtered|both]
@@ -105,10 +106,13 @@ def main():
     runs = []
     for item in a.runs:
         label, d = item.split('=', 1)
+        block = 1
+        if ':' in d and d.rsplit(':', 1)[1].isdigit():           # LABEL=DIR:BLOCK: block-average this run's primitives by BLOCK first (a finer run brought to the common grid)
+            d, block = d.rsplit(':', 1)[0], int(d.rsplit(':', 1)[1])
         lg = os.path.join(d, 'run.log')
         if not os.path.exists(lg):
             sys.exit("%s needs %s" % (label, lg))
-        runs.append((label, frame_times(d), read(lg)))
+        runs.append((label, frame_times(d), read(lg), block))
     ref = None
     if a.reference:
         if not a.reference_log:
@@ -137,7 +141,7 @@ def main():
                     cache[key] = cache.get(key) or spectra_of(path, a.block, a.kinetic)
                     k, Ek, Em, _ = cache[key]
                     curves.append(dict(k=k, Ek=Ek, Em=Em, color='0.45', lw=1.2, label='%s, filtered' % ref[0]))
-        for i, (label, frames, D) in enumerate(runs):
+        for i, (label, frames, D, rblock) in enumerate(runs):
             if labels is not None and label not in labels:
                 continue
             hit = find_frame(frames, D, level, a.ekin_tol)
@@ -146,8 +150,8 @@ def main():
                 continue
             t, path, mis = hit
             report.append("  %-18s t = %8.4f  (%s)  E_kin mismatch %+.1f %%" % (label, t, os.path.basename(path), 100 * mis))
-            key = (path, 1)
-            cache[key] = cache.get(key) or spectra_of(path, 1, a.kinetic)
+            key = (path, rblock)
+            cache[key] = cache.get(key) or spectra_of(path, rblock, a.kinetic)
             k, Ek, Em, _ = cache[key]
             curves.append(dict(k=k, Ek=Ek, Em=Em, color=colors[i], lw=1.3, label='%s' % label if a.layout == 'stages' else '%s  $t$=%.1f' % (label, t)))
         return curves

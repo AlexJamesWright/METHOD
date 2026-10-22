@@ -194,7 +194,8 @@ def main():
         # compare_spectra.py: stages layout and groups layout, with a reference, one figure and the npz / match files each
         out5 = os.path.join(tmp, 'spec_stages.png')
         txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_spectra.py'), '--ekin', '0.6', '0.4', '--ekin-tol', '0.5', '--out', out5, '--reference', os.path.join(tmp, 'sa'),
-                                       '--reference-log', os.path.join(tmp, 'sa', 'run.log'), '--block', '2', 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb')]).decode()
+                                       '--reference-log', os.path.join(tmp, 'sa', 'run.log'), '--block', '2', 'base=' + os.path.join(tmp, 'sa'), 'lag=' + os.path.join(tmp, 'sb'),
+                                       'fine2=' + os.path.join(tmp, 'sa') + ':2']).decode()          # a run on a finer grid, brought to the common one by a block of 2
         assert os.path.exists(out5) and os.path.exists(out5[:-4] + '.npz') and os.path.exists(out5[:-4] + '_match.txt'), txt
         tab = subprocess.check_output([sys.executable, os.path.join(EX, 'spectra_ratio_table.py'), out5[:-4] + '.npz', '--k', '4', '8', '--csv', os.path.join(tmp, 'ratios.csv')]).decode()
         assert 'kinetic' in tab and 'magnetic' in tab and 'lag' in tab and os.path.exists(os.path.join(tmp, 'ratios.csv')), tab
