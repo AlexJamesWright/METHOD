@@ -137,3 +137,9 @@ Spectra of several runs at equal development (Figs. 5 and 6 of Vigano et al.)
   - `spectra_ratio_table.py <out>.npz [--k 4 8 16 32 48] [--ref SUBSTRING] [--csv FILE]`: from the `.npz` of `compare_spectra.py`, the ratio of each run's kinetic and magnetic spectrum to the reference (default: the filtered fine run) at
   the chosen wavenumbers, per E_kin level, with the frame time of each run from the match file. A ratio below 1 is less power than the reference. The native-grid reference appears as a curve too: its ratio to the filtered one
   shows how much the block average attenuates the reference near the grid scale.
+
+Health of run logs
+------------------
+  - `log_health.py LOG ...`: per log the number of `diag` lines, failed recoveries, `diag` lines with a non-finite value (a NaN cell existed at that moment) with the first times, the largest W_max with its time, and the number of
+  lines with W_max above a threshold. An isolated non-finite line or a spike of a few lines is repaired by the fallback and is of the kind every run has (about one per run in the 128^3-384^3 runs); a burst of them with W_max of tens
+  (the WENO9 run at 128^3) means a corrupted solution (design doc section 23).
