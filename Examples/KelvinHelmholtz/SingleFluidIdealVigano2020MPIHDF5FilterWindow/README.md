@@ -101,3 +101,8 @@ Summary of a scan
   E_kin falls to 0.2 and its delay, E_mag at the end relative to the baseline, the failed recoveries and the peak closure drain X/E_mag.
 
   - `compare_scan.py --match ekin --fine-log LOG`: compare at equal E_kin instead of equal time (see the ClosureScan README); `--ekin-tol` sets the largest accepted mismatch.
+
+Ensembles of runs
+-----------------
+  - `ensemble_stats.py NAME=LOG1,LOG2,... [NAME=...] [--reference LOG]`: mean, standard deviation and range over a group of nominally identical runs (the noise runs, or the runs at one closure setting) of the time at which E_mag reaches 1e-6 and 2e-5, the growth
+  rate between them, the time at which E_kin falls to 0.2, the largest E_mag and E_mag at the end; with two groups, the difference of the means in standard errors.
