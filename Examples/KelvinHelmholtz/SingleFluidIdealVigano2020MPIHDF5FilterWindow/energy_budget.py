@@ -6,7 +6,8 @@ For frames of one run, optionally block-averaged by r (the filtered fine run; r 
     E = int |<B>|^2/2 dV
     P = int J.(<v> x <B>) dV      production by the resolved flow            (J = curl <B>, centred differences on the coarse grid)
     X = int J.( -(<v x B> - <v> x <B>) ) dV   drain by the sub-filter EMF   (zero for r = 1: nothing is sub-filter)
-    D = P - X - dE/dt             what is left: numerical dissipation and discretisation error, in the same units
+    D = P - X - dE/dt             what is left: numerical dissipation of the run's scheme AND the discretisation error of this diagnostic (centred J on the coarse grid, dE/dt from frames 0.5 apart), in the same units;
+                                  --spectral removes the truncation error of J
 dE/dt is the centred difference of E between the neighbouring frames, so the frames should be close in time compared with 1/(growth rate).
 Everything is printed divided by E (a rate per unit time), against time. The closure of SubfilterGradient models X.
 
@@ -27,7 +28,17 @@ import viz_common as vc
 from apriori_emf import cross, dot, bm
 
 
-def one(path, r):
+def spectral_curl(Bm, dx):
+    """curl of a periodic vector field by FFT (no truncation error up to the Nyquist wavenumber)"""
+    n = Bm[0].shape[0]
+    k = 2.0 * np.pi * np.fft.fftfreq(n, d=dx)
+    kx, ky, kz = k[:, None, None], k[None, :, None], k[None, None, :]
+    Bh = [np.fft.fftn(c) for c in Bm]
+    J = [1j * (ky * Bh[2] - kz * Bh[1]), 1j * (kz * Bh[0] - kx * Bh[2]), 1j * (kx * Bh[1] - ky * Bh[0])]
+    return [np.fft.ifftn(c).real for c in J]
+
+
+def one(path, r, spectral=False):
     S = vc.load(path)
     P, dx = S['P'], S['dx'] * r
     v = [P['vx'], P['vy'], P['vz']]
@@ -40,7 +51,10 @@ def one(path, r):
         vm, Bm = v, B
         vxB = cross(v, B)
     vmBm = cross(vm, Bm)
-    J = [vc.ddx(Bm[2], 1, dx) - vc.ddx(Bm[1], 2, dx), vc.ddx(Bm[0], 2, dx) - vc.ddx(Bm[2], 0, dx), vc.ddx(Bm[1], 0, dx) - vc.ddx(Bm[0], 1, dx)]
+    if spectral:
+        J = spectral_curl(Bm, dx)
+    else:
+        J = [vc.ddx(Bm[2], 1, dx) - vc.ddx(Bm[1], 2, dx), vc.ddx(Bm[0], 2, dx) - vc.ddx(Bm[2], 0, dx), vc.ddx(Bm[1], 0, dx) - vc.ddx(Bm[0], 1, dx)]
     dV = dx ** 3
     E = 0.5 * dV * np.sum(dot(Bm, Bm))
     prod = dV * np.sum(dot(J, vmBm))
@@ -55,13 +69,14 @@ def main():
     p.add_argument('--tmin', type=float, default=0.0)
     p.add_argument('--tmax', type=float, default=1e9)
     p.add_argument('--out', default='budget.txt')
+    p.add_argument('--spectral', action='store_true', help='J = curl <B> by FFT instead of centred differences (the remainder D contains the truncation error of the centred J)')
     a = p.parse_args()
     files = []
     for d in a.dirs:
         files += vc.frames(d)
     rows = []
     for f in files:
-        t, E, Pr, X = one(f, a.block)
+        t, E, Pr, X = one(f, a.block, a.spectral)
         rows.append((t, E, Pr, X))
         print("read t = %.3f" % t, file=sys.stderr, flush=True)
     rows.sort()
