@@ -29,7 +29,7 @@ Running
   `python ../SingleFluidIdealVigano2020MPIHDF5FilterWindow/compare_scan.py --fine-dir <384 run dir> --coarse c=0:<scan>/c0_d0_l0 c=1/12:<scan>/c0.0833333333_d0_l0 ... --out cmp --tmin 4`
   Reads each 384^3 frame (about 3.6 GB) once per time and writes `cmp/summary.txt` (magnetic energy, B-spectrum tail and B_z error against time and
   closure setting) and per-time figures; see `compare_coarse.py` for what each number means.
-  - Usage: `mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks]` (`outputTimes`: a comma list or the name of a
+  - Usage: `mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder]` (`outputTimes`: a comma list or the name of a
   file holding them). Log lines `diag t=... Emag=...`, and with the closure `closure t=... net/abs=...`.
   - Cost (not measured): estimate 1.3 s per step on 64 cores; measured 1.0 s per step on iridis (first runs), about 3500 steps to t = 14, so about 1 h per run; the 64^3 laptop
   runs took 15-18 min each on 8 ranks. Disk: about 134 MB per frame, 28 frames, 3.8 GB per run, about 45 GB for the eleven.
@@ -53,3 +53,10 @@ Convergence runs (the same problem at other resolutions)
   - Equal-E_kin comparison: `compare_scan.py ... --match ekin --fine-log <384 log>` pairs each fine frame with the frame of each coarse run whose run-log E_kin is closest (the first time the coarse E_kin falls through the fine value, then the
   nearest frame; frames more than `--ekin-tol`, default 10 %, off are not used and the fine frame is skipped), because the runs are at different stages at equal times (delays of 2-5 time units, differing from run to run) and E_kin, which
   converges with resolution, is a clock the field noise does not touch. The summary lists the matched coarse times and the E_kin mismatch. Needs `run.log` in each coarse directory. Accuracy is set by the frame spacing (0.5 here).
+
+Higher-order WENO
+-----------------
+  - The 11th argument `wenoOrder` (5, 7 or 9; default 5, which reproduces the existing runs) selects the reconstruction; the ghost cells follow, `Ng = (order + 1) / 2 + 1` (4, 5, 6; METHOD checks this).
+  `submit_weno.sh` runs the 128^3 baseline (no closure) with WENO7 and WENO9 (array 0-1; `weno7_N128_c0`, `weno9_N128_c0`), to test the estimate of planning/closure_stage2_design.md section 17 (effective resolution
+  gain of 1.16-1.25 for WENO7 and 1.26-1.42 for WENO9, the field onset delay 7.0 -> about 5.0-5.8, the equal-E_kin E_mag deficit against 384^3 0.33 -> about 0.43-0.5). Cost estimate 3-4 h per run on 64 ranks (not measured).
+  Tested at 32^3 on 8 ranks: all three orders run, no failed recoveries, a bad order is refused; E_kin at t = 1 is 0.636, 0.665, 0.721 for WENO5, 7, 9 (less dissipation keeps more of the early kinetic energy).

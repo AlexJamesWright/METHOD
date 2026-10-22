@@ -4,7 +4,7 @@
 // 384^3 frame of the same time (the fine frames are written every 370 iterations, so their times are not round numbers; see
 // frame_times.py). The step is cut to land on each output time (Simulation::updateTime clips dt at endTime).
 //
-//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks]
+//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder]
 //
 //   endTime      end of the run
 //   closureC     c in sigma^2 = c dx^2; 0 = no closure (the baseline)
@@ -15,6 +15,8 @@
 //                ("-" for none, to give the arguments after it)
 //   nGrid        cells per direction (a cube), default 128: for the convergence runs (submit_convergence.sh)
 //   nxRanks nyRanks nzRanks   process layout, default 4 4 4 (their product must equal the number of processes and each must divide nGrid)
+//   wenoOrder    5 (default), 7 or 9: the WENO reconstruction (Lax-Friedrichs flux splitting as always); the number of ghost cells follows, Ng = (order + 1) / 2 + 1 (4, 5, 6)
+//                (submit_weno.sh; planning/closure_stage2_design.md section 17)
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
 // data_final.hdf5 (everything, at endTime).
@@ -63,6 +65,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
+  int wenoOrder(5);
   int nGrid(128);
   double xmin(-0.5);
   double xmax(0.5);
@@ -100,6 +103,12 @@ int main(int argc, char *argv[]) {
     nyRanks = atoi(argv[9]);
     nzRanks = atoi(argv[10]);
   }
+  if (argc > 11) wenoOrder = atoi(argv[11]);
+  if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9) {
+    printf("ERROR: wenoOrder must be 5, 7 or 9\n");
+    return 1;
+  }
+  Ng = (wenoOrder + 1) / 2 + 1;
   const int nx(nGrid), ny(nGrid), nz(nGrid);
   times.erase(remove_if(times.begin(), times.end(), [endTime](double t) { return t <= 0.0 || t > endTime; }), times.end());
 
@@ -118,9 +127,9 @@ int main(int argc, char *argv[]) {
 
   SRMHD model(&data);
 
-  Weno5 weno(&data);
+  WenoBase * weno = wenoOrder == 9 ? (WenoBase *) new Weno9(&data) : wenoOrder == 7 ? (WenoBase *) new Weno7(&data) : (WenoBase *) new Weno5(&data);
 
-  FVS fluxMethod(&data, &weno, &model);
+  FVS fluxMethod(&data, weno, &model);
 
   ParallelPeriodic bcs(&data, &env);
 
@@ -139,8 +148,8 @@ int main(int argc, char *argv[]) {
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
   if (env.rank==0) {
-    printf("Running %dx%dx%d to t = %g, closure c = %g (density term %d, limiter %d), %d output times\n",
-           nx, ny, nz, endTime, closureC, closureDensityTerm, closureLimiter, (int)times.size());
+    printf("Running %dx%dx%d to t = %g, WENO%d (Ng = %d), closure c = %g (density term %d, limiter %d), %d output times\n",
+           nx, ny, nz, endTime, wenoOrder, Ng, closureC, closureDensityTerm, closureLimiter, (int)times.size());
   }
   printEnergyDiagnostics(&data, &env);
 
@@ -175,5 +184,6 @@ int main(int argc, char *argv[]) {
   if (env.rank==0) printf("Saved data_final at t = %.10f\n\nCompleted %d iterations.\n", data.t, data.iters);
 
   delete closure;
+  delete weno;
   return 0;
 }
