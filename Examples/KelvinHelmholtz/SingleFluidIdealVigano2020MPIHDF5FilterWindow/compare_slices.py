@@ -8,8 +8,7 @@ Slices of coarse runs side by side at equal development: the baseline against cl
         [--vars rho,wz,Bz,Bmag,Jmag] [--plane xy|xz|yz] [--index N] [--crop x0 x1 y0 y1]
 
 One figure per stage, `slices_ekin_<level>.png`: one row per variable, one column per run (the reference first), panels touching (hairline gaps), one thin colour bar per row, the SAME
-colour scale in every panel of a row (the range is set from all the panels of that stage together). Labels are inside the panels: run name and frame time at the top of each column, the
-variable name in the first column. Standard colour map viridis, symmetric seismic for signed quantities (log10 values with a linear colour bar for the strictly positive quantities that span decades).
+colour scale in every panel of a row (the range is set from all the panels of that stage together). The run name and frame time are above each column, the variable name beside its colour bar on the right. Standard colour map viridis, symmetric seismic for signed quantities (log10 values with a linear colour bar for the strictly positive quantities that span decades).
 
 Stages are defined by E_kin, not by time: the runs are at different stages at equal time (delays of 2-5 time units, differing from run to run), and E_kin is a clock that the
 hydrodynamics fixes (design doc sections 14-18). For each level the frame of each run whose run-log E_kin is closest is used (the first time the run's E_kin falls through the level, then
@@ -98,11 +97,14 @@ def norm_for(mode, panels):
 
 
 def draw_stage(level, columns, names, plane, outdir, crop, dpi, size):
-    """columns: list of (label, None or (slices, extent, t, mis)); writes slices_ekin_<level>.png."""
+    """columns: list of (label, None or (slices, extent, t, mis)); writes slices_ekin_<level>.png.
+    Run titles above the top row, the variable name beside its colour bar on the right, hairline gaps between the panels."""
     nr, nc = len(names), len(columns)
-    fig = plt.figure(figsize=(size * nc + 0.55, size * nr + 0.12))
-    gs = fig.add_gridspec(nr, nc + 1, width_ratios=[1] * nc + [0.07], wspace=0.012, hspace=0.012, left=0.0, right=0.93, top=1.0, bottom=0.018)
-    stroke = [pe.withStroke(linewidth=2.2, foreground='black')]
+    head, foot, cb_gap, cb_w, right = 0.32, 0.2, 0.06, 0.12, 1.05           # inches: title strip, footer strip, gap to the colour bar, its width, tick labels + variable name
+    width, height = size * nc + cb_gap + cb_w + right, size * nr + head + foot
+    fig = plt.figure(figsize=(width, height))
+    gs = fig.add_gridspec(nr, nc, wspace=0.012, hspace=0.012, left=0.0, right=size * nc / width, top=1.0 - head / height, bottom=foot / height)
+    axes = [[None] * nc for _ in range(nr)]
     for r, nm in enumerate(names):
         label, cmap, mode = VARIABLES[nm][0], VARIABLES[nm][2], VARIABLES[nm][3]
         if mode == 'log':
@@ -112,6 +114,7 @@ def draw_stage(level, columns, names, plane, outdir, crop, dpi, size):
         im = None
         for c, (clabel, data) in enumerate(columns):
             ax = fig.add_subplot(gs[r, c])
+            axes[r][c] = ax
             ax.set_xticks([]); ax.set_yticks([])
             for sp in ax.spines.values():
                 sp.set_linewidth(0.4)
@@ -125,16 +128,17 @@ def draw_stage(level, columns, names, plane, outdir, crop, dpi, size):
                 if crop:
                     ax.set_xlim(crop[0], crop[1]); ax.set_ylim(crop[2], crop[3])
             if r == 0:
-                ax.text(0.02, 0.97, clabel + ('' if data is None else '  $t$=%.2f' % data[2]), transform=ax.transAxes, ha='left', va='top', fontsize=9, color='white', path_effects=stroke)
-            if c == 0:
-                ax.text(0.02, 0.03, label, transform=ax.transAxes, ha='left', va='bottom', fontsize=11, color='white', path_effects=stroke)
-        cax = fig.add_subplot(gs[r, nc])
+                ax.set_title(clabel + ('' if data is None else ',  $t$ = %.2f' % data[2]), fontsize=10, pad=3)
+        pos = axes[r][nc - 1].get_position()
+        cax = fig.add_axes([pos.x1 + cb_gap / width, pos.y0, cb_w / width, pos.height])
         if im is not None:
             cb = fig.colorbar(im, cax=cax)
             cb.ax.tick_params(labelsize=7, length=2, pad=1)
+            cb.ax.yaxis.set_label_position('right')
+            cb.set_label(label, rotation=270, labelpad=14, fontsize=11)
         else:
             cax.axis('off')
-    fig.text(0.995, 0.003, '$E_{kin}$ = %g, %s plane' % (level, plane), ha='right', va='bottom', fontsize=7, color='0.35')
+    fig.text(0.002, 0.003, '$E_{kin}$ = %g,  %s plane' % (level, plane), ha='left', va='bottom', fontsize=7, color='0.35')
     out = os.path.join(outdir, 'slices_ekin_%g.png' % level)
     fig.savefig(out, dpi=dpi)
     plt.close(fig)
