@@ -8,6 +8,7 @@ A smooth random fine state is written as a METHOD-like file; two "coarse runs" a
 The script is run on them and its npz output is checked. Also checks conserved_from_prims against hand values.
 """
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -142,6 +143,41 @@ def main():
                                        '--coarse', 'base:' + os.path.join(tmp, 'base'), 'run1:' + os.path.join(tmp, 'run1'), '--out', out2]).decode()
         assert os.path.exists(os.path.join(out2, 'summary.txt')) and os.path.exists(os.path.join(out2, 't_0.5000', 'comparison.npz'))
         assert not os.path.exists(os.path.join(out2, 't_1.0000')) and 'skipped' in txt
+        # equal-E_kin mode: the coarse runs lag the fine one by 0.2 in E_kin(t); coarse frames at 0.7 and 1.2 must be matched to the fine frames at 0.5 and 1.0
+        import math
+        for sub in ('finelog', 'cb', 'cr'):
+            os.makedirs(os.path.join(tmp, sub))
+        def mklog(path, lag):
+            with open(path, 'w') as f:
+                for tt in np.arange(0.0, 2.0, 0.05):
+                    f.write("diag t=%.8f iter=1 Emag=5e-07 Ekin=%.8e mass=1 Wmax=1\n" % (tt, 0.8 * math.exp(-0.3 * (tt - lag))))
+        mklog(os.path.join(tmp, 'finelog', 'fine.out'), 0.0)
+        mklog(os.path.join(tmp, 'cb', 'run.log'), 0.2)
+        mklog(os.path.join(tmp, 'cr', 'run.log'), 0.2)
+        for tt in (0.5, 1.0):
+            write(os.path.join(tmp, 'finelog', 'frame.checkpoint.%.6f.hdf5' % tt), P, tt)
+        for sub, C_ in (('cb', ref), ('cr', noisy)):
+            for tt in (0.7, 1.2, 1.6):
+                write(os.path.join(tmp, sub, 'frame.checkpoint.%.6f.hdf5' % tt), Pc, tt, C=C_)
+        out3 = os.path.join(tmp, 'scan_ekin')
+        txt = subprocess.check_output([sys.executable, os.path.join(EX, 'compare_scan.py'), '--fine-dir', os.path.join(tmp, 'finelog'), '--coarse',
+                                       'base:' + os.path.join(tmp, 'cb'), 'run1:' + os.path.join(tmp, 'cr'), '--match', 'ekin',
+                                       '--fine-log', os.path.join(tmp, 'finelog', 'fine.out'), '--out', out3]).decode()
+        assert 'MATCHED COARSE TIMES' in txt, txt
+        lines = [l for l in txt.splitlines() if l.startswith('0.5000') or l.startswith('1.0000')]
+        assert any('0.700' in l for l in lines) and any('1.200' in l for l in lines), txt
+        assert os.path.exists(os.path.join(out3, 't_0.5000', 'comparison.npz'))
+        # frames that are 6 % off in E_kin (coarse frames at 0.9 and 1.4 instead of 0.7 and 1.2) are refused at a 1 % tolerance and accepted at 10 %
+        os.makedirs(os.path.join(tmp, 'coff'))
+        shutil.copy(os.path.join(tmp, 'cb', 'run.log'), os.path.join(tmp, 'coff', 'run.log'))
+        for tt in (0.9, 1.4):
+            write(os.path.join(tmp, 'coff', 'frame.checkpoint.%.6f.hdf5' % tt), Pc, tt, C=ref)
+        cmd = [sys.executable, os.path.join(EX, 'compare_scan.py'), '--fine-dir', os.path.join(tmp, 'finelog'), '--coarse', 'off:' + os.path.join(tmp, 'coff'),
+               '--match', 'ekin', '--fine-log', os.path.join(tmp, 'finelog', 'fine.out')]
+        rc = subprocess.run(cmd + ['--ekin-tol', '0.01', '--out', os.path.join(tmp, 'scan_tight')], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        assert rc.returncode != 0 and b'no common frame times' in rc.stderr + rc.stdout
+        rc = subprocess.run(cmd + ['--ekin-tol', '0.1', '--out', os.path.join(tmp, 'scan_loose')], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        assert rc.returncode == 0, rc.stderr
     print("compare_coarse: all checks passed")
 
 

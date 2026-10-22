@@ -45,3 +45,7 @@ Convergence runs (the same problem at other resolutions)
   - Analysis: `../SingleFluidIdealVigano2020MPIHDF5FilterWindow/convergence_order.py 128:<log> 192:<log> 256:<log> 384:<log>` fits `t_N = t_inf + A N^-p` to the times at which each run reaches the same E_kin
   and E_mag levels, giving the order p, the continuum value `t_inf` and how late each grid is (test: `Tests/CompareCoarse/test_convergence_order.py`).
   - Build `main` for this in its own directory: the queued scan tasks use the `./main` of the scan directory.
+
+  - Equal-E_kin comparison: `compare_scan.py ... --match ekin --fine-log <384 log>` pairs each fine frame with the frame of each coarse run whose run-log E_kin is closest (the first time the coarse E_kin falls through the fine value, then the
+  nearest frame; frames more than `--ekin-tol`, default 10 %, off are not used and the fine frame is skipped), because the runs are at different stages at equal times (delays of 2-5 time units, differing from run to run) and E_kin, which
+  converges with resolution, is a clock the field noise does not touch. The summary lists the matched coarse times and the E_kin mismatch. Needs `run.log` in each coarse directory. Accuracy is set by the frame spacing (0.5 here).

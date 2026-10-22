@@ -99,3 +99,5 @@ Summary of a scan
 -----------------
   - `scan_summary.py REFERENCE_LOG BASELINE_LOG LABEL:LOG ...`: one line per run: the times at which E_mag reaches 1e-6 and 2e-5 and their delays against the reference, the mean growth rate between them, the time at which
   E_kin falls to 0.2 and its delay, E_mag at the end relative to the baseline, the failed recoveries and the peak closure drain X/E_mag.
+
+  - `compare_scan.py --match ekin --fine-log LOG`: compare at equal E_kin instead of equal time (see the ClosureScan README); `--ekin-tol` sets the largest accepted mismatch.

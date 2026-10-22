@@ -15,3 +15,5 @@ agrees with the stored `Conserved` group to about 1e-7 (the recovery tolerance).
 It also runs `compare_scan.py` (the experiment-A driver) on two frame times, one of them missing in one run, and checks that the common time is
 compared and the other is skipped. The example's `main.cc` (`../../Examples/KelvinHelmholtz/SingleFluidIdealVigano2020MPIHDF5ClosureScan`) was checked
 separately on 32^3: frames written at the requested times to full precision, readable, closure lines present.
+
+The equal-E_kin mode of `compare_scan.py` is checked with synthetic logs (coarse runs lagging by 0.2 in E_kin(t)): frames at 0.7 and 1.2 must be paired with the fine frames at 0.5 and 1.0, frames 6 % off in E_kin are refused at a 1 % tolerance and accepted at 10 %.
