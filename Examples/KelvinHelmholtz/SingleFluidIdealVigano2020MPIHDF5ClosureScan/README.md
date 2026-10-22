@@ -5,6 +5,10 @@ Model
 
 Purpose
 -------
+  - **Which comparisons are relevant.** The closure is expected to work in the developed phase of the flow (run E_kin below about 0.2, E_mag growth rate below half its peak), not in the shear-layer
+  formation or the kinematic growth from the seed, whose onset time is set by the grid and is noise-dominated (the time at which E_mag reaches a level, equal-time E_mag in the growth phase, pointwise errors and
+  failed-recovery counts are not tests of the closure; `time_shift.py` on E_kin is a convergence diagnostic of the hydrodynamics). Read the scan at equal E_kin (`compare_scan.py --match ekin`) in the developed phase
+  and against the spread of the noise runs (tasks 10-15). Reasons and evidence: action_filtering/planning/closure_stage2_design.md section 15.
   - Experiment A of `action_filtering/planning/closure_stage2_design.md`: coarse 128^3 runs of the Vigano et al. KHI, with and without the
   closure, to be compared with the 384^3 reference of `../SingleFluidIdealVigano2020MPIHDF5Run` filtered down to the 128^3 grid (a factor 3).
   Same initial data, numerics and parameters as the reference run; only the grid (128^3 on 4 x 4 x 4 = 64 ranks) and the closure differ.

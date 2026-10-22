@@ -26,6 +26,14 @@
   O(\f$\mathcal{E}^2\f$) terms are neglected. Use: construct after the model, and pass a pointer to the time integrator's constructor
   (`RK3 timeInt(&data, &model, &bcs, &fluxMethod, &closure)`). It needs 3D data (dims = 3), at least 2 ghost cells, and cubic cells.
 
+  @par Regime in which it is expected to work
+    A second-order expansion of the filtered covariance: it models the transfer between the resolved and the sub-filter scales in a flow that already has small-scale
+  structure, smooth across the filter width (a few cells; the a-priori fit is good at 2 cells, poorer at 3 and not valid at 4). That is the developed phase of a turbulent flow: after
+  the onset of field amplification (run E_kin below about a quarter of its initial value, growth rate of E_mag below half its peak). It does not model how small-scale field is
+  seeded, so the shear-layer formation and the kinematic growth from a weak seed (whose onset time depends on the grid) are not a test of it. This is a hypothesis supported by
+  a-priori tests and not yet tested a-posteriori in that phase; see action_filtering/planning/closure_stage2_design.md section 15 for the tests that are relevant (a-priori deficits in
+  the developed phase; comparison with a finer run at equal E_kin, with an ensemble of nominally identical runs for the noise).
+
   @par Switches
     - `densityTerm` (the factor \f$\zeta\f$ above): 0 or 1, default 0.
     - `limiter`: 0 none; 1 zero the source in cells where the local energy exchange \f$J\cdot\mathcal{E}\f$, \f$J = \nabla\times B\f$, is negative
