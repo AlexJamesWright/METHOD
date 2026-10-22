@@ -18,6 +18,7 @@
 #     sbatch --array=0,1 submit_weno_closure.sh      # now (WENO7)
 #     sbatch --array=4-6 submit_weno_closure.sh      # the WENO7 noise runs
 #     sbatch --array=7-10 submit_weno_closure.sh     # WENO7 at the matched c = 0.2
+# No frames (only run.log and data_final, saves 3.5 GB per 128^3 run): sbatch --export=ALL,FRAMES=0 ...
 # Other grids (N, and the layout RX RY RZ with --ntasks = RX*RY*RZ), e.g. a coarser run with a larger sub-filter share:
 #     sbatch --ntasks=8 --array=1,7 --export=ALL,N=64,RX=2,RY=2,RZ=2 submit_weno_closure.sh      # 64^3 (directory weno7_N64_c<c>)
 # Output in weno<order>_c<c>/ ; the log has the usual `diag` and `closure` lines.
@@ -38,6 +39,7 @@ export OMP_NUM_THREADS=1
 
 if [ "$N" = "128" ]; then RUN="weno${W}_c${C}"; else RUN="weno${W}_N${N}_c${C}"; fi
 mkdir -p "$RUN" && cd "$RUN"
-echo "Host: $(hostname)  Tasks: $SLURM_NTASKS  Run: $RUN  Start: $(date)"
-mpirun -np "$SLURM_NTASKS" --bind-to core --map-by core ../main 14.0 "$C" 0 0 20 ../times.txt "$N" "$RX" "$RY" "$RZ" "$W" > run.log 2>&1
+TIMES="../times.txt"; [ "${FRAMES:-1}" = "0" ] && TIMES="-"          # FRAMES=0: no output frames (the logs only), for runs of which only the log is analysed
+echo "Host: $(hostname)  Tasks: $SLURM_NTASKS  Run: $RUN  Frames: $TIMES  Start: $(date)"
+mpirun -np "$SLURM_NTASKS" --bind-to core --map-by core ../main 14.0 "$C" 0 0 20 "$TIMES" "$N" "$RX" "$RY" "$RZ" "$W" > run.log 2>&1
 echo "End: $(date)"
