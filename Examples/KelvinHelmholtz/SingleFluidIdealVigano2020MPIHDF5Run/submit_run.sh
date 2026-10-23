@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=khi384-run
 #SBATCH --nodes=1
+#SBATCH --exclusive             # shared nodes caused starvation and bus errors on iridis
 #SBATCH --ntasks=192            # must equal nxRanks*nyRanks*nzRanks in main.cc (8*8*3)
 #SBATCH --cpus-per-task=1
 #SBATCH --time=60:00:00         # the queue limit; my estimate for t = 14 is about 30 h (extrapolated, not measured at 384^3)
@@ -23,5 +24,6 @@ cd "$SLURM_SUBMIT_DIR"
 export OMP_NUM_THREADS=1
 
 echo "Host: $(hostname)  Tasks: $SLURM_NTASKS  Start: $(date)"
-mpirun -np "$SLURM_NTASKS" --bind-to core --map-by core ./main 14.0 100 370 1480
+# MAINARGS overrides the arguments of ./main (see main.cc), e.g. sbatch --export=ALL,MAINARGS="14.0 100 370 1480 0 0 0 7 0.9" submit_run.sh for WENO7
+mpirun -np "$SLURM_NTASKS" --bind-to core --map-by core ./main ${MAINARGS:-14.0 100 370 1480}
 echo "End: $(date)"
