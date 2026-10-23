@@ -11,7 +11,8 @@
 # 384^3 Vigano et al. (2020) KHI to t = 14 with energy diagnostics (log lines starting "diag"), primitive frames every 0.5 time
 # units and restartable frames every 2 time units. Submit from the run directory that holds ./main:
 #     cd /scratch/ih3/METHOD_simulations/vigano2020_384_run1 && sbatch submit_run.sh
-# Optional arguments to ./main: endTime diagIters primFrameIters restartFrameIters (see main.cc). If the job hits the time limit,
+# Optional arguments to ./main: endTime diagIters primFrameIters restartFrameIters closureC densityTerm limiter wenoOrder cfl nGrid nxRanks nyRanks nzRanks (see main.cc;
+# for WENO7 pass 0 0 0 7 0.9 and give the restart the same order). If the job hits the time limit,
 # continue from the latest restart.checkpoint.<t>.hdf5 with ../SingleFluidIdealVigano2020MPIHDF5Restart (nx*ny*nz ranks as here).
 set -euo pipefail
 

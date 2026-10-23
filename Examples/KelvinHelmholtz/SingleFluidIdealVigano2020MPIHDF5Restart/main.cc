@@ -1,7 +1,11 @@
 // Continue a 3D Vigano2020 KHI run from a full-output HDF5 file (a window snapshot or a full checkpoint frame:
 // it needs the Conserved and Primitive groups), to a later end time, writing full-output frames on the way.
 //
-//   mpirun -np 8 ./main restart_file.hdf5 endTime [frameIters] [finalName] [nSnap] [snapStride] [diagIters]
+//   mpirun -np 8 ./main restart_file.hdf5 endTime [frameIters] [finalName] [nSnap] [snapStride] [diagIters] [wenoOrder] [cfl] [nxRanks nyRanks nzRanks]
+//
+// wenoOrder (5 default, 7, 9, 11) must be the order of the run that wrote the file: the file stores Ng, which has to equal (wenoOrder + 1) / 2 + 1
+// (checked). cfl (0 or absent: the value stored in the file) overrides the Courant number, as for the Run example. The rank layout (default 2 2 2)
+// has to be that of the file, e.g. 8 8 3 for the 384^3 run on 192 ranks.
 //
 // With nSnap > 0 a window of nSnap full-output snapshots (data_window_00 ...), one every snapStride steps, is written after
 // endTime, as in ../SingleFluidIdealVigano2020MPIHDF5FilterWindow (snapshot times in Domain/endTime for the filtering reader).
@@ -47,9 +51,20 @@ int main(int argc, char *argv[]) {
   int reportItersPeriod(50);
   bool output(false);
 
+  int wenoOrder(argc > 8 ? atoi(argv[8]) : 5);
+  double cfl(argc > 9 ? atof(argv[9]) : 0.0);
   int nxRanks(2);
   int nyRanks(2);
   int nzRanks(2);
+  if (argc > 12) {
+    nxRanks = atoi(argv[10]);
+    nyRanks = atoi(argv[11]);
+    nzRanks = atoi(argv[12]);
+  }
+  if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9 && wenoOrder != 11) {
+    printf("ERROR: wenoOrder must be 5, 7, 9 or 11\n");
+    return 1;
+  }
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
 
@@ -58,12 +73,18 @@ int main(int argc, char *argv[]) {
         .sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sReportItersPeriod(reportItersPeriod);
 
   Data data = Data(checkpointArgs, &env);
+  if (data.Ng != (wenoOrder + 1) / 2 + 1) {
+    if (env.rank == 0) printf("ERROR: the file has Ng = %d but WENO%d needs Ng = %d: give the order of the run that wrote it\n", data.Ng, wenoOrder, (wenoOrder + 1) / 2 + 1);
+    fflush(stdout);
+    MPI_Abort(MPI_COMM_WORLD, 1);
+  }
+  if (cfl > 0.0) data.cfl = cfl;
 
   SRMHD model(&data);
 
-  Weno5 weno(&data);
+  WenoBase * weno = wenoOrder == 11 ? (WenoBase *) new Weno11(&data) : wenoOrder == 9 ? (WenoBase *) new Weno9(&data) : wenoOrder == 7 ? (WenoBase *) new Weno7(&data) : (WenoBase *) new Weno5(&data);
 
-  FVS fluxMethod(&data, &weno, &model);
+  FVS fluxMethod(&data, weno, &model);
 
   ParallelPeriodic bcs(&data, &env);
 
@@ -78,7 +99,7 @@ int main(int argc, char *argv[]) {
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  if (env.rank==0) printf("Restarted from %s at t = %.10f; running to t = %g\n", filename, data.t, endTime);
+  if (env.rank==0) printf("Restarted from %s at t = %.10f; running to t = %g, WENO%d (Ng = %d), cfl %g\n", filename, data.t, endTime, wenoOrder, data.Ng, data.cfl);
 
   // Same loop as Simulation::evolve (without its output), plus energy diagnostics and the frames
   printEnergyDiagnostics(&data, &env);
@@ -115,5 +136,6 @@ int main(int argc, char *argv[]) {
 
   if (env.rank==0) printf("\nCompleted %d iterations since the restart.\n", data.iters);
 
+  delete weno;
   return 0;
 }

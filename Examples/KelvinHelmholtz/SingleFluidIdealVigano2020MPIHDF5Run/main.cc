@@ -4,6 +4,11 @@
 // chosen from the diagnostics (see ../SingleFluidIdealVigano2020MPIHDF5Restart).
 //
 //   mpirun -np 192 ./main [endTime] [diagIters] [primFrameIters] [restartFrameIters] [closureC] [densityTerm] [limiter]
+//                         [wenoOrder] [cfl] [nGrid] [nxRanks nyRanks nzRanks]
+//
+// wenoOrder 5 (default), 7, 9 or 11 (9 and 11 are not robust on this problem); the ghost cells follow, Ng = (wenoOrder + 1) / 2 + 1, and the
+// restart (../SingleFluidIdealVigano2020MPIHDF5Restart) must be given the same order. cfl defaults to 0.9. nGrid (default 384) and the rank
+// layout (default 8 8 3) must be consistent: every rank count must divide the grid and the layout must use every process.
 //
 // closureC > 0 switches on the sub-filter gradient closure (SubfilterGradient) with sigma^2 = closureC dx^2; the log then also has
 // `closure t=... exchange=... abs=... net/abs=...` lines (global int J.EMF dV, int |J.EMF| dV and their ratio).
@@ -33,9 +38,7 @@ int main(int argc, char *argv[]) {
 
   // Set up domain
   int Ng(4);
-  int nx(384);
-  int ny(384);
-  int nz(384);
+  int nGrid(384);
   double xmin(-0.5);
   double xmax(0.5);
   double ymin(-0.5);
@@ -43,6 +46,7 @@ int main(int argc, char *argv[]) {
   double zmin(-0.5);
   double zmax(0.5);
   double cfl(0.9);
+  int wenoOrder(5);
   double gamma(4.0/3.0);
   double sigma(10);
   double cp(1.0);
@@ -52,9 +56,9 @@ int main(int argc, char *argv[]) {
   int reportItersPeriod(100);
 
   // The grid must divide evenly: 384 / 8, 384 / 8, 384 / 3
-  double nxRanks(8);
-  double nyRanks(8);
-  double nzRanks(3);
+  int nxRanks(8);
+  int nyRanks(8);
+  int nzRanks(3);
 
   double endTime(argc > 1 ? atof(argv[1]) : 14.0);
   int diagIters(argc > 2 ? atoi(argv[2]) : 100);
@@ -63,8 +67,27 @@ int main(int argc, char *argv[]) {
   double closureC(argc > 5 ? atof(argv[5]) : 0.0);        // 0: no closure
   int closureDensityTerm(argc > 6 ? atoi(argv[6]) : 0);
   int closureLimiter(argc > 7 ? atoi(argv[7]) : 0);
+  if (argc > 8) wenoOrder = atoi(argv[8]);
+  if (argc > 9) cfl = atof(argv[9]);
+  if (argc > 10) nGrid = atoi(argv[10]);
+  if (argc > 13) {
+    nxRanks = atoi(argv[11]);
+    nyRanks = atoi(argv[12]);
+    nzRanks = atoi(argv[13]);
+  }
+  if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9 && wenoOrder != 11) {
+    printf("ERROR: wenoOrder must be 5, 7, 9 or 11\n");
+    return 1;
+  }
+  Ng = (wenoOrder + 1) / 2 + 1;
+  const int nx(nGrid), ny(nGrid), nz(nGrid);
 
   ParallelEnv env(&argc, &argv, nxRanks, nyRanks, nzRanks);
+  if (env.nProc != nxRanks * nyRanks * nzRanks || nGrid % nxRanks || nGrid % nyRanks || nGrid % nzRanks) {
+    if (env.rank == 0) printf("ERROR: %d processes, layout %d x %d x %d, grid %d^3: the layout must use every process and divide the grid\n", env.nProc, nxRanks, nyRanks, nzRanks, nGrid);
+    fflush(stdout);
+    MPI_Abort(MPI_COMM_WORLD, 1);
+  }
 
   DataArgs dataArgs = DataArgs(nx, ny, nz, xmin, xmax, ymin, ymax, zmin, zmax, endTime)
         .sCfl(cfl).sNg(Ng).sGamma(gamma).sCp(cp).sMu1(mu1).sMu2(mu2).sFrameSkip(frameSkip).sSigma(sigma)
@@ -74,9 +97,9 @@ int main(int argc, char *argv[]) {
 
   SRMHD model(&data);
 
-  Weno5 weno(&data);
+  WenoBase * weno = wenoOrder == 11 ? (WenoBase *) new Weno11(&data) : wenoOrder == 9 ? (WenoBase *) new Weno9(&data) : wenoOrder == 7 ? (WenoBase *) new Weno7(&data) : (WenoBase *) new Weno5(&data);
 
-  FVS fluxMethod(&data, &weno, &model);
+  FVS fluxMethod(&data, weno, &model);
 
   ParallelPeriodic bcs(&data, &env);
 
@@ -96,8 +119,8 @@ int main(int argc, char *argv[]) {
 
   sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
 
-  if (env.rank==0) printf("Running %dx%dx%d to t = %g; diagnostics every %d iterations, primitive frames every %d, restart frames every %d\n",
-                          nx, ny, nz, endTime, diagIters, primFrameIters, restartFrameIters);
+  if (env.rank==0) printf("Running %dx%dx%d to t = %g, WENO%d (Ng = %d), cfl %g; diagnostics every %d iterations, primitive frames every %d, restart frames every %d\n",
+                          nx, ny, nz, endTime, wenoOrder, Ng, cfl, diagIters, primFrameIters, restartFrameIters);
   printEnergyDiagnostics(&data, &env);
 
   // Same loop as Simulation::evolve (without its output), plus the diagnostics and frames
@@ -125,5 +148,6 @@ int main(int argc, char *argv[]) {
   if (env.rank==0) printf("Saved data_final at t = %.10f\n\nCompleted %d iterations.\n", data.t, data.iters);
 
   delete closure;
+  delete weno;
   return 0;
 }
