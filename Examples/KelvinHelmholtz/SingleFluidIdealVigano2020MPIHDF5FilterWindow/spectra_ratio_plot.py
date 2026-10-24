@@ -9,7 +9,7 @@ One column per E_kin stage (panel of the .npz; --levels selects panels by index)
   row 1: magnetic spectrum over the reference spectrum (default: the native fine run), log-log; the noise group as a band (mean +- one standard deviation over its runs), each --group as
          a line (mean) with a lighter band (+- sd), each --single run as a line;
   row 2: the same spectra over the MEAN OF THE NOISE GROUP: the band is then the noise around 1, and a group or run outside it is an effect of the closure (or of the resolution) at that
-         wavenumber; semi-log;
+         wavenumber; log axis limited to --ylim (default 0.5 to 3: a finer run is off scale at high k);
   row 3 (--kinetic): the kinetic spectra over the mean of the noise group.
 Labels are matched exactly to the curve labels of the .npz (the labels given to compare_spectra.py; a curve missing from a panel is left out of it). A group or the noise band needs at least two
 runs in the panel. The runs of a panel are at the frames of the same E_kin level, not necessarily at the same time (the match file next to the .npz lists the frames): use the levels at which
@@ -72,6 +72,7 @@ def main():
     p.add_argument('--ref', default='native', help="reference curve: 'native' (default), 'filtered' or a substring of its label")
     p.add_argument('--kinetic', action='store_true', help='add a row with the kinetic spectra over the noise mean')
     p.add_argument('--levels', nargs='*', type=int, default=None, help='indices of the panels (E_kin stages) to draw; default all')
+    p.add_argument('--ylim', nargs=2, type=float, default=[0.5, 3.0], help='y range of the rows over the noise mean (log axis; default 0.5 3: a finer run is far off scale at high k)')
     p.add_argument('--panel-size', type=float, default=3.4)
     a = p.parse_args()
 
@@ -141,6 +142,11 @@ def main():
         ax.set_xscale('log')
         ax.set_yscale('log')
         ax2.set_xscale('log')
+        ax2.set_yscale('log')
+        ax2.set_ylim(*a.ylim)
+        if a.kinetic:
+            axes[2][ci].set_yscale('log')
+            axes[2][ci].set_ylim(*a.ylim)
         for row in range(nrow):
             axes[row][ci].grid(alpha=0.25)
         axes[-1][ci].set_xlabel('k (units of $2\\pi/L$)')
