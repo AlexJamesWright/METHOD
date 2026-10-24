@@ -21,6 +21,7 @@ amplitude ratio, the rms sub-filter EMF relative to the resolved E_res = -<v> x 
 X = sum J.E_true (J = curl <B>; dE_mag/dt = -X from the sub-filter EMF, so X/E_mag is the rate at which it drains the resolved field, to be compared with the growth rate of E_mag): net/abs and the backscatter fraction (negative part / abs) for the true and the modelled EMF.
 
     python apriori_emf.py --block 3 --dirs RUN384 [RUN384_restart ...] [--tmin 1.5] [--every 1] [--out apriori_emf.txt]
+    python apriori_emf.py --block 3 --files data_window_15.hdf5 --crop 144 240 144 240 168 216    # one snapshot, only a box (the crop of a covariant filtering run, for a like-for-like comparison)
 
 --block 3 for a 384^3 run (onto 128^3), 2 for a 128^3 run (onto 64^3). Needs about 8 fine-grid arrays of memory (about 4 GB at 384^3): run it
 on a compute node. Frames of the first --dirs entry are read first; unreadable frames (the newest one of a running job) are skipped.
@@ -51,9 +52,16 @@ def grad_terms(f, dx):
     return [vc.ddx(f, ax, dx) for ax in range(3)]
 
 
-def analyse(path, r):  # noqa: C901
+def analyse(path, r, crop=None):  # noqa: C901
     S = vc.load(path)
     P, dx = S['P'], S['dx'] * r
+    sl = (slice(None),) * 3
+    if crop is not None:                                    # fine-cell box i0 i1 j0 j1 k0 k1, multiples of r; the outermost coarse cell layer is left out of the sums (periodic differences wrap)
+        i0, i1, j0, j1, k0, k1 = crop
+        if any(c % r for c in crop):
+            raise SystemExit('the crop %s must be a multiple of the block %d' % (crop, r))
+        P = {k: v[i0:i1, j0:j1, k0:k1] for k, v in P.items()}
+        sl = (slice(1, -1),) * 3
     v = [P['vx'], P['vy'], P['vz']]
     B = [P['Bx'], P['By'], P['Bz']]
     W = 1.0 / np.sqrt(1.0 - (v[0] ** 2 + v[1] ** 2 + v[2] ** 2))
@@ -90,38 +98,44 @@ def analyse(path, r):  # noqa: C901
     Jm = [vc.ddx(Bm[2], 1, dx) - vc.ddx(Bm[1], 2, dx), vc.ddx(Bm[0], 2, dx) - vc.ddx(Bm[2], 0, dx), vc.ddx(Bm[1], 0, dx) - vc.ddx(Bm[0], 1, dx)]
 
     def score(Et, Em):  # r is the block size
+        Et, Em = [a[sl] for a in Et], [a[sl] for a in Em]
         n2, m2, c = np.sum(dot(Et, Et)), np.sum(dot(Em, Em)), np.sum(dot(Et, Em))
         err = [a - b for a, b in zip(Et, Em)]
         s = c / m2 if m2 > 0 else np.nan
         return {'R2': 1 - np.sum(dot(err, err)) / n2, 'scale': s, 'scale_c': s + 1.0 / r ** 2, 'R2best': c * c / (n2 * m2) if m2 > 0 else np.nan, 'amp': np.sqrt(m2 / n2)}
 
     def exchange(E):
-        x = dot(Jm, E)
+        x = dot([a[sl] for a in Jm], [a[sl] for a in E])
         return np.sum(x) / np.sum(np.abs(x)), np.sum(np.abs(x) - x) / (2 * np.sum(np.abs(x)))
 
     res = {'t': S['t'], 'lab': score(E_true, E_model), 'favre': score(E_trueF, E_modelF)}
-    Eres = [-a for a in vmBm]
-    res['rel_size'] = np.sqrt(np.sum(dot(E_true, E_true)) / np.sum(dot(Eres, Eres)))
+    Eres = [-a[sl] for a in vmBm]
+    res['rel_size'] = np.sqrt(np.sum(dot([a[sl] for a in E_true], [a[sl] for a in E_true])) / np.sum(dot(Eres, Eres)))
     res['X_true'] = exchange(E_true)
     res['X_model'] = exchange(E_model)
-    res['X_ratio'] = np.sum(dot(Jm, E_model)) / np.sum(dot(Jm, E_true))
+    Js = [a[sl] for a in Jm]
+    res['X_ratio'] = np.sum(dot(Js, [a[sl] for a in E_model])) / np.sum(dot(Js, [a[sl] for a in E_true]))
     # d/dt int |B|^2/2 dV = -int J.E_total dV, so the sub-filter EMF changes the resolved energy at the rate -X; X / E_mag is a rate per unit time
-    res['rate'] = np.sum(dot(Jm, E_true)) / (0.5 * np.sum(dot(Bm, Bm)))
+    res['rate'] = np.sum(dot(Js, [a[sl] for a in E_true])) / (0.5 * np.sum(dot([a[sl] for a in Bm], [a[sl] for a in Bm])))
     return res
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument('--block', type=int, required=True)
-    p.add_argument('--dirs', nargs='+', required=True)
+    p.add_argument('--dirs', nargs='*', default=[])
+    p.add_argument('--files', nargs='*', default=[], help='HDF5 files (snapshots or frames) instead of the frame.checkpoint.* of --dirs, e.g. data_window_15.hdf5')
+    p.add_argument('--crop', nargs=6, type=int, default=None, metavar=('I0', 'I1', 'J0', 'J1', 'K0', 'K1'), help='analyse only this box of fine cells (multiples of --block); the outermost coarse layer is dropped from the sums')
     p.add_argument('--tmin', type=float, default=0.0)
     p.add_argument('--tmax', type=float, default=1e9)
     p.add_argument('--every', type=int, default=1, help='use every n-th frame')
     p.add_argument('--out', default='apriori_emf.txt')
     a = p.parse_args()
-    files = []
+    files = list(a.files)
     for d in a.dirs:
         files += vc.frames(d)
+    if not files:
+        raise SystemExit('give --dirs or --files')
     rows = []
     hdr = "%-8s %-8s %-8s %-8s %-8s %-8s | %-8s %-8s %-9s | %-9s | %-16s | %-16s | %-8s %-8s" % (
         "t", "R2", "scale", "scale_c", "R2best", "amp", "R2(F)", "scale(F)", "scale_c(F)", "|E|/|Eres|", "net/abs,bs(true)", "net/abs,bs(mod)", "X mod/true", "X/Emag")
@@ -129,7 +143,7 @@ def main():
     for i, f in enumerate(files):
         if i % a.every:
             continue
-        res = analyse(f, a.block)
+        res = analyse(f, a.block, a.crop)
         if not (a.tmin <= res['t'] <= a.tmax):
             continue
         L, F = res['lab'], res['favre']

@@ -81,10 +81,12 @@ def check_apriori():
     with tempfile.TemporaryDirectory() as tmp:
         write(os.path.join(tmp, 'f.hdf5'), P, 1.0)
         res = apriori_emf.analyse(os.path.join(tmp, 'f.hdf5'), 2)
+        resc = apriori_emf.analyse(os.path.join(tmp, 'f.hdf5'), 2, crop=(8, 56, 8, 56, 8, 56))     # a box inside the domain: the outer coarse layer is dropped, the statistics are those of smooth fields too
     assert res['lab']['R2best'] > 0.999, res['lab']                       # the direction is exact on smooth fields
     assert abs(res['lab']['scale'] - 0.75) < 0.03, res['lab']            # (r^2 - 1)/r^2 for point values and r = 2
     assert abs(res['lab']['scale_c'] - 1.0) < 0.03, res['lab']           # with the within-cell variance added back
     assert res['favre']['R2best'] > 0.99, res['favre']
+    assert resc['lab']['R2best'] > 0.999 and abs(resc['lab']['scale_c'] - 1.0) < 0.03, resc['lab']
     print("apriori_emf: ok (R2 %.3f, scale %.3f)" % (res['lab']['R2'], res['lab']['scale']))
 
 
