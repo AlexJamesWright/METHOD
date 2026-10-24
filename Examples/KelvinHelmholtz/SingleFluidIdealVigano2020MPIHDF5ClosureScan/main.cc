@@ -4,7 +4,7 @@
 // 384^3 frame of the same time (the fine frames are written every 370 iterations, so their times are not round numbers; see
 // frame_times.py). The step is cut to land on each output time (Simulation::updateTime clips dt at endTime).
 //
-//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder] [earlyCfl tEarly] [cfl]
+//   mpirun -np 64 ./main endTime closureC densityTerm limiter [diagIters] [outputTimes] [nGrid] [nxRanks nyRanks nzRanks] [wenoOrder] [earlyCfl tEarly] [cfl] [integrator]
 //
 //   endTime      end of the run
 //   closureC     c in sigma^2 = c dx^2; 0 = no closure (the baseline)
@@ -21,6 +21,8 @@
 //                discontinuous shear layers at t of about 1-3.5 (section 23), the test is whether a gentler start removes them; default 0 0 (off)
 //   cfl          the CFL number of METHOD (dt = cfl dx / (alpha sqrt(3))), default 0.9; the linear stability limit of RK3 falls with the WENO order (strictest case 0.83, 0.72, 0.65, 0.61 for
 //                WENO5, 7, 9, 11; planning/closure_stage2_design.md section 24): about 0.78, 0.70, 0.66 are the equivalents of 0.9 for WENO5
+//   integrator   the time integrator: 3 (default, SSPRK(3,3)), 2 (SSPRK(2,2)), 4 (SSPRK(5,4), 5 stages) or 10 (SSPRK(10,4), 10 stages); all treat the flux and the closure source in one
+//                right-hand side. The cost per step is the number of stages (2, 3, 5, 10); the time error of RK3 is a plausible part of the numerical dissipation of WENO7 (planning/closure_stage2_design.md section 39)
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
 // data_final.hdf5 (everything, at endTime).
@@ -111,6 +113,11 @@ int main(int argc, char *argv[]) {
   const double earlyCfl(argc > 12 ? atof(argv[12]) : 0.0);
   const double tEarly(argc > 13 ? atof(argv[13]) : 0.0);
   if (argc > 14) cfl = atof(argv[14]);
+  const int integrator(argc > 15 ? atoi(argv[15]) : 3);
+  if (integrator != 2 && integrator != 3 && integrator != 4 && integrator != 10) {
+    printf("ERROR: integrator must be 2, 3, 4 or 10\n");
+    return 1;
+  }
   if (wenoOrder != 5 && wenoOrder != 7 && wenoOrder != 9 && wenoOrder != 11) {
     printf("ERROR: wenoOrder must be 5, 7, 9 or 11\n");
     return 1;
@@ -147,16 +154,16 @@ int main(int argc, char *argv[]) {
   SubfilterGradient * closure = NULL;
   if (closureC > 0.0) closure = new SubfilterGradient(&data, closureC, closureDensityTerm, closureLimiter);
 
-  RK3 timeInt(&data, &model, &bcs, &fluxMethod, closure);
+  TimeIntegrator * timeInt = integrator == 10 ? (TimeIntegrator *) new RK4_10(&data, &model, &bcs, &fluxMethod, closure) : integrator == 4 ? (TimeIntegrator *) new RK4(&data, &model, &bcs, &fluxMethod, closure) : integrator == 2 ? (TimeIntegrator *) new RK2B(&data, &model, &bcs, &fluxMethod, closure) : (TimeIntegrator *) new RK3(&data, &model, &bcs, &fluxMethod, closure);
 
   ParallelSaveDataHDF5 save(&data, &env, "data_unused", ParallelSaveDataHDF5::OUTPUT_ALL);
   ParallelSaveDataHDF5 frames(&data, &env, "frame", ParallelSaveDataHDF5::OUTPUT_MINIMAL);        // primitive variables
 
-  sim.set(&init, &model, &timeInt, &bcs, &fluxMethod, &save);
+  sim.set(&init, &model, timeInt, &bcs, &fluxMethod, &save);
 
   if (env.rank==0) {
-    printf("Running %dx%dx%d to t = %g, WENO%d (Ng = %d), closure c = %g (density term %d, limiter %d), %d output times\n",
-           nx, ny, nz, endTime, wenoOrder, Ng, closureC, closureDensityTerm, closureLimiter, (int)times.size());
+    printf("Running %dx%dx%d to t = %g, WENO%d (Ng = %d), RK%d, cfl %g, closure c = %g (density term %d, limiter %d), %d output times\n",
+           nx, ny, nz, endTime, wenoOrder, Ng, integrator, cfl, closureC, closureDensityTerm, closureLimiter, (int)times.size());
   }
   printEnergyDiagnostics(&data, &env);
   const double wall0(MPI_Wtime());
@@ -198,5 +205,6 @@ int main(int argc, char *argv[]) {
 
   delete closure;
   delete weno;
+  delete timeInt;
   return 0;
 }

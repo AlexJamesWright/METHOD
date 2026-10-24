@@ -22,6 +22,8 @@
 # No frames (only run.log and data_final, saves 3.5 GB per 128^3 run): sbatch --export=ALL,FRAMES=0 ...
 # A gentler start (design doc section 23: the WENO9 failures are a transient at t of about 1-3.5): EARLYCFL (default off) and TEARLY, e.g.
 #     sbatch --array=11 --export=ALL,EARLYCFL=0.3,TEARLY=4.0 submit_weno_closure.sh      # directory weno9_c0_early0.3
+# A different time integrator (default RK3), e.g. the 4th-order SSPRK(5,4) at the same step (5 stages: 1.7 times the cost), design doc section 39:
+#     sbatch --array=4 --export=ALL,INTEGRATOR=4,FRAMES=0 submit_weno_closure.sh      # directory weno7_c0.000000001_rk4
 # A different CFL number for the whole run (default 0.9): sbatch --array=11 --export=ALL,CFL=0.7 submit_weno_closure.sh      # directory weno9_c0_cfl0.7
 # Other grids (N, and the layout RX RY RZ with --ntasks = RX*RY*RZ), e.g. a coarser run with a larger sub-filter share:
 #     sbatch --ntasks=8 --array=1,7 --export=ALL,N=64,RX=2,RY=2,RZ=2 submit_weno_closure.sh      # 64^3 (directory weno7_N64_c<c>)
@@ -44,6 +46,12 @@ export OMP_NUM_THREADS=1
 if [ "$N" = "128" ]; then RUN="weno${W}_c${C}"; else RUN="weno${W}_N${N}_c${C}"; fi
 EXTRA=""; if [ -n "${EARLYCFL:-}" ]; then EXTRA="$EARLYCFL ${TEARLY:-4.0}"; RUN="${RUN}_early${EARLYCFL}"; fi
 if [ -n "${CFL:-}" ]; then [ -n "$EXTRA" ] || EXTRA="0 0"; EXTRA="$EXTRA $CFL"; RUN="${RUN}_cfl${CFL}"; fi          # CFL: the CFL number for the whole run (design doc section 24)
+# INTEGRATOR: 2, 3 (default), 4 (SSPRK(5,4)) or 10 (SSPRK(10,4)) (design doc section 39); the directory gets the suffix _rk<INTEGRATOR>
+if [ -n "${INTEGRATOR:-}" ]; then
+  [ -n "$EXTRA" ] || EXTRA="0 0"
+  [ "$(echo $EXTRA | wc -w)" -ge 3 ] || EXTRA="$EXTRA ${CFL:-0.9}"          # the cfl argument precedes the integrator
+  EXTRA="$EXTRA $INTEGRATOR"; RUN="${RUN}_rk${INTEGRATOR}"
+fi
 mkdir -p "$RUN" && cd "$RUN"
 TIMES="../times.txt"; [ "${FRAMES:-1}" = "0" ] && TIMES="-"          # FRAMES=0: no output frames (the logs only), for runs of which only the log is analysed
 echo "Host: $(hostname)  Tasks: $SLURM_NTASKS  Run: $RUN  Frames: $TIMES  Start: $(date)"
