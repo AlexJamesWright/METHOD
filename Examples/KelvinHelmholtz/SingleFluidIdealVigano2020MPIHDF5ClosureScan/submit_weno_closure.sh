@@ -27,6 +27,7 @@
 # A different CFL number for the whole run (default 0.9): sbatch --array=11 --export=ALL,CFL=0.7 submit_weno_closure.sh      # directory weno9_c0_cfl0.7
 # Other grids (N, and the layout RX RY RZ with --ntasks = RX*RY*RZ), e.g. a coarser run with a larger sub-filter share:
 #     sbatch --ntasks=8 --array=1,7 --export=ALL,N=64,RX=2,RY=2,RZ=2 submit_weno_closure.sh      # 64^3 (directory weno7_N64_c<c>)
+# The same run again with frames, in a new directory: sbatch --array=4 --export=ALL,INTEGRATOR=4,CFL=0.9,TAG=_fr submit_weno_closure.sh      # directory weno7_c0.000000001_cfl0.9_rk4_fr
 # Output in weno<order>_c<c>/ ; the log has the usual `diag` and `closure` lines.
 set -euo pipefail
 
@@ -52,6 +53,7 @@ if [ -n "${INTEGRATOR:-}" ]; then
   [ "$(echo $EXTRA | wc -w)" -ge 3 ] || EXTRA="$EXTRA ${CFL:-0.9}"          # the cfl argument precedes the integrator
   EXTRA="$EXTRA $INTEGRATOR"; RUN="${RUN}_rk${INTEGRATOR}"
 fi
+RUN="${RUN}${TAG:-}"          # TAG: a suffix for the directory, to repeat a run without overwriting it (e.g. TAG=_fr for the same run with frames)
 mkdir -p "$RUN" && cd "$RUN"
 TIMES="../times.txt"; [ "${FRAMES:-1}" = "0" ] && TIMES="-"          # FRAMES=0: no output frames (the logs only), for runs of which only the log is analysed
 echo "Host: $(hostname)  Tasks: $SLURM_NTASKS  Run: $RUN  Frames: $TIMES  Start: $(date)"
