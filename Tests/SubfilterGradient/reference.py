@@ -7,8 +7,9 @@ import numpy as np
 n, Ng = 32, 4
 Nn = n + 2 * Ng
 h = 1.0 / n
-densityTerm, limiter, c = int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3])
+densityTerm, limiter, c, quadFactor = int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4])
 sigma2 = c * h * h
+sigma2q = quadFactor * sigma2      # sigma^2 of the quadratic gradient parts of the Poynting and stress deficits
 
 x = (np.arange(Nn) - Ng + 0.5) * h
 X = np.stack(np.meshgrid(x, x, x, indexing='ij'), axis=-1)
@@ -30,12 +31,12 @@ emf = -sigma2 * sum(np.cross(dv[l], dB[l]) for l in range(3))
 if densityTerm:
     q = sum(dD[l][..., None] * dv[l] for l in range(3)) / D[..., None]
     emf = emf + sigma2 * np.cross(q, B)
-poy = np.cross(emf, B) + sigma2 * sum(np.cross(dE[l], dB[l]) for l in range(3))
+poy = np.cross(emf, B) + sigma2q * sum(np.cross(dE[l], dB[l]) for l in range(3))
 eye = np.eye(3)
 Eem = np.sum(E * emf, axis=-1)
 quad = sum(-dE[l][..., :, None] * dE[l][..., None, :] - dB[l][..., :, None] * dB[l][..., None, :]
            + 0.5 * eye * (np.sum(dE[l] ** 2, -1) + np.sum(dB[l] ** 2, -1))[..., None, None] for l in range(3))
-stress = -(E[..., :, None] * emf[..., None, :] + emf[..., :, None] * E[..., None, :]) + eye * Eem[..., None, None] + sigma2 * quad
+stress = -(E[..., :, None] * emf[..., None, :] + emf[..., :, None] * E[..., None, :]) + eye * Eem[..., None, None] + sigma2q * quad
 
 curl = lambda F: np.stack([g(F[..., 2], 1) - g(F[..., 1], 2), g(F[..., 0], 2) - g(F[..., 2], 0), g(F[..., 1], 0) - g(F[..., 0], 1)], axis=-1)
 src = np.zeros((9, Nn, Nn, Nn))
@@ -50,7 +51,7 @@ for a in range(3):
     src[5 + a] = np.where(keep, sB[..., a], 0.0)
 src[4] = np.where(keep, sT, 0.0)
 
-cpp = np.fromfile(sys.argv[4], dtype=np.float64).reshape(9, Nn, Nn, Nn)
+cpp = np.fromfile(sys.argv[5], dtype=np.float64).reshape(9, Nn, Nn, Nn)
 sl = (slice(None),) + (slice(Ng, Nn - Ng),) * 3
 scale = np.max(np.abs(src[sl]))
 err = np.max(np.abs(cpp[sl] - src[sl])) / scale

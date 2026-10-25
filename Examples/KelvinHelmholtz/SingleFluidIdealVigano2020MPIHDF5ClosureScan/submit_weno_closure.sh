@@ -27,6 +27,7 @@
 # A different CFL number for the whole run (default 0.9): sbatch --array=11 --export=ALL,CFL=0.7 submit_weno_closure.sh      # directory weno9_c0_cfl0.7
 # Other grids (N, and the layout RX RY RZ with --ntasks = RX*RY*RZ), e.g. a coarser run with a larger sub-filter share:
 #     sbatch --ntasks=8 --array=1,7 --export=ALL,N=64,RX=2,RY=2,RZ=2 submit_weno_closure.sh      # 64^3 (directory weno7_N64_c<c>)
+# A separate coefficient for the stress and Poynting terms (1.5 times that of the EMF: design doc section 63): sbatch --array=7 --export=ALL,INTEGRATOR=4,CFL=0.9,QFACTOR=1.5 submit_weno_closure.sh      # directory weno7_c0.2_cfl0.9_rk4_q1.5
 # The same run again with frames, in a new directory: sbatch --array=4 --export=ALL,INTEGRATOR=4,CFL=0.9,TAG=_fr submit_weno_closure.sh      # directory weno7_c0.000000001_cfl0.9_rk4_fr
 # Output in weno<order>_c<c>/ ; the log has the usual `diag` and `closure` lines.
 set -euo pipefail
@@ -52,6 +53,13 @@ if [ -n "${INTEGRATOR:-}" ]; then
   [ -n "$EXTRA" ] || EXTRA="0 0"
   [ "$(echo $EXTRA | wc -w)" -ge 3 ] || EXTRA="$EXTRA ${CFL:-0.9}"          # the cfl argument precedes the integrator
   EXTRA="$EXTRA $INTEGRATOR"; RUN="${RUN}_rk${INTEGRATOR}"
+fi
+# QFACTOR: the factor of the quadratic gradient parts of the stress and Poynting deficits (16th argument; the directory gets the suffix _q<QFACTOR>)
+if [ -n "${QFACTOR:-}" ]; then
+  [ -n "$EXTRA" ] || EXTRA="0 0"
+  [ "$(echo $EXTRA | wc -w)" -ge 3 ] || EXTRA="$EXTRA ${CFL:-0.9}"
+  [ "$(echo $EXTRA | wc -w)" -ge 4 ] || EXTRA="$EXTRA 3"
+  EXTRA="$EXTRA $QFACTOR"; RUN="${RUN}_q${QFACTOR}"
 fi
 RUN="${RUN}${TAG:-}"          # TAG: a suffix for the directory, to repeat a run without overwriting it (e.g. TAG=_fr for the same run with frames)
 mkdir -p "$RUN" && cd "$RUN"

@@ -5,8 +5,8 @@
 // Cell index within one variable; variables are stored as var * Nx*Ny*Nz + cell, as in ID(var, i, j, k)
 #define CELL(i, j, k) (((i) * (d->Ny) + (j)) * (d->Nz) + (k))
 
-SubfilterGradient::SubfilterGradient(Data * data, double c, int densityTerm, int limiter) :
-  ModelExtension(data), c(c), densityTerm(densityTerm), limiter(limiter), lastExchange(0.0), lastExchangeAbs(0.0)
+SubfilterGradient::SubfilterGradient(Data * data, double c, int densityTerm, int limiter, double quadFactor) :
+  ModelExtension(data), c(c), quadFactor(quadFactor), densityTerm(densityTerm), limiter(limiter), lastExchange(0.0), lastExchangeAbs(0.0)
 {
   Data * d(this->data);
   if (d->dims != 3) throw std::invalid_argument("SubfilterGradient needs a three-dimensional simulation.\n");
@@ -51,6 +51,7 @@ void SubfilterGradient::sourceExtension(double * cons, double * prims, double * 
   Data * d(this->data);
   const int Nx(d->Nx), Ny(d->Ny), Nz(d->Nz);
   const long N(static_cast<long>(Nx) * Ny * Nz);
+  const double sigma2q(quadFactor * sigma2);   // sigma^2 of the quadratic gradient parts of the stress and Poynting deficits
   const double inv2h[3] = {0.5 / d->dx, 0.5 / d->dy, 0.5 / d->dz};
   const long stride[3] = {static_cast<long>(Ny) * Nz, static_cast<long>(Nz), 1};
 
@@ -119,9 +120,9 @@ void SubfilterGradient::sourceExtension(double * cons, double * prims, double * 
         // Poynting-flux deficit = EMF x B + sigma^2 sum_l d_l E x d_l B
         double po[3] = {em[1] * B[2] - em[2] * B[1], em[2] * B[0] - em[0] * B[2], em[0] * B[1] - em[1] * B[0]};
         for (int l(0); l < 3; l++) {
-          po[0] += sigma2 * (dEl[l][1] * dBl[l][2] - dEl[l][2] * dBl[l][1]);
-          po[1] += sigma2 * (dEl[l][2] * dBl[l][0] - dEl[l][0] * dBl[l][2]);
-          po[2] += sigma2 * (dEl[l][0] * dBl[l][1] - dEl[l][1] * dBl[l][0]);
+          po[0] += sigma2q * (dEl[l][1] * dBl[l][2] - dEl[l][2] * dBl[l][1]);
+          po[1] += sigma2q * (dEl[l][2] * dBl[l][0] - dEl[l][0] * dBl[l][2]);
+          po[2] += sigma2q * (dEl[l][0] * dBl[l][1] - dEl[l][1] * dBl[l][0]);
         }
         for (int m(0); m < 3; m++) poynting[m * N + cell] = po[m];
 
@@ -134,8 +135,8 @@ void SubfilterGradient::sourceExtension(double * cons, double * prims, double * 
         for (int a(0); a < 3; a++) {
           for (int b(0); b < 3; b++) {
             double s(-(Er[a] * em[b] + em[a] * Er[b]));
-            if (a == b) s += Eem + 0.5 * sigma2 * quadTrace;
-            for (int l(0); l < 3; l++) s += sigma2 * (-dEl[l][a] * dEl[l][b] - dBl[l][a] * dBl[l][b]);
+            if (a == b) s += Eem + 0.5 * sigma2q * quadTrace;
+            for (int l(0); l < 3; l++) s += sigma2q * (-dEl[l][a] * dEl[l][b] - dBl[l][a] * dBl[l][b]);
             stress[(a * 3 + b) * N + cell] = s;
           }
         }

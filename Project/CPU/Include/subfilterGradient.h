@@ -36,6 +36,10 @@
 
   @par Switches
     - `densityTerm` (the factor \f$\zeta\f$ above): 0 or 1, default 0.
+    - `quadFactor` (default 1): multiplies \f$\sigma^2\f$ in the terms \f$\sigma^2\sum_l(\dots)\f$ of \f$\Delta^{0j}\f$ and \f$\Delta^{ij}\f$ (the quadratic gradient parts),
+    not in the EMF and not in the terms of the deficits that are linear in the EMF. A-priori data fits the quadratic parts with about 1.5 times the coefficient of the EMF at a meso spacing of two cells
+    and 1.4-2 times at three (planning/closure_stage2_design.md sections 47 and 63): `quadFactor` = 1.5 uses the EMF coefficient \f$c\f$ for the EMF and 1.5 c for the others. The default 1 is the
+    original closure with one coefficient. The sources stay divergences, so the conservation properties do not depend on it.
     - `limiter`: 0 none; 1 zero the source in cells where the local energy exchange \f$J\cdot\mathcal{E}\f$, \f$J = \nabla\times B\f$, is negative
     (backscatter), a stabiliser for diagnosing instability.
   @par Diagnostics
@@ -48,13 +52,14 @@ class SubfilterGradient : public ModelExtension
 
     double c;               //!< Filter variance coefficient: sigma^2 = c * Delta^2
     double sigma2;          //!< Filter variance, c * dx^2
+    double quadFactor;      //!< Factor on sigma^2 in the quadratic gradient parts of the Maxwell-stress and Poynting-flux deficits (default 1)
     int densityTerm;        //!< Include the density-weighting term of the EMF (zeta = 1)
     int limiter;            //!< 0: none, 1: zero the source where J.EMF < 0
     double lastExchange;    //!< Local integral of J.EMF over the interior at the last call
     double lastExchangeAbs; //!< Local integral of |J.EMF| over the interior at the last call
 
     //! Constructor: allocates the work arrays and d->sourceExtension (Ncons variables)
-    SubfilterGradient(Data * data, double c, int densityTerm=0, int limiter=0);
+    SubfilterGradient(Data * data, double c, int densityTerm=0, int limiter=0, double quadFactor=1.0);
 
     virtual ~SubfilterGradient();
 

@@ -8,8 +8,8 @@ BUILD="$(mktemp -d)"
 cd "$BUILD"
 cp "$SRC/Include/subfilterGradient.h" "$SRC/Include/modelExtension.h" "$SRC/Src/subfilterGradient.cc" "$HERE/mock/simData.h" "$HERE/test.cc" "$HERE/reference.py" .
 g++ -std=c++11 -O2 -I. test.cc subfilterGradient.cc -o test
-for args in "0 0 3.0" "1 0 3.0" "0 1 3.0"; do
-  echo "== densityTerm limiter c = $args"
+for args in "0 0 3.0 1.0" "1 0 3.0 1.0" "0 1 3.0 1.0" "0 0 3.0 1.5" "1 0 3.0 2.0"; do
+  echo "== densityTerm limiter c quadFactor = $args"
   ./test $args out.bin
   python3 reference.py $args out.bin
 done

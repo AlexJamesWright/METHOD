@@ -1,6 +1,6 @@
 // Runs the real SubfilterGradient::sourceExtension on analytic periodic fields on a 32^3 grid with 4 ghost layers (mock Data) and
 // writes the source array to a file; reference.py recomputes it in numpy from the formulas and compares.
-//   ./test densityTerm limiter c out.bin
+//   ./test densityTerm limiter c quadFactor out.bin
 #include "subfilterGradient.h"
 #include <cmath>
 #include <cstdio>
@@ -9,7 +9,7 @@
 
 int main(int argc, char ** argv) {
   const int densityTerm(atoi(argv[1])), limiter(atoi(argv[2]));
-  const double c(atof(argv[3]));
+  const double c(atof(argv[3])), quadFactor(atof(argv[4]));
   const int n(32), Ng(4), Nn(n + 2 * Ng);
   const double h(1.0 / n), TWO_PI(2.0 * M_PI);
   Data d;
@@ -34,10 +34,10 @@ int main(int argc, char ** argv) {
     prims[6 * N + cell] = 0.8 * co[1] * s[2];
     prims[7 * N + cell] = 0.6 * co[2] * s[0];
   }
-  SubfilterGradient closure(&d, c, densityTerm, limiter);
+  SubfilterGradient closure(&d, c, densityTerm, limiter, quadFactor);
   closure.sourceExtension(NULL, prims.data(), NULL, d.sourceExtension);
 
-  FILE * f = fopen(argv[4], "wb");
+  FILE * f = fopen(argv[5], "wb");
   fwrite(d.sourceExtension, sizeof(double), 9 * N, f);
   fclose(f);
 
