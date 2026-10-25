@@ -66,7 +66,9 @@ def main():
     ref = (crossing(R[:, 0], R[:, 1], 1e-6, False), crossing(R[:, 0], R[:, 1], 2e-5, False), crossing(R[:, 0], R[:, 2], 0.2, True))
     B = read(a.baseline_log)
     print("%-14s %-15s %-15s %-6s %-15s %-9s %-7s %-8s" % ("run", "t(Emag=1e-6) dly", "t(Emag=2e-5) dly", "rate", "t(Ekin=.2) dly", "Emag/base", "fails", "X/E pk"))
-    print("%-14s %7.2f %6s   %7.2f %6s  %6.2f   %7.2f %6s" % ("reference", ref[0], "", ref[1], "", np.log(20.0) / (ref[1] - ref[0]), ref[2], ""))
+    g = lambda x: "%7.2f" % x if x is not None else "%7s" % "-"
+    rr = "%6.2f" % (np.log(20.0) / (ref[1] - ref[0])) if ref[0] is not None and ref[1] is not None else "%6s" % "-"
+    print("%-14s %s %6s   %s %6s  %s   %s %6s" % ("reference", g(ref[0]), "", g(ref[1]), "", rr, g(ref[2]), ""))
     items = [("baseline", a.baseline_log, lambda: B)] + [(r.split(':', 1)[0], r.split(':', 1)[1], (lambda p=r.split(':', 1)[1]: read(p))) for r in a.runs]
     for label, log, load in items:
         D = load()
