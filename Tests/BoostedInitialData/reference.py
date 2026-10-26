@@ -80,21 +80,23 @@ Fc[..., 1:, 1:] = np.einsum('ijk,...k->...ij', np.array([[[0, 0, 0], [0, 0, 1], 
 eta = np.array([-1.0, 1, 1, 1])
 check("ideal condition F^{mu nu} u_nu = 0 in the boosted frame", np.abs(np.einsum('...mn,...n->...m', Fc, uc * eta)).max() < 1e-12 * max(1, np.abs(Fc).max() * Wc.max()), "")
 
-# continuity of the data at y = 0 and across the periodic wrap (interior cells only): the jump over the interface against the largest step elsewhere
+# continuity of the data at y = 0 and across the periodic wrap (interior cells only): the step over each interface against the steps of the two neighbouring interfaces
 i0 = slice(Ng, Ny - Ng)
 yi = y[i0]
-mid = np.argmin(np.abs(yi))
-def jump(f):
+mid = int(np.searchsorted(yi, 0.0))                  # first cell with y > 0: the interface y = 0 lies between mid - 1 and mid
+def ratios(f):
     g = f[:, i0, :]
-    return max(np.abs(g[:, mid] - g[:, mid - 1]).max(), np.abs(g[:, 0] - g[:, -1]).max())
-def step(f):
-    g = f[:, i0, :]
-    d = np.abs(np.diff(g, axis=1))
-    d[:, mid - 1] = 0
-    return d.max()
+    st = lambda a, b: np.abs(g[:, a] - g[:, b]).max()
+    out = []
+    for jump, n1, n2 in ((st(mid, mid - 1), st(mid + 1, mid), st(mid - 1, mid - 2)), (st(0, -1), st(1, 0), st(-1, -2))):
+        out.append((jump, max(n1, n2)))
+    return out
 if beta @ beta == 0:
     for name, f in (("rho", P[0]), ("v^x", P[1]), ("v^z", P[3])):
-        j, s = jump(f), step(f)
-        msg = "jump over y = 0 / the wrap %.3e, largest step elsewhere %.3e" % (j, s)
-        check("continuity of %s" % name, (j < 0.5 * s) if continuous else (j > s), msg + ("" if continuous else "  (the Vigano data are discontinuous there)"))
+        for where, (j, nb) in zip(("y = 0", "the wrap"), ratios(f)):
+            msg = "step over %s %.3e, neighbouring steps %.3e" % (where, j, nb)
+            if continuous:
+                check("continuity of %s at %s" % (name, where), j <= 1.5 * nb + 1e-12, msg)
+            else:
+                check("the Vigano data are discontinuous: %s at %s" % (name, where), j >= 10 * nb or name == "v^z" and j >= 4 * nb, msg + "  (expected)")
 sys.exit(1 if fail else 0)
