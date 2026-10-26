@@ -23,6 +23,8 @@
 //                WENO5, 7, 9, 11; planning/closure_stage2_design.md section 24): about 0.78, 0.70, 0.66 are the equivalents of 0.9 for WENO5
 //   integrator   the time integrator: 3 (default, SSPRK(3,3)), 2 (SSPRK(2,2)), 4 (SSPRK(5,4), 5 stages) or 10 (SSPRK(10,4), 10 stages); all treat the flux and the closure source in one
 //                right-hand side. The cost per step is the number of stages (2, 3, 5, 10); the time error of RK3 is a plausible part of the numerical dissipation of WENO7 (planning/closure_stage2_design.md section 39)
+//   betaX betaY betaZ continuous   (arguments 17-20) the continuous Vigano data (continuous = 1, the default; 0 = with the sgn(y) factors) boosted to the frame moving with this velocity
+//                relative to the rest frame (KHInstabilitySingleFluidVigano2020Boosted, planning/closure_stage2_design.md sections 69-70); omitted: the original Vigano data
 //   quadFactor   (16th argument) factor on sigma^2 in the quadratic gradient parts of the stress and Poynting deficits (1 = the original closure; about 1.5: planning/closure_stage2_design.md section 63)
 //
 // Files: frame.checkpoint.<t>.hdf5 (primitive variables, one per output time; the time is in the file attribute `t`) and
@@ -116,6 +118,9 @@ int main(int argc, char *argv[]) {
   if (argc > 14) cfl = atof(argv[14]);
   const int integrator(argc > 15 ? atoi(argv[15]) : 3);
   const double quadFactor(argc > 16 ? atof(argv[16]) : 1.0);
+  const bool boosted(argc > 17);                                     // arguments 17-20 select the continuous, optionally boosted initial data
+  const double betaX(argc > 17 ? atof(argv[17]) : 0.0), betaY(argc > 18 ? atof(argv[18]) : 0.0), betaZ(argc > 19 ? atof(argv[19]) : 0.0);
+  const int continuous(argc > 20 ? atoi(argv[20]) : 1);
   if (integrator != 2 && integrator != 3 && integrator != 4 && integrator != 10) {
     printf("ERROR: integrator must be 2, 3, 4 or 10\n");
     return 1;
@@ -151,7 +156,10 @@ int main(int argc, char *argv[]) {
 
   Simulation sim(&data, &env);
 
-  KHInstabilitySingleFluidVigano2020 init(&data, 1);
+  // Without arguments 17-20 the original (discontinuous) Vigano data; with them the continuous data boosted to the velocity (betaX, betaY, betaZ)
+  InitialFunc * init(NULL);
+  if (boosted) init = new KHInstabilitySingleFluidVigano2020Boosted(&data, 1, betaX, betaY, betaZ, continuous);
+  else init = new KHInstabilitySingleFluidVigano2020(&data, 1);
 
   SubfilterGradient * closure = NULL;
   if (closureC > 0.0) closure = new SubfilterGradient(&data, closureC, closureDensityTerm, closureLimiter, quadFactor);
@@ -161,7 +169,7 @@ int main(int argc, char *argv[]) {
   ParallelSaveDataHDF5 save(&data, &env, "data_unused", ParallelSaveDataHDF5::OUTPUT_ALL);
   ParallelSaveDataHDF5 frames(&data, &env, "frame", ParallelSaveDataHDF5::OUTPUT_MINIMAL);        // primitive variables
 
-  sim.set(&init, &model, timeInt, &bcs, &fluxMethod, &save);
+  sim.set(init, &model, timeInt, &bcs, &fluxMethod, &save);
 
   if (env.rank==0) {
     printf("Running %dx%dx%d to t = %g, WENO%d (Ng = %d), RK%d, cfl %g, closure c = %g (density term %d, limiter %d, quad factor %g), %d output times\n",
