@@ -621,6 +621,101 @@ KHInstabilitySingleFluidVigano2020::KHInstabilitySingleFluidVigano2020(Data * da
 }
 
 
+KHInstabilitySingleFluidVigano2020Boosted::KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag, double betaX, double betaY, double betaZ, int continuous) : InitialFunc(data)
+{
+  // Syntax
+  Data * d(data);
+
+  if (d->Nprims > 15) throw std::invalid_argument("Trying to implement a single fluid initial state on incorrect model.\n\tModel has wrong number of primitive variables to be single fluid model.");
+  if (d->xmin != -0.5 || d->xmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected x E [-0.5, 0.5]\n");
+  if (d->ymin != -0.5 || d->ymax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected y E [-0.5, 0.5]\n");
+  if (d->zmin != -0.5 || d->zmax != 0.5) throw std::invalid_argument("Domain has incorrect values. Expected z E [-0.5, 0.5]\n");
+
+  const double beta[3] = {betaX, betaY, betaZ};
+  const double beta2(betaX * betaX + betaY * betaY + betaZ * betaZ);
+  if (beta2 >= 1.0) throw std::invalid_argument("The boost velocity must be subluminal.\n");
+  const double gb(1.0 / sqrt(1.0 - beta2));
+
+  // The constants of KHInstabilitySingleFluidVigano2020
+  const double B0(0.001), p0(1.0), rho0(2.0), rho1(1.0), yl(0.25), al(0.01);
+  const double v0x(0.5), v0y(0.0), v0z(0.5);
+  const double dvx(0.01), dvy(0.1), dvz(0.01);
+  const double nx(11), ny(7), nz(5);
+  const double sigy2(0.01), sigz2(0.1);
+  const double Lx(d->xmax - d->xmin), Ly(d->ymax - d->ymin), Lz(d->zmax - d->zmin);
+
+  for (int i(0); i < d->Nx; i++) {
+    for (int j(0); j < d->Ny; j++) {
+      const double y(d->y[j]);
+      const double sgn((y > 0.0) - (y < 0.0));
+      const double ay(fabs(y));
+      const double layer(tanh((ay - yl) / al));
+      const double envelope(exp(-(ay - yl) * (ay - yl) / sigy2));      // v^y perturbation
+      const double envelopeZ(exp(-(ay - yl) * (ay - yl) / sigz2));     // v^z base flow
+      for (int k(0); k < d->Nz; k++) {
+
+        // Rest-frame state
+        double rho, v[3];
+        if (continuous) {
+          rho = rho0 + rho1 * layer;
+          v[0] = v0x * layer + dvx * sin(2*PI*nx*d->x[i] / Lx);
+          v[1] = v0y * layer + dvy * sin(2*PI*ny*ay / Ly) * envelope;
+          v[2] = v0z * sin(2*PI*y / Ly) * envelopeZ + dvz * sin(2*PI*nz*d->z[k] / Lz);
+        } else {
+          rho = rho0 + rho1 * sgn * layer;
+          v[0] = v0x * sgn * layer + dvx * sin(2*PI*nx*d->x[i] / Lx);
+          v[1] = v0y * sgn * layer + dvy * sin(2*PI*ny*y / Ly) * sgn * envelope;
+          v[2] = v0z * sgn * envelopeZ + dvz * sin(2*PI*nz*d->z[k] / Lz);
+        }
+        double B[3] = {mag ? B0 : 0.0, 0.0, 0.0};
+
+        const double v2rest(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        if (v2rest >= 1.0) throw std::runtime_error("Vigano2020 KHI initial data has a superluminal velocity.\n");
+
+        // Boost the state (rho and p are scalars)
+        if (beta2 > 0.0) {
+          const double W(1.0 / sqrt(1.0 - v2rest));
+          const double bdotv(beta[0] * v[0] + beta[1] * v[1] + beta[2] * v[2]);
+          const double bdotB(beta[0] * B[0] + beta[1] * B[1] + beta[2] * B[2]);
+          // E = -v x B, then B' = gamma (B - beta x E) - gamma^2/(gamma+1) beta (beta.B)
+          const double E[3] = {-(v[1] * B[2] - v[2] * B[1]), -(v[2] * B[0] - v[0] * B[2]), -(v[0] * B[1] - v[1] * B[0])};
+          const double bxE[3] = {beta[1] * E[2] - beta[2] * E[1], beta[2] * E[0] - beta[0] * E[2], beta[0] * E[1] - beta[1] * E[0]};
+          const double u0new(gb * W * (1.0 - bdotv));
+          double vnew[3], Bnew[3];
+          for (int m(0); m < 3; m++) {
+            const double unew(W * v[m] + (gb - 1.0) / beta2 * W * bdotv * beta[m] - gb * W * beta[m]);
+            vnew[m] = unew / u0new;
+            Bnew[m] = gb * (B[m] - bxE[m]) - gb * gb / (gb + 1.0) * beta[m] * bdotB;
+          }
+          for (int m(0); m < 3; m++) { v[m] = vnew[m]; B[m] = Bnew[m]; }
+        }
+
+        d->prims[ID(0, i, j, k)] = rho;
+        d->prims[ID(1, i, j, k)] = v[0];
+        d->prims[ID(2, i, j, k)] = v[1];
+        d->prims[ID(3, i, j, k)] = v[2];
+        d->prims[ID(4, i, j, k)] = p0;
+        d->prims[ID(5, i, j, k)] = B[0];
+        d->prims[ID(6, i, j, k)] = B[1];
+        d->prims[ID(7, i, j, k)] = B[2];
+
+        const double v2(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        if (v2 >= 1.0) throw std::runtime_error("Boosted Vigano2020 KHI initial data has a superluminal velocity.\n");
+
+        // If we have electric fields, set to the ideal values
+        if (d->Ncons > 9)
+        {
+          d->prims[ID(8, i, j, k)]  = -(d->prims[ID(2, i, j, k)] * d->prims[ID(7, i, j, k)] - d->prims[ID(3, i, j, k)] * d->prims[ID(6, i, j, k)]);
+          d->prims[ID(9, i, j, k)]  = -(d->prims[ID(3, i, j, k)] * d->prims[ID(5, i, j, k)] - d->prims[ID(1, i, j, k)] * d->prims[ID(7, i, j, k)]);
+          d->prims[ID(10, i, j, k)] = -(d->prims[ID(1, i, j, k)] * d->prims[ID(6, i, j, k)] - d->prims[ID(2, i, j, k)] * d->prims[ID(5, i, j, k)]);
+        }
+
+      }
+    }
+  }
+}
+
+
 KHInstabilityTwoFluid::KHInstabilityTwoFluid(Data * data, int mag) : InitialFunc(data)
 {
   // Syntax

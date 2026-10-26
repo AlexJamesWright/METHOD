@@ -253,6 +253,40 @@ class KHInstabilitySingleFluidVigano2020 : public InitialFunc
     virtual ~KHInstabilitySingleFluidVigano2020() { }     //!< Destructor
 };
 
+//! <b> Continuous, optionally Lorentz-boosted version of the Vigano et al. (2020) 3D KHI initial data </b>
+/*!
+      The rest-frame data are those of KHInstabilitySingleFluidVigano2020 with the factors of sgn(y) that make them discontinuous at \f$y = 0\f$ and across the periodic
+    boundary \f$y = \pm L/2\f$ removed (continuous = 1, the default):
+    \f{align}{
+      \rho &= \rho_0 + \rho_1 \tanh((|y| - y_l)/a_l) \\
+      v^x &= v^x_0 \tanh((|y| - y_l)/a_l) + \delta v^x \sin(2\pi n_x x / L) \\
+      v^y &= v^y_0 \tanh((|y| - y_l)/a_l) + \delta v^y \sin(2\pi n_y |y| / L) \exp(-(|y| - y_l)^2/\sigma_y^2) \\
+      v^z &= v^z_0 \sin(2\pi y / L) \exp(-(|y| - y_l)^2/\sigma_z^2) + \delta v^z \sin(2\pi n_z z / L)
+    \f}
+    (the same constants as the Vigano class; two shear layers at \f$y = \pm L/4\f$; \f$v^z\f$ is C^1 and equals the Vigano value \f$\pm v^z_0\f$ at the layers).
+    continuous = 0 gives the Vigano data exactly (with beta = 0 bitwise).
+
+      The state is then Lorentz transformed pointwise to a frame moving with velocity \f$\vec\beta\f$ relative to the rest frame: the rest-frame primitive
+    variables are evaluated with the coordinates of the grid (the box is the same), \f$\rho\f$ and \f$p\f$ are scalars, \f$u'^\mu = \Lambda u^\mu\f$ gives \f$v'\f$, and
+    \f$\vec B' = \gamma(\vec B - \vec\beta\times\vec E) - \gamma^2/(\gamma+1)\vec\beta(\vec\beta\cdot\vec B)\f$ with \f$\vec E = -\vec v\times\vec B\f$; the electric field (if evolved)
+    is set to its ideal value. This is the exact boost at \f$t' = 0\f$ for the part of the data that is independent of time and of the coordinate along the boost
+    (the background for a boost along x or z) and a valid different realisation for the perturbations (the slice t = const is not tilted).
+*/
+class KHInstabilitySingleFluidVigano2020Boosted : public InitialFunc
+{
+  public:
+    /*! Constructor
+      @param[in] *data Pointer to Data class containing global simulation data
+      @param[in] mag Flag for the seed magnetic field B_x = 0.001 in the rest frame (1, the default, or 0)
+      @param[in] betaX, betaY, betaZ Velocity of the new frame relative to the rest frame, |beta| < 1 (default 0)
+      @param[in] continuous 1 (default): the continuous data above; 0: the Vigano data with the sgn(y) factors
+      @sa InitialFunc
+    */
+    KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag=1, double betaX=0.0, double betaY=0.0, double betaZ=0.0, int continuous=1);
+
+    virtual ~KHInstabilitySingleFluidVigano2020Boosted() { }     //!< Destructor
+};
+
 //! <b> Single-fluid Kelvin-Helmholtz instability with random interface </b>
 /*!
       Modified from Fjordholm et al. This is a two-dimensional
