@@ -3,6 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=64             # must equal RX*RY*RZ below (4*4*4)
 #SBATCH --cpus-per-task=1
+#SBATCH --exclusive             # a 64-rank job must not share its node: two jobs on one node ran at half speed (3 s/step instead of 1.5)
 #SBATCH --time=10:00:00         # WENO7 baseline: see its sacct line; WENO9 about 5 h (t = 5.3 after about 2 h); generous
 #SBATCH --partition=batch       # set to the partition you use
 #SBATCH --array=0-12
