@@ -4,7 +4,7 @@ Independent numpy check of KHInstabilitySingleFluidVigano2020Boosted: the rest-f
 acting on u^mu and on F^{mu nu} (F^{0i} = E_i, F^{ij} = eps_ijk B_k, E = -v x B), and compared with the primitives written by test.cc; also checks F u = 0 in the boosted
 frame, the scalars rho and p, and the continuity of the data at y = 0 and across the periodic wrap.
 
-    python3 reference.py out.bin betaX betaY betaZ continuous mag
+    python3 reference.py out.bin betaX betaY betaZ continuous mag [layerWidth]
 """
 import sys
 
@@ -13,6 +13,7 @@ import numpy as np
 fn = sys.argv[1]
 beta = np.array([float(a) for a in sys.argv[2:5]])
 continuous, mag = int(sys.argv[5]), int(sys.argv[6])
+width = float(sys.argv[7]) if len(sys.argv) > 7 else 0.01
 
 with open(fn, 'rb') as fh:
     Nx, Ny, Nz, Np, Ng = np.fromfile(fh, dtype=np.int32, count=5)
@@ -22,7 +23,7 @@ with open(fn, 'rb') as fh:
     P = np.fromfile(fh, dtype=np.float64).reshape(Np, Nx, Ny, Nz)
 
 X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
-B0, p0, rho0, rho1, yl, al = 0.001, 1.0, 2.0, 1.0, 0.25, 0.01
+B0, p0, rho0, rho1, yl, al = 0.001, 1.0, 2.0, 1.0, 0.25, width
 v0x, v0y, v0z, dvx, dvy, dvz = 0.5, 0.0, 0.5, 0.01, 0.1, 0.01
 nx, ny, nz, sy2, sz2 = 11, 7, 5, 0.01, 0.1
 sgn, ay = np.sign(Y), np.abs(Y)

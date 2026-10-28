@@ -29,3 +29,10 @@ for args in "0 0 0 1 1" "0 0 0 0 1" "0 0 0.5 1 1" "0 0 0.9 1 1" "0 0 0.99 1 1" "
   ./test 32 $args out.bin | sed 's/^/   /'
   $PY "$HERE/reference.py" out.bin $args | sed 's/^/   /'
 done
+# wider shear layers (the layer width is an argument)
+for wargs in "0 0 0 1 1 0.03" "0 0 0.9 1 1 0.03" "0 0 0.8 1 1 0.05"; do
+  set -- $wargs
+  echo "== betaX betaY betaZ continuous mag layerWidth = $wargs"
+  ./test 32 $1 $2 $3 $4 $5 out.bin $6 | sed 's/^/   /'
+  $PY "$HERE/reference.py" out.bin $1 $2 $3 $4 $5 $6 | sed 's/^/   /'
+done

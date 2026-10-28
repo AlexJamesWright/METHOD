@@ -1,6 +1,6 @@
 // Builds the boosted continuous Vigano KHI initial data on a small serial 3D grid and writes the primitive variables to a file for reference.py.
 // Also checks, inside C++, that continuous = 0 with beta = 0 reproduces KHInstabilitySingleFluidVigano2020 bitwise.
-//   ./test n betaX betaY betaZ continuous mag out.bin
+//   ./test n betaX betaY betaZ continuous mag out.bin [layerWidth]
 #include "simData.h"
 #include "simulation.h"
 #include "initFunc.h"
@@ -17,9 +17,10 @@
 #include <vector>
 
 int main(int argc, char ** argv) {
-  if (argc < 8) { printf("usage: test n betaX betaY betaZ continuous mag out.bin\n"); return 1; }
+  if (argc < 8) { printf("usage: test n betaX betaY betaZ continuous mag out.bin [layerWidth]\n"); return 1; }
   const int n(atoi(argv[1])), continuous(atoi(argv[5])), mag(atoi(argv[6]));
   const double bx(atof(argv[2])), by(atof(argv[3])), bz(atof(argv[4]));
+  const double layerWidth(argc > 8 ? atof(argv[8]) : 0.01);
 
   SerialEnv env(&argc, &argv, 1, 1, 1);
   Data data(n, n, n, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 1.0, &env, 0.6, 4, 4.0 / 3.0, 10, 1.0, -100, 100, 10, 50);
@@ -41,7 +42,7 @@ int main(int argc, char ** argv) {
     printf("continuous = 0, beta = 0 against KHInstabilitySingleFluidVigano2020: max |difference| %.3e (%s)\n", maxdiff, maxdiff == 0.0 ? "bitwise equal" : "DIFFERENT");
   }
 
-  KHInstabilitySingleFluidVigano2020Boosted init(&data, mag, bx, by, bz, continuous);
+  KHInstabilitySingleFluidVigano2020Boosted init(&data, mag, bx, by, bz, continuous, layerWidth);
 
   FILE * f = fopen(argv[7], "wb");
   const int hdr[5] = {data.Nx, data.Ny, data.Nz, data.Nprims, data.Ng};
@@ -51,6 +52,6 @@ int main(int argc, char ** argv) {
   fwrite(data.z, sizeof(double), data.Nz, f);
   fwrite(data.prims, sizeof(double), data.Nprims * N, f);
   fclose(f);
-  printf("wrote %d^3 cells (with ghosts), %d primitives, beta = (%g, %g, %g), continuous = %d\n", data.Nx, data.Nprims, bx, by, bz, continuous);
+  printf("wrote %d^3 cells (with ghosts), %d primitives, beta = (%g, %g, %g), continuous = %d, layer width %g\n", data.Nx, data.Nprims, bx, by, bz, continuous, layerWidth);
   return 0;
 }

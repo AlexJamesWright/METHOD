@@ -33,6 +33,7 @@
 # CONTINUOUS (1 = the continuous data, the default when any of these is set; 0 = the sgn(y) data); when none is set the original Vigano data. Use the nil closure (task 4: c = 1e-9) with RK4:
 #     sbatch --array=4 --export=ALL,INTEGRATOR=4,CFL=0.9,CONTINUOUS=1 submit_weno_closure.sh                 # the unboosted continuous control, directory weno7_c0.000000001_cfl0.9_rk4_cont
 #     sbatch --array=4 --export=ALL,INTEGRATOR=4,CFL=0.9,BETAZ=0.9 --time=30:00:00 submit_weno_closure.sh     # boosted along z, directory ..._rk4_bz0.9
+# LAYERWIDTH=0.03 (21st argument): the width a_l of the shear layers of that data (default 0.01; 0.03 is 4 cells at 128^3; the directory gets _al0.03): the control and every boost must use the same width
 # The box sees the dynamics dilated by gamma = 1/sqrt(1 - beta^2): ENDTIME (default 14 gamma when boosted, 14 otherwise) and the frame times (the file TIMESFILE, default ../times.txt, times gamma) are scaled, and
 # the run needs about gamma times as many steps: raise --time (gamma = 7.1 at beta = 0.99). The times in ../times.txt are those of the 384^3 reference of the ORIGINAL problem: for the continuous problem give
 # the end time and a times file of your own (ENDTIME=, TIMESFILE=).
@@ -70,7 +71,7 @@ if [ -n "${QFACTOR:-}" ]; then
 fi
 # Continuous / boosted initial data: arguments 17-20 (betaX betaY betaZ continuous) after earlyCfl tEarly cfl integrator quadFactor
 BOOSTED=0; GAMMA=1
-if [ -n "${BETAX:-}${BETAY:-}${BETAZ:-}${CONTINUOUS:-}" ]; then
+if [ -n "${BETAX:-}${BETAY:-}${BETAZ:-}${CONTINUOUS:-}${LAYERWIDTH:-}" ]; then
   BOOSTED=1
   BX="${BETAX:-0}"; BY="${BETAY:-0}"; BZ="${BETAZ:-0}"
   [ -n "$EXTRA" ] || EXTRA="0 0"
@@ -78,6 +79,7 @@ if [ -n "${BETAX:-}${BETAY:-}${BETAZ:-}${CONTINUOUS:-}" ]; then
   [ "$(echo $EXTRA | wc -w)" -ge 4 ] || EXTRA="$EXTRA 3"
   [ "$(echo $EXTRA | wc -w)" -ge 5 ] || EXTRA="$EXTRA 1"
   EXTRA="$EXTRA $BX $BY $BZ ${CONTINUOUS:-1}"
+  [ -z "${LAYERWIDTH:-}" ] || EXTRA="$EXTRA $LAYERWIDTH"          # LAYERWIDTH: the width a_l of the shear layers (default 0.01; 0.03 is 4 cells at 128^3)
   GAMMA="$(awk -v a="$BX" -v b="$BY" -v c="$BZ" 'BEGIN { print 1 / sqrt(1 - (a * a + b * b + c * c)) }')"
   SUF=""
   for comp in "x:$BX" "y:$BY" "z:$BZ"; do
@@ -86,6 +88,7 @@ if [ -n "${BETAX:-}${BETAY:-}${BETAZ:-}${CONTINUOUS:-}" ]; then
   done
   [ -n "$SUF" ] || SUF="_cont"
   [ "${CONTINUOUS:-1}" = "1" ] || SUF="${SUF}_sgn"
+  [ -z "${LAYERWIDTH:-}" ] || SUF="${SUF}_al${LAYERWIDTH}"
   RUN="${RUN}${SUF}"
 fi
 RUN="${RUN}${TAG:-}"          # TAG: a suffix for the directory, to repeat a run without overwriting it (e.g. TAG=_fr for the same run with frames)

@@ -621,7 +621,7 @@ KHInstabilitySingleFluidVigano2020::KHInstabilitySingleFluidVigano2020(Data * da
 }
 
 
-KHInstabilitySingleFluidVigano2020Boosted::KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag, double betaX, double betaY, double betaZ, int continuous) : InitialFunc(data)
+KHInstabilitySingleFluidVigano2020Boosted::KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag, double betaX, double betaY, double betaZ, int continuous, double layerWidth) : InitialFunc(data)
 {
   // Syntax
   Data * d(data);
@@ -634,10 +634,11 @@ KHInstabilitySingleFluidVigano2020Boosted::KHInstabilitySingleFluidVigano2020Boo
   const double beta[3] = {betaX, betaY, betaZ};
   const double beta2(betaX * betaX + betaY * betaY + betaZ * betaZ);
   if (beta2 >= 1.0) throw std::invalid_argument("The boost velocity must be subluminal.\n");
+  if (!(layerWidth > 0.0)) throw std::invalid_argument("The shear layer width must be positive.\n");
   const double gb(1.0 / sqrt(1.0 - beta2));
 
   // The constants of KHInstabilitySingleFluidVigano2020
-  const double B0(0.001), p0(1.0), rho0(2.0), rho1(1.0), yl(0.25), al(0.01);
+  const double B0(0.001), p0(1.0), rho0(2.0), rho1(1.0), yl(0.25), al(layerWidth);
   const double v0x(0.5), v0y(0.0), v0z(0.5);
   const double dvx(0.01), dvy(0.1), dvz(0.01);
   const double nx(11), ny(7), nz(5);

@@ -280,9 +280,10 @@ class KHInstabilitySingleFluidVigano2020Boosted : public InitialFunc
       @param[in] mag Flag for the seed magnetic field B_x = 0.001 in the rest frame (1, the default, or 0)
       @param[in] betaX, betaY, betaZ Velocity of the new frame relative to the rest frame, |beta| < 1 (default 0)
       @param[in] continuous 1 (default): the continuous data above; 0: the Vigano data with the sgn(y) factors
+      @param[in] layerWidth Width a_l of the tanh shear layers (default 0.01, the value of Vigano et al.; a wider layer, e.g. 0.03, is resolved by more cells)
       @sa InitialFunc
     */
-    KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag=1, double betaX=0.0, double betaY=0.0, double betaZ=0.0, int continuous=1);
+    KHInstabilitySingleFluidVigano2020Boosted(Data * data, int mag=1, double betaX=0.0, double betaY=0.0, double betaZ=0.0, int continuous=1, double layerWidth=0.01);
 
     virtual ~KHInstabilitySingleFluidVigano2020Boosted() { }     //!< Destructor
 };
